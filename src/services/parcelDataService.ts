@@ -11,7 +11,11 @@
  * the upstream payload has many more keys, but extending this type as the UI
  * grows is cheap and the surface stays scoped to what's used.
  */
-const RES_PARCEL_DATA_URL = 'https://res.zeroo.ch/res_api/parcel_data';
+// Calls go through the Vercel Edge proxy in `api/parcel-data.ts`, which
+// injects the RES_API_TOKEN server-side so it never reaches the browser.
+// In dev, the relative URL hits whatever `vercel dev` or the Vite proxy
+// resolves; in prod it hits room's own /api/parcel-data Edge function.
+const PARCEL_DATA_URL = '/api/parcel-data';
 
 export interface ParcelData {
   /** BFS commune number — joins parcel to municipality/zone aggregates. */
@@ -74,7 +78,7 @@ export class ParcelDataError extends Error {
 export async function fetchParcelData(req: ParcelDataRequest): Promise<ParcelData> {
   let res: Response;
   try {
-    res = await fetch(RES_PARCEL_DATA_URL, {
+    res = await fetch(PARCEL_DATA_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
