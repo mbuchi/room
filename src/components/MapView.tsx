@@ -451,6 +451,7 @@ const MapView = () => {
         <ClaireAssistant
           appName="room"
           geminiApiKey={import.meta.env.VITE_GEMINI_API_KEY as string | undefined}
+          voiceCallEnabled
           darkMode={true}
           properties={selectedParcel.props}
           lngLat={{ lng: selectedParcel.lng, lat: selectedParcel.lat }}
