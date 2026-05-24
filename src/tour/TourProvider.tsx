@@ -1,0 +1,193 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import Joyride, {
+  type CallBackProps,
+  STATUS,
+  type Step,
+} from "react-joyride";
+
+import { appTourConfig } from "./tour.config";
+import { TourTooltip } from "./TourTooltip";
+import type { TourVariant } from "./tour.types";
+import { hasCompletedTour, markTourCompleted } from "./tourStorage";
+
+type TourContextValue = {
+  startTour: (variant: TourVariant) => void;
+};
+
+const TourContext = createContext<TourContextValue | null>(null);
+
+const SUITE_WORDMARK_RED = "#DC2626";
+
+// groove has no ThemeContext — derive dark mode from the DOM instead.
+function detectDarkMode(): boolean {
+  if (typeof document === "undefined") return false;
+  if (document.documentElement.classList.contains("dark")) return true;
+  return document.querySelector(".dark") !== null;
+}
+
+// Tooltip styling lives in TourTooltip.tsx (custom tooltipComponent). These
+// styles only configure pieces Joyride still owns: the overlay, the spotlight
+// cutout, and shared options like zIndex / primaryColor. The overlay is
+// theme-aware — a near-black wash in dark mode, a softer slate wash in light.
+function buildJoyrideStyles(primaryColor: string, isDarkMode: boolean) {
+  return {
+    options: {
+      zIndex: 10000,
+      primaryColor,
+      overlayColor: isDarkMode
+        ? "rgba(2, 6, 23, 0.62)"
+        : "rgba(15, 23, 42, 0.42)",
+    },
+    overlay: {
+      backdropFilter: "blur(3px)",
+      WebkitBackdropFilter: "blur(3px)",
+    },
+    spotlight: {
+      borderRadius: 14,
+      boxShadow: isDarkMode
+        ? "0 0 0 1px rgba(255,255,255,0.08), 0 12px 32px rgba(0,0,0,0.45)"
+        : "0 0 0 1px rgba(255,255,255,0.65), 0 12px 32px rgba(2,6,23,0.18)",
+    },
+  };
+}
+
+function pickAutoStartVariant(): TourVariant | null {
+  const b = appTourConfig.behavior;
+  // Long takes precedence — scoore opts out of short entirely.
+  if (b.autoStartLongTour && appTourConfig.variants.long.length > 0) return "long";
+  if (b.autoStartShortTour && appTourConfig.variants.short.length > 0) return "short";
+  return null;
+}
+
+function targetExists(selector: string) {
+  if (typeof document === "undefined") return false;
+  return Boolean(document.querySelector(selector));
+}
+
+function toJoyrideSteps(variant: TourVariant): Step[] {
+  return appTourConfig.variants[variant]
+    .filter((step) => {
+      if (!appTourConfig.behavior.skipMissingTargets) return true;
+      return step.optional || targetExists(step.target);
+    })
+    .map((step) => ({
+      target: step.target,
+      title: step.title,
+      content: step.body,
+      placement: step.placement ?? "auto",
+      disableBeacon: step.disableBeacon ?? true,
+      spotlightClicks: step.spotlightClicks ?? false,
+      // Leave undefined so Joyride's global `disableScrolling` prop wins. A
+      // per-step boolean (even `false`) overrides the global setting, which
+      // would let individual steps scroll the page despite behavior.disableScrolling.
+      ...(step.disableScrolling === undefined
+        ? {}
+        : { disableScrolling: step.disableScrolling }),
+    }));
+}
+
+export function TourProvider({ children }: { children: ReactNode }) {
+  const [run, setRun] = useState(false);
+  const [variant, setVariant] = useState<TourVariant>(
+    () => pickAutoStartVariant() ?? "long",
+  );
+
+  const steps = useMemo(() => toJoyrideSteps(variant), [variant, run]);
+  const joyrideStyles = useMemo(
+    () =>
+      buildJoyrideStyles(
+        appTourConfig.behavior.primaryColor ?? SUITE_WORDMARK_RED,
+        detectDarkMode(),
+      ),
+    [run],
+  );
+
+  const startTour = useCallback((nextVariant: TourVariant) => {
+    setVariant(nextVariant);
+    setRun(false);
+    window.setTimeout(() => setRun(true), 50);
+  }, []);
+
+  useEffect(() => {
+    const auto = pickAutoStartVariant();
+    if (!auto) return;
+    if (
+      hasCompletedTour(
+        appTourConfig.appId,
+        appTourConfig.tourVersion,
+        auto,
+      )
+    ) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setVariant(auto);
+      setRun(true);
+    }, 700);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  function handleCallback(data: CallBackProps) {
+    const finished: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
+    if (finished.includes(data.status)) {
+      markTourCompleted(
+        appTourConfig.appId,
+        appTourConfig.tourVersion,
+        variant,
+        appTourConfig.behavior.completionTtlDays,
+      );
+      setRun(false);
+    }
+  }
+
+  return (
+    <TourContext.Provider value={{ startTour }}>
+      {children}
+      {/* Keyframe used by TourTooltip's fade-in. Joyride renders the tooltip
+          via a portal to document.body, so the animation needs a global
+          stylesheet — inlining it here keeps the tour module self-contained. */}
+      <style>{`
+        @keyframes swissnovoTourFadeIn {
+          from { opacity: 0; transform: translateY(6px) scale(0.985); }
+          to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+      `}</style>
+      <Joyride
+        steps={steps}
+        run={run}
+        continuous
+        disableScrolling={appTourConfig.behavior.disableScrolling ?? false}
+        showProgress={appTourConfig.behavior.showProgress}
+        showSkipButton={appTourConfig.behavior.showSkipButton}
+        scrollToFirstStep={appTourConfig.behavior.scrollToFirstStep}
+        callback={handleCallback}
+        tooltipComponent={TourTooltip}
+        locale={{
+          back: appTourConfig.copy.backLabel,
+          close: appTourConfig.copy.doneLabel,
+          last: appTourConfig.copy.doneLabel,
+          next: appTourConfig.copy.nextLabel,
+          skip: appTourConfig.copy.skipLabel,
+        }}
+        styles={joyrideStyles}
+      />
+    </TourContext.Provider>
+  );
+}
+
+export function useTour() {
+  const ctx = useContext(TourContext);
+  if (!ctx) {
+    throw new Error("useTour must be used inside <TourProvider>");
+  }
+  return ctx;
+}
