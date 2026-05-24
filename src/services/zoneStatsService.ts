@@ -116,9 +116,12 @@ export async function fetchZoneStats(
   const hit = cache.get(cacheKey(req));
   if (hit) return hit;
 
-  let res: Response;
-  try {
-    res = await fetch(ZONE_STATS_URL, {
+  // RES's first call for an uncached (fso, cz_local) can take ~45s; the
+  // Vercel function may still 504 if that happens behind a CDN/proxy. By
+  // the time we retry, RES has cached the response and the second call
+  // returns in ~1s — so a single retry on 504/502 is cheap insurance.
+  const callOnce = () =>
+    fetch(ZONE_STATS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -127,6 +130,13 @@ export async function fetchZoneStats(
         lang: req.lang ?? 'en',
       }),
     });
+
+  let res: Response;
+  try {
+    res = await callOnce();
+    if (res.status === 504 || res.status === 502) {
+      res = await callOnce();
+    }
   } catch (err) {
     throw new ZoneStatsError(
       err instanceof Error

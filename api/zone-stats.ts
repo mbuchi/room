@@ -4,8 +4,13 @@
 // (added for room in project_RES v1.3.0), injecting the RES token
 // server-side so it never reaches the browser.
 
+// Run on Node.js (not Edge): RES /zone_stats can take ~45s on the first
+// (uncached) call for a previously-unseen (fso, cz_local) — well beyond
+// the Edge runtime's ~25s wall-time. Subsequent calls hit RES's LRU and
+// drop to ~1s, but the first user to query a zone must not get a 504.
 export const config = {
-  runtime: "edge",
+  runtime: "nodejs",
+  maxDuration: 60,
 };
 
 const corsHeaders = {
