@@ -15,7 +15,9 @@
  * instant. The RES backend keeps its own LRU; this client cache shaves the
  * network round-trip entirely.
  */
-const RES_ZONE_STATS_URL = 'https://res.zeroo.ch/res_api/zone_stats';
+// Calls go through the Vercel Edge proxy in `api/zone-stats.ts`, which
+// injects the RES_API_TOKEN server-side.
+const ZONE_STATS_URL = '/api/zone-stats';
 
 export interface ZoneSummary {
   min: number;
@@ -116,7 +118,7 @@ export async function fetchZoneStats(
 
   let res: Response;
   try {
-    res = await fetch(RES_ZONE_STATS_URL, {
+    res = await fetch(ZONE_STATS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
