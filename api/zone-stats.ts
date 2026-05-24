@@ -1,100 +1,108 @@
-// Vercel Edge Function: /api/zone-stats
+// Vercel Node serverless function: /api/zone-stats
 //
-// Proxies zone aggregate lookups to the RES API's `zone_stats` endpoint
-// (added for room in project_RES v1.3.0), injecting the RES token
-// server-side so it never reaches the browser.
+// Proxies zone aggregate lookups to the RES API's `zone_stats` endpoint,
+// injecting the RES token server-side. Runs on the Node runtime (NOT
+// edge) because RES's first call for an unseen (fso, cz_local) can take
+// ~45s for the SQL aggregate — well beyond the Edge runtime's ~25s
+// wall-time. Subsequent calls hit RES's LRU and return in ~1s.
+//
+// IMPORTANT: Node functions must use the (req, res) handler signature.
+// The Web (Request)=>Response signature only works on the edge runtime
+// — using it under runtime: "nodejs" makes the function hang until it
+// hits maxDuration. See api/claire-pois.ts for the canonical pattern.
 
-// Run on Node.js (not Edge): RES /zone_stats can take ~45s on the first
-// (uncached) call for a previously-unseen (fso, cz_local) — well beyond
-// the Edge runtime's ~25s wall-time. Subsequent calls hit RES's LRU and
-// drop to ~1s, but the first user to query a zone must not get a 504.
-export const config = {
-  runtime: "nodejs",
-  maxDuration: 60,
-};
+export const config = { maxDuration: 60 };
 
-const corsHeaders = {
+const RES_ZONE_STATS_URL =
+  "https://res.zeroo.ch/res_api/zone_stats";
+// Token hardcoded for the same reason as claire-pois.ts: a stale
+// team-level RES_API_TOKEN env var on Vercel would override and break this.
+const RES_API_TOKEN = "DNfbHaqajFigz4jPX9B8vnatUduLKZXVwA83WKZG";
+// Wait up to 55s for RES; leaves headroom under the 60s function cap.
+const UPSTREAM_TIMEOUT_MS = 55000;
+
+const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-const DEFAULT_ZONE_STATS_URL = "https://res.zeroo.ch/res_api/zone_stats";
-
-function readEnv(...names: string[]): string | undefined {
-  const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
-  if (env) {
-    for (const name of names) {
-      const value = env[name];
-      if (value) return value;
-    }
-  }
-  const denoEnv = (globalThis as { Deno?: { env?: { get(name: string): string | undefined } } }).Deno?.env;
-  if (denoEnv) {
-    for (const name of names) {
-      const value = denoEnv.get(name);
-      if (value) return value;
-    }
-  }
-  return undefined;
+interface NodeReq {
+  method?: string;
+  body?: unknown;
+}
+interface NodeRes {
+  setHeader(name: string, value: string): void;
+  status(code: number): NodeRes;
+  json(body: unknown): void;
+  send(body: unknown): void;
+  end(): void;
 }
 
-const ZONE_STATS_URL = readEnv("ZONE_STATS_API_URL") ?? DEFAULT_ZONE_STATS_URL;
-
-function json(body: unknown, status: number): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+function send(res: NodeRes, status: number, body: unknown): void {
+  for (const [k, v] of Object.entries(CORS_HEADERS)) res.setHeader(k, v);
+  res.setHeader("Content-Type", "application/json");
+  res.status(status).json(body);
 }
 
-export default async function handler(req: Request): Promise<Response> {
+export default async function handler(
+  req: NodeReq,
+  res: NodeRes,
+): Promise<void> {
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 200, headers: corsHeaders });
+    for (const [k, v] of Object.entries(CORS_HEADERS)) res.setHeader(k, v);
+    res.status(204).end();
+    return;
   }
   if (req.method !== "POST") {
-    return json({ error: "Method not allowed" }, 405);
+    send(res, 405, { error: "Method not allowed" });
+    return;
   }
 
-  const token = readEnv("RES_API_TOKEN");
-  if (!token) {
-    return json({ error: "RES_API_TOKEN not configured" }, 500);
+  let body: { fso?: unknown; cz_local?: unknown; lang?: unknown } | undefined;
+  if (typeof req.body === "string") {
+    try {
+      body = JSON.parse(req.body);
+    } catch {
+      send(res, 400, { error: "Invalid JSON body" });
+      return;
+    }
+  } else {
+    body = req.body as typeof body;
   }
 
-  let fso: unknown;
-  let cz_local: unknown;
-  let lang: unknown;
+  const fso = typeof body?.fso === "number" ? body.fso : Number(body?.fso);
+  const cz_local = typeof body?.cz_local === "string" ? body.cz_local : "";
+  const lang = typeof body?.lang === "string" ? body.lang : "en";
+  if (!Number.isFinite(fso)) {
+    send(res, 400, { error: "Body must include numeric fso" });
+    return;
+  }
+  if (!cz_local) {
+    send(res, 400, { error: "Body must include cz_local (string)" });
+    return;
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
   try {
-    const body = await req.json();
-    fso = body?.fso;
-    cz_local = body?.cz_local;
-    lang = body?.lang;
-  } catch {
-    return json({ error: "Invalid JSON body" }, 400);
-  }
-  if (typeof fso !== "number" || !Number.isFinite(fso)) {
-    return json({ error: "Body must include numeric fso" }, 400);
-  }
-  if (typeof cz_local !== "string" || !cz_local) {
-    return json({ error: "Body must include cz_local (string)" }, 400);
-  }
-
-  try {
-    const upstream = await fetch(ZONE_STATS_URL, {
+    const upstream = await fetch(RES_ZONE_STATS_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json", token },
-      body: JSON.stringify({
-        fso,
-        cz_local,
-        lang: typeof lang === "string" ? lang : "en",
-      }),
+      headers: {
+        "Content-Type": "application/json",
+        token: RES_API_TOKEN,
+      },
+      body: JSON.stringify({ fso, cz_local, lang }),
+      signal: controller.signal,
     });
     const text = await upstream.text();
-    return new Response(text, {
-      status: upstream.status,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    for (const [k, v] of Object.entries(CORS_HEADERS)) res.setHeader(k, v);
+    res.setHeader("Content-Type", "application/json");
+    res.status(upstream.status).send(text);
   } catch (error) {
-    return json({ error: (error as Error).message }, 502);
+    const msg = error instanceof Error ? error.message : String(error);
+    send(res, 502, { error: "RES /zone_stats unreachable", details: msg });
+  } finally {
+    clearTimeout(timer);
   }
 }
