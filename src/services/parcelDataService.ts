@@ -136,8 +136,13 @@ function stringOrNull(v: unknown): string | null {
 }
 
 function normalize(props: Record<string, unknown>): ParcelData {
+  // RES's canonical field name is `fso_num` (with `fso_num_2021` as an
+  // alias for the latest census year). The room schema models it as `fso`
+  // for readability, so we accept all three on the wire. Without this
+  // alias the zone-stats fetch never fires — ZonePanel guards on a
+  // numeric `fso`.
   return {
-    fso: numberOrNull(props.fso),
+    fso: numberOrNull(props.fso ?? props.fso_num ?? props.fso_num_2021),
     municipality_name:
       stringOrNull(props.municipality_name) ?? stringOrNull(props.fso_name_2021),
     cz_local: stringOrNull(props.cz_local),
@@ -154,6 +159,6 @@ function normalize(props: Record<string, unknown>): ParcelData {
     bldg_floors_n: numberOrNull(props.bldg_floors_n),
     address: stringOrNull(props.address),
     parcel_id: stringOrNull(props.parcel_id),
-    egrid: stringOrNull(props.egrid ?? props.EGRID),
+    egrid: stringOrNull(props.egrid ?? props.EGRID ?? props.egrid_str),
   };
 }

@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.1.1',
+    date: 'May 24, 2026',
+    codename: 'Zone Stats Online',
+    summary:
+      'Zone distribution charts now actually appear when you click a parcel — the parcel_data response uses RES\'s canonical fso_num field, which we weren\'t reading.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: BarChart3,
+        text: 'Read fso_num (and fso_num_2021) as aliases for fso when parsing /parcel_data — without this the zone-stats fetch was silently skipped and the right-hand distribution panel stayed empty.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.1.0',
     date: 'May 24, 2026',
     codename: 'How Dense, Really?',
