@@ -31,7 +31,7 @@ const ZoneInfoPanel = ({
   return (
     <div
       data-tour="zone-info-panel"
-      className="bg-gray-950/95 backdrop-blur-xl border-l border-gray-800/60 shadow-2xl flex-shrink-0 flex flex-col w-full"
+      className="bg-gray-950/95 backdrop-blur-xl border-l border-gray-800/60 shadow-2xl flex-[3] min-h-0 flex flex-col w-full"
     >
       <div className="flex items-start justify-between p-4 border-b border-gray-800/50">
         <div className="min-w-0 flex-1">

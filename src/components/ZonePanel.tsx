@@ -200,7 +200,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
   return (
     <div
       data-tour="zone-charts"
-      className="bg-gray-950/95 backdrop-blur-xl border-l border-gray-800/60 shadow-2xl flex-1 flex flex-col w-full overflow-hidden"
+      className="bg-gray-950/95 backdrop-blur-xl border-l border-gray-800/60 shadow-2xl flex-[7] min-h-0 flex flex-col w-full overflow-hidden"
     >
       <div className="p-4 border-b border-gray-800/50 space-y-3">
         <div>
