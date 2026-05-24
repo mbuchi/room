@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
 
@@ -9,6 +9,27 @@ export { KIND_META } from '@swissnovo/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.1.6',
+    date: 'May 25, 2026',
+    codename: 'Call Claire',
+    summary:
+      'Claire now has a phone button in her header — click to start a live voice conversation with her, powered by Google\'s Gemini Live (Aoede voice). Same Claire, same parcel grounding; just speak naturally. Picks up @swissnovo/shared v0.25.1, which also adds an automatic 429/5xx fallback across Gemini chat models so Claire stays responsive when her primary model is rate-limited.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Phone,
+        text: 'New phone button in Claire\'s header. Click it to start a live voice call — Claire listens, you speak naturally in DE/EN/FR/IT, and she answers out loud. Live transcript overlay shows both sides as you talk. Powered by Gemini 3.1 Flash Live preview (voice "Aoede").',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Bot,
+        text: 'Claire\'s text chat now automatically retries on rate-limit / upstream errors by falling back through gemini-3.5-flash → 3.1-flash-lite → 3-flash-preview before giving up. Fewer apologetic error bubbles.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.1.5',
     date: 'May 25, 2026',
