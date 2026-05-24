@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
 
@@ -9,6 +9,27 @@ export { KIND_META } from '@swissnovo/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.1.4',
+    date: 'May 25, 2026',
+    codename: 'Cold Cache, Warm Reception',
+    summary:
+      'First-time clicks on previously-unseen zones no longer fail with a 504 — the proxy now waits long enough for the RES backend\'s cold SQL aggregate to finish, and the client retries once just in case.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Timer,
+        text: '/api/zone-stats moved off the Edge runtime (~25s wall-time) onto the Node runtime with maxDuration: 60. RES /zone_stats takes ~45s on the first call for an uncached (fso, cz_local) — once cached, ~1s. Without this, the first user to query a zone got a 504.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Timer,
+        text: 'Client-side retry once on 502/504 in zoneStatsService — by the time the retry fires, RES has cached the response, so the second attempt is sub-second.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.1.3',
     date: 'May 25, 2026',
