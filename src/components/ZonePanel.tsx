@@ -198,21 +198,13 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
   }, [stats, otherZones]);
 
   return (
-    <div
-      data-tour="zone-charts"
-      className="bg-gray-950/95 backdrop-blur-xl border-l border-gray-800/60 shadow-2xl flex-[7] min-h-0 flex flex-col w-full overflow-hidden"
-    >
-      <div className="p-4 border-b border-gray-800/50 space-y-3">
-        <div>
-          <h2 className="text-sm font-semibold text-gray-100 tracking-tight">
-            Zone distribution
-          </h2>
-          {stats?.zone.municipality_name && (
-            <p className="mt-0.5 text-[11px] text-gray-500">
-              {stats.zone.municipality_name} · {stats.zone.parcel_count} parcels
-            </p>
-          )}
-        </div>
+    <div className="flex-1 min-h-0 flex flex-col w-full overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-gray-800/40 space-y-2.5">
+        {stats?.zone.municipality_name && (
+          <p className="text-[11px] text-gray-500">
+            {stats.zone.municipality_name} · {stats.zone.parcel_count} parcels
+          </p>
+        )}
         {(stats || activeCzLocal) && (
           <ZoneSelectorDropdown
             currentCzLocal={activeCzLocal ?? ''}

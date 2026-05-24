@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
 
@@ -9,6 +9,21 @@ export { KIND_META } from '@swissnovo/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.1.7',
+    date: 'May 25, 2026',
+    codename: 'Two Tabs, Full Height',
+    summary:
+      'The right-side info pane is now a two-tab UI — Zone distribution (default) and Parcel facts — each using the full pane height, so neither feels squeezed.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: PanelsTopLeft,
+        text: 'Replaced the stacked 30/70 split with a tabbed panel: Zone distribution opens by default (the headline view); click Parcel facts to switch to the per-parcel reference (address, zoning, area, ratioV, freeV, height, floors). Each tab gets the full pane height, no scrolling fight between sections.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.1.6',
     date: 'May 25, 2026',

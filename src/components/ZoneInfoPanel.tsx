@@ -1,4 +1,4 @@
-import { X, AlertCircle, MapPin, Building2, Calendar, Layers } from 'lucide-react';
+import { AlertCircle, MapPin, Building2, Calendar, Layers } from 'lucide-react';
 import { Skeleton } from '@swissnovo/shared';
 import type { ParcelData } from '../services/parcelDataService';
 import { useI18n } from '../contexts/I18nContext';
@@ -7,7 +7,6 @@ interface ZoneInfoPanelProps {
   parcelData: ParcelData | null;
   isLoading: boolean;
   error: string | null;
-  onClose: () => void;
 }
 
 /**
@@ -25,36 +24,19 @@ const ZoneInfoPanel = ({
   parcelData,
   isLoading,
   error,
-  onClose,
 }: ZoneInfoPanelProps) => {
   const { t } = useI18n();
   return (
-    <div
-      data-tour="zone-info-panel"
-      className="bg-gray-950/95 backdrop-blur-xl border-l border-gray-800/60 shadow-2xl flex-[3] min-h-0 flex flex-col w-full"
-    >
-      <div className="flex items-start justify-between p-4 border-b border-gray-800/50">
-        <div className="min-w-0 flex-1">
-          <h2 className="text-sm font-semibold text-gray-100 tracking-tight">
-            Parcel facts
-          </h2>
+    <div className="flex-1 min-h-0 flex flex-col w-full">
+      {(parcelData?.address || isLoading) && (
+        <div className="px-4 py-2.5 border-b border-gray-800/40">
           {parcelData?.address ? (
-            <p className="mt-1 text-xs text-gray-400 truncate">{parcelData.address}</p>
-          ) : isLoading ? (
-            <div className="mt-1.5">
-              <Skeleton dark width={180} height={10} radius={4} />
-            </div>
-          ) : null}
+            <p className="text-xs text-gray-400 truncate">{parcelData.address}</p>
+          ) : (
+            <Skeleton dark width={180} height={10} radius={4} />
+          )}
         </div>
-        <button
-          onClick={onClose}
-          title={t('panel.info.close')}
-          aria-label={t('panel.info.close')}
-          className="p-1.5 rounded-lg hover:bg-gray-800 transition-colors text-gray-500 hover:text-gray-200 ml-2"
-        >
-          <X size={16} />
-        </button>
-      </div>
+      )}
 
       <div className="flex-1 overflow-y-auto">
         {isLoading && <ZoneInfoSkeleton />}

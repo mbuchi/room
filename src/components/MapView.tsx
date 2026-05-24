@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { X } from 'lucide-react';
 import mapboxgl from 'mapbox-gl';
 import {
   MAPBOX_TOKEN,
@@ -54,6 +55,11 @@ const MapView = () => {
   const [parcelData, setParcelData] = useState<ParcelData | null>(null);
   const [parcelDataLoading, setParcelDataLoading] = useState(false);
   const [parcelDataError, setParcelDataError] = useState<string | null>(null);
+  // Which tab is visible in the right-side info pane. Charts ('zone') are
+  // the default since they're the main thing users come to room for; the
+  // 'facts' tab is the per-parcel reference. Resets to 'zone' on each
+  // new parcel selection so the user always lands on the headline view.
+  const [panelTab, setPanelTab] = useState<'zone' | 'facts'>('zone');
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
   const [showPermissionModal, setShowPermissionModal] = useState(true);
   const locateMarkerRef = useRef<mapboxgl.Marker | null>(null);
@@ -87,6 +93,7 @@ const MapView = () => {
     setParcelData(null);
     setParcelDataError(null);
     setParcelDataLoading(true);
+    setPanelTab('zone');
 
     fetchParcelData({ lng, lat, egrid })
       .then((data) => setParcelData(data))
@@ -431,20 +438,54 @@ const MapView = () => {
       />
       {selectedParcel && (
         <div
-          className="absolute top-14 right-0 bottom-0 z-30 flex flex-col animate-slide-in-right"
+          className="absolute top-14 right-0 bottom-0 z-30 flex flex-col animate-slide-in-right bg-gray-950/95 backdrop-blur-xl border-l border-gray-800/60 shadow-2xl"
           style={{ width: `${PANEL_WIDTH_PX}px` }}
         >
-          <ZoneInfoPanel
-            parcelData={parcelData}
-            isLoading={parcelDataLoading}
-            error={parcelDataError}
-            onClose={handleCloseInfoPanel}
-          />
-          <ZonePanel
-            parcelData={parcelData}
-            onZoneStatsLoaded={handleZoneStatsLoaded}
-            onZoneStatsCleared={handleZoneStatsCleared}
-          />
+          <div className="flex items-stretch border-b border-gray-800/60 flex-shrink-0">
+            <button
+              data-tour="zone-charts"
+              onClick={() => setPanelTab('zone')}
+              className={`flex-1 px-3 py-3 text-xs font-medium tracking-tight transition-colors border-b-2 ${
+                panelTab === 'zone'
+                  ? 'text-gray-100 border-red-500/80'
+                  : 'text-gray-500 hover:text-gray-300 border-transparent'
+              }`}
+            >
+              Zone distribution
+            </button>
+            <button
+              data-tour="zone-info-panel"
+              onClick={() => setPanelTab('facts')}
+              className={`flex-1 px-3 py-3 text-xs font-medium tracking-tight transition-colors border-b-2 ${
+                panelTab === 'facts'
+                  ? 'text-gray-100 border-red-500/80'
+                  : 'text-gray-500 hover:text-gray-300 border-transparent'
+              }`}
+            >
+              Parcel facts
+            </button>
+            <button
+              onClick={handleCloseInfoPanel}
+              title={t('panel.info.close')}
+              aria-label={t('panel.info.close')}
+              className="px-3 text-gray-500 hover:text-gray-200 hover:bg-gray-800/60 transition-colors border-l border-gray-800/60"
+            >
+              <X size={16} />
+            </button>
+          </div>
+          {panelTab === 'zone' ? (
+            <ZonePanel
+              parcelData={parcelData}
+              onZoneStatsLoaded={handleZoneStatsLoaded}
+              onZoneStatsCleared={handleZoneStatsCleared}
+            />
+          ) : (
+            <ZoneInfoPanel
+              parcelData={parcelData}
+              isLoading={parcelDataLoading}
+              error={parcelDataError}
+            />
+          )}
         </div>
       )}
       {selectedParcel && (
