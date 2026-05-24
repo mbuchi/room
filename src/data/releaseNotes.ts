@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.1.5',
+    date: 'May 25, 2026',
+    codename: 'Right Runtime, Right Signature',
+    summary:
+      'The previous attempt at outlasting the cold-cache 504 silently broke the proxy — it switched runtimes but kept the wrong handler signature. Now using the Node (req, res) signature so the function actually runs.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Timer,
+        text: 'Rewrote /api/zone-stats as a Node serverless function with the (req, res) handler signature (matching api/claire-pois.ts). The Web (Request)=>Response signature only fires on the Edge runtime — under runtime: "nodejs" it hangs until maxDuration. Token is now hardcoded for the same reason as claire-pois.ts (stale team-level env var would override).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.1.4',
     date: 'May 25, 2026',
     codename: 'Cold Cache, Warm Reception',
