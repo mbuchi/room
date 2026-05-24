@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
 
@@ -9,6 +9,21 @@ export { KIND_META } from '@swissnovo/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.1.2',
+    date: 'May 24, 2026',
+    codename: 'Link Preview',
+    summary:
+      'Sharing a room link in Slack, WhatsApp, Discord, Teams etc. now shows a real screenshot of the app — the choropleth map with the zone-density panel — instead of the placeholder Bolt image.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Image,
+        text: 'public/og-image.jpg replaced with a 2152×1107 frame of room in use (zone choropleth + distribution panel). Same dimensions as the existing og:image meta, so no index.html changes needed.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.1.1',
     date: 'May 24, 2026',
