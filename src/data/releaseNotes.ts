@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
 
@@ -9,6 +9,21 @@ export { KIND_META } from '@swissnovo/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.1.3',
+    date: 'May 25, 2026',
+    codename: 'Charts Get the Room',
+    summary:
+      'Rebalanced the right-hand info panel so the zone-distribution charts get most of the height — the parcel facts now occupy roughly the top third, the distribution panel the bottom two-thirds.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text: 'Right-side info panel now splits 30/70 between Parcel facts (top) and Zone distribution (bottom) instead of letting the facts block expand to fit its content and squeezing the charts.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.1.2',
     date: 'May 24, 2026',
