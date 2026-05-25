@@ -1,13 +1,50 @@
-import { AlertCircle, MapPin, Building2, Calendar, Layers } from 'lucide-react';
-import { Skeleton } from '@swissnovo/shared';
+import { useEffect, useState } from 'react';
+import {
+  AlertCircle,
+  MapPin,
+  Building2,
+  Calendar,
+  Layers,
+  Bookmark,
+  BookmarkCheck,
+  ExternalLink,
+  Loader2,
+} from 'lucide-react';
+import {
+  Skeleton,
+  createPrmRecord,
+  fetchPrmByParcel,
+  PROOM_APP_URL,
+  PrmAuthRequiredError as AuthRequiredError,
+  type PrmRecord,
+} from '@swissnovo/shared';
 import type { ParcelData } from '../services/parcelDataService';
 import { useI18n } from '../contexts/I18nContext';
+import { useAuth } from '../auth/AuthContext';
+import { signal } from '../lib/signal';
+
+/**
+ * Identity of the parcel the user has currently focused. Mirrors MapView's
+ * `SelectedParcel` minus the bag of mapbox feature properties — only the bits
+ * the PRM save endpoint needs.
+ */
+export interface FocusedParcelHandle {
+  parcelId: string;
+  lng: number;
+  lat: number;
+  /** Optional raw mapbox properties, used to recover area/municipality fallbacks. */
+  props?: Record<string, unknown>;
+}
 
 interface ZoneInfoPanelProps {
   parcelData: ParcelData | null;
   isLoading: boolean;
   error: string | null;
+  /** The currently-selected parcel — used to wire the "Save to PRM" button. */
+  focusedParcel?: FocusedParcelHandle | null;
 }
+
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 /**
  * Parcel-facts header for room. Replaces groove's GWR-shaped `InfoPanel`.
@@ -24,16 +61,114 @@ const ZoneInfoPanel = ({
   parcelData,
   isLoading,
   error,
+  focusedParcel = null,
 }: ZoneInfoPanelProps) => {
   const { t } = useI18n();
+  const { accessToken, isAuthenticated } = useAuth();
+
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const [savedRecord, setSavedRecord] = useState<PrmRecord | null>(null);
+
+  // Whenever the focused parcel or auth changes, ask the PRM backend if this
+  // parcel is already saved. If so, flip the button straight to "Saved" so
+  // the user sees the existing record rather than a fresh-looking CTA.
+  const focusedParcelId = focusedParcel?.parcelId;
+  useEffect(() => {
+    setSaveStatus('idle');
+    setSavedRecord(null);
+    if (!focusedParcelId || !isAuthenticated || !accessToken) return;
+    let cancelled = false;
+    fetchPrmByParcel(accessToken, String(focusedParcelId))
+      .then((record) => {
+        if (cancelled) return;
+        if (record) {
+          setSavedRecord(record);
+          setSaveStatus('saved');
+        }
+      })
+      .catch(() => {
+        /* silent — leave as idle so the user can retry */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [focusedParcelId, isAuthenticated, accessToken]);
+
+  const handleSave = async () => {
+    if (!focusedParcel?.parcelId) return;
+    if (!isAuthenticated || !accessToken) {
+      setSaveStatus('error');
+      return;
+    }
+    setSaveStatus('saving');
+    try {
+      const area =
+        parcelData?.parcel_area ??
+        (typeof focusedParcel.props?.area_m2 === 'number'
+          ? (focusedParcel.props.area_m2 as number)
+          : null);
+      const municipality =
+        parcelData?.municipality_name ||
+        (focusedParcel.props?.['cityname'] as string | undefined) ||
+        (focusedParcel.props?.['fso_name_2021'] as string | undefined) ||
+        '';
+      const label =
+        parcelData?.address ||
+        formatLngLat(focusedParcel.lng, focusedParcel.lat);
+      const record = await createPrmRecord(accessToken, {
+        parcel_id: String(focusedParcel.parcelId),
+        parcel_label: label,
+        parcel_municipality: municipality,
+        parcel_area: Number(area ?? 0),
+        parcel_lng: Number(focusedParcel.lng ?? 0),
+        parcel_lat: Number(focusedParcel.lat ?? 0),
+      });
+      setSavedRecord(record);
+      setSaveStatus('saved');
+      signal.send('Save to PRM', {
+        address: parcelData?.address || undefined,
+        lat: focusedParcel.lat,
+        lng: focusedParcel.lng,
+        metaData: {
+          parcel_id: focusedParcel.parcelId,
+          area_m2: area ?? null,
+        },
+      });
+    } catch (err) {
+      if (err instanceof AuthRequiredError) {
+        setSaveStatus('error');
+        return;
+      }
+      console.error('PRM save failed', err);
+      setSaveStatus('error');
+    }
+  };
+
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full">
-      {(parcelData?.address || isLoading) && (
-        <div className="px-4 py-2.5 border-b border-gray-800/40">
-          {parcelData?.address ? (
-            <p className="text-xs text-gray-400 truncate">{parcelData.address}</p>
-          ) : (
-            <Skeleton dark width={180} height={10} radius={4} />
+      {(parcelData?.address || isLoading || focusedParcel) && (
+        <div className="px-4 py-2.5 border-b border-gray-800/40 flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            {parcelData?.address ? (
+              <p className="text-xs text-gray-400 truncate">{parcelData.address}</p>
+            ) : isLoading ? (
+              <Skeleton dark width={180} height={10} radius={4} />
+            ) : (
+              <p className="text-xs text-gray-500 truncate">
+                {focusedParcel
+                  ? formatLngLat(focusedParcel.lng, focusedParcel.lat)
+                  : ''}
+              </p>
+            )}
+          </div>
+          {focusedParcel?.parcelId && (
+            <SaveButton
+              t={t}
+              status={saveStatus}
+              savedRecord={savedRecord}
+              isAuthenticated={isAuthenticated}
+              onSave={handleSave}
+            />
           )}
         </div>
       )}
@@ -277,6 +412,94 @@ const FreeVolumeCard = ({ freeV }: { freeV: number | null }) => {
 
 function fmt(n: number): string {
   return Math.abs(n) >= 1000 ? n.toLocaleString('en-CH', { maximumFractionDigits: 0 }) : n.toFixed(1);
+}
+
+/** Fallback header label when RES hasn't returned an address yet. */
+function formatLngLat(lng: number, lat: number): string {
+  return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+}
+
+interface SaveButtonProps {
+  t: (key: string) => string;
+  status: SaveStatus;
+  savedRecord: PrmRecord | null;
+  isAuthenticated: boolean;
+  onSave: () => void;
+}
+
+/**
+ * "Save to PRM" pill — mirrors the scoore LocationScore button so the look,
+ * states (idle / saving / saved / error / sign-in) and proom-link affordance
+ * are identical across the suite.
+ */
+function SaveButton({
+  t,
+  status,
+  savedRecord,
+  isAuthenticated,
+  onSave,
+}: SaveButtonProps) {
+  return (
+    <div className="flex items-center gap-1.5 flex-shrink-0 print:hidden">
+      {status === 'saved' && savedRecord && (
+        <a
+          href={`${PROOM_APP_URL}/?prm=${encodeURIComponent(savedRecord.id)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={t('prm.open_in_proom')}
+          aria-label={t('prm.open_in_proom')}
+          className="inline-flex items-center justify-center h-7 w-7 rounded-md bg-gray-800/60 hover:bg-gray-700/70 text-gray-300 hover:text-white transition-colors"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+      )}
+      <button
+        type="button"
+        onClick={onSave}
+        disabled={status === 'saving' || status === 'saved'}
+        title={
+          !isAuthenticated
+            ? t('prm.signin_required')
+            : status === 'saved'
+              ? t('prm.saved')
+              : status === 'error'
+                ? t('prm.save_failed')
+                : t('prm.save')
+        }
+        className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-[11px] font-medium transition-colors disabled:cursor-default ${
+          status === 'saved'
+            ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30'
+            : status === 'error'
+              ? 'bg-red-600/20 text-red-300 border border-red-500/30 hover:bg-red-600/30'
+              : status === 'saving'
+                ? 'bg-gray-700/50 text-gray-400 border border-gray-600/30'
+                : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+        }`}
+      >
+        {status === 'saving' ? (
+          <>
+            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+            <span>{t('prm.saving')}</span>
+          </>
+        ) : status === 'saved' ? (
+          <>
+            <BookmarkCheck className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>{t('prm.saved')}</span>
+          </>
+        ) : status === 'error' && !isAuthenticated ? (
+          <>
+            <Bookmark className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>{t('prm.signin_required')}</span>
+          </>
+        ) : (
+          <>
+            <Bookmark className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>{status === 'error' ? t('prm.save_failed') : t('prm.save')}</span>
+          </>
+        )}
+      </button>
+    </div>
+  );
 }
 
 export default ZoneInfoPanel;

@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
 
@@ -17,6 +17,12 @@ export const RELEASES: Release[] = [
       'room now speaks four languages. Pick English, French, German or Italian from the new flag selector in the top bar — the navbar, panels, modals, charts, tour and toasts all switch instantly, and your choice is remembered across visits.',
     highlight: true,
     items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Bookmark,
+        text: 'Save the focused parcel to your PRM list — a new "Save to PRM" button now sits in the Parcel facts header, flips to "Saved" once stored, and offers a one-click link to open the record in proom.',
+        prs: [],
+      },
       {
         kind: 'new' as ChangeKind,
         icon: Languages,
