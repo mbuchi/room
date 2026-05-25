@@ -451,7 +451,7 @@ const MapView = () => {
                   : 'text-gray-500 hover:text-gray-300 border-transparent'
               }`}
             >
-              Zone distribution
+              {t('panel.tabs.zone_distribution')}
             </button>
             <button
               data-tour="zone-info-panel"
@@ -462,7 +462,7 @@ const MapView = () => {
                   : 'text-gray-500 hover:text-gray-300 border-transparent'
               }`}
             >
-              Parcel facts
+              {t('panel.tabs.parcel_facts')}
             </button>
             <button
               onClick={handleCloseInfoPanel}

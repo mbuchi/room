@@ -8,6 +8,7 @@ import {
   YAxis,
 } from 'recharts';
 import type { ZoneStatsResponse } from '../../services/zoneStatsService';
+import { useI18n } from '../../contexts/I18nContext';
 
 interface UtilizationOverTimeProps {
   ageCohorts: ZoneStatsResponse['age_cohorts'];
@@ -21,6 +22,7 @@ const CHART_HEIGHT = 200;
  * is densifying (rising line) or losing utilisation (falling).
  */
 const UtilizationOverTime = ({ ageCohorts }: UtilizationOverTimeProps) => {
+  const { t } = useI18n();
   const data = [
     { ...ageCohorts.last60, cohort: 'last60' },
     { ...ageCohorts.last40, cohort: 'last40' },
@@ -37,10 +39,10 @@ const UtilizationOverTime = ({ ageCohorts }: UtilizationOverTimeProps) => {
   return (
     <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
       <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
-        Utilisation over time
+        {t('panel.zone.over_time_title')}
       </h4>
       {!allFinite ? (
-        <p className="text-xs text-gray-500">Not enough cohort data for this zone.</p>
+        <p className="text-xs text-gray-500">{t('panel.zone.over_time_no_data')}</p>
       ) : (
         <div style={{ width: '100%', height: CHART_HEIGHT }}>
           <ResponsiveContainer>
@@ -75,7 +77,10 @@ const UtilizationOverTime = ({ ageCohorts }: UtilizationOverTimeProps) => {
                     ? (item as { payload?: { n?: number } }).payload
                     : undefined;
                   const n = payload?.n ?? 0;
-                  return [`mean ratioV ${v.toFixed(3)} (n=${n})`, 'Cohort'];
+                  return [
+                    t('panel.zone.cohort_tooltip', { value: v.toFixed(3), n }),
+                    t('panel.zone.cohort_label'),
+                  ];
                 }}
               />
               <Line

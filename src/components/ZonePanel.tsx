@@ -38,17 +38,18 @@ interface ZonePanelProps {
 
 interface MetricSpec {
   key: ZoneMetric;
-  title: string;
+  /** i18n key resolved via useI18n().t() at render time. */
+  titleKey: string;
   unit?: string;
 }
 
 const METRICS: MetricSpec[] = [
-  { key: 'ratio_v', title: 'ratioV (volume use)' },
-  { key: 'free_v', title: 'freeV (headroom)', unit: 'm³' },
-  { key: 'ratio_s', title: 'ratioS (site coverage)' },
-  { key: 'gfz', title: 'GFZ (floor area)' },
-  { key: 'bldg_height_m', title: 'Building height', unit: 'm' },
-  { key: 'bldg_floors_n', title: 'Number of floors' },
+  { key: 'ratio_v', titleKey: 'panel.zone.metric.ratio_v.title' },
+  { key: 'free_v', titleKey: 'panel.zone.metric.free_v.title', unit: 'm³' },
+  { key: 'ratio_s', titleKey: 'panel.zone.metric.ratio_s.title' },
+  { key: 'gfz', titleKey: 'panel.zone.metric.gfz.title' },
+  { key: 'bldg_height_m', titleKey: 'panel.zone.metric.bldg_height.title', unit: 'm' },
+  { key: 'bldg_floors_n', titleKey: 'panel.zone.metric.bldg_floors.title' },
 ];
 
 type Tab = 'distributions' | 'scatter';
@@ -61,7 +62,7 @@ type Tab = 'distributions' | 'scatter';
  * parcel itself — the map's feature-state repaints off the new payload.
  */
 const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePanelProps) => {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const [activeCzLocal, setActiveCzLocal] = useState<string | null>(null);
   const [stats, setStats] = useState<ZoneStatsResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -107,7 +108,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
       .catch((err: unknown) => {
         if (cancelled) return;
         setStats(null);
-        setError(err instanceof Error ? err.message : 'Failed to load zone stats.');
+        setError(err instanceof Error ? err.message : t('panel.zone.error_generic'));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -202,7 +203,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
       <div className="px-4 py-2.5 border-b border-gray-800/40 space-y-2.5">
         {stats?.zone.municipality_name && (
           <p className="text-[11px] text-gray-500">
-            {stats.zone.municipality_name} · {stats.zone.parcel_count} parcels
+            {stats.zone.municipality_name} · {t('panel.zone.parcels_suffix', { count: stats.zone.parcel_count })}
           </p>
         )}
         {(stats || activeCzLocal) && (
@@ -215,17 +216,17 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
         )}
         {stats && (
           <div className="flex items-center gap-1 rounded-md bg-gray-900/80 border border-gray-800/60 p-0.5">
-            {(['distributions', 'scatter'] as Tab[]).map((t) => (
+            {(['distributions', 'scatter'] as Tab[]).map((tabId) => (
               <button
-                key={t}
-                onClick={() => setTab(t)}
+                key={tabId}
+                onClick={() => setTab(tabId)}
                 className={`flex-1 px-3 py-1 text-[11px] font-medium rounded transition-colors ${
-                  tab === t
+                  tab === tabId
                     ? 'bg-gray-800 text-gray-100'
                     : 'text-gray-500 hover:text-gray-300'
                 }`}
               >
-                {t === 'distributions' ? 'Distributions' : 'Area vs. volume'}
+                {tabId === 'distributions' ? t('panel.zone.tab.distributions') : t('panel.zone.tab.scatter')}
               </button>
             ))}
           </div>
@@ -241,7 +242,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
               <AlertCircle size={14} className="text-red-400 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-xs font-medium text-red-400">
-                  Could not load zone statistics
+                  {t('panel.zone.error_title')}
                 </p>
                 <p className="text-[11px] text-red-400/60 mt-1 leading-relaxed">{error}</p>
               </div>
@@ -253,7 +254,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
           <>
             <PercentileGauge percentile={percentile} />
             <BoxplotDensity
-              title="ratioV — zone distribution"
+              title={t('panel.zone.boxplot_title')}
               distribution={stats.distributions.ratio_v ?? []}
               summary={stats.summary.ratio_v ?? emptySummary()}
               selectedValue={selectedValues.ratio_v ?? null}
@@ -262,7 +263,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
               {METRICS.map((m) => (
                 <DistributionHistogram
                   key={m.key}
-                  title={m.title}
+                  title={t(m.titleKey)}
                   distribution={stats.distributions[m.key] ?? []}
                   selectedValue={selectedValues[m.key] ?? null}
                   unit={m.unit}

@@ -21,7 +21,7 @@ const R = 100;
  * the map. Underneath, a single sentence narrates the rank.
  */
 const PercentileGauge = ({ percentile }: PercentileGaugeProps) => {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const clamped = Math.max(0, Math.min(100, percentile));
 
   // We build the arc by sampling along the angle so the gradient feels
@@ -54,10 +54,10 @@ const PercentileGauge = ({ percentile }: PercentileGaugeProps) => {
   return (
     <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
       <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
-        Zone utilisation percentile
+        {t('panel.zone.percentile_title')}
       </h4>
       <div className="flex flex-col items-center">
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} role="img" aria-label="Percentile gauge">
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} role="img" aria-label={t('panel.zone.gauge_aria')}>
           {arcSegments.map((s, i) => (
             <path
               key={i}
@@ -108,7 +108,7 @@ const PercentileGauge = ({ percentile }: PercentileGaugeProps) => {
             {Math.round(clamped)}
           </text>
           <text x={CX} y={CY - R / 2 + 16} textAnchor="middle" fill="#9ca3af" fontSize={10}>
-            percentile
+            {t('panel.zone.percentile_label')}
           </text>
         </svg>
         <p className="mt-2 text-[12px] text-gray-300 text-center leading-snug px-1">

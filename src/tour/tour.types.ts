@@ -13,6 +13,13 @@ export type AppTourStep = {
   target: string;
   title: string;
   body: string;
+  /**
+   * Optional i18n key prefix. When set, the resolved title/body come from
+   * `${i18nKey}.title` / `${i18nKey}.body` via the I18n context. The literal
+   * `title` / `body` above act as English fallbacks (and source-of-truth when
+   * no key is configured).
+   */
+  i18nKey?: string;
   placement?: TourPlacement;
   optional?: boolean;
   disableBeacon?: boolean;

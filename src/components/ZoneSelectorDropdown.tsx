@@ -1,5 +1,6 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
+import { useI18n } from '../contexts/I18nContext';
 
 interface ZoneOption {
   cz_local: string;
@@ -29,6 +30,7 @@ const ZoneSelectorDropdown = ({
   onChange,
   isLoading = false,
 }: ZoneSelectorDropdownProps) => {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -63,7 +65,7 @@ const ZoneSelectorDropdown = ({
       >
         <div className="min-w-0">
           <p className="text-[9px] uppercase tracking-wider text-gray-500 font-semibold">
-            Zoning category
+            {t('panel.zone.zoning_category')}
           </p>
           <p className="mt-0.5 text-sm font-mono text-gray-100 truncate">
             {currentCzLocal || '—'}
@@ -71,7 +73,7 @@ const ZoneSelectorDropdown = ({
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {selectedCount != null && (
-            <span className="text-[10px] text-gray-500 font-mono">{selectedCount} parcels</span>
+            <span className="text-[10px] text-gray-500 font-mono">{t('panel.zone.parcels_suffix', { count: selectedCount })}</span>
           )}
           <ChevronDown
             size={14}
@@ -88,13 +90,13 @@ const ZoneSelectorDropdown = ({
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Filter zones…"
+              placeholder={t('panel.zone.filter_zones_placeholder')}
               className="flex-1 bg-transparent text-xs text-gray-200 placeholder-gray-600 focus:outline-none"
             />
           </div>
           <div className="max-h-64 overflow-y-auto py-1">
             {filtered.length === 0 && (
-              <p className="px-3 py-3 text-xs text-gray-500">No matching zones.</p>
+              <p className="px-3 py-3 text-xs text-gray-500">{t('panel.zone.no_matching_zones')}</p>
             )}
             {filtered.map((z) => {
               const active = z.cz_local === currentCzLocal;

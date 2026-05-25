@@ -17,6 +17,7 @@ import { appTourConfig } from "./tour.config";
 import { TourTooltip } from "./TourTooltip";
 import type { TourVariant } from "./tour.types";
 import { hasCompletedTour, markTourCompleted } from "./tourStorage";
+import { useI18n } from "../contexts/I18nContext";
 
 type TourContextValue = {
   startTour: (variant: TourVariant) => void;
@@ -72,35 +73,46 @@ function targetExists(selector: string) {
   return Boolean(document.querySelector(selector));
 }
 
-function toJoyrideSteps(variant: TourVariant): Step[] {
+type Translator = (key: string, vars?: Record<string, string | number>) => string;
+
+function toJoyrideSteps(variant: TourVariant, t: Translator): Step[] {
   return appTourConfig.variants[variant]
     .filter((step) => {
       if (!appTourConfig.behavior.skipMissingTargets) return true;
       return step.optional || targetExists(step.target);
     })
-    .map((step) => ({
-      target: step.target,
-      title: step.title,
-      content: step.body,
-      placement: step.placement ?? "auto",
-      disableBeacon: step.disableBeacon ?? true,
-      spotlightClicks: step.spotlightClicks ?? false,
-      // Leave undefined so Joyride's global `disableScrolling` prop wins. A
-      // per-step boolean (even `false`) overrides the global setting, which
-      // would let individual steps scroll the page despite behavior.disableScrolling.
-      ...(step.disableScrolling === undefined
-        ? {}
-        : { disableScrolling: step.disableScrolling }),
-    }));
+    .map((step) => {
+      // Resolve translations via i18nKey when configured. The literal title
+      // / body act as English fallbacks (and source-of-truth when no key is
+      // configured) — the I18nContext already falls back to English on miss.
+      const title = step.i18nKey ? t(`${step.i18nKey}.title`) : step.title;
+      const body = step.i18nKey ? t(`${step.i18nKey}.body`) : step.body;
+      return {
+        target: step.target,
+        title,
+        content: body,
+        placement: step.placement ?? "auto",
+        disableBeacon: step.disableBeacon ?? true,
+        spotlightClicks: step.spotlightClicks ?? false,
+        // Leave undefined so Joyride's global `disableScrolling` prop wins. A
+        // per-step boolean (even `false`) overrides the global setting, which
+        // would let individual steps scroll the page despite behavior.disableScrolling.
+        ...(step.disableScrolling === undefined
+          ? {}
+          : { disableScrolling: step.disableScrolling }),
+      };
+    });
 }
 
 export function TourProvider({ children }: { children: ReactNode }) {
+  const { t, locale } = useI18n();
   const [run, setRun] = useState(false);
   const [variant, setVariant] = useState<TourVariant>(
     () => pickAutoStartVariant() ?? "long",
   );
 
-  const steps = useMemo(() => toJoyrideSteps(variant), [variant, run]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const steps = useMemo(() => toJoyrideSteps(variant, t), [variant, run, locale]);
   const joyrideStyles = useMemo(
     () =>
       buildJoyrideStyles(
@@ -172,11 +184,11 @@ export function TourProvider({ children }: { children: ReactNode }) {
         callback={handleCallback}
         tooltipComponent={TourTooltip}
         locale={{
-          back: appTourConfig.copy.backLabel,
-          close: appTourConfig.copy.doneLabel,
-          last: appTourConfig.copy.doneLabel,
-          next: appTourConfig.copy.nextLabel,
-          skip: appTourConfig.copy.skipLabel,
+          back: t('tour.back'),
+          close: t('tour.done'),
+          last: t('tour.done'),
+          next: t('tour.next'),
+          skip: t('tour.skip'),
         }}
         styles={joyrideStyles}
       />
