@@ -10,14 +10,34 @@
  *   - the list of other zones available within the same municipality so the
  *     ZoneSelectorDropdown can switch context without re-fetching parcel data.
  *
- * Responses are kept in a session-scoped Map cache keyed `${fso}:${cz_local}`
- * so re-selecting the same zone (e.g. when the user reopens a parcel) is
- * instant. The RES backend keeps its own LRU; this client cache shaves the
- * network round-trip entirely.
+ * Responses are cached in two layers, keyed by `${fso}:${cz_local}`:
+ *
+ *   1. An in-memory `Map` — sync, instant, populated for the lifetime of the
+ *      tab. `getCachedZoneStats` reads only this layer so the panel can skip
+ *      its skeleton on same-session re-clicks without awaiting anything.
+ *   2. An `IndexedDBCache` backed by the shared `room-cache` database — async,
+ *      survives reloads, never expires, capped at 50 MB with LRU eviction.
+ *      Mirrors the cache strategy used by scoore for its overpass queries.
+ *
+ * `fetchZoneStats` checks the Map first, then IDB, then goes to the network;
+ * a successful network response is written back to both layers so subsequent
+ * same-session reads stay synchronous.
+ *
+ * The RES backend keeps its own LRU on the server side; the IDB layer is what
+ * makes the FIRST load after a page reload feel instant — without it, every
+ * fresh tab pays the round-trip again (and, for uncached server entries, the
+ * ~45 s aggregate cost on top of that).
  */
+import { IndexedDBCache } from '../utils/cache';
+
 // Calls go through the Vercel Edge proxy in `api/zone-stats.ts`, which
 // injects the RES_API_TOKEN server-side.
 const ZONE_STATS_URL = '/api/zone-stats';
+
+// 50 MB budget, no TTL: zone aggregates change at most monthly (driven by
+// GWR refreshes), so persistent storage is safe. LRU eviction guarantees the
+// store size stays bounded even after extended exploration.
+const PERSISTENT_CACHE_MAX_BYTES = 50 * 1024 * 1024;
 
 export interface ZoneSummary {
   min: number;
@@ -85,20 +105,36 @@ export class ZoneStatsError extends Error {
   }
 }
 
-const cache = new Map<string, ZoneStatsResponse>();
+const memoryCache = new Map<string, ZoneStatsResponse>();
+const persistentCache = new IndexedDBCache<ZoneStatsResponse>(
+  'room-cache',
+  'zone-stats',
+  { maxBytes: PERSISTENT_CACHE_MAX_BYTES },
+);
 
 function cacheKey(req: ZoneStatsRequest): string {
   return `${req.fso}:${req.cz_local}`;
 }
 
+/**
+ * Synchronous cache probe — only inspects the in-memory layer.
+ *
+ * Returning a promise here would force every caller to render a loading
+ * skeleton, which defeats the purpose of having a same-session fast path.
+ * For cross-session hits, callers should fall through to `fetchZoneStats`,
+ * which awaits the IndexedDB read internally.
+ */
 export function getCachedZoneStats(
   req: ZoneStatsRequest,
 ): ZoneStatsResponse | undefined {
-  return cache.get(cacheKey(req));
+  return memoryCache.get(cacheKey(req));
 }
 
+/** Wipe both cache layers — used by the "Re-process" / debug actions. */
 export function clearZoneStatsCache(): void {
-  cache.clear();
+  memoryCache.clear();
+  // Fire-and-forget; an IDB clear failure must not propagate to the UI.
+  void persistentCache.clear();
 }
 
 /**
@@ -113,8 +149,20 @@ export function clearZoneStatsCache(): void {
 export async function fetchZoneStats(
   req: ZoneStatsRequest,
 ): Promise<ZoneStatsResponse> {
-  const hit = cache.get(cacheKey(req));
-  if (hit) return hit;
+  const key = cacheKey(req);
+
+  // Layer 1 — synchronous in-memory hit. Populated either by a previous
+  // network call or by the IndexedDB hydration just below.
+  const memHit = memoryCache.get(key);
+  if (memHit) return memHit;
+
+  // Layer 2 — persistent IndexedDB hit. The await is sub-millisecond compared
+  // to the multi-second (and occasionally ~45 s) RES call this replaces.
+  const idbHit = await persistentCache.get(key);
+  if (idbHit) {
+    memoryCache.set(key, idbHit);
+    return idbHit;
+  }
 
   // RES's first call for an uncached (fso, cz_local) can take ~45s; the
   // Vercel function may still 504 if that happens behind a CDN/proxy. By
@@ -154,6 +202,9 @@ export async function fetchZoneStats(
   }
 
   const body = (await res.json()) as ZoneStatsResponse;
-  cache.set(cacheKey(req), body);
+  memoryCache.set(key, body);
+  // Persist for the NEXT session too. Fire-and-forget — a failed IDB write
+  // (private mode, quota exhaustion, etc.) must never break the response.
+  void persistentCache.set(key, body);
   return body;
 }
