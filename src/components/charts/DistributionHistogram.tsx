@@ -8,6 +8,7 @@ import {
   YAxis,
   ReferenceLine,
 } from 'recharts';
+import { useI18n } from '../../contexts/I18nContext';
 
 interface DistributionHistogramProps {
   title: string;
@@ -69,6 +70,7 @@ const DistributionHistogram = ({
   unit,
   bins = 20,
 }: DistributionHistogramProps) => {
+  const { t } = useI18n();
   const data = useMemo(() => buildHistogram(distribution, bins), [distribution, bins]);
 
   if (!data.length) {
@@ -77,7 +79,7 @@ const DistributionHistogram = ({
         <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
           {title}
         </h4>
-        <p className="text-xs text-gray-500">No data for this zone.</p>
+        <p className="text-xs text-gray-500">{t('panel.zone.no_data')}</p>
       </div>
     );
   }
@@ -90,7 +92,7 @@ const DistributionHistogram = ({
         </h4>
         {selectedValue != null && Number.isFinite(selectedValue) && (
           <span className="text-[11px] font-mono text-red-400">
-            You: {format(selectedValue, unit)}
+            {t('panel.zone.chart_you_prefix', { value: format(selectedValue, unit) })}
           </span>
         )}
       </div>
@@ -116,7 +118,10 @@ const DistributionHistogram = ({
                 fontSize: 11,
                 color: '#e5e7eb',
               }}
-              formatter={(value: number) => [`${value} parcels`, 'Count']}
+              formatter={(value: number) => [
+                t(value === 1 ? 'panel.zone.tooltip_count_one' : 'panel.zone.tooltip_count_other', { count: value }),
+                t('panel.zone.tooltip_count_label'),
+              ]}
               labelFormatter={(v: number) => format(v, unit)}
             />
             <Bar dataKey="count" fill="#9ca3af" radius={[2, 2, 0, 0]} isAnimationActive={false} />
@@ -127,7 +132,7 @@ const DistributionHistogram = ({
                 strokeWidth={2}
                 ifOverflow="extendDomain"
                 label={{
-                  value: 'You',
+                  value: t('panel.zone.chart_you'),
                   position: 'top',
                   fill: '#f87171',
                   fontSize: 10,

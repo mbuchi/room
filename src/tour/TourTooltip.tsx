@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import type { TooltipRenderProps } from "react-joyride";
 
 import { appTourConfig } from "./tour.config";
+import { useI18n } from "../contexts/I18nContext";
 
 // groove has no ThemeContext — derive dark mode from the DOM instead.
 function detectDarkMode(): boolean {
@@ -64,6 +65,7 @@ export function TourTooltip({
   step,
   tooltipProps,
 }: TooltipRenderProps) {
+  const { t } = useI18n();
   const isDarkMode = detectDarkMode();
   const primary = appTourConfig.behavior.primaryColor ?? "#DC2626";
   const p = buildPalette(isDarkMode, primary);
@@ -133,7 +135,7 @@ export function TourTooltip({
               boxShadow: `0 0 0 3px ${primary}1f`,
             }}
           />
-          Step {index + 1} of {size}
+          {t('tour.step_of', { index: index + 1, total: size })}
         </div>
         {step.title && (
           <h3
@@ -196,7 +198,7 @@ export function TourTooltip({
             (e.currentTarget as HTMLButtonElement).style.color = p.mutedText;
           }}
         >
-          Skip
+          {t('tour.skip')}
         </button>
 
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
@@ -238,7 +240,7 @@ export function TourTooltip({
                 (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
               }}
             >
-              <ArrowLeft size={14} aria-hidden /> Back
+              <ArrowLeft size={14} aria-hidden /> {t('tour.back')}
             </button>
           )}
           <button
@@ -281,11 +283,11 @@ export function TourTooltip({
           >
             {isLastStep ? (
               <>
-                <Check size={14} aria-hidden /> Done
+                <Check size={14} aria-hidden /> {t('tour.done')}
               </>
             ) : (
               <>
-                Next <ArrowRight size={14} aria-hidden />
+                {t('tour.next')} <ArrowRight size={14} aria-hidden />
               </>
             )}
           </button>

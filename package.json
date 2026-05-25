@@ -1,7 +1,7 @@
 {
   "name": "room",
   "private": true,
-  "version": "0.1.8",
+  "version": "0.2.0",
   "type": "module",
   "description": "room — Swiss zoning density explorer: how densely built is this zone, and where does your parcel sit on the distribution?",
   "repository": {

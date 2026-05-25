@@ -4,6 +4,7 @@ import { HelpCircle } from "lucide-react";
 import { appTourConfig } from "./tour.config";
 import { useTour } from "./TourProvider";
 import type { TourVariant } from "./tour.types";
+import { useI18n } from "../contexts/I18nContext";
 
 type Props = {
   className?: string;
@@ -11,6 +12,7 @@ type Props = {
 
 export function TourHelpButton({ className }: Props) {
   const { startTour } = useTour();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -50,9 +52,7 @@ export function TourHelpButton({ className }: Props) {
 
   if (singleVariant) {
     const label =
-      singleVariant === "long"
-        ? appTourConfig.copy.longTourLabel
-        : appTourConfig.copy.shortTourLabel;
+      singleVariant === "long" ? t('tour.long_label') : t('tour.short_label');
     return (
       <div ref={wrapRef} className="relative" data-tour="help-button">
         <button
@@ -75,8 +75,8 @@ export function TourHelpButton({ className }: Props) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={appTourConfig.copy.helpButtonLabel}
-        title={appTourConfig.copy.helpButtonLabel}
+        aria-label={t('tour.help_button')}
+        title={t('tour.help_button')}
         className={buttonClass}
       >
         <HelpCircle className="w-[18px] h-[18px]" aria-hidden="true" />
@@ -92,7 +92,7 @@ export function TourHelpButton({ className }: Props) {
             onClick={() => pick("short")}
             className="block w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            {appTourConfig.copy.shortTourLabel}
+            {t('tour.short_label')}
           </button>
           <button
             type="button"
@@ -100,7 +100,7 @@ export function TourHelpButton({ className }: Props) {
             onClick={() => pick("long")}
             className="block w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border-t border-gray-100 dark:border-gray-800"
           >
-            {appTourConfig.copy.longTourLabel}
+            {t('tour.long_label')}
           </button>
         </div>
       )}

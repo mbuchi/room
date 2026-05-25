@@ -57,44 +57,44 @@ const ZoneInfoPanel = ({
 
         {!isLoading && !error && parcelData && (
           <div className="p-4 space-y-4">
-            <Section icon={<MapPin size={12} className="text-red-400/80" />} title="Location">
-              <Row label="Municipality" value={parcelData.municipality_name} />
-              <Row label="FSO" value={parcelData.fso} mono />
-              {parcelData.egrid && <Row label="EGRID" value={parcelData.egrid} mono />}
+            <Section icon={<MapPin size={12} className="text-red-400/80" />} title={t('panel.info.section.location')}>
+              <Row label={t('panel.info.row.municipality')} value={parcelData.municipality_name} />
+              <Row label={t('panel.info.row.fso')} value={parcelData.fso} mono />
+              {parcelData.egrid && <Row label={t('panel.info.row.egrid')} value={parcelData.egrid} mono />}
             </Section>
 
-            <Section icon={<Layers size={12} className="text-amber-400/80" />} title="Zoning">
-              <Row label="CZ Local" value={parcelData.cz_local} mono />
-              <Row label="CZ Canton" value={parcelData.cz_canton} mono />
+            <Section icon={<Layers size={12} className="text-amber-400/80" />} title={t('panel.info.section.zoning')}>
+              <Row label={t('panel.info.row.cz_local')} value={parcelData.cz_local} mono />
+              <Row label={t('panel.info.row.cz_canton')} value={parcelData.cz_canton} mono />
               <Row
-                label="Allowed util."
+                label={t('panel.info.row.allowed_util')}
                 value={parcelData.cz_util_now != null ? `${fmt(parcelData.cz_util_now)} m³` : null}
               />
             </Section>
 
-            <Section icon={<Building2 size={12} className="text-teal-400/80" />} title="Built">
+            <Section icon={<Building2 size={12} className="text-teal-400/80" />} title={t('panel.info.section.built')}>
               <Row
-                label="Parcel area"
+                label={t('panel.info.row.parcel_area')}
                 value={parcelData.parcel_area != null ? `${fmt(parcelData.parcel_area)} m²` : null}
               />
               <Row
-                label="Built volume"
+                label={t('panel.info.row.built_volume')}
                 value={parcelData.built_volume != null ? `${fmt(parcelData.built_volume)} m³` : null}
               />
-              <Row label="GFZ" value={parcelData.gfz != null ? parcelData.gfz.toFixed(2) : null} />
+              <Row label={t('panel.info.row.gfz')} value={parcelData.gfz != null ? parcelData.gfz.toFixed(2) : null} />
               <Row
-                label="Height"
+                label={t('panel.info.row.height')}
                 value={parcelData.bldg_height_m != null ? `${parcelData.bldg_height_m.toFixed(1)} m` : null}
               />
               <Row
-                label="Floors"
+                label={t('panel.info.row.floors')}
                 value={parcelData.bldg_floors_n != null ? String(parcelData.bldg_floors_n) : null}
               />
             </Section>
 
-            <Section icon={<Calendar size={12} className="text-sky-400/80" />} title="Age">
+            <Section icon={<Calendar size={12} className="text-sky-400/80" />} title={t('panel.info.section.age')}>
               <Row
-                label="Year built"
+                label={t('panel.info.row.year_built')}
                 value={parcelData.bldg_constr_year != null ? String(parcelData.bldg_constr_year) : null}
               />
             </Section>
@@ -103,17 +103,17 @@ const ZoneInfoPanel = ({
                 bar each so the user can read "this parcel is X% utilised /
                 Y m³ headroom" without parsing a table. */}
             <RatioCard
-              label="ratioV (volume utilisation)"
+              label={t('panel.info.ratio_v.label')}
               ratio={parcelData.ratio_v}
               hint={
                 parcelData.ratio_v == null
-                  ? 'No reference allowed-utilisation for this zone.'
+                  ? t('panel.info.ratio_v.no_reference')
                   : undefined
               }
             />
             <FreeVolumeCard freeV={parcelData.free_v} />
             <RatioCard
-              label="ratioS (site coverage)"
+              label={t('panel.info.ratio_s.label')}
               ratio={parcelData.ratio_s}
             />
           </div>
@@ -200,13 +200,14 @@ const RatioCard = ({
   ratio: number | null;
   hint?: string;
 }) => {
+  const { t } = useI18n();
   if (ratio == null) {
     return (
       <div className="bg-gray-900/60 border border-gray-800/50 rounded-lg p-3">
         <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
           {label}
         </p>
-        <p className="mt-1.5 text-xs text-gray-500">{hint ?? 'No data for this parcel.'}</p>
+        <p className="mt-1.5 text-xs text-gray-500">{hint ?? t('panel.info.no_data_for_parcel')}</p>
       </div>
     );
   }
@@ -240,13 +241,14 @@ const RatioCard = ({
 };
 
 const FreeVolumeCard = ({ freeV }: { freeV: number | null }) => {
+  const { t } = useI18n();
   if (freeV == null) {
     return (
       <div className="bg-gray-900/60 border border-gray-800/50 rounded-lg p-3">
         <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
-          freeV (headroom)
+          {t('panel.info.free_v.label')}
         </p>
-        <p className="mt-1.5 text-xs text-gray-500">No data for this parcel.</p>
+        <p className="mt-1.5 text-xs text-gray-500">{t('panel.info.no_data_for_parcel')}</p>
       </div>
     );
   }
@@ -255,7 +257,7 @@ const FreeVolumeCard = ({ freeV }: { freeV: number | null }) => {
     <div className="bg-gray-900/60 border border-gray-800/50 rounded-lg p-3">
       <div className="flex items-baseline justify-between">
         <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
-          freeV (headroom)
+          {t('panel.info.free_v.label')}
         </p>
         <p
           className={`text-xs font-semibold tabular-nums ${
@@ -267,7 +269,7 @@ const FreeVolumeCard = ({ freeV }: { freeV: number | null }) => {
         </p>
       </div>
       <p className="mt-1 text-[10px] text-gray-500">
-        {positive ? 'Allowed volume remaining.' : 'Built volume exceeds allowance.'}
+        {positive ? t('panel.info.free_v.positive') : t('panel.info.free_v.negative')}
       </p>
     </div>
   );

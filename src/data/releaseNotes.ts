@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
 
@@ -9,6 +9,28 @@ export { KIND_META } from '@swissnovo/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.2.0',
+    date: 'May 25, 2026',
+    codename: 'Quatre Langues',
+    summary:
+      'room now speaks four languages. Pick English, French, German or Italian from the new flag selector in the top bar — the navbar, panels, modals, charts, tour and toasts all switch instantly, and your choice is remembered across visits.',
+    highlight: true,
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Languages,
+        text: 'Deep i18n pass: every user-facing string in room — navbar, layer controls, parcel-facts panel, zone-distribution charts, the "My Exports" modal, the location-permission modal, screenshot toasts, user menu, onboarding tour, error messages — is now translated to EN / FR / DE / IT. The LocaleSelector in the navbar (also new) lets you switch on the fly.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Languages,
+        text: 'Language preference persists in localStorage under `room:locale` and falls back to your browser language on first visit. Missing strings degrade gracefully to English so nothing ever shows a raw translation key.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.1.8',
     date: 'May 25, 2026',

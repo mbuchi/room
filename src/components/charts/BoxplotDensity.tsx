@@ -10,6 +10,7 @@ import {
   ReferenceLine,
 } from 'recharts';
 import type { ZoneSummary } from '../../services/zoneStatsService';
+import { useI18n } from '../../contexts/I18nContext';
 
 interface BoxplotDensityProps {
   title: string;
@@ -75,6 +76,7 @@ const BoxplotDensity = ({
   selectedValue,
   unit,
 }: BoxplotDensityProps) => {
+  const { t } = useI18n();
   const kde = useMemo(() => gaussianKDE(distribution), [distribution]);
 
   const hasData = distribution.length >= 2 && kde.length > 0;
@@ -85,7 +87,7 @@ const BoxplotDensity = ({
         <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
           {title}
         </h4>
-        <p className="text-xs text-gray-500">Not enough data for this zone.</p>
+        <p className="text-xs text-gray-500">{t('panel.zone.not_enough_data')}</p>
       </div>
     );
   }
@@ -100,7 +102,7 @@ const BoxplotDensity = ({
         </h4>
         {selectedValue != null && (
           <span className="text-[11px] font-mono text-red-400">
-            You: {formatValue(selectedValue, unit)}
+            {t('panel.zone.chart_you_prefix', { value: formatValue(selectedValue, unit) })}
           </span>
         )}
       </div>
@@ -153,7 +155,7 @@ const BoxplotDensity = ({
                 strokeWidth={2}
                 ifOverflow="extendDomain"
                 label={{
-                  value: 'You',
+                  value: t('panel.zone.chart_you'),
                   position: 'top',
                   fill: '#f87171',
                   fontSize: 10,
@@ -175,8 +177,11 @@ const BoxplotDensity = ({
         </ResponsiveContainer>
       </div>
       <p className="mt-1 text-[10px] text-gray-500 font-mono">
-        n={summary.n} · p50 {formatValue(summary.p50, unit)} · mean{' '}
-        {formatValue(summary.mean, unit)}
+        {t('panel.zone.summary_line', {
+          n: summary.n,
+          p50: formatValue(summary.p50, unit),
+          mean: formatValue(summary.mean, unit),
+        })}
       </p>
     </div>
   );

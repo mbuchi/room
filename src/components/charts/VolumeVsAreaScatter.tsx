@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import type { ZoneParcel } from '../../services/zoneStatsService';
 import { linearRegression } from '../../services/statsMath';
+import { useI18n } from '../../contexts/I18nContext';
 
 interface VolumeVsAreaScatterProps {
   parcels: ZoneParcel[];
@@ -28,6 +29,7 @@ const CHART_HEIGHT = 240;
  * on top — instant visual placement against the cloud.
  */
 const VolumeVsAreaScatter = ({ parcels, selectedEgrid }: VolumeVsAreaScatterProps) => {
+  const { t } = useI18n();
   const { points, selected, line } = useMemo(() => {
     const pts = parcels
       .filter((p) => Number.isFinite(p.area) && Number.isFinite(p.volume))
@@ -61,9 +63,9 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid }: VolumeVsAreaScatterProp
     return (
       <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
         <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
-          Parcel area vs. built volume
+          {t('panel.zone.scatter_title')}
         </h4>
-        <p className="text-xs text-gray-500">No parcels available for this zone.</p>
+        <p className="text-xs text-gray-500">{t('panel.zone.scatter_no_data')}</p>
       </div>
     );
   }
@@ -72,9 +74,9 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid }: VolumeVsAreaScatterProp
     <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
       <div className="flex items-baseline justify-between mb-2">
         <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-          Parcel area vs. built volume
+          {t('panel.zone.scatter_title')}
         </h4>
-        <span className="text-[10px] text-gray-500 font-mono">{points.length} parcels</span>
+        <span className="text-[10px] text-gray-500 font-mono">{t('panel.zone.parcels_suffix', { count: points.length })}</span>
       </div>
       <div style={{ width: '100%', height: CHART_HEIGHT }}>
         <ResponsiveContainer>
@@ -90,7 +92,7 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid }: VolumeVsAreaScatterProp
               axisLine={{ stroke: '#374151' }}
               tickLine={{ stroke: '#374151' }}
               label={{
-                value: 'Parcel area (m²)',
+                value: t('panel.zone.scatter_axis_area'),
                 position: 'insideBottom',
                 offset: -10,
                 fill: '#6b7280',
@@ -156,7 +158,10 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid }: VolumeVsAreaScatterProp
       </div>
       {selected && (
         <p className="mt-1 text-[10px] text-gray-500 font-mono">
-          You: {selected.x.toFixed(0)} m² / {selected.y.toFixed(0)} m³
+          {t('panel.zone.scatter_you_prefix', {
+            area: selected.x.toFixed(0),
+            volume: selected.y.toFixed(0),
+          })}
         </p>
       )}
     </div>
