@@ -484,6 +484,12 @@ const MapView = () => {
               parcelData={parcelData}
               isLoading={parcelDataLoading}
               error={parcelDataError}
+              focusedParcel={{
+                parcelId: selectedParcel.parcelId,
+                lng: selectedParcel.lng,
+                lat: selectedParcel.lat,
+                props: selectedParcel.props,
+              }}
             />
           )}
         </div>
