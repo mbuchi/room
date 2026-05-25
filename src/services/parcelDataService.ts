@@ -10,12 +10,46 @@
  * We deliberately type only the subset of fields that room actually reads —
  * the upstream payload has many more keys, but extending this type as the UI
  * grows is cheap and the surface stays scoped to what's used.
+ *
+ * Caching matches the zoneStatsService strategy (which itself follows scoore's
+ * overpass cache): an in-memory Map fronts an `IndexedDBCache` so the FIRST
+ * click on a previously-seen parcel after a reload is instant.
+ *   - Key: `egrid` when present (canonical federal id), else a quantised
+ *     `${lat.toFixed(5)}_${lng.toFixed(5)}` (~1 m precision — close enough to
+ *     collapse repeated clicks at the same point without bleeding across
+ *     neighbouring parcels).
+ *   - 50 MB LRU budget, no TTL — parcel facts change at most monthly.
  */
+import { IndexedDBCache } from '../utils/cache';
+
 // Calls go through the Vercel Edge proxy in `api/parcel-data.ts`, which
 // injects the RES_API_TOKEN server-side so it never reaches the browser.
 // In dev, the relative URL hits whatever `vercel dev` or the Vite proxy
 // resolves; in prod it hits room's own /api/parcel-data Edge function.
 const PARCEL_DATA_URL = '/api/parcel-data';
+
+const PERSISTENT_CACHE_MAX_BYTES = 50 * 1024 * 1024;
+
+const memoryCache = new Map<string, ParcelData>();
+const persistentCache = new IndexedDBCache<ParcelData>(
+  'room-cache',
+  'parcel-data',
+  { maxBytes: PERSISTENT_CACHE_MAX_BYTES },
+);
+
+function cacheKey(req: ParcelDataRequest): string {
+  // Prefer the stable federal id; fall back to quantised coordinates so a
+  // click that doesn't yet know the egrid still hits the same row on a
+  // re-click. 5 dp ≈ 1 m which is well inside parcel resolution.
+  if (req.egrid) return `egrid:${req.egrid}`;
+  return `ll:${req.lat.toFixed(5)}_${req.lng.toFixed(5)}`;
+}
+
+/** Wipe both cache layers — used by debug actions / explicit invalidation. */
+export function clearParcelDataCache(): void {
+  memoryCache.clear();
+  void persistentCache.clear();
+}
 
 export interface ParcelData {
   /** BFS commune number — joins parcel to municipality/zone aggregates. */
@@ -76,6 +110,21 @@ export class ParcelDataError extends Error {
  * clear message in the panel.
  */
 export async function fetchParcelData(req: ParcelDataRequest): Promise<ParcelData> {
+  const key = cacheKey(req);
+
+  // Layer 1 — synchronous in-memory hit. Either populated by an earlier
+  // network call this session, or hydrated from IndexedDB below.
+  const memHit = memoryCache.get(key);
+  if (memHit) return memHit;
+
+  // Layer 2 — persistent IndexedDB hit. A few-ms read vs. a multi-second
+  // round-trip on a cold reload.
+  const idbHit = await persistentCache.get(key);
+  if (idbHit) {
+    memoryCache.set(key, idbHit);
+    return idbHit;
+  }
+
   let res: Response;
   try {
     res = await fetch(PARCEL_DATA_URL, {
@@ -104,7 +153,19 @@ export async function fetchParcelData(req: ParcelDataRequest): Promise<ParcelDat
   // RES returns a GeoJSON Feature; the interesting bits live on .properties.
   const body: unknown = await res.json();
   const props = extractProperties(body);
-  return normalize(props);
+  const data = normalize(props);
+
+  // Write through to both cache layers. If the response carries an `egrid`
+  // and the caller didn't already supply one, also index under the egrid key
+  // — that's the stable identifier callers will use on re-click.
+  memoryCache.set(key, data);
+  void persistentCache.set(key, data);
+  if (!req.egrid && data.egrid) {
+    const egridKey = `egrid:${data.egrid}`;
+    memoryCache.set(egridKey, data);
+    void persistentCache.set(egridKey, data);
+  }
+  return data;
 }
 
 function extractProperties(body: unknown): Record<string, unknown> {

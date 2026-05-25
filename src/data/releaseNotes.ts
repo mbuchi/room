@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
 
@@ -9,6 +9,27 @@ export { KIND_META } from '@swissnovo/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.1.8',
+    date: 'May 25, 2026',
+    codename: 'Already Loaded',
+    summary:
+      'Zone and parcel data now stick around between visits. The first click after a reload pulls from the browser instead of the network, so previously-seen parcels open instantly — no more 1–45 s wait while RES recomputes the same aggregate.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'Two-layer cache for /api/zone-stats and /api/parcel-data: an in-memory Map for same-session re-clicks, and an IndexedDB store (database "room-cache") that survives reloads and tab closes. Mirrors the strategy scoore uses for its Overpass queries.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Database,
+        text: 'Each persistent store gets a 50 MB LRU budget with no expiry — zone aggregates only change monthly, so cached entries stay valid until the budget evicts the least-recently-used ones. Cache lives entirely client-side; nothing leaves your browser.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.1.7',
     date: 'May 25, 2026',
