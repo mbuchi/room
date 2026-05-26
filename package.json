@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@mapbox/mapbox-gl-geocoder": "^5.1.2",
-    "@swissnovo/shared": "github:mbuchi/swissnovo-shared#v0.25.1",
+    "@swissnovo/shared": "github:mbuchi/swissnovo-shared#v0.31.0",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.344.0",
     "mapbox-gl": "^3.24.0",
