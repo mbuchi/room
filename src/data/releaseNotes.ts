@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.2.1',
+    date: 'May 26, 2026',
+    codename: 'Quiet Check-In',
+    summary:
+      'Release-notes button now uses the circle-check icon (matches the rest of the suite).',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text: 'Bumped @swissnovo/shared to v0.32.0 — release-notes button icon switched from Tag to CheckCircle.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.2.0',
     date: 'May 25, 2026',
     codename: 'Quatre Langues',
