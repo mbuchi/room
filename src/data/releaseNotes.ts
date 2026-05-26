@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.2.2',
+    date: 'May 26, 2026',
+    codename: 'Cadastral Fallback',
+    summary:
+      'Picked up the latest shared library — Claire now resolves parcel EGRID via cadastral identify as a fallback.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text: 'Updated @swissnovo/shared to v0.33.0 — Claire now resolves parcel EGRID via cadastral identify as a fallback.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.2.1',
     date: 'May 26, 2026',
     codename: 'Quiet Check-In',
