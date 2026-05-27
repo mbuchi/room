@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.2.3',
+    date: 'May 27, 2026',
+    codename: 'Studio Shortcut',
+    summary:
+      'Claire now offers a Studio shortcut — deep-link the current parcel into doorway with one tap.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text: 'Claire: Studio button — deep-link the current parcel into doorway.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.2.2',
     date: 'May 26, 2026',
     codename: 'Cadastral Fallback',
