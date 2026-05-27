@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
 
@@ -9,6 +9,34 @@ export { KIND_META } from '@swissnovo/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.3.0',
+    date: 'May 27, 2026',
+    codename: 'Inter Polish',
+    summary:
+      'Typography refresh aligning room with the SwissNovo suite — UI body, headings, and panels now ride on Inter (variable, OpenType cv11 + ss01 + tabular figures, antialiased) for a more professional tech-grade dark look. Varela Round is preserved only for the room wordmark with the red `oo`. Parcel IDs and code surfaces switch to JetBrains Mono via the new `--hood-mono` token.',
+    highlight: true,
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Type,
+        text: 'UI body, headings, and search inputs now ride on Inter (variable, OpenType cv11 + ss01 + tabular figures, antialiased) for a more professional tech-grade dark look.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BadgeCheck,
+        text: 'Brand wordmark untouched: the room logo stays in Varela Round with the red `oo`.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Code2,
+        text: 'IDs and code surfaces switch to JetBrains Mono via the new `--hood-mono` token.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.2.3',
     date: 'May 27, 2026',
