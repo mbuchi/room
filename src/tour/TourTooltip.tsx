@@ -11,9 +11,13 @@ function detectDarkMode(): boolean {
   return document.querySelector(".dark") !== null;
 }
 
-const VARELA = '"Varela Round", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+// SwissNovo suite typography: Inter is the UI face everywhere except the
+// brand wordmark. Tour tooltip text is body UI, not a wordmark, so it rides
+// on the same Inter stack the rest of the app uses.
+const VARELA =
+  '"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 const SYSTEM =
-  '-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+  '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
 // Centralised palette so dark/light look intentional, not ad-hoc.
 function buildPalette(isDark: boolean, primary: string) {
