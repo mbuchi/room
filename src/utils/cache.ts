@@ -119,7 +119,20 @@ export interface IndexedDBCacheOptions {
 // Bumped from 1 → 2 to repair installs whose `room-cache` DB was created with
 // only one of its two stores (see `stores` above). The 1→2 upgrade creates
 // any missing store without wiping existing data.
+//
+// CRITICAL: a version bump means `open()` runs an upgrade, and an upgrade can
+// be **blocked** by another still-open connection on the OLD version (a second
+// tab, or a not-yet-torn-down page). A blocked open never fires `onsuccess` —
+// so `openDB()` MUST NOT be allowed to hang, because callers `await` it on the
+// critical path of the data fetch (see parcelDataService / zoneStatsService).
+// If it hung, the parcel/zone fetch would never even reach the network and the
+// info pane would spin forever. Hence the `onblocked` + timeout fallbacks below
+// and the `onversionchange` self-close so we never block a future upgrade.
 const DB_VERSION = 2;
+// A healthy open resolves in single-digit ms; only a genuinely blocked upgrade
+// takes longer. Past this we give up on the persistent cache for the session
+// and let every read/write fall through to the network — never hang.
+const OPEN_TIMEOUT_MS = 3000;
 
 export class IndexedDBCache<T> {
   private dbName: string;
@@ -128,6 +141,11 @@ export class IndexedDBCache<T> {
   private ttlMs: number;
   private maxBytes: number;
   private db: IDBDatabase | null = null;
+  /** Once an open fails / blocks / times out we disable the cache for the
+   *  session so we don't re-pay the timeout on every read. */
+  private disabled = false;
+  /** In-flight open, shared across concurrent get/set calls. */
+  private openPromise: Promise<IDBDatabase | null> | null = null;
 
   constructor(dbName: string, storeName: string, options: IndexedDBCacheOptions = {}) {
     this.dbName = dbName;
@@ -148,16 +166,43 @@ export class IndexedDBCache<T> {
     }
   }
 
-  private async openDB(): Promise<IDBDatabase> {
-    if (this.db) return this.db;
+  /**
+   * Open the DB, NEVER hanging. Resolves to the connection, or to `null` when
+   * the cache is unavailable (no IndexedDB, open error, or — the regression
+   * this guards — a blocked upgrade that would otherwise never resolve). A
+   * `null` result is a normal "cache disabled" signal that callers treat as a
+   * miss/no-op, so the data fetch always proceeds.
+   */
+  private openDB(): Promise<IDBDatabase | null> {
+    if (this.db) return Promise.resolve(this.db);
+    if (this.disabled) return Promise.resolve(null);
+    if (this.openPromise) return this.openPromise;
 
-    return new Promise((resolve, reject) => {
-      // `onupgradeneeded` only fires when the version increases, so we create
-      // EVERY sibling store (this.stores) in one pass — otherwise a second
-      // cache instance opening the same DB at the same version finds its store
-      // missing and silently fails on every op. Bump DB_VERSION when the set
-      // of stores changes so already-installed clients run the upgrade.
-      const request = indexedDB.open(this.dbName, DB_VERSION);
+    this.openPromise = new Promise<IDBDatabase | null>((resolve) => {
+      let settled = false;
+      const give_up = () => {
+        if (settled) return;
+        settled = true;
+        this.disabled = true;
+        this.openPromise = null;
+        resolve(null);
+      };
+
+      let request: IDBOpenDBRequest;
+      try {
+        // Throws synchronously if `indexedDB` is undefined (SSR / locked-down
+        // browsers); the catch turns that into a graceful "cache disabled".
+        request = indexedDB.open(this.dbName, DB_VERSION);
+      } catch {
+        give_up();
+        return;
+      }
+
+      // Blocked upgrade (an older-version connection is still open elsewhere):
+      // don't wait — abandon the cache so the fetch proceeds via the network.
+      request.onblocked = () => give_up();
+      // Backstop for environments where `onblocked` doesn't fire.
+      const timer = setTimeout(give_up, OPEN_TIMEOUT_MS);
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
@@ -169,17 +214,39 @@ export class IndexedDBCache<T> {
       };
 
       request.onsuccess = (event) => {
-        this.db = (event.target as IDBOpenDBRequest).result;
-        resolve(this.db);
+        clearTimeout(timer);
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (settled) {
+          // We already gave up (timed out); discard this late connection.
+          try { db.close(); } catch { /* ignore */ }
+          return;
+        }
+        settled = true;
+        // Close politely when another tab needs a higher version, so WE never
+        // become the connection that blocks a future upgrade.
+        db.onversionchange = () => {
+          try { db.close(); } catch { /* ignore */ }
+          this.db = null;
+          this.openPromise = null;
+        };
+        this.db = db;
+        this.openPromise = null;
+        resolve(db);
       };
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => {
+        clearTimeout(timer);
+        give_up();
+      };
     });
+
+    return this.openPromise;
   }
 
   async get(key: string): Promise<T | null> {
     try {
       const db = await this.openDB();
+      if (!db) return null;
       const entry = await new Promise<IDBCacheEntry<T> | undefined>((resolve) => {
         const tx = db.transaction(this.storeName, 'readonly');
         const request = tx.objectStore(this.storeName).get(key);
@@ -208,6 +275,7 @@ export class IndexedDBCache<T> {
   /** Update an entry's lastAccessed timestamp without rewriting its data. */
   private async touch(key: string): Promise<void> {
     const db = await this.openDB();
+    if (!db) return;
     return new Promise((resolve) => {
       const tx = db.transaction(this.storeName, 'readwrite');
       const store = tx.objectStore(this.storeName);
@@ -227,6 +295,7 @@ export class IndexedDBCache<T> {
   async set(key: string, data: T): Promise<void> {
     try {
       const db = await this.openDB();
+      if (!db) return;
       const now = Date.now();
       const entry: IDBCacheEntry<T> = {
         key,
@@ -256,6 +325,7 @@ export class IndexedDBCache<T> {
   private async enforceSizeLimit(): Promise<void> {
     try {
       const db = await this.openDB();
+      if (!db) return;
       const entries = await new Promise<IDBCacheEntry<T>[]>((resolve) => {
         const tx = db.transaction(this.storeName, 'readonly');
         const request = tx.objectStore(this.storeName).getAll();
@@ -290,6 +360,7 @@ export class IndexedDBCache<T> {
   async delete(key: string): Promise<void> {
     try {
       const db = await this.openDB();
+      if (!db) return;
       return new Promise((resolve) => {
         const tx = db.transaction(this.storeName, 'readwrite');
         const store = tx.objectStore(this.storeName);
@@ -306,6 +377,7 @@ export class IndexedDBCache<T> {
   async clear(): Promise<void> {
     try {
       const db = await this.openDB();
+      if (!db) return;
       return new Promise((resolve) => {
         const tx = db.transaction(this.storeName, 'readwrite');
         tx.objectStore(this.storeName).clear();
