@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, type CSSProperties } from 'react';
 import { X } from 'lucide-react';
 import mapboxgl from 'mapbox-gl';
 import {
@@ -28,6 +28,7 @@ import ZoomControl from './ZoomControl';
 import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
+import SaveToPrmBar from './SaveToPrmBar';
 import { ClaireAssistant } from '@swissnovo/shared';
 import { requestGeolocation, type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
@@ -70,6 +71,10 @@ const MapView = () => {
   // 'facts' tab is the per-parcel reference. Resets to 'zone' on each
   // new parcel selection so the user always lands on the headline view.
   const [panelTab, setPanelTab] = useState<'zone' | 'facts'>('zone');
+  // Mobile only: the right pane becomes a bottom sheet with a peek height and
+  // an expanded height, toggled by the grab handle. Ignored at md+ where the
+  // pane is a full-height right rail.
+  const [sheetExpanded, setSheetExpanded] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
   const [showPermissionModal, setShowPermissionModal] = useState(true);
   const locateMarkerRef = useRef<mapboxgl.Marker | null>(null);
@@ -439,6 +444,15 @@ const MapView = () => {
   // when locale changes — the parcel-data fetch itself isn't re-issued.
   void locale;
 
+  const focusedHandle = selectedParcel
+    ? {
+        parcelId: selectedParcel.parcelId,
+        lng: selectedParcel.lng,
+        lat: selectedParcel.lat,
+        props: selectedParcel.props,
+      }
+    : null;
+
   return (
     <div className="relative w-full h-screen">
       <Navbar
@@ -465,19 +479,38 @@ const MapView = () => {
       <ZoomControl
         getMap={() => mapRef.current}
         isDarkMode={true}
-        className="bottom-24 transition-[right] duration-300 md:bottom-8"
+        className={`bottom-24 transition-[right] duration-300 md:bottom-8 ${
+          selectedParcel ? 'hidden md:block' : ''
+        }`}
         rightOffsetPx={selectedParcel ? PANEL_OFFSET_PX : null}
       />
       {selectedParcel && (
         <div
-          className="absolute top-14 right-0 bottom-0 z-30 flex flex-col animate-slide-in-right bg-gray-950/95 backdrop-blur-xl border-l border-gray-800/60 shadow-2xl"
-          style={{ width: `${PANEL_WIDTH_PX}px` }}
+          className="z-30 flex flex-col bg-gray-950/95 backdrop-blur-xl shadow-2xl
+            fixed inset-x-0 bottom-0 h-[var(--sheet-h)] max-h-[90vh] rounded-t-2xl border-t border-gray-800/60 animate-slide-up
+            md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right"
+          style={
+            {
+              '--sheet-h': sheetExpanded ? '90vh' : '56vh',
+              '--panel-w': `${PANEL_WIDTH_PX}px`,
+            } as CSSProperties & Record<string, string>
+          }
         >
+          {/* Mobile grab handle — drag/tap to peek ↔ expand. Hidden at md+. */}
+          <button
+            type="button"
+            onClick={() => setSheetExpanded((v) => !v)}
+            aria-label={sheetExpanded ? t('panel.sheet.collapse') : t('panel.sheet.expand')}
+            className="md:hidden flex-shrink-0 w-full flex items-center justify-center pt-2.5 pb-1.5 group"
+          >
+            <span className="h-1.5 w-10 rounded-full bg-gray-700 group-hover:bg-gray-600 group-active:bg-gray-500 transition-colors" />
+          </button>
+
           <div className="flex items-stretch border-b border-gray-800/60 flex-shrink-0">
             <button
               data-tour="zone-charts"
               onClick={() => setPanelTab('zone')}
-              className={`flex-1 px-3 py-3 text-xs font-medium tracking-tight transition-colors border-b-2 ${
+              className={`flex-1 px-3 py-3 text-[13px] md:text-xs font-medium tracking-tight transition-colors border-b-2 ${
                 panelTab === 'zone'
                   ? 'text-gray-100 border-red-500/80'
                   : 'text-gray-500 hover:text-gray-300 border-transparent'
@@ -488,7 +521,7 @@ const MapView = () => {
             <button
               data-tour="zone-info-panel"
               onClick={() => setPanelTab('facts')}
-              className={`flex-1 px-3 py-3 text-xs font-medium tracking-tight transition-colors border-b-2 ${
+              className={`flex-1 px-3 py-3 text-[13px] md:text-xs font-medium tracking-tight transition-colors border-b-2 ${
                 panelTab === 'facts'
                   ? 'text-gray-100 border-red-500/80'
                   : 'text-gray-500 hover:text-gray-300 border-transparent'
@@ -500,11 +533,14 @@ const MapView = () => {
               onClick={handleCloseInfoPanel}
               title={t('panel.info.close')}
               aria-label={t('panel.info.close')}
-              className="px-3 text-gray-500 hover:text-gray-200 hover:bg-gray-800/60 transition-colors border-l border-gray-800/60"
+              className="px-3.5 md:px-3 text-gray-500 hover:text-gray-200 hover:bg-gray-800/60 transition-colors border-l border-gray-800/60"
             >
-              <X size={16} />
+              <X size={18} className="md:hidden" />
+              <X size={16} className="hidden md:block" />
             </button>
           </div>
+
+          {/* Scrollable tab content — flex-1 so the Save CTA footer stays pinned. */}
           {panelTab === 'zone' ? (
             <ZonePanel
               parcelData={parcelData}
@@ -516,14 +552,12 @@ const MapView = () => {
               parcelData={parcelData}
               isLoading={parcelDataLoading}
               error={parcelDataError}
-              focusedParcel={{
-                parcelId: selectedParcel.parcelId,
-                lng: selectedParcel.lng,
-                lat: selectedParcel.lat,
-                props: selectedParcel.props,
-              }}
+              focusedParcel={focusedHandle}
             />
           )}
+
+          {/* Prominent, always-visible Save-to-PRM call to action. */}
+          <SaveToPrmBar focusedParcel={focusedHandle} parcelData={parcelData} />
         </div>
       )}
       {selectedParcel && (
