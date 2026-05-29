@@ -322,9 +322,11 @@ const Row = ({
 };
 
 /**
- * A horizontal fill-bar for the headline ratio fields — caps at 100% for
- * the bar geometry but always shows the raw number underneath, so an
- * over-built parcel (ratio > 1) still reads honestly.
+ * A horizontal fill-bar for the headline ratio fields. `ratio_v`/`ratio_s`
+ * arrive from RES as PERCENTAGES of the zone allowance (100 = built exactly to
+ * the allowed volume/coverage, >100 = over-built), not 0..1 fractions. The bar
+ * caps at 100% for geometry but the label always shows the true percentage, so
+ * an over-built parcel still reads honestly.
  */
 const RatioCard = ({
   label,
@@ -347,8 +349,8 @@ const RatioCard = ({
     );
   }
 
-  const pct = Math.min(100, Math.max(0, ratio * 100));
-  const over = ratio > 1;
+  const pct = Math.min(100, Math.max(0, ratio));
+  const over = ratio > 100;
 
   return (
     <div className="bg-gray-900/60 border border-gray-800/50 rounded-lg p-3">
@@ -361,7 +363,7 @@ const RatioCard = ({
             over ? 'text-red-400' : 'text-gray-200'
           }`}
         >
-          {ratio.toFixed(2)}
+          {Math.round(ratio)}%
           {over && ' ↑'}
         </p>
       </div>

@@ -100,11 +100,31 @@ export interface IndexedDBCacheOptions {
   /** Maximum total cache size in bytes. Once exceeded, the least-recently-used
    *  entries are evicted. Omitted means unbounded. */
   maxBytes?: number;
+  /**
+   * Every object store that lives in this database. ALL of them are created
+   * in a single `onupgradeneeded` pass.
+   *
+   * This matters because IndexedDB only fires `onupgradeneeded` when the DB
+   * version increases. With two `IndexedDBCache` instances sharing one db
+   * name, the first to open creates its own store at v1; the second opens the
+   * already-existing v1 DB, so its upgrade callback never runs and its store
+   * is never created — every read/write then throws `NotFoundError` and is
+   * swallowed, leaving that cache silently dead. Listing all sibling stores
+   * here (and bumping DB_VERSION) makes whichever instance opens first create
+   * the complete schema. Omitted → just this instance's own store.
+   */
+  stores?: string[];
 }
+
+// Bumped from 1 → 2 to repair installs whose `room-cache` DB was created with
+// only one of its two stores (see `stores` above). The 1→2 upgrade creates
+// any missing store without wiping existing data.
+const DB_VERSION = 2;
 
 export class IndexedDBCache<T> {
   private dbName: string;
   private storeName: string;
+  private stores: string[];
   private ttlMs: number;
   private maxBytes: number;
   private db: IDBDatabase | null = null;
@@ -112,6 +132,7 @@ export class IndexedDBCache<T> {
   constructor(dbName: string, storeName: string, options: IndexedDBCacheOptions = {}) {
     this.dbName = dbName;
     this.storeName = storeName;
+    this.stores = options.stores && options.stores.length ? options.stores : [storeName];
     this.ttlMs =
       options.ttlMinutes && options.ttlMinutes > 0
         ? options.ttlMinutes * 60 * 1000
@@ -131,18 +152,19 @@ export class IndexedDBCache<T> {
     if (this.db) return this.db;
 
     return new Promise((resolve, reject) => {
-      // Bumping the version when the schema changes (new store added) is
-      // critical — the `onupgradeneeded` only fires when version increases.
-      // room currently ships two stores, both created at version 1 on first
-      // open. If you add another store later, bump this number AND keep the
-      // existing store-creation lines so already-installed clients upgrade
-      // cleanly instead of going through a wipe.
-      const request = indexedDB.open(this.dbName, 1);
+      // `onupgradeneeded` only fires when the version increases, so we create
+      // EVERY sibling store (this.stores) in one pass — otherwise a second
+      // cache instance opening the same DB at the same version finds its store
+      // missing and silently fails on every op. Bump DB_VERSION when the set
+      // of stores changes so already-installed clients run the upgrade.
+      const request = indexedDB.open(this.dbName, DB_VERSION);
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        if (!db.objectStoreNames.contains(this.storeName)) {
-          db.createObjectStore(this.storeName, { keyPath: 'key' });
+        for (const store of this.stores) {
+          if (!db.objectStoreNames.contains(store)) {
+            db.createObjectStore(store, { keyPath: 'key' });
+          }
         }
       };
 

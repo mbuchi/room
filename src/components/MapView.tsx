@@ -7,10 +7,20 @@ import {
   getInitialMapState,
   updateUrlParams,
 } from '../lib/mapConfig';
-import { addParcelLayers, addBuildingLayers, addBuildingExtrusion } from '../lib/mapLayers';
+import {
+  addParcelLayers,
+  addBuildingLayers,
+  addBuildingExtrusion,
+  densityFillColor,
+  densityFillOpacity,
+  densityLineColor,
+  densityLineOpacity,
+  type ActiveZone,
+} from '../lib/mapLayers';
 import { wgs84ToLv95 } from '../lib/coordTransform';
 import { fetchParcelData, ParcelDataError, type ParcelData } from '../services/parcelDataService';
-import type { ZoneStatsResponse } from '../services/zoneStatsService';
+import { prefetchZoneStats, type ZoneStatsResponse } from '../services/zoneStatsService';
+import DensityLegend from './DensityLegend';
 import type { ScreenshotMetadata } from '../services/imageService';
 import Navbar from './Navbar';
 import MapControls from './MapControls';
@@ -63,8 +73,14 @@ const MapView = () => {
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
   const [showPermissionModal, setShowPermissionModal] = useState(true);
   const locateMarkerRef = useRef<mapboxgl.Marker | null>(null);
-  /** Track which egrids currently have feature-state so we can wipe cleanly. */
-  const paintedEgridsRef = useRef<Set<string>>(new Set());
+  /**
+   * The zone the density choropleth is currently painting (FSO + cz_local +
+   * optional ratio_v percentile breakpoints). Set the instant a parcel is
+   * clicked — straight off the tile's own `cz_local`/`fso_num_2021` so the
+   * map lights up with zero round-trip — then refined to the zone's true
+   * percentile breakpoints once /zone_stats lands. `null` = nothing selected.
+   */
+  const [activeZone, setActiveZone] = useState<ActiveZone | null>(null);
 
   const selectedParcelRef = useRef<SelectedParcel | null>(null);
   selectedParcelRef.current = selectedParcel;
@@ -74,6 +90,30 @@ const MapView = () => {
   is3DModeRef.current = is3DMode;
   const parcelOpacityRef = useRef(parcelOpacity);
   parcelOpacityRef.current = parcelOpacity;
+  const activeZoneRef = useRef<ActiveZone | null>(null);
+  activeZoneRef.current = activeZone;
+
+  /**
+   * Re-apply the density paint on the parcel-fill / parcel-outline layers from
+   * the current `activeZoneRef` + opacity slider. Called on selection, zone
+   * switch, opacity change, and after a basemap style swap re-adds the layers.
+   */
+  const applyParcelPaint = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const zone = activeZoneRef.current;
+    const op = parcelOpacityRef.current;
+    if (map.getLayer('parcel-fill')) {
+      map.setPaintProperty('parcel-fill', 'fill-color', densityFillColor(zone));
+      map.setPaintProperty('parcel-fill', 'fill-opacity', densityFillOpacity(zone, op));
+    }
+    if (map.getLayer('parcel-outline')) {
+      map.setPaintProperty('parcel-outline', 'line-color', densityLineColor(zone));
+      map.setPaintProperty('parcel-outline', 'line-opacity', densityLineOpacity(zone, op));
+    }
+  }, []);
+  const applyParcelPaintRef = useRef(applyParcelPaint);
+  applyParcelPaintRef.current = applyParcelPaint;
 
   const selectParcelFromProps = useCallback((
     props: Record<string, unknown>,
@@ -84,10 +124,35 @@ const MapView = () => {
     if (!map) return;
 
     const parcelId = (props.parcel_id as string) ?? '';
-    const egrid: string | null = (props.egrid as string) ?? (props.EGRID as string) ?? null;
+    // The tiles carry the federal EGRID in `parcel_id` (there is no `egrid`
+    // field), so use that as the canonical id; keep the legacy egrid props as
+    // a fallback for the parcel-data lookup.
+    const egrid: string | null =
+      (props.egrid as string) ?? (props.EGRID as string) ?? parcelId ?? null;
 
     if (map.getLayer('parcel-selected'))
       map.setFilter('parcel-selected', ['==', ['get', 'parcel_id'], parcelId]);
+    if (map.getLayer('parcel-selected-casing'))
+      map.setFilter('parcel-selected-casing', ['==', ['get', 'parcel_id'], parcelId]);
+
+    // Light the zone up immediately from the tile's own fields — no waiting on
+    // /zone_stats. ZonePanel later refines the breakpoints to the zone's real
+    // ratio_v percentiles via onZoneStatsLoaded.
+    const fso = Number(props.fso_num_2021 ?? props.fso_num ?? props.fso);
+    const czLocal = (props.cz_local as string) ?? '';
+    const nextZone: ActiveZone | null =
+      Number.isFinite(fso) && czLocal ? { fso, czLocal } : null;
+    // Drive the ref synchronously so applyParcelPaint sees the new zone right
+    // now (React's state commit lands a tick later); then mirror into state
+    // for the legend + re-renders.
+    activeZoneRef.current = nextZone;
+    setActiveZone(nextZone);
+    applyParcelPaintRef.current();
+    if (nextZone) {
+      // Warm both cache layers in parallel with the parcel-data fetch so the
+      // chart panel renders without a second cold round-trip.
+      prefetchZoneStats({ fso: nextZone.fso, cz_local: nextZone.czLocal, lang: locale });
+    }
 
     setSelectedParcel({ parcelId, egrid, props, lng, lat });
     setParcelData(null);
@@ -104,7 +169,7 @@ const MapView = () => {
         ),
       )
       .finally(() => setParcelDataLoading(false));
-  }, [t]);
+  }, [t, locale]);
 
   const selectParcelRef = useRef(selectParcelFromProps);
   selectParcelRef.current = selectParcelFromProps;
@@ -126,70 +191,33 @@ const MapView = () => {
   }, []);
 
   /**
-   * Push percentile feature-state for every parcel in the active zone, and
-   * clear any leftover state from the previous zone so colour bleed doesn't
-   * accumulate when the user switches zones in the dropdown.
+   * Refine the choropleth once /zone_stats lands: pull the zone's real ratio_v
+   * percentile breakpoints [p5,p25,p50,p75,p95] from the summary and re-paint
+   * so each parcel is coloured by where it sits in its own zone's
+   * distribution. Also realigns the active zone to the stats payload, which is
+   * how a dropdown zone-switch recolours the map.
    */
-  const handleZoneStatsLoaded = useCallback(
-    (parcels: ZoneStatsResponse['parcels'], percentileByEgrid: Map<string, number>) => {
-      const map = mapRef.current;
-      if (!map) return;
-
-      // Wipe previous painted state first.
-      for (const prevEgrid of paintedEgridsRef.current) {
-        if (!percentileByEgrid.has(prevEgrid)) {
-          map.removeFeatureState({
-            source: 'parcel-tiles',
-            sourceLayer: 'parcel_2025_07',
-            id: prevEgrid,
-          });
-        }
-      }
-
-      const next = new Set<string>();
-      for (const p of parcels) {
-        if (!p.egrid) continue;
-        const pct = percentileByEgrid.get(p.egrid) ?? 0;
-        map.setFeatureState(
-          {
-            source: 'parcel-tiles',
-            sourceLayer: 'parcel_2025_07',
-            id: p.egrid,
-          },
-          { percentile: Math.max(0, Math.min(1, pct / 100)) },
-        );
-        next.add(p.egrid);
-      }
-      paintedEgridsRef.current = next;
-    },
-    [],
-  );
-
-  const handleZoneStatsCleared = useCallback(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    for (const egrid of paintedEgridsRef.current) {
-      map.removeFeatureState({
-        source: 'parcel-tiles',
-        sourceLayer: 'parcel_2025_07',
-        id: egrid,
-      });
-    }
-    paintedEgridsRef.current = new Set();
+  const handleZoneStatsLoaded = useCallback((stats: ZoneStatsResponse) => {
+    const s = stats.summary?.ratio_v;
+    const breakpoints =
+      s && [s.p5, s.p25, s.p50, s.p75, s.p95].every((n) => Number.isFinite(n))
+        ? [s.p5, s.p25, s.p50, s.p75, s.p95]
+        : undefined;
+    const zone: ActiveZone = {
+      fso: stats.zone.fso,
+      czLocal: stats.zone.cz_local,
+      breakpoints,
+    };
+    activeZoneRef.current = zone;
+    setActiveZone(zone);
+    applyParcelPaintRef.current();
   }, []);
 
-  /**
-   * Mapbox style expression for parcel fill-opacity that respects both the
-   * current slider value AND whether the parcel has a percentile painted.
-   * Re-applied any time the slider moves so the choropleth contrast is
-   * preserved.
-   */
-  const buildFillOpacityExpression = (opacity: number): mapboxgl.ExpressionSpecification => [
-    'case',
-    ['==', ['feature-state', 'percentile'], null],
-    opacity * 0.12,
-    opacity * 0.55,
-  ];
+  const handleZoneStatsCleared = useCallback(() => {
+    activeZoneRef.current = null;
+    setActiveZone(null);
+    applyParcelPaintRef.current();
+  }, []);
 
   const handleBasemapChange = useCallback((basemapId: string) => {
     if (!mapRef.current) return;
@@ -204,8 +232,18 @@ const MapView = () => {
 
     mapRef.current.once('style.load', () => {
       if (!mapRef.current) return;
-      addParcelLayers(mapRef.current, parcelOpacity);
+      addParcelLayers(mapRef.current, parcelOpacity, activeZoneRef.current);
       addBuildingLayers(mapRef.current, buildingOpacity);
+      // Restore the selected-parcel highlight + density paint after the swap.
+      const parcel = selectedParcelRef.current;
+      if (parcel) {
+        const f: mapboxgl.FilterSpecification = ['==', ['get', 'parcel_id'], parcel.parcelId];
+        if (mapRef.current.getLayer('parcel-selected'))
+          mapRef.current.setFilter('parcel-selected', f);
+        if (mapRef.current.getLayer('parcel-selected-casing'))
+          mapRef.current.setFilter('parcel-selected-casing', f);
+      }
+      applyParcelPaintRef.current();
       if (was3D) {
         if (mapRef.current.getLayer('building-fill'))
           mapRef.current.setLayoutProperty('building-fill', 'visibility', 'none');
@@ -218,16 +256,8 @@ const MapView = () => {
 
   const handleParcelOpacityChange = useCallback((value: number) => {
     setParcelOpacity(value);
-    if (mapRef.current) {
-      if (mapRef.current.getLayer('parcel-outline'))
-        mapRef.current.setPaintProperty('parcel-outline', 'line-opacity', value);
-      if (mapRef.current.getLayer('parcel-fill'))
-        mapRef.current.setPaintProperty(
-          'parcel-fill',
-          'fill-opacity',
-          buildFillOpacityExpression(value),
-        );
-    }
+    parcelOpacityRef.current = value;
+    applyParcelPaintRef.current();
   }, []);
 
   const handleBuildingOpacityChange = useCallback((value: number) => {
@@ -309,6 +339,8 @@ const MapView = () => {
     setParcelDataLoading(false);
     if (mapRef.current?.getLayer('parcel-selected'))
       mapRef.current.setFilter('parcel-selected', ['==', ['get', 'parcel_id'], '']);
+    if (mapRef.current?.getLayer('parcel-selected-casing'))
+      mapRef.current.setFilter('parcel-selected-casing', ['==', ['get', 'parcel_id'], '']);
     handleZoneStatsCleared();
   }, [handleZoneStatsCleared]);
 
@@ -507,6 +539,13 @@ const MapView = () => {
               ? selectedParcel.props.address
               : undefined
           }
+        />
+      )}
+      {selectedParcel && activeZone && (
+        <DensityLegend
+          zone={activeZone}
+          selectedRatioV={parcelData?.ratio_v ?? null}
+          rightOffsetPx={PANEL_OFFSET_PX}
         />
       )}
       <CoordinateDisplay coords={lv95Coords} />

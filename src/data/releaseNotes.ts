@@ -10,6 +10,52 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.4.0',
+    date: 'May 29, 2026',
+    codename: 'Density Lens',
+    summary:
+      'The map now actually answers the question room exists for — “how densely is this zone built, and where does my parcel sit?”. Clicking a parcel paints its whole zone as a density choropleth straight off the vector tiles (no waiting), colouring every parcel by where its volume utilisation falls in the zone, with the rest of the map dimmed so the zone reads as one block. A new legend decodes the ramp and drops a “You” marker at your parcel. Plus a real speed-up: the persistent cache that was silently broken now works, and the zone aggregate is warmed in parallel the instant you click.',
+    highlight: true,
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Map,
+        text: 'Density choropleth now paints. It was keyed on a tile field that does not exist (`egrid`), so the map showed flat grey — it now keys on `parcel_id` and colours directly from each parcel’s `ratioV`.',
+        prs: [],
+      },
+      {
+        kind: 'new' as ChangeKind,
+        icon: Layers,
+        text: 'Click a parcel → its entire zoning zone lights up as a utilisation choropleth (cool = under-built, hot red = at/over the allowance), with out-of-zone parcels dimmed. Switching zones in the dropdown re-colours the map.',
+        prs: [],
+      },
+      {
+        kind: 'new' as ChangeKind,
+        icon: BookOpen,
+        text: 'New map legend decoding the density ramp against the zone’s own ratioV percentiles, with a “You” marker and a 100%-allowance reference line.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: BarChart3,
+        text: 'Parcel-facts ratioV / ratioS read as honest percentages now (100% = built to allowance) instead of always pinning to 100% and flagging every parcel as over-built.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Database,
+        text: 'The persistent (IndexedDB) zone-stats cache was never actually created — a second object store silently failed to initialise, so every reload re-paid the network cost. Fixed, so repeat visits are instant.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'Zone statistics are now warmed in parallel the moment you click a parcel (using the tile’s own zone fields), and concurrent requests are de-duplicated — removing a sequential round-trip from the first-click wait.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.3.0',
     date: 'May 27, 2026',
     codename: 'Inter Polish',
