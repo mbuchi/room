@@ -235,6 +235,14 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- generic errors ----------
     'error.no_egrid': 'No EGRID available for this parcel',
     'error.unknown': 'Unknown error',
+
+    // ---------- density legend (map) ----------
+    'legend.title': 'Zone density',
+    'legend.metric': 'utilisation',
+    'legend.median': 'median',
+    'legend.you': 'This parcel — {value} of allowance built',
+    'legend.allowance_hint': '100% = built to the zone allowance',
+    'legend.allowance_tooltip': '100% — built to the zone allowance',
   },
   fr: {
     // ---------- navbar ----------
@@ -442,6 +450,14 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- errors ----------
     'error.no_egrid': 'Aucun EGRID disponible pour cette parcelle',
     'error.unknown': 'Erreur inconnue',
+
+    // ---------- légende de densité (carte) ----------
+    'legend.title': 'Densité de la zone',
+    'legend.metric': 'utilisation',
+    'legend.median': 'médiane',
+    'legend.you': 'Cette parcelle — {value} de l’indice utilisé',
+    'legend.allowance_hint': '100 % = construit selon l’indice de la zone',
+    'legend.allowance_tooltip': '100 % — construit selon l’indice autorisé',
   },
   de: {
     // ---------- navbar ----------
@@ -649,6 +665,14 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- errors ----------
     'error.no_egrid': 'Kein EGRID für diese Parzelle verfügbar',
     'error.unknown': 'Unbekannter Fehler',
+
+    // ---------- Dichte-Legende (Karte) ----------
+    'legend.title': 'Zonendichte',
+    'legend.metric': 'Ausnützung',
+    'legend.median': 'Median',
+    'legend.you': 'Diese Parzelle — {value} der zulässigen Nutzung gebaut',
+    'legend.allowance_hint': '100 % = vollständig gemäss Zonenausnützung gebaut',
+    'legend.allowance_tooltip': '100 % — gemäss zulässiger Ausnützung gebaut',
   },
   it: {
     // ---------- navbar ----------
@@ -856,6 +880,14 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- errors ----------
     'error.no_egrid': 'Nessun EGRID disponibile per questa particella',
     'error.unknown': 'Errore sconosciuto',
+
+    // ---------- legenda densità (mappa) ----------
+    'legend.title': 'Densità della zona',
+    'legend.metric': 'utilizzo',
+    'legend.median': 'mediana',
+    'legend.you': 'Questa particella — {value} dell’indice utilizzato',
+    'legend.allowance_hint': '100% = costruito secondo l’indice della zona',
+    'legend.allowance_tooltip': '100% — costruito secondo l’indice consentito',
   },
 };
 

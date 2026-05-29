@@ -25,13 +25,10 @@ interface ZonePanelProps {
    *  the chart context follows but the selected parcel doesn't change. */
   /**
    * Called whenever zone stats arrive (initial load or zone switch). MapView
-   * uses this to paint percentile feature-state on the parcel-fill layer so
-   * the choropleth lights up.
+   * uses the zone identity + ratio_v percentile breakpoints to recolour the
+   * tile-driven density choropleth (and to follow a dropdown zone-switch).
    */
-  onZoneStatsLoaded: (
-    parcels: ZoneStatsResponse['parcels'],
-    percentileByEgrid: Map<string, number>,
-  ) => void;
+  onZoneStatsLoaded: (stats: ZoneStatsResponse) => void;
   /** Cleared when the panel closes so MapView can wipe the feature-state. */
   onZoneStatsCleared: () => void;
 }
@@ -92,7 +89,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
     if (cached) {
       setStats(cached);
       setError(null);
-      paintFeatureState(cached);
+      onZoneStatsLoaded(cached);
       return;
     }
 
@@ -103,7 +100,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
       .then((res) => {
         if (cancelled) return;
         setStats(res);
-        paintFeatureState(res);
+        onZoneStatsLoaded(res);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
@@ -146,40 +143,6 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
       },
     };
   }, [stats, parcelData]);
-
-  /**
-   * Once stats land, walk parcels[] and compute every parcel's `ratio_v`
-   * percentile against the zone distribution — that drives the choropleth.
-   * We approximate each parcel's ratio_v as (volume / area / mean(zone v/a))
-   * weighting so the colour ramp lines up with the boxplot the user sees.
-   *
-   * Because the parcels[] payload only exposes area/volume/year (not the
-   * full set of ratios), we use the distributions.ratio_v ordering as the
-   * percentile basis and map by area-rank when ratio_v is unavailable per
-   * parcel. The selected parcel always uses the authoritative `parcelData.ratio_v`.
-   */
-  function paintFeatureState(s: ZoneStatsResponse) {
-    const dist = s.distributions.ratio_v ?? [];
-    const byEgrid = new Map<string, number>();
-
-    // Each parcel's volume/area is a stand-in for ratio_v when we don't
-    // have the per-parcel utilisation reference; rank within the zone's
-    // volume distribution as a proxy. The selected parcel's authoritative
-    // percentile overrides whatever the proxy says.
-    const volumes = s.parcels.map((p) => p.volume).filter((v) => Number.isFinite(v));
-    for (const p of s.parcels) {
-      if (!p.egrid) continue;
-      const proxy = Number.isFinite(p.volume)
-        ? percentileOfValue(volumes, p.volume)
-        : 0;
-      byEgrid.set(p.egrid, proxy);
-    }
-    if (parcelData?.egrid && parcelData.ratio_v != null) {
-      byEgrid.set(parcelData.egrid, percentileOfValue(dist, parcelData.ratio_v));
-    }
-
-    onZoneStatsLoaded(s.parcels, byEgrid);
-  }
 
   const handleZoneChange = (newCz: string) => {
     setActiveCzLocal(newCz);

@@ -109,7 +109,9 @@ const memoryCache = new Map<string, ZoneStatsResponse>();
 const persistentCache = new IndexedDBCache<ZoneStatsResponse>(
   'room-cache',
   'zone-stats',
-  { maxBytes: PERSISTENT_CACHE_MAX_BYTES },
+  // List both sibling stores so whichever service opens the DB first creates
+  // the complete schema — otherwise this store is silently never created.
+  { maxBytes: PERSISTENT_CACHE_MAX_BYTES, stores: ['parcel-data', 'zone-stats'] },
 );
 
 function cacheKey(req: ZoneStatsRequest): string {
@@ -164,6 +166,22 @@ export async function fetchZoneStats(
     return idbHit;
   }
 
+  // Layer 3 — coalesce concurrent requests for the same zone. The map click
+  // fires prefetchZoneStats() at the same moment ZonePanel mounts and calls
+  // fetchZoneStats(); without this they'd each pay the (cold, ~45 s) round
+  // trip. Sharing one in-flight promise means a single network call.
+  const pending = inFlight.get(key);
+  if (pending) return pending;
+
+  const promise = networkFetch(req, key).finally(() => inFlight.delete(key));
+  inFlight.set(key, promise);
+  return promise;
+}
+
+/** Map of in-flight zone-stats requests, keyed by `${fso}:${cz_local}`. */
+const inFlight = new Map<string, Promise<ZoneStatsResponse>>();
+
+async function networkFetch(req: ZoneStatsRequest, key: string): Promise<ZoneStatsResponse> {
   // RES's first call for an uncached (fso, cz_local) can take ~45s; the
   // Vercel function may still 504 if that happens behind a CDN/proxy. By
   // the time we retry, RES has cached the response and the second call
@@ -207,4 +225,18 @@ export async function fetchZoneStats(
   // (private mode, quota exhaustion, etc.) must never break the response.
   void persistentCache.set(key, body);
   return body;
+}
+
+/**
+ * Fire-and-forget cache warm-up. Called from MapView the instant a parcel is
+ * clicked — using the cz_local + fso the tile already carries — so the
+ * (possibly cold) zone aggregate is in flight in parallel with the parcel-data
+ * fetch, instead of starting only after ZonePanel mounts. Never throws.
+ */
+export function prefetchZoneStats(req: ZoneStatsRequest): void {
+  const key = cacheKey(req);
+  if (memoryCache.has(key) || inFlight.has(key)) return;
+  void fetchZoneStats(req).catch(() => {
+    /* warm-up only — the panel's own fetch will surface any real error */
+  });
 }

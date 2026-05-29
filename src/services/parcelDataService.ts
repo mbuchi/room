@@ -34,7 +34,9 @@ const memoryCache = new Map<string, ParcelData>();
 const persistentCache = new IndexedDBCache<ParcelData>(
   'room-cache',
   'parcel-data',
-  { maxBytes: PERSISTENT_CACHE_MAX_BYTES },
+  // List both sibling stores so whichever service opens the DB first creates
+  // the complete schema (see cache.ts → IndexedDBCacheOptions.stores).
+  { maxBytes: PERSISTENT_CACHE_MAX_BYTES, stores: ['parcel-data', 'zone-stats'] },
 );
 
 function cacheKey(req: ParcelDataRequest): string {
