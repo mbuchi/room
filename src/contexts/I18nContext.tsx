@@ -243,6 +243,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'legend.you': 'This parcel — {value} of allowance built',
     'legend.allowance_hint': '100% = built to the zone allowance',
     'legend.allowance_tooltip': '100% — built to the zone allowance',
+
+    // ---------- PRM save bar + mobile sheet ----------
+    'prm.bar_hint': 'Track this parcel in your proom workspace',
+    'panel.sheet.expand': 'Expand panel',
+    'panel.sheet.collapse': 'Collapse panel',
   },
   fr: {
     // ---------- navbar ----------
@@ -458,6 +463,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'legend.you': 'Cette parcelle — {value} de l’indice utilisé',
     'legend.allowance_hint': '100 % = construit selon l’indice de la zone',
     'legend.allowance_tooltip': '100 % — construit selon l’indice autorisé',
+
+    // ---------- barre d’enregistrement PRM + panneau mobile ----------
+    'prm.bar_hint': 'Suivez cette parcelle dans votre espace proom',
+    'panel.sheet.expand': 'Agrandir le panneau',
+    'panel.sheet.collapse': 'Réduire le panneau',
   },
   de: {
     // ---------- navbar ----------
@@ -673,6 +683,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'legend.you': 'Diese Parzelle — {value} der zulässigen Nutzung gebaut',
     'legend.allowance_hint': '100 % = vollständig gemäss Zonenausnützung gebaut',
     'legend.allowance_tooltip': '100 % — gemäss zulässiger Ausnützung gebaut',
+
+    // ---------- PRM-Speicherleiste + mobiles Panel ----------
+    'prm.bar_hint': 'Diese Parzelle in Ihrem proom-Arbeitsbereich verfolgen',
+    'panel.sheet.expand': 'Panel vergrössern',
+    'panel.sheet.collapse': 'Panel verkleinern',
   },
   it: {
     // ---------- navbar ----------
@@ -888,6 +903,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'legend.you': 'Questa particella — {value} dell’indice utilizzato',
     'legend.allowance_hint': '100% = costruito secondo l’indice della zona',
     'legend.allowance_tooltip': '100% — costruito secondo l’indice consentito',
+
+    // ---------- barra di salvataggio PRM + pannello mobile ----------
+    'prm.bar_hint': 'Tieni traccia di questa particella nel tuo spazio proom',
+    'panel.sheet.expand': 'Espandi il pannello',
+    'panel.sheet.collapse': 'Riduci il pannello',
   },
 };
 

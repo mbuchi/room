@@ -10,6 +10,34 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.0',
+    date: 'May 29, 2026',
+    codename: 'Studio Polish',
+    summary:
+      'A big usability pass for phones and a much more prominent “Save to PRM”. The right-side pane is now a proper bottom sheet on mobile — peek at the headline, drag the handle to expand to the full charts, and the map stays visible the whole time (it used to open as a 460px panel that covered the screen). And saving a parcel to your proom workspace is now a full-width call-to-action pinned to the bottom of the pane, visible on both the Zone distribution and Parcel facts tabs.',
+    highlight: true,
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Bookmark,
+        text: 'Save to PRM is now a prominent, full-width button pinned to the bottom of the info pane — visible on both tabs, with clear Saving / Saved / Sign-in states and a quick “Open in proom” link. It used to be a small pill tucked in the Parcel-facts header.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text: 'Mobile: the info pane is a draggable bottom sheet now — peek height by default, tap the handle to expand to the full charts, map stays in view. Previously it opened as a fixed 460px rail that covered small screens.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: PanelsTopLeft,
+        text: 'Tidied controls and tap targets on mobile (zoom control steps aside when the sheet is open; larger touch areas), and aligned spacing across desktop and phone.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.4.0',
     date: 'May 29, 2026',
     codename: 'Density Lens',
