@@ -10,6 +10,27 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.1',
+    date: 'May 29, 2026',
+    codename: 'Always Loads',
+    summary:
+      'Fixes a regression where the parcel info pane could spin forever and never load. The browser cache upgrade introduced in v0.4.0 could get blocked by another open tab, and because the data fetch waited on the cache first, it never reached the network. The cache is now strictly non-blocking — if it can’t open, the app loads straight from the network instead of hanging. Also adds an automated test suite so this class of bug is caught before every release.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Database,
+        text: 'Info pane stuck loading: the IndexedDB cache could block on a version upgrade (e.g. when the app was open in another tab), and the parcel/zone fetch awaited it before hitting the network — so nothing loaded. The cache now times out / yields immediately when blocked, closes politely so it never blocks other tabs, and the data fetch always proceeds.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BadgeCheck,
+        text: 'Added a Vitest test suite (cache resilience, parcel/zone services, density map expressions, stats) wired into a single `npm run verify` gate (typecheck + lint + test + build) run before every publish.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.0',
     date: 'May 29, 2026',
     codename: 'Studio Polish',
