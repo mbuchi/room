@@ -8,6 +8,7 @@ import { AuthProvider as SharedAuthProvider, useAuth as useSharedAuth } from '@s
 export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <SharedAuthProvider
+      silentSso={false}
       appName="room"
       loginPromptOnFirstVisit
       loginDescription="Create a free account or sign in to save zone comparisons and unlock the full experience."
