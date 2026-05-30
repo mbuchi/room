@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
 
@@ -9,6 +9,27 @@ export { KIND_META } from '@swissnovo/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.5.4',
+    date: 'May 30, 2026',
+    codename: 'Tidy Headings',
+    summary:
+      'Claire\'s structured answers now show real headings. When she split a reply into sections, the section titles were appearing with their raw Markdown "###" hashes still attached. The shared chat renderer now turns those into styled bold headings, so multi-section answers read cleanly.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: MessageSquare,
+        text: 'Claire\'s section headings no longer show literal "###" hashes — the shared chat renderer formats Markdown headings (#–######) as styled bold heading text.',
+        prs: [],
+      },
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Package,
+        text: 'Bumped @swissnovo/shared to v0.40.0, which adds Markdown heading rendering to Claire\'s message formatter.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.5.3',
     date: 'May 30, 2026',
