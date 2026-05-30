@@ -10,6 +10,27 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.2',
+    date: 'May 30, 2026',
+    codename: 'Axis & Order',
+    summary:
+      'Two fixes for the zone-distribution charts in the side pane. The numbers running down the left of the utilisation-over-time and area-vs-volume charts were getting clipped at the pane edge — they now have room to render in full. And the utilisation-over-time line was plotting its age cohorts in the wrong order (60 / 40 / 20 / ALL); it now reads ALL first, then the 20 / 40 / 60 windows ascending, so the trend flows left-to-right the way the caption promises.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: BarChart3,
+        text: 'Left Y-axis tick labels on the utilisation-over-time and area-vs-volume charts no longer get cut off at the pane edge — the axes are sized to fit the numbers.',
+        prs: [19],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Activity,
+        text: 'The utilisation-over-time line now orders its age cohorts as ALL → 20 → 40 → 60 instead of the scrambled 60 / 40 / 20 / ALL, so the densification trend reads correctly.',
+        prs: [19],
+      },
+    ],
+  },
+  {
     version: '0.5.1',
     date: 'May 29, 2026',
     codename: 'Always Loads',
