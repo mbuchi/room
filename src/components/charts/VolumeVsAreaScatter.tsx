@@ -108,7 +108,7 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid }: VolumeVsAreaScatterProp
               tick={{ fontSize: 10, fill: '#9ca3af' }}
               axisLine={{ stroke: '#374151' }}
               tickLine={{ stroke: '#374151' }}
-              width={56}
+              width={72}
             />
             <ZAxis range={[18, 18]} />
             <Tooltip
