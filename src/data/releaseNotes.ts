@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.3',
+    date: 'May 30, 2026',
+    codename: 'Full Reply',
+    summary:
+      'Claire now returns complete answers. Some replies were getting cut off mid-sentence: the assistant’s reasoning step was eating into the same token budget as its visible answer, so longer responses ran out of room before finishing. We’ve raised that budget so the reasoning pass no longer starves the reply. Picks up @swissnovo/shared v0.39.0.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bot,
+        text: 'Claire no longer cuts answers off mid-sentence. Her reply token budget was raised so the model’s internal reasoning step no longer truncates the visible response. Picks up the fix via @swissnovo/shared v0.39.0.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.2',
     date: 'May 30, 2026',
     codename: 'Axis & Order',
