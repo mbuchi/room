@@ -10,6 +10,20 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.6',
+    date: 'May 31, 2026',
+    codename: 'Preview',
+    summary: 'Centralized the social-share preview image.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Image,
+        text: 'Social-share preview image now uses the centralized toolbox URL (https://toolbox.swissnovo.com/meta/room.jpg) with correct dimensions.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.5',
     date: 'May 31, 2026',
     codename: 'Error Capture',
