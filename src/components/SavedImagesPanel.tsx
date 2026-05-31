@@ -325,7 +325,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                   >
                     <button
                       onClick={() => setPreviewImage(img)}
-                      className="relative aspect-video bg-gray-950 overflow-hidden focus:outline-none"
+                      className="relative aspect-video bg-gray-950 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
                     >
                       <img
                         src={img.public_url}

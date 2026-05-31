@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MapPin, X, Shield } from 'lucide-react';
 import { useI18n } from '../contexts/I18nContext';
 
@@ -13,6 +13,7 @@ const LocationPermissionModal = ({ onAllow, onDismiss }: LocationPermissionModal
   const { t } = useI18n();
   const [isVisible, setIsVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
+  const dismissButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const alreadyPrompted = localStorage.getItem(STORAGE_KEY);
@@ -44,16 +45,34 @@ const LocationPermissionModal = ({ onAllow, onDismiss }: LocationPermissionModal
     }, 300);
   };
 
+  useEffect(() => {
+    if (!shouldRender) return;
+    dismissButtonRef.current?.focus();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleDismiss();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldRender]);
+
   if (!shouldRender) return null;
 
   return (
     <div
+      role="presentation"
       className={`fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all duration-300 ${
         isVisible ? 'bg-black/60 backdrop-blur-sm' : 'bg-black/0 backdrop-blur-none'
       }`}
       onClick={handleDismiss}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="location-permission-title"
         className={`relative w-full max-w-sm bg-gray-900 border border-gray-700/60 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden transition-all duration-300 ${
           isVisible ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'
         }`}
@@ -61,9 +80,10 @@ const LocationPermissionModal = ({ onAllow, onDismiss }: LocationPermissionModal
       >
         <div className="relative px-6 pt-6 pb-4">
           <button
+            ref={dismissButtonRef}
             onClick={handleDismiss}
             aria-label={t('modal.location.not_now')}
-            className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-gray-800 transition-all duration-150"
+            className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-500 hover:text-gray-300 hover:bg-gray-800 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 focus-visible:ring-red-500"
           >
             <X size={16} />
           </button>
@@ -72,7 +92,7 @@ const LocationPermissionModal = ({ onAllow, onDismiss }: LocationPermissionModal
             <MapPin size={26} className="text-red-400" />
           </div>
 
-          <h2 className="text-lg font-semibold text-gray-100 mb-2">
+          <h2 id="location-permission-title" className="text-lg font-semibold text-gray-100 mb-2">
             {t('modal.location.title')}
           </h2>
           <p className="text-sm text-gray-400 leading-relaxed">

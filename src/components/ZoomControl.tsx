@@ -38,15 +38,15 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null 
       style={offsetStyle}
     >
       <div className={`flex flex-col rounded-xl shadow-xl backdrop-blur-sm border overflow-hidden ${panel}`}>
-        <button type="button" onClick={handleZoomIn} aria-label={t('panel.zoom.in')} title={t('panel.zoom.in')} className={`w-9 h-9 flex items-center justify-center transition-colors focus:outline-none ${hover}`}>
+        <button type="button" onClick={handleZoomIn} aria-label={t('panel.zoom.in')} title={t('panel.zoom.in')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 ${hover}`}>
           <Plus size={16} strokeWidth={2.25} />
         </button>
         <div className={`border-t ${divider}`} />
-        <button type="button" onClick={handleZoomOut} aria-label={t('panel.zoom.out')} title={t('panel.zoom.out')} className={`w-9 h-9 flex items-center justify-center transition-colors focus:outline-none ${hover}`}>
+        <button type="button" onClick={handleZoomOut} aria-label={t('panel.zoom.out')} title={t('panel.zoom.out')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 ${hover}`}>
           <Minus size={16} strokeWidth={2.25} />
         </button>
         <div className={`border-t ${divider}`} />
-        <button type="button" onClick={handleResetNorth} aria-label={t('panel.zoom.reset_north')} title={t('panel.zoom.reset_north')} className={`w-9 h-9 flex items-center justify-center transition-colors focus:outline-none ${hover}`}>
+        <button type="button" onClick={handleResetNorth} aria-label={t('panel.zoom.reset_north')} title={t('panel.zoom.reset_north')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 ${hover}`}>
           <Compass size={16} strokeWidth={2} />
         </button>
       </div>

@@ -128,6 +128,7 @@ const MapControls = ({
               step="0.01"
               value={parcelOpacity}
               onChange={(e) => onParcelOpacityChange(parseFloat(e.target.value))}
+              aria-label={t('panel.layers.parcel')}
               className="w-full slider-groove"
             />
           </div>
@@ -144,6 +145,7 @@ const MapControls = ({
               step="0.01"
               value={buildingOpacity}
               onChange={(e) => onBuildingOpacityChange(parseFloat(e.target.value))}
+              aria-label={t('panel.layers.building')}
               className="w-full slider-groove"
             />
           </div>

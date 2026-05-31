@@ -91,6 +91,7 @@ const ZoneSelectorDropdown = ({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('panel.zone.filter_zones_placeholder')}
+              aria-label={t('panel.zone.filter_zones_placeholder')}
               className="flex-1 bg-transparent text-xs text-gray-200 placeholder-gray-600 focus:outline-none"
             />
           </div>
