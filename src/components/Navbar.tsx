@@ -156,6 +156,7 @@ function AddressGeoSearch({ onLocationSelect }: AddressGeoSearchProps) {
           onChange={(e) => handleChange(e.target.value)}
           onFocus={() => results.length > 0 && setShowResults(true)}
           placeholder={t('nav.search_placeholder')}
+          aria-label={t('nav.search_placeholder')}
           className="w-full pl-8 pr-7 py-1.5 bg-gray-800/80 border border-gray-700/50 rounded-xl text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-red-500/50 focus:ring-1 focus:ring-red-500/30 transition-colors"
         />
         {text && (
