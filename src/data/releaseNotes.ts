@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.5',
+    date: 'May 31, 2026',
+    codename: 'Error Capture',
+    summary:
+      'room now automatically reports client-side errors to the SwissNovo suite-wide error-logging service, so problems surface to the team without anyone having to report them. Picks up @swissnovo/shared v0.42.0.',
+    items: [
+      {
+        kind: 'added' as ChangeKind,
+        icon: Zap,
+        text: 'Automatic client-error capture: uncaught errors are now reported to the shared SwissNovo error-logging service via @swissnovo/shared v0.42.0.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.4',
     date: 'May 30, 2026',
     codename: 'Tidy Headings',
