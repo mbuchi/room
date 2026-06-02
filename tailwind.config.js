@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Suite-wide three-token typography (mirrors --hood-* CSS vars):
+        // Suite-wide three-token typography (mirrors --room-* CSS vars):
         // sans → Inter (UI body, headings, controls)
         // display / varela → Varela Round (brand wordmark only)
         // mono → JetBrains Mono (parcel IDs, EGRID, code surfaces)
