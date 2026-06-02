@@ -60,7 +60,7 @@ export default function UserMenu() {
         onClick={login}
         title={t('menu.sign_in')}
         aria-label={t('menu.sign_in')}
-        className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-gray-300 bg-gray-800 hover:bg-gray-700 hover:text-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+        className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-gray-300 bg-gray-800 hover:bg-gray-700 hover:text-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
       >
         <UserCircle size={20} />
       </button>
@@ -77,7 +77,7 @@ export default function UserMenu() {
       <div ref={menuRef} className="relative flex-shrink-0">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full transition-all hover:ring-2 hover:ring-red-500/40 focus:outline-none focus:ring-2 focus:ring-red-500"
+          className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full transition-all hover:ring-2 hover:ring-red-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
         >
           <Avatar url={avatarUrl} initials={initials} size={28} />
           <span className="text-sm font-medium hidden sm:block max-w-[100px] truncate text-gray-200">
