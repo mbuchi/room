@@ -7,15 +7,15 @@
    SwissNovo identity: Inter for UI + Varela Round wordmark with
    red `oo`, JetBrains Mono for IDs and code.
    --------------------------------------------------------------------
-     * --hood-font     — UI body & controls (Inter; cv11 = single-storey g,
+     * --room-font     — UI body & controls (Inter; cv11 = single-storey g,
                          ss01 = open digits, tnum = tabular for IDs/counts)
-     * --hood-display  — Varela Round, restricted to the brand wordmark
-     * --hood-mono     — JetBrains Mono, used for parcel/egrid IDs, code
+     * --room-display  — Varela Round, restricted to the brand wordmark
+     * --room-mono     — JetBrains Mono, used for parcel/egrid IDs, code
    ============================================================ */
 :root {
-  --hood-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --hood-display: 'Varela Round', system-ui, sans-serif;
-  --hood-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Cascadia Code', Consolas, monospace;
+  --room-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --room-display: 'Varela Round', system-ui, sans-serif;
+  --room-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Cascadia Code', Consolas, monospace;
 }
 
 * {
@@ -28,7 +28,7 @@
    open digits (ss01), and grayscale antialiasing for clean rendering on dark
    surfaces. Tabular figures keep numeric columns aligned in the zone panel. */
 html {
-  font-family: var(--hood-font);
+  font-family: var(--room-font);
   font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1, 'cv11' 1, 'ss01' 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -39,7 +39,7 @@ html, body, #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: var(--hood-font);
+  font-family: var(--room-font);
 }
 
 body {
@@ -49,7 +49,7 @@ body {
 /* The wordmark is the one place the suite-wide Varela Round identity lives —
    body type around it is the modern Inter UI face. */
 .font-varela {
-  font-family: var(--hood-display);
+  font-family: var(--room-display);
 }
 
 

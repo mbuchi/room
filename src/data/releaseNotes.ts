@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.7',
+    date: 'June 2, 2026',
+    codename: 'Token Tidy',
+    summary:
+      'Internal cleanup: the typography design tokens in src/index.css were copied from the hood project and still carried the --hood- prefix. They now use the room-specific --room- namespace to remove naming drift and confusion for maintenance.',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Type,
+        text: 'CSS custom properties renamed from --hood-{font,display,mono} to --room-{font,display,mono} so room owns its own token namespace (no functional change).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.6',
     date: 'May 31, 2026',
     codename: 'Preview',
@@ -195,7 +210,7 @@ export const RELEASES: Release[] = [
     date: 'May 27, 2026',
     codename: 'Inter Polish',
     summary:
-      'Typography refresh aligning room with the SwissNovo suite — UI body, headings, and panels now ride on Inter (variable, OpenType cv11 + ss01 + tabular figures, antialiased) for a more professional tech-grade dark look. Varela Round is preserved only for the room wordmark with the red `oo`. Parcel IDs and code surfaces switch to JetBrains Mono via the new `--hood-mono` token.',
+      'Typography refresh aligning room with the SwissNovo suite — UI body, headings, and panels now ride on Inter (variable, OpenType cv11 + ss01 + tabular figures, antialiased) for a more professional tech-grade dark look. Varela Round is preserved only for the room wordmark with the red `oo`. Parcel IDs and code surfaces switch to JetBrains Mono via the new `--room-mono` token.',
     highlight: true,
     items: [
       {
@@ -213,7 +228,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'improved' as ChangeKind,
         icon: Code2,
-        text: 'IDs and code surfaces switch to JetBrains Mono via the new `--hood-mono` token.',
+        text: 'IDs and code surfaces switch to JetBrains Mono via the new `--room-mono` token.',
         prs: [],
       },
     ],
