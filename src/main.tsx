@@ -7,6 +7,11 @@ import './index.css';
 
 installErrorLogging({ appName: 'room' });
 
+// room is dark-only: assert the suite-standard `dark` class on <html> before
+// first paint so Tailwind `dark:` variants and the tour's dark detection resolve
+// correctly. There is no light theme, so this is unconditional (no toggle).
+document.documentElement.classList.add('dark');
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <I18nProvider>

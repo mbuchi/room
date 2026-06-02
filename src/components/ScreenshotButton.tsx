@@ -72,7 +72,7 @@ export default function ScreenshotButton({ getCaptureMetadata }: ScreenshotButto
         disabled={isCapturing}
         title={isAuthenticated ? t('panel.screenshot.save_image') : t('panel.screenshot.sign_in_to_save')}
         aria-label={isAuthenticated ? t('panel.screenshot.save_image') : t('panel.screenshot.sign_in_to_save')}
-        className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white bg-red-600 hover:bg-red-500 disabled:opacity-60 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+        className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white bg-red-600 hover:bg-red-500 disabled:opacity-60 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
       >
         {isCapturing ? (
           <Loader2 size={16} className="animate-spin" />

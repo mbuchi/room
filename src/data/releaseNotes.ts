@@ -10,6 +10,33 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.8',
+    date: 'June 2, 2026',
+    codename: 'Suite Alignment',
+    summary:
+      'A small consistency pass to bring room back in line with the rest of the SwissNovo suite. The typography design tokens are restored to the suite-standard --hood- prefix (the previous rename to --room- was the drift, not the fix — every app forks hood and shares that namespace). Focus rings on the top-bar controls now use the keyboard-only focus-visible mechanism the rest of the suite uses, and Tailwind\'s class-based dark mode is now declared explicitly (room remains dark-only by design).',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Type,
+        text: 'Restored the typography CSS custom properties to the suite-standard --hood-{font,display,mono} prefix (reverting the v0.5.7 rename to --room-). The --hood- namespace is the intentional shared standard across all SwissNovo apps; no functional change.',
+        prs: [],
+      },
+      {
+        kind: 'changed' as ChangeKind,
+        icon: BadgeCheck,
+        text: 'Top-bar controls (sign-in, user menu, screenshot button, zone-filter input, address search) now use focus-visible: focus rings appear only for keyboard navigation, with a ring offset for clarity on the dark bar — matching the suite-wide focus standard already used by the zoom control.',
+        prs: [],
+      },
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Layers,
+        text: 'Declared Tailwind darkMode:\'class\' and assert the `dark` class on <html> at startup. room is intentionally dark-only (no light theme); this just aligns the theming mechanism with the suite standard.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.7',
     date: 'June 2, 2026',
     codename: 'Token Tidy',
