@@ -30,9 +30,8 @@ import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
 import { ClaireAssistant } from '@swissnovo/shared';
-import { requestGeolocation, type LocateErrorCode } from './LocateButton';
+import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
-import LocationPermissionModal from './LocationPermissionModal';
 import { useI18n } from '../contexts/I18nContext';
 
 interface SelectedParcel {
@@ -76,7 +75,6 @@ const MapView = () => {
   // pane is a full-height right rail.
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
-  const [showPermissionModal, setShowPermissionModal] = useState(true);
   const locateMarkerRef = useRef<mapboxgl.Marker | null>(null);
   /**
    * The zone the density choropleth is currently painting (FSO + cz_local +
@@ -328,15 +326,6 @@ const MapView = () => {
     setToast({ message: t(`map.locate.${code}`), type: 'error' });
   }, [t]);
 
-  const handlePermissionAllow = useCallback(() => {
-    setShowPermissionModal(false);
-    requestGeolocation(handleLocate, handleLocateError);
-  }, [handleLocate, handleLocateError]);
-
-  const handlePermissionDismiss = useCallback(() => {
-    setShowPermissionModal(false);
-  }, []);
-
   const handleCloseInfoPanel = useCallback(() => {
     setSelectedParcel(null);
     setParcelData(null);
@@ -583,12 +572,6 @@ const MapView = () => {
         />
       )}
       <CoordinateDisplay coords={lv95Coords} />
-      {showPermissionModal && (
-        <LocationPermissionModal
-          onAllow={handlePermissionAllow}
-          onDismiss={handlePermissionDismiss}
-        />
-      )}
       {toast && (
         <Toast
           message={toast.message}

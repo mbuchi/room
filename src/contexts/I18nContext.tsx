@@ -16,7 +16,6 @@ import type { Locale } from '@swissnovo/shared';
  *   - panel.screenshot.* the capture button & overlay & toast
  *   - panel.tabs.*       right-side info pane tabs (Zone distribution / Parcel facts)
  *   - menu.*             user menu (sign in / sign out / view profile / active)
- *   - modal.location.*   location permission modal
  *   - map.locate.*       geolocation errors and toasts
  *   - prm.*              PRM save/track buttons
  *   - modal.parcels.*    saved parcels modal action labels
@@ -187,13 +186,6 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- SavedParcelsModal "open here" action ----------
     'modal.parcels.open_here': 'Open here',
-
-    // ---------- location permission modal ----------
-    'modal.location.title': 'Enable location access',
-    'modal.location.body': 'Allow room to use your location to center the map on your current position. This helps you find nearby parcels and buildings faster.',
-    'modal.location.privacy': 'Your location is only used locally and never stored.',
-    'modal.location.not_now': 'Not now',
-    'modal.location.allow': 'Allow location',
 
     // ---------- LocateButton + geolocation errors / toasts ----------
     'map.locate.button': 'Locate me',
@@ -408,13 +400,6 @@ const translations: Record<Locale, Record<string, string>> = {
 
     'modal.parcels.open_here': 'Ouvrir ici',
 
-    // ---------- location modal ----------
-    'modal.location.title': 'Activer l’accès à la position',
-    'modal.location.body': 'Autorisez room à utiliser votre position pour centrer la carte sur votre emplacement actuel. Cela vous aide à trouver plus rapidement les parcelles et bâtiments voisins.',
-    'modal.location.privacy': 'Votre position est utilisée uniquement localement et n’est jamais enregistrée.',
-    'modal.location.not_now': 'Pas maintenant',
-    'modal.location.allow': 'Autoriser la position',
-
     // ---------- geolocation ----------
     'map.locate.button': 'Me localiser',
     'map.locate.moved': 'Déplacé vers votre position actuelle.',
@@ -628,13 +613,6 @@ const translations: Record<Locale, Record<string, string>> = {
 
     'modal.parcels.open_here': 'Hier öffnen',
 
-    // ---------- location modal ----------
-    'modal.location.title': 'Standortzugriff aktivieren',
-    'modal.location.body': 'Erlauben Sie room, Ihren Standort zu verwenden, um die Karte auf Ihre aktuelle Position zu zentrieren. So finden Sie nahegelegene Parzellen und Gebäude schneller.',
-    'modal.location.privacy': 'Ihr Standort wird nur lokal verwendet und nie gespeichert.',
-    'modal.location.not_now': 'Nicht jetzt',
-    'modal.location.allow': 'Standort erlauben',
-
     // ---------- geolocation ----------
     'map.locate.button': 'Mich lokalisieren',
     'map.locate.moved': 'Zu Ihrem aktuellen Standort verschoben.',
@@ -847,13 +825,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.save_failed': 'Salvataggio fallito',
 
     'modal.parcels.open_here': 'Apri qui',
-
-    // ---------- location modal ----------
-    'modal.location.title': 'Abilita l’accesso alla posizione',
-    'modal.location.body': 'Consenti a room di utilizzare la tua posizione per centrare la mappa sulla tua posizione attuale. Questo ti aiuta a trovare particelle ed edifici nelle vicinanze più rapidamente.',
-    'modal.location.privacy': 'La tua posizione viene utilizzata solo localmente e non viene mai memorizzata.',
-    'modal.location.not_now': 'Non ora',
-    'modal.location.allow': 'Consenti posizione',
 
     // ---------- geolocation ----------
     'map.locate.button': 'Individuami',
