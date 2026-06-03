@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.13',
+    date: 'June 4, 2026',
+    codename: 'Composer Lift',
+    summary:
+      "Claire's chat box now feels like a modern composer: a single line sits centered, and multi-line questions grow the box (like ChatGPT) up to a cap before it scrolls. Ships via the shared component library v0.46.0.",
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Bot,
+        text: "Claire's chat entry box vertically centers a single line and auto-grows to fit multi-line input, then snaps back after you send. Refreshed @swissnovo/shared to v0.46.0.",
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.12',
     date: 'June 3, 2026',
     codename: 'Out From Under',
