@@ -468,10 +468,8 @@ const MapView = () => {
       <ZoomControl
         getMap={() => mapRef.current}
         isDarkMode={true}
-        className={`bottom-24 transition-[right] duration-300 md:bottom-8 ${
-          selectedParcel ? 'hidden md:block' : ''
-        }`}
-        rightOffsetPx={selectedParcel ? PANEL_OFFSET_PX : null}
+        align="left"
+        className={`bottom-24 md:bottom-8 ${selectedParcel ? 'hidden md:block' : ''}`}
       />
       {selectedParcel && (
         <div
