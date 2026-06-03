@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.11',
+    date: 'June 3, 2026',
+    codename: 'Hyphen, Not Dash',
+    summary:
+      'The browser tab title now uses a plain hyphen separator instead of an em dash, matching the suite convention.',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Type,
+        text: 'The browser tab title now uses a plain hyphen separator instead of an em dash, matching the suite convention.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.10',
     date: 'June 3, 2026',
     codename: 'Clear View',
