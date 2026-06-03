@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.9',
+    date: 'June 3, 2026',
+    codename: 'Step Aside',
+    summary:
+      'Fixes the desktop +/- zoom control getting covered by the right-hand detail panel. The control is meant to slide left when the panel opens, but an inline style was overriding the responsive rule that does the shifting, so on wider screens the control stayed put and the panel sat on top of it. The basemap/layers control was already shifting correctly — the zoom control now matches it.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: PanelsTopLeft,
+        text: 'The desktop +/- zoom control now shifts left when the right-hand detail panel opens, instead of staying pinned under it. An inline right offset was beating the responsive md: shift rule; removing it lets the control move aside like the basemap control already did.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.8',
     date: 'June 2, 2026',
     codename: 'Suite Alignment',

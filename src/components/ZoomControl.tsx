@@ -25,11 +25,14 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null 
     : 'hover:bg-slate-50 hover:text-sky-600 active:bg-slate-100';
   const divider = isDarkMode ? 'border-slate-700/60' : 'border-slate-200/80';
 
-  // On md+ the room panel takes up the right edge; below md we fall back to
-  // a fixed `right-4` to keep controls usable on phones.
+  // On md+ the room panel takes up the right edge, so we shift via the
+  // `--md-right` CSS var (consumed by the wrapper's md:[right:var(...)] class).
+  // Below md the wrapper's `right-4` keeps controls usable on phones. We set
+  // ONLY the var here — an inline `right` would beat the md: class and pin the
+  // control in place even when the panel opens.
   const offsetStyle: CSSProperties | undefined =
     rightOffsetPx != null
-      ? ({ right: '1rem', '--md-right': `${rightOffsetPx}px` } as CSSProperties & Record<string, string>)
+      ? ({ '--md-right': `${rightOffsetPx}px` } as CSSProperties & Record<string, string>)
       : undefined;
 
   return (
