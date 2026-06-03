@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.14',
+    date: 'June 4, 2026',
+    codename: 'Compiler On',
+    summary:
+      'Turned on the React Compiler 1.0 so the app memoizes itself at build time — fewer needless re-renders, with no change to how anything behaves.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'Enabled the React Compiler 1.0 (Babel plugin, target React 18) for automatic compile-time memoization — fewer needless re-renders, no behaviour change. Healthcheck: 29/29 components compiled.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.13',
     date: 'June 4, 2026',
     codename: 'Composer Lift',
