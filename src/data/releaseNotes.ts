@@ -10,7 +10,7 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
-    version: '0.5.11',
+    version: '0.5.12',
     date: 'June 3, 2026',
     codename: 'Out From Under',
     summary:
@@ -20,6 +20,21 @@ export const RELEASES: Release[] = [
         kind: 'fixed' as ChangeKind,
         icon: PanelsTopLeft,
         text: 'Moved the +/- zoom control to the bottom-left corner so the density legend no longer covers it. Both controls previously landed bottom-right when a parcel was selected; the zoom control now sits on the opposite edge.',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.5.11',
+    date: 'June 3, 2026',
+    codename: 'Hyphen, Not Dash',
+    summary:
+      'The browser tab title now uses a plain hyphen separator instead of an em dash, matching the suite convention.',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Type,
+        text: 'The browser tab title now uses a plain hyphen separator instead of an em dash, matching the suite convention.',
         prs: [],
       },
     ],
