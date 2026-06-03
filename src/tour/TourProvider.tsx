@@ -47,10 +47,6 @@ function buildJoyrideStyles(primaryColor: string, isDarkMode: boolean) {
         ? "rgba(2, 6, 23, 0.62)"
         : "rgba(15, 23, 42, 0.42)",
     },
-    overlay: {
-      backdropFilter: "blur(3px)",
-      WebkitBackdropFilter: "blur(3px)",
-    },
     spotlight: {
       borderRadius: 14,
       boxShadow: isDarkMode

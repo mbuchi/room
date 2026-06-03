@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.10',
+    date: 'June 3, 2026',
+    codename: 'Clear View',
+    summary:
+      'The guided product tour no longer blurs the page behind its overlay. The tour still dims the surroundings to draw the eye, but the focused element and the rest of the page now stay sharp instead of going soft-focus, which kept context readable while you follow along.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Sparkles,
+        text: 'The guided product tour no longer blurs the background — the focused element and page stay sharp behind the dimmed tour overlay.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.9',
     date: 'June 3, 2026',
     codename: 'Step Aside',
