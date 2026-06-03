@@ -7,11 +7,13 @@ interface ZoomControlProps {
   getMap: () => Map | null;
   isDarkMode: boolean;
   className?: string;
-  /** Pixel offset from the right edge. `null` keeps the default `right-4`. */
+  /** Pixel offset from the right edge. `null` keeps the default `right-4`. Ignored when `align="left"`. */
   rightOffsetPx?: number | null;
+  /** Which edge to pin the control to. Defaults to `'right'`. */
+  align?: 'left' | 'right';
 }
 
-const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null }: ZoomControlProps) => {
+const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null, align = 'right' }: ZoomControlProps) => {
   const { t } = useI18n();
   const handleZoomIn = () => getMap()?.zoomIn({ duration: 250 });
   const handleZoomOut = () => getMap()?.zoomOut({ duration: 250 });
@@ -30,14 +32,20 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null 
   // Below md the wrapper's `right-4` keeps controls usable on phones. We set
   // ONLY the var here — an inline `right` would beat the md: class and pin the
   // control in place even when the panel opens.
+  const isLeft = align === 'left';
   const offsetStyle: CSSProperties | undefined =
-    rightOffsetPx != null
+    !isLeft && rightOffsetPx != null
       ? ({ '--md-right': `${rightOffsetPx}px` } as CSSProperties & Record<string, string>)
       : undefined;
 
+  // Left-pinned controls sit on the opposite edge from the right-side info
+  // panel, so they need no panel-clearing offset. Right-pinned controls keep
+  // the `--md-right` shift behaviour described above.
+  const edgeClass = isLeft ? 'left-4' : 'right-4 md:[right:var(--md-right,1rem)]';
+
   return (
     <div
-      className={`absolute z-10 right-4 md:[right:var(--md-right,1rem)] ${className}`}
+      className={`absolute z-10 ${edgeClass} ${className}`}
       style={offsetStyle}
     >
       <div className={`flex flex-col rounded-xl shadow-xl backdrop-blur-sm border overflow-hidden ${panel}`}>
