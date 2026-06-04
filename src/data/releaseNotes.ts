@@ -10,6 +10,39 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.17',
+    date: 'June 4, 2026',
+    codename: 'Tour, Fixed',
+    summary:
+      'The guided tour is more reliable and far more useful. It now walks every step in order from the start — under the new React Compiler an old timing bug could leave it showing only some steps or none. The steps are also richer: clearer guidance to click the map for a parcel’s density and ranking, a new step on tracking a parcel to your proom workspace, and a plainer “N / M” progress counter.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Sparkles,
+        text: 'Fixed the guided tour computing its step list during the first render — before the map and panel anchors had mounted — which under the React Compiler could leave it stuck showing 0 or only some steps. Steps are now computed from the live page the moment the tour starts, so every configured step appears in order.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text: 'Rewrote the tour content to be concrete: the map step now spells out that clicking the map picks a parcel and shades its whole zone by built-volume percentile, and points to the facts and distribution panel it opens. Corrected the map step so it spotlights the map (it no longer just centres a blank tooltip).',
+        prs: [],
+      },
+      {
+        kind: 'added' as ChangeKind,
+        icon: Bookmark,
+        text: 'Added a tour step explaining how to track a parcel — saving it to your proom workspace, synced across the SwissNovo suite — plus a clearer step on reading the zone-distribution charts.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Languages,
+        text: 'Simplified the tour progress counter to a plain “N / M” (dropping the word “Step”), localised in en/fr/de/it.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.16',
     date: 'June 4, 2026',
     codename: 'Spotlight Focus',

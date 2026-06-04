@@ -4,19 +4,24 @@ import { createPortal } from "react-dom";
 // react-joyride dims the page via a full-screen overlay (overlayColor +
 // mixBlendMode: hard-light) and "punches" a hole over the focused element with
 // a gray spotlight. A backdrop-filter on that overlay can't be punched by the
-// blend, so blurring the overlay also blurs the highlighted element — which is
-// exactly what we don't want. Instead we render our OWN full-screen blur layer
-// just beneath Joyride's overlay and clip a hole out of it that tracks the
-// spotlight, so the page goes soft-focus everywhere EXCEPT the highlighted area.
+// blend, so blurring the overlay also blurs the highlighted element — exactly
+// what we don't want. Instead we render our OWN full-screen blur layer just
+// beneath Joyride's overlay and clip a hole out of it that tracks the spotlight,
+// so the page goes soft-focus everywhere EXCEPT the highlighted area.
+//
+// The blur is gated on TWO things being true: Joyride's overlay is on screen,
+// AND there is a spotlight rect to cut a hole around. So a tour with no
+// resolvable steps (no overlay) or a centered/target-less step (no spotlight)
+// never produces a stuck full-screen blur — it simply renders nothing.
 
 type Rect = { top: number; left: number; width: number; height: number };
 
+const OVERLAY_SELECTOR = ".react-joyride__overlay";
 const SPOTLIGHT_SELECTOR = ".react-joyride__spotlight";
 
-// The spotlight element briefly vanishes during step transitions and while the
-// scroll-parent repaints. Keep the last hole that long before deciding a step is
-// genuinely target-less (placement: "center") and blurring the whole viewport.
-const ABSENCE_GRACE_MS = 220;
+// Keep the last hole this long through brief spotlight gaps (step transition /
+// scroll repaint) before deciding the step is genuinely target-less.
+const ABSENCE_GRACE_MS = 240;
 
 // A rounded-rect subpath for the cutout, matching Joyride's spotlight radius.
 function roundedRectPath(r: Rect, radius: number): string {
@@ -48,12 +53,13 @@ export function SpotlightBlur({
   radius?: number;
 }) {
   const [rect, setRect] = useState<Rect | null>(null);
-  const lastSeenRef = useRef(0);
+  const [overlayPresent, setOverlayPresent] = useState(false);
   const lastRectRef = useRef<Rect | null>(null);
 
   useEffect(() => {
     if (!active) {
       setRect(null);
+      setOverlayPresent(false);
       lastRectRef.current = null;
       return;
     }
@@ -61,16 +67,21 @@ export function SpotlightBlur({
     let raf = 0;
     let mounted = true;
     let elapsed = 0; // monotonic frame clock — avoids Date.now() churn
+    let lastSeen = 0;
 
-    const tick = (_now: number) => {
+    const tick = () => {
       if (!mounted) return;
       elapsed += 16;
-      const el = document.querySelector(SPOTLIGHT_SELECTOR) as HTMLElement | null;
 
+      // Only blur while Joyride is actually showing its overlay.
+      const hasOverlay = !!document.querySelector(OVERLAY_SELECTOR);
+      setOverlayPresent((prev) => (prev === hasOverlay ? prev : hasOverlay));
+
+      const el = document.querySelector(SPOTLIGHT_SELECTOR) as HTMLElement | null;
       if (el) {
         const b = el.getBoundingClientRect();
         const next: Rect = { top: b.top, left: b.left, width: b.width, height: b.height };
-        lastSeenRef.current = elapsed;
+        lastSeen = elapsed;
         const prev = lastRectRef.current;
         const changed =
           !prev ||
@@ -82,12 +93,12 @@ export function SpotlightBlur({
           lastRectRef.current = next;
           setRect(next);
         }
-      } else if (elapsed - lastSeenRef.current > ABSENCE_GRACE_MS && lastRectRef.current) {
-        // Sustained absence → target-less (centered) step: blur everything.
+      } else if (elapsed - lastSeen > ABSENCE_GRACE_MS && lastRectRef.current) {
+        // Sustained absence → target-less (centered) step: drop the blur
+        // entirely rather than blur the whole screen.
         lastRectRef.current = null;
         setRect(null);
       }
-      // Brief absence → keep the last hole (transition / scroll repaint).
 
       raf = window.requestAnimationFrame(tick);
     };
@@ -99,24 +110,30 @@ export function SpotlightBlur({
     };
   }, [active]);
 
-  if (!active || typeof document === "undefined") return null;
+  // Blur ONLY when the tour is genuinely highlighting an element: active +
+  // Joyride overlay present + a spotlight rect to cut a hole around.
+  if (
+    !active ||
+    !overlayPresent ||
+    !rect ||
+    rect.width <= 0 ||
+    rect.height <= 0 ||
+    typeof document === "undefined"
+  ) {
+    return null;
+  }
 
-  const style: React.CSSProperties = {
+  const clip = `path(evenodd, "M0,0 H100000 V100000 H0 Z ${roundedRectPath(rect, radius)}")`;
+  const style: React.CSSProperties & { WebkitClipPath?: string } = {
     position: "fixed",
     inset: 0,
     zIndex,
     pointerEvents: "none",
     backdropFilter: `blur(${blurPx}px)`,
     WebkitBackdropFilter: `blur(${blurPx}px)`,
+    clipPath: clip,
+    WebkitClipPath: clip,
   };
-
-  if (rect && rect.width > 0 && rect.height > 0) {
-    // Oversized outer rect (clipped to the fixed viewport box) minus the
-    // spotlight hole, with the even-odd rule carving the hole out.
-    const clip = `path(evenodd, "M0,0 H100000 V100000 H0 Z ${roundedRectPath(rect, radius)}")`;
-    style.clipPath = clip;
-    (style as React.CSSProperties & { WebkitClipPath?: string }).WebkitClipPath = clip;
-  }
 
   return createPortal(<div aria-hidden style={style} />, document.body);
 }
