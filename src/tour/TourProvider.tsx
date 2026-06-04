@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -108,8 +109,27 @@ export function TourProvider({ children }: { children: ReactNode }) {
     () => pickAutoStartVariant() ?? "long",
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const steps = useMemo(() => toJoyrideSteps(variant, t), [variant, run, locale]);
+  // Latest translator, read imperatively by computeSteps (below).
+  const tRef = useRef(t);
+  tRef.current = t;
+
+  // The visible step set depends on which data-tour anchors are mounted RIGHT
+  // NOW — a live DOM read. Computing it in a render-time useMemo is unsafe under
+  // the React Compiler: the compiler memoizes on the values the callback closes
+  // over (variant, t) and can't see the DOM read, so it caches the first-render
+  // result — computed before the app's anchors mount, hence often empty/partial.
+  // Instead we compute imperatively the moment the tour starts, by which point
+  // the anchors exist, and store the result in state.
+  const [steps, setSteps] = useState<Step[]>([]);
+  const computeSteps = useCallback((nextVariant: TourVariant) => {
+    setSteps(toJoyrideSteps(nextVariant, tRef.current));
+  }, []);
+
+  // A centered (target-less) step has no element to spotlight, so we suppress the
+  // blur there — blurring the whole page would hide the very thing the step talks
+  // about (e.g. "click anywhere on the map").
+  const [stepCentered, setStepCentered] = useState(false);
+
   const joyrideStyles = useMemo(
     () =>
       buildJoyrideStyles(
@@ -119,11 +139,18 @@ export function TourProvider({ children }: { children: ReactNode }) {
     [run],
   );
 
-  const startTour = useCallback((nextVariant: TourVariant) => {
-    setVariant(nextVariant);
-    setRun(false);
-    window.setTimeout(() => setRun(true), 50);
-  }, []);
+  const startTour = useCallback(
+    (nextVariant: TourVariant) => {
+      setVariant(nextVariant);
+      setRun(false);
+      // Recompute steps from the live DOM, then start — batched into one render.
+      window.setTimeout(() => {
+        computeSteps(nextVariant);
+        setRun(true);
+      }, 50);
+    },
+    [computeSteps],
+  );
 
   useEffect(() => {
     const auto = pickAutoStartVariant();
@@ -140,12 +167,20 @@ export function TourProvider({ children }: { children: ReactNode }) {
 
     const timer = window.setTimeout(() => {
       setVariant(auto);
+      computeSteps(auto);
       setRun(true);
     }, 700);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [computeSteps]);
+
+  // Re-translate the running tour if the user switches language mid-tour.
+  useEffect(() => {
+    if (run) computeSteps(variant);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
 
   function handleCallback(data: CallBackProps) {
+    setStepCentered(data.step?.placement === "center");
     const finished: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
     if (finished.includes(data.status)) {
       markTourCompleted(
@@ -155,6 +190,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
         appTourConfig.behavior.completionTtlDays,
       );
       setRun(false);
+      setStepCentered(false);
     }
   }
 
@@ -170,9 +206,9 @@ export function TourProvider({ children }: { children: ReactNode }) {
           to   { opacity: 1; transform: translateY(0)   scale(1); }
         }
       `}</style>
-      {/* Soft-focus the page behind the tour, leaving the spotlight sharp. Sits
-          one layer below Joyride's overlay (options.zIndex = 10000). */}
-      <SpotlightBlur active={run} zIndex={9999} blurPx={3} radius={14} />
+      {/* Soft-focus the page behind the tour, leaving the spotlight sharp.
+          Suppressed on centered steps (no element to spotlight). */}
+      <SpotlightBlur active={run && !stepCentered} zIndex={9999} blurPx={3} radius={14} />
       <Joyride
         steps={steps}
         run={run}

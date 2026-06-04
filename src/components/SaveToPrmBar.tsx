@@ -111,7 +111,10 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
   // ---- Saved: show the confirmation + an Open-in-proom action ----
   if (status === 'saved') {
     return (
-      <div className="flex-shrink-0 border-t border-gray-800/60 bg-gray-950/95 px-3 py-3 print:hidden">
+      <div
+        data-tour="track-parcel"
+        className="flex-shrink-0 border-t border-gray-800/60 bg-gray-950/95 px-3 py-3 print:hidden"
+      >
         <div className="flex items-stretch gap-2">
           <div className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30 text-sm font-semibold">
             <BookmarkCheck className="h-4 w-4" aria-hidden />
@@ -149,7 +152,10 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
         : t('prm.save');
 
   return (
-    <div className="flex-shrink-0 border-t border-gray-800/60 bg-gray-950/95 px-3 py-3 print:hidden">
+    <div
+      data-tour="track-parcel"
+      className="flex-shrink-0 border-t border-gray-800/60 bg-gray-950/95 px-3 py-3 print:hidden"
+    >
       <button
         type="button"
         onClick={handleSave}
