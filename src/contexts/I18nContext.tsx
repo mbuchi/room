@@ -177,9 +177,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'menu.fallback_user': 'User',
 
     // ---------- PRM save button (shared semantics) ----------
-    'prm.save': 'Save to PRM',
+    'prm.save': 'Track parcel',
     'prm.saving': 'Saving…',
-    'prm.saved': 'Saved to PRM',
+    'prm.saved': 'Tracked',
     'prm.open_in_proom': 'Open in proom',
     'prm.signin_required': 'Sign in to save parcels',
     'prm.save_failed': 'Could not save — try again',
@@ -391,9 +391,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'menu.fallback_user': 'Utilisateur',
 
     // ---------- PRM ----------
-    'prm.save': 'Enregistrer dans le PRM',
+    'prm.save': 'Suivre la parcelle',
     'prm.saving': 'Enregistrement…',
-    'prm.saved': 'Enregistré dans le PRM',
+    'prm.saved': 'Suivie',
     'prm.open_in_proom': 'Ouvrir dans proom',
     'prm.signin_required': 'Connectez-vous pour enregistrer',
     'prm.save_failed': 'Échec — réessayez',
@@ -604,9 +604,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'menu.fallback_user': 'Benutzer',
 
     // ---------- PRM ----------
-    'prm.save': 'In PRM speichern',
+    'prm.save': 'Parzelle verfolgen',
     'prm.saving': 'Speichern…',
-    'prm.saved': 'In PRM gespeichert',
+    'prm.saved': 'Verfolgt',
     'prm.open_in_proom': 'In proom öffnen',
     'prm.signin_required': 'Anmelden zum Speichern',
     'prm.save_failed': 'Speichern fehlgeschlagen',
@@ -817,9 +817,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'menu.fallback_user': 'Utente',
 
     // ---------- PRM ----------
-    'prm.save': 'Salva nel PRM',
+    'prm.save': 'Segui la particella',
     'prm.saving': 'Salvataggio…',
-    'prm.saved': 'Salvato nel PRM',
+    'prm.saved': 'Seguita',
     'prm.open_in_proom': 'Apri in proom',
     'prm.signin_required': 'Accedi per salvare',
     'prm.save_failed': 'Salvataggio fallito',

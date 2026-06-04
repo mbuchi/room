@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.15',
+    date: 'June 4, 2026',
+    codename: 'Track Parcel',
+    summary:
+      'The parcel-save button now reads “Track parcel” (was “Save to PRM”) so new users immediately get what it does — “PRM” was jargon. Localised across English, French, German and Italian.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Languages,
+        text: 'Renamed the parcel-save action from “Save to PRM” to “Track parcel” (and “Saved to PRM” → “Tracked”) for new-user clarity, localised in en/fr/de/it. No change to behaviour — it still saves the parcel to your proom workspace.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.14',
     date: 'June 4, 2026',
     codename: 'Compiler On',
