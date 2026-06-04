@@ -14,6 +14,7 @@ import Joyride, {
 } from "react-joyride";
 
 import { appTourConfig } from "./tour.config";
+import { SpotlightBlur } from "./SpotlightBlur";
 import { TourTooltip } from "./TourTooltip";
 import type { TourVariant } from "./tour.types";
 import { hasCompletedTour, markTourCompleted } from "./tourStorage";
@@ -169,6 +170,9 @@ export function TourProvider({ children }: { children: ReactNode }) {
           to   { opacity: 1; transform: translateY(0)   scale(1); }
         }
       `}</style>
+      {/* Soft-focus the page behind the tour, leaving the spotlight sharp. Sits
+          one layer below Joyride's overlay (options.zIndex = 10000). */}
+      <SpotlightBlur active={run} zIndex={9999} blurPx={3} radius={14} />
       <Joyride
         steps={steps}
         run={run}

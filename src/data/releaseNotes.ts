@@ -10,6 +10,21 @@ export { KIND_META } from '@swissnovo/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.16',
+    date: 'June 4, 2026',
+    codename: 'Spotlight Focus',
+    summary:
+      'The guided tour now softly blurs the page behind its overlay again — but the highlighted element stays perfectly sharp. Earlier the blur either covered the focused element too or had to be removed entirely; now only the surroundings go soft-focus, so your eye is drawn to exactly what the step is pointing at.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text: 'Restored the guided-tour background blur as a true spotlight: the page behind the overlay is soft-focused while the highlighted element stays sharp and clear. The blur hole tracks the spotlight as it moves between steps.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.15',
     date: 'June 4, 2026',
     codename: 'Track Parcel',
