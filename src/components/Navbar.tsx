@@ -6,7 +6,7 @@ import LocateButton, { type LocateErrorCode } from './LocateButton';
 import ScreenshotButton from './ScreenshotButton';
 import SavedImagesPanel from './SavedImagesPanel';
 import UserMenu from './UserMenu';
-import { ReleaseNotesButton, LocaleSelector } from '@swissnovo/shared';
+import { ReleaseNotesButton, LocaleSelector } from '@aireon/shared';
 import { RELEASES, REPO_URL } from '../data/releaseNotes';
 import { TourHelpButton } from '../tour/TourHelpButton';
 import { geocodeAddress, type GeocodeResult } from '../lib/geocode';

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { Skeleton } from '@swissnovo/shared';
+import { Skeleton } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
 import {
   fetchZoneStats,

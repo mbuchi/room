@@ -29,7 +29,7 @@ import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
-import { ClaireAssistant } from '@swissnovo/shared';
+import { ClaireAssistant } from '@aireon/shared';
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';

@@ -35,7 +35,7 @@ question planners, valuers, and developers actually ask.
     reference line, a 0–100 percentile gauge, utilisation-over-time line
     chart across age cohorts (now / last 20 / 40 / 60 years), and a scatter
     tab (parcel area vs. building volume with regression line).
-- Standard SwissNovo chrome: shared auth (`@swissnovo/shared` AuthProvider),
+- Standard SwissNovo chrome: shared auth (`@aireon/shared` AuthProvider),
   release notes panel, login modal, user menu, locale selector, app tour
   (react-joyride), screenshot capture, Claire AI assistant on selected
   parcel.

@@ -1,1 +1,1 @@
-export { config, default } from '@swissnovo/shared/errorlog-collect';
+export { config, default } from '@aireon/shared/errorlog-collect';

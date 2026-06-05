@@ -5,7 +5,7 @@ import {
   Calendar,
   Layers,
 } from 'lucide-react';
-import { Skeleton } from '@swissnovo/shared';
+import { Skeleton } from '@aireon/shared';
 import type { ParcelData } from '../services/parcelDataService';
 import { useI18n } from '../contexts/I18nContext';
 

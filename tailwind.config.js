@@ -7,7 +7,7 @@ export default {
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
-    './node_modules/@swissnovo/shared/dist/**/*.js',
+    './node_modules/@aireon/shared/dist/**/*.js',
   ],
   theme: {
     extend: {
