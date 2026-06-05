@@ -1,10 +1,10 @@
 import {
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package,
 } from 'lucide-react';
-import type { ChangeKind, ChangeItem, Release } from '@swissnovo/shared';
+import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
 export type { ChangeKind, ChangeItem, Release };
-export { KIND_META } from '@swissnovo/shared';
+export { KIND_META } from '@aireon/shared';
 
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
@@ -97,7 +97,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'improved' as ChangeKind,
         icon: Bot,
-        text: "Claire's chat entry box vertically centers a single line and auto-grows to fit multi-line input, then snaps back after you send. Refreshed @swissnovo/shared to v0.46.0.",
+        text: "Claire's chat entry box vertically centers a single line and auto-grows to fit multi-line input, then snaps back after you send. Refreshed @aireon/shared to v0.46.0.",
         prs: [],
       },
     ],
@@ -223,12 +223,12 @@ export const RELEASES: Release[] = [
     date: 'May 31, 2026',
     codename: 'Error Capture',
     summary:
-      'room now automatically reports client-side errors to the SwissNovo suite-wide error-logging service, so problems surface to the team without anyone having to report them. Picks up @swissnovo/shared v0.42.0.',
+      'room now automatically reports client-side errors to the SwissNovo suite-wide error-logging service, so problems surface to the team without anyone having to report them. Picks up @aireon/shared v0.42.0.',
     items: [
       {
         kind: 'added' as ChangeKind,
         icon: Zap,
-        text: 'Automatic client-error capture: uncaught errors are now reported to the shared SwissNovo error-logging service via @swissnovo/shared v0.42.0.',
+        text: 'Automatic client-error capture: uncaught errors are now reported to the shared SwissNovo error-logging service via @aireon/shared v0.42.0.',
         prs: [],
       },
     ],
@@ -249,7 +249,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'changed' as ChangeKind,
         icon: Package,
-        text: 'Bumped @swissnovo/shared to v0.40.0, which adds Markdown heading rendering to Claire\'s message formatter.',
+        text: 'Bumped @aireon/shared to v0.40.0, which adds Markdown heading rendering to Claire\'s message formatter.',
         prs: [],
       },
     ],
@@ -259,12 +259,12 @@ export const RELEASES: Release[] = [
     date: 'May 30, 2026',
     codename: 'Full Reply',
     summary:
-      'Claire now returns complete answers. Some replies were getting cut off mid-sentence: the assistant’s reasoning step was eating into the same token budget as its visible answer, so longer responses ran out of room before finishing. We’ve raised that budget so the reasoning pass no longer starves the reply. Picks up @swissnovo/shared v0.39.0.',
+      'Claire now returns complete answers. Some replies were getting cut off mid-sentence: the assistant’s reasoning step was eating into the same token budget as its visible answer, so longer responses ran out of room before finishing. We’ve raised that budget so the reasoning pass no longer starves the reply. Picks up @aireon/shared v0.39.0.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: Bot,
-        text: 'Claire no longer cuts answers off mid-sentence. Her reply token budget was raised so the model’s internal reasoning step no longer truncates the visible response. Picks up the fix via @swissnovo/shared v0.39.0.',
+        text: 'Claire no longer cuts answers off mid-sentence. Her reply token budget was raised so the model’s internal reasoning step no longer truncates the visible response. Picks up the fix via @aireon/shared v0.39.0.',
         prs: [],
       },
     ],
@@ -438,7 +438,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
-        text: 'Updated @swissnovo/shared to v0.33.0 — Claire now resolves parcel EGRID via cadastral identify as a fallback.',
+        text: 'Updated @aireon/shared to v0.33.0 — Claire now resolves parcel EGRID via cadastral identify as a fallback.',
         prs: [],
       },
     ],
@@ -453,7 +453,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
-        text: 'Bumped @swissnovo/shared to v0.32.0 — release-notes button icon switched from Tag to CheckCircle.',
+        text: 'Bumped @aireon/shared to v0.32.0 — release-notes button icon switched from Tag to CheckCircle.',
         prs: [],
       },
     ],
@@ -527,7 +527,7 @@ export const RELEASES: Release[] = [
     date: 'May 25, 2026',
     codename: 'Call Claire',
     summary:
-      'Claire now has a phone button in her header — click to start a live voice conversation with her, powered by Google\'s Gemini Live (Aoede voice). Same Claire, same parcel grounding; just speak naturally. Picks up @swissnovo/shared v0.25.1, which also adds an automatic 429/5xx fallback across Gemini chat models so Claire stays responsive when her primary model is rate-limited.',
+      'Claire now has a phone button in her header — click to start a live voice conversation with her, powered by Google\'s Gemini Live (Aoede voice). Same Claire, same parcel grounding; just speak naturally. Picks up @aireon/shared v0.25.1, which also adds an automatic 429/5xx fallback across Gemini chat models so Claire stays responsive when her primary model is rate-limited.',
     items: [
       {
         kind: 'new' as ChangeKind,

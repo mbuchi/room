@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import type { Locale } from '@swissnovo/shared';
+import type { Locale } from '@aireon/shared';
 
 /**
  * Translation table for the room UI. Each key resolves to the matching

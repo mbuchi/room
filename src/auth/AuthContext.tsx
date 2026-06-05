@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
-import { AuthProvider as SharedAuthProvider, useAuth as useSharedAuth } from '@swissnovo/shared';
+import { AuthProvider as SharedAuthProvider, useAuth as useSharedAuth } from '@aireon/shared';
 
 // OIDC auth (provider, hook, userManager) and the login UI come from
-// @swissnovo/shared. This file is a thin wrapper that re-exposes the shared
+// @aireon/shared. This file is a thin wrapper that re-exposes the shared
 // auth state so existing useAuth() callers keep working.
 
 export function AuthProvider({ children }: { children: ReactNode }) {

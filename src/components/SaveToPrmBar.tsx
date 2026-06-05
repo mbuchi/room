@@ -6,7 +6,7 @@ import {
   PROOM_APP_URL,
   PrmAuthRequiredError as AuthRequiredError,
   type PrmRecord,
-} from '@swissnovo/shared';
+} from '@aireon/shared';
 import type { ParcelData } from '../services/parcelDataService';
 import type { FocusedParcelHandle } from './ZoneInfoPanel';
 import { useI18n } from '../contexts/I18nContext';

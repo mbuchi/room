@@ -19,8 +19,8 @@
     "verify": "npm run typecheck && npm run lint && npm run test && npm run build"
   },
   "dependencies": {
+    "@aireon/shared": "github:mbuchi/aireon-shared#v1.0.0",
     "@mapbox/mapbox-gl-geocoder": "^5.1.2",
-    "@swissnovo/shared": "github:mbuchi/swissnovo-shared#v0.46.0",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.344.0",
     "mapbox-gl": "^3.24.0",

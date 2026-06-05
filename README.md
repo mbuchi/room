@@ -9,7 +9,7 @@ does the selected parcel compare?**
 
 Built on top of the same shared auth, release-notes, AI-assistant, screenshot
 capture, and i18n primitives that the rest of the SwissNovo apps use
-(`@swissnovo/shared`), so the experience matches the other map-first apps in
+(`@aireon/shared`), so the experience matches the other map-first apps in
 the suite.
 
 ## What `room` shows
@@ -57,7 +57,7 @@ shaded by its utilisation percentile (light yellow → deep red).
 - **Mapping:** Mapbox GL JS 3, custom `AddressGeoSearch`
 - **Charts:** Recharts 2
 - **Auth, release notes, AI assistant, profile, login modal, locale selector,
-  PRM, signal client:** `@swissnovo/shared` (cross-suite package)
+  PRM, signal client:** `@aireon/shared` (cross-suite package)
 - **Data:** RES API — `POST /res_api/parcel_data` and
   `POST /res_api/zone_stats` (the second endpoint is new and was added for
   `room`)
@@ -70,13 +70,13 @@ shaded by its utilisation percentile (light yellow → deep red).
 ```
 .
 ├── api/
-│   ├── claire-pois.ts          # Edge proxy used by @swissnovo/shared ClaireAssistant
+│   ├── claire-pois.ts          # Edge proxy used by @aireon/shared ClaireAssistant
 │   └── signal-collect.ts       # Edge function (telemetry proxy)
 ├── src/
 │   ├── App.tsx                 # I18nProvider › AuthProvider › TourProvider › MapView
 │   ├── main.tsx
 │   ├── index.css
-│   ├── auth/AuthContext.tsx    # Wires @swissnovo/shared AuthProvider
+│   ├── auth/AuthContext.tsx    # Wires @aireon/shared AuthProvider
 │   ├── components/
 │   │   ├── MapView.tsx         # Main map container & state
 │   │   ├── Navbar.tsx          # Top bar (geocoder, locate, screenshot, …)
@@ -100,7 +100,7 @@ shaded by its utilisation percentile (light yellow → deep red).
 │   │   ├── UserMenu.tsx
 │   │   └── ZoomControl.tsx
 │   ├── data/
-│   │   └── releaseNotes.ts     # Per-app changelog (data only — UI from @swissnovo/shared)
+│   │   └── releaseNotes.ts     # Per-app changelog (data only — UI from @aireon/shared)
 │   ├── lib/
 │   │   ├── mapConfig.ts
 │   │   ├── mapLayers.ts        # Parcel + building layers + choropleth fill expression

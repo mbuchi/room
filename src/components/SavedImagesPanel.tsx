@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, RefreshCw, Trash2, Image as ImageIcon, ExternalLink, Loader2, MapPin, Compass, Hash, Map as MapIcon } from 'lucide-react';
-import { Skeleton } from '@swissnovo/shared';
+import { Skeleton } from '@aireon/shared';
 import {
   listImages,
   deleteImage,
