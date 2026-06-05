@@ -10,6 +10,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.18',
+    date: 'June 5, 2026',
+    codename: 'One Sign-In',
+    summary:
+      'Sign in once, and you are signed in everywhere. room now joins suite-wide single sign-on, so if you are already logged in to another Aireon app in this browser, room signs you in automatically — no second password.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BadgeCheck,
+        text: "Cross-app single sign-on now works: if you're signed in to any Aireon app in this browser, room signs you in automatically on load — a brief, UI-less check, no second password. Anonymous visitors are unaffected.",
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.17',
     date: 'June 4, 2026',
     codename: 'Tour, Fixed',
