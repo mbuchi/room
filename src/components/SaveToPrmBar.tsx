@@ -32,7 +32,7 @@ interface SaveToPrmBarProps {
  */
 const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
   const { t } = useI18n();
-  const { accessToken, isAuthenticated, login } = useAuth();
+  const { accessToken, isAuthenticated, promptLogin } = useAuth();
   const [status, setStatus] = useState<SaveStatus>('idle');
   const [savedRecord, setSavedRecord] = useState<PrmRecord | null>(null);
 
@@ -65,7 +65,8 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
 
   const handleSave = async () => {
     if (!isAuthenticated || !accessToken) {
-      void login();
+      // Open the suite sign-in modal instead of a full-page redirect to Zitadel.
+      promptLogin();
       return;
     }
     setStatus('saving');
@@ -99,7 +100,7 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
       });
     } catch (err) {
       if (err instanceof AuthRequiredError) {
-        void login();
+        promptLogin();
         setStatus('idle');
         return;
       }

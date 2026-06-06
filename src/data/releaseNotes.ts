@@ -10,6 +10,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.19',
+    date: 'June 6, 2026',
+    codename: 'Browse First',
+    summary:
+      'No sign-in pop-up on arrival — the zoning map opens straight away. You are only asked to sign in when you use a feature that needs an account, like tracking a parcel or exporting a snapshot.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'Dropped the welcome sign-in pop-up that used to appear on a fresh visit. room now opens directly into the map for everyone. The sign-in invitation appears only when you act on a feature that needs an account — tracking a parcel or exporting a screenshot — and it now opens as an in-app modal instead of bouncing you to the sign-in page.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.18',
     date: 'June 5, 2026',
     codename: 'One Sign-In',

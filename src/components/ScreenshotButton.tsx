@@ -19,7 +19,7 @@ interface ScreenshotButtonProps {
 }
 
 export default function ScreenshotButton({ getCaptureMetadata }: ScreenshotButtonProps = {}) {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated, promptLogin } = useAuth();
   const { t } = useI18n();
   const [isCapturing, setIsCapturing] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
@@ -32,9 +32,9 @@ export default function ScreenshotButton({ getCaptureMetadata }: ScreenshotButto
 
   const handleSaveScreenshot = async () => {
     if (!isAuthenticated) {
-      // Sending unauthenticated users straight to Zitadel is friendlier than
-      // showing an error toast they then have to dismiss before signing in.
-      await login();
+      // Open the suite sign-in modal instead of redirecting straight to
+      // Zitadel — it keeps the user in context and matches the save-parcel CTA.
+      promptLogin();
       return;
     }
     setIsCapturing(true);
