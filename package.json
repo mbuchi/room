@@ -19,7 +19,7 @@
     "verify": "npm run typecheck && npm run lint && npm run test && npm run build"
   },
   "dependencies": {
-    "@aireon/shared": "github:mbuchi/aireon-shared#v1.2.2",
+    "@aireon/shared": "github:mbuchi/aireon-shared#v1.2.3",
     "@mapbox/mapbox-gl-geocoder": "^5.1.2",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.344.0",
