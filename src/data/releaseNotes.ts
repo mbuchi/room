@@ -10,6 +10,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.21',
+    date: 'June 9, 2026',
+    codename: 'Back to Hub',
+    summary:
+      'A small Aireon logo now sits at the left of the top bar, just before the room wordmark. Tap it to jump straight back to the Aireon hub — the same one-tap shortcut across every app in the suite.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text:
+          'Added the Aireon back-to-hub logo to the navbar, immediately before the room wordmark. One tap routes you to the Aireon hub, matching the consistent navigation now shared across the whole suite. The badge stays muted so it never competes with room’s own branding.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.20',
     date: 'June 8, 2026',
     codename: 'Tidy Toolbar',
