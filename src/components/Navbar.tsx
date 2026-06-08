@@ -1,14 +1,22 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Image as ImageIcon, MapPin, X } from 'lucide-react';
+import { Camera, CheckCircle, HelpCircle, Images, MapPin, X } from 'lucide-react';
 import type { ScreenshotMetadata } from '../services/imageService';
 import Logo from './Logo';
 import LocateButton, { type LocateErrorCode } from './LocateButton';
-import ScreenshotButton from './ScreenshotButton';
 import SavedImagesPanel from './SavedImagesPanel';
+import ScreenshotFeedback from './ScreenshotFeedback';
 import UserMenu from './UserMenu';
-import { ReleaseNotesButton, LocaleSelector } from '@aireon/shared';
+import {
+  LocaleSelector,
+  ReleaseNotesPanel,
+  getReleaseNotesStrings,
+  useReleaseNotes,
+  type MapUserMenuAction,
+} from '@aireon/shared';
 import { RELEASES, REPO_URL } from '../data/releaseNotes';
-import { TourHelpButton } from '../tour/TourHelpButton';
+import { appTourConfig } from '../tour/tour.config';
+import { useTour } from '../tour/TourProvider';
+import { useScreenshot } from '../hooks/useScreenshot';
 import { geocodeAddress, type GeocodeResult } from '../lib/geocode';
 import { signal } from '../lib/signal';
 import { useI18n } from '../contexts/I18nContext';
@@ -23,6 +31,49 @@ interface NavbarProps {
 const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata }: NavbarProps) => {
   const { locale, setLocale, t } = useI18n();
   const [showImages, setShowImages] = useState(false);
+  const { startTour } = useTour();
+  const { capture, isCapturing, toast, dismissToast } = useScreenshot(getCaptureMetadata);
+  const rn = useReleaseNotes({
+    currentVersion: RELEASES[0].version,
+    storageKey: 'room:lastSeenReleaseVersion',
+  });
+
+  // Variant-2 navbar: secondary tools live in the user-dropdown "More tools"
+  // section instead of crowding the bar. Order mirrors the suite reference:
+  // export → exports → changes → tour.
+  const tourVariant = appTourConfig.variants.long.length > 0 ? 'long' : 'short';
+  const toolbarItems: MapUserMenuAction[] = [
+    {
+      key: 'export',
+      label: t('panel.screenshot.save_image'),
+      icon: <Camera size={16} aria-hidden="true" />,
+      onClick: capture,
+      disabled: isCapturing,
+      signedOut: true,
+    },
+    {
+      key: 'exports',
+      label: t('nav.my_exports'),
+      icon: <Images size={16} aria-hidden="true" />,
+      onClick: () => setShowImages(true),
+      signedOut: true,
+    },
+    {
+      key: 'changes',
+      label: getReleaseNotesStrings(locale).whatsNew,
+      icon: <CheckCircle size={16} aria-hidden="true" />,
+      dot: rn.hasUnread,
+      onClick: rn.openPanel,
+      signedOut: true,
+    },
+    {
+      key: 'tour',
+      label: t('tour.long_label'),
+      icon: <HelpCircle size={16} aria-hidden="true" />,
+      onClick: () => startTour(tourVariant),
+      signedOut: true,
+    },
+  ];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-14 bg-gray-950/95 backdrop-blur-md border-b border-gray-800/60 shadow-lg">
@@ -40,36 +91,30 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
         <div className="ml-auto flex items-center gap-2 sm:gap-3 flex-shrink-0">
           <div data-tour="map-tools" className="flex items-center gap-2 sm:gap-3">
             <LocateButton onLocate={onLocate} onError={onLocateError} />
-            <ScreenshotButton getCaptureMetadata={getCaptureMetadata} />
           </div>
-          <button
-            onClick={() => setShowImages(true)}
-            title={t('nav.my_exports')}
-            aria-label={t('nav.my_exports')}
-            className="group relative flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800/80 border border-gray-700/50 transition-all duration-200 hover:bg-red-600/20 hover:border-red-500/40 active:scale-90"
-          >
-            <ImageIcon
-              size={17}
-              className="text-gray-300 transition-all duration-200 group-hover:text-red-400 group-hover:drop-shadow-[0_0_6px_rgba(220,38,38,0.4)]"
-            />
-          </button>
-          <TourHelpButton className="group relative flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800/80 border border-gray-700/50 transition-all duration-200 hover:bg-red-600/20 hover:border-red-500/40 active:scale-90 text-gray-300 hover:text-red-400" />
           <LocaleSelector
             locale={locale}
             onChange={setLocale}
             ariaLabel={t('nav.select_language')}
           />
-          <ReleaseNotesButton
-            releases={RELEASES}
-            repoUrl={REPO_URL}
-            storageKey="room:lastSeenReleaseVersion"
-            brandPrefix="r"
-            brandSuffix="m"
-          />
-          <UserMenu />
+          <div data-tour="help-button">
+            <UserMenu toolbarItems={toolbarItems} toolbarLabel={t('menu.more_tools')} />
+          </div>
         </div>
       </div>
+
       <SavedImagesPanel isOpen={showImages} onClose={() => setShowImages(false)} />
+      {rn.isOpen && (
+        <ReleaseNotesPanel
+          onClose={rn.closePanel}
+          locale={locale}
+          releases={RELEASES}
+          repoUrl={REPO_URL}
+          brandPrefix="r"
+          brandSuffix="m"
+        />
+      )}
+      <ScreenshotFeedback isCapturing={isCapturing} toast={toast} onDismiss={dismissToast} />
     </nav>
   );
 };

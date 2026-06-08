@@ -1,7 +1,13 @@
-import { MapUserMenu, type PrmRecord, type PrmLocale } from '@aireon/shared';
+import { MapUserMenu, type PrmRecord, type PrmLocale, type MapUserMenuAction } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
 
-export default function UserMenu() {
+interface UserMenuProps {
+  /** Secondary tools shown under the "More tools" section of the dropdown (variant-2 navbar). */
+  toolbarItems?: MapUserMenuAction[];
+  toolbarLabel?: string;
+}
+
+export default function UserMenu({ toolbarItems, toolbarLabel }: UserMenuProps) {
   const { t, locale } = useI18n();
 
   const openParcelHere = (rec: PrmRecord) => {
@@ -17,9 +23,11 @@ export default function UserMenu() {
       locale={locale as PrmLocale}
       savedParcelsOpenHereLabel={t('modal.parcels.open_here')}
       onOpenSavedParcel={openParcelHere}
+      toolbarItems={toolbarItems}
+      toolbarLabel={toolbarLabel}
       labels={{
-        signIn: 'Sign in',
-        userMenu: 'User menu',
+        signIn: t('menu.sign_in'),
+        userMenu: t('menu.user_menu'),
         viewProfile: t('menu.view_profile'),
         savedParcels: t('menu.my_saved_parcels'),
         signOut: t('menu.sign_out'),
