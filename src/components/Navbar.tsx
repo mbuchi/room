@@ -8,10 +8,12 @@ import ScreenshotFeedback from './ScreenshotFeedback';
 import UserMenu from './UserMenu';
 import {
   LocaleSelector,
+  OverflowNav,
   ReleaseNotesPanel,
   getReleaseNotesStrings,
   useReleaseNotes,
   type MapUserMenuAction,
+  type OverflowNavItem,
 } from '@aireon/shared';
 import { RELEASES, REPO_URL } from '../data/releaseNotes';
 import { appTourConfig } from '../tour/tour.config';
@@ -75,6 +77,30 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
     },
   ];
 
+  // Mobile (<768px) overflow menu — collapses the bar's inline action controls
+  // (locate + language) into a single ⋯ dropdown so they don't overlap on
+  // phones. The search box and the avatar stay always visible outside this.
+  // Declared right before return so it sees the handlers/state above (TDZ-safe).
+  const mobileNavItems: OverflowNavItem[] = [
+    {
+      key: 'locate',
+      label: t('map.locate.button'),
+      render: () => <LocateButton onLocate={onLocate} onError={onLocateError} />,
+    },
+    {
+      key: 'locale',
+      label: t('nav.select_language'),
+      render: () => (
+        <LocaleSelector
+          locale={locale}
+          onChange={setLocale}
+          ariaLabel={t('nav.select_language')}
+          className="w-full"
+        />
+      ),
+    },
+  ];
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-14 bg-gray-950/95 backdrop-blur-md border-b border-gray-800/60 shadow-lg">
       <div className="h-full px-5 flex items-center gap-3 sm:gap-4">
@@ -89,14 +115,27 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
         </div>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3 flex-shrink-0">
-          <div data-tour="map-tools" className="flex items-center gap-2 sm:gap-3">
-            <LocateButton onLocate={onLocate} onError={onLocateError} />
+          {/* desktop cluster — unchanged, just hidden on mobile */}
+          <div className="hidden md:flex items-center gap-2 sm:gap-3">
+            <div data-tour="map-tools" className="flex items-center gap-2 sm:gap-3">
+              <LocateButton onLocate={onLocate} onError={onLocateError} />
+            </div>
+            <LocaleSelector
+              locale={locale}
+              onChange={setLocale}
+              ariaLabel={t('nav.select_language')}
+            />
           </div>
-          <LocaleSelector
-            locale={locale}
-            onChange={setLocale}
-            ariaLabel={t('nav.select_language')}
-          />
+          {/* mobile cluster — collapse the action controls into a ⋯ menu */}
+          <div className="flex md:hidden items-center gap-2">
+            <OverflowNav
+              dark
+              items={mobileNavItems}
+              menuLabel={t('menu.more_tools')}
+              moreLabel={t('menu.more_tools')}
+              collapseBelow={768}
+            />
+          </div>
           <div data-tour="help-button">
             <UserMenu toolbarItems={toolbarItems} toolbarLabel={t('menu.more_tools')} />
           </div>
