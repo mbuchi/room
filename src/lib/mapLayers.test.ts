@@ -1,9 +1,12 @@
 import { describe, it, expect } from 'vitest';
+import type { Map } from 'mapbox-gl';
 import {
   densityFillColor,
   densityFillOpacity,
   densityLineColor,
   densityLineOpacity,
+  wireParcelHover,
+  HOVER_MIN_ZOOM,
   type ActiveZone,
 } from './mapLayers';
 
@@ -59,5 +62,79 @@ describe('density opacity / line expressions', () => {
     expect(typeof densityLineColor(null)).toBe('string');
     expect((densityLineColor(ZONE) as unknown[])[0]).toBe('case');
     expect(typeof densityLineOpacity(null, 0.6)).toBe('number');
+  });
+});
+
+/** Minimal Mapbox `Map` stand-in that records delegated (layer-scoped) and
+ *  map-level listeners so we can assert the hover wiring binds/detaches by
+ *  zoom. setZoom() mimics a real zoom by firing the registered `zoomend`. */
+function makeFakeMap(initialZoom: number) {
+  let zoom = initialZoom;
+  const mapHandlers: Record<string, Array<() => void>> = {};
+  const delegated: Array<{ type: string; layer: string; fn: unknown }> = [];
+  const filters: Record<string, unknown> = {};
+  const canvas = { style: { cursor: '' } };
+  const map = {
+    getZoom: () => zoom,
+    getCanvas: () => canvas,
+    getLayer: () => ({}), // hover layer present (truthy) — see wireParcelHover guard
+    setFilter: (id: string, f: unknown) => { filters[id] = f; },
+    on(type: string, layerOrFn: unknown, fn?: unknown) {
+      if (typeof layerOrFn === 'string') delegated.push({ type, layer: layerOrFn, fn });
+      else (mapHandlers[type] ??= []).push(layerOrFn as () => void);
+    },
+    off(type: string, layer: unknown, fn?: unknown) {
+      const i = delegated.findIndex((d) => d.type === type && d.layer === layer && d.fn === fn);
+      if (i >= 0) delegated.splice(i, 1);
+    },
+    // test helpers (not part of the Map API)
+    setZoom(z: number) { zoom = z; (mapHandlers['zoomend'] ?? []).forEach((h) => h()); },
+    parcelFillListeners: () => delegated.filter((d) => d.layer === 'parcel-fill'),
+    filters,
+    canvas,
+  };
+  return map;
+}
+
+describe('wireParcelHover — zoom-gated hover (low-spec perf)', () => {
+  it('does NOT bind hover listeners when the map loads zoomed out', () => {
+    const map = makeFakeMap(HOVER_MIN_ZOOM - 1);
+    wireParcelHover(map as unknown as Map);
+    expect(map.parcelFillListeners()).toHaveLength(0);
+  });
+
+  it('binds mousemove + mouseleave when at/above block level', () => {
+    const map = makeFakeMap(HOVER_MIN_ZOOM);
+    wireParcelHover(map as unknown as Map);
+    const types = map.parcelFillListeners().map((d) => d.type).sort();
+    expect(types).toEqual(['mouseleave', 'mousemove']);
+  });
+
+  it('detaches the listeners and clears the highlight when zooming back out', () => {
+    const map = makeFakeMap(HOVER_MIN_ZOOM + 1);
+    wireParcelHover(map as unknown as Map);
+    expect(map.parcelFillListeners()).toHaveLength(2);
+
+    map.setZoom(HOVER_MIN_ZOOM - 1); // fires zoomend
+    expect(map.parcelFillListeners()).toHaveLength(0);
+    // hover layer filter reset so nothing stays lit
+    expect(JSON.stringify(map.filters['parcel-hover'])).toContain('parcel_id');
+    expect(map.canvas.style.cursor).toBe('');
+  });
+
+  it('binds on the way back in, and never double-binds within the same band', () => {
+    const map = makeFakeMap(HOVER_MIN_ZOOM - 1);
+    wireParcelHover(map as unknown as Map);
+    map.setZoom(HOVER_MIN_ZOOM + 1);
+    expect(map.parcelFillListeners()).toHaveLength(2);
+    map.setZoom(HOVER_MIN_ZOOM + 2); // still above → must not re-bind
+    expect(map.parcelFillListeners()).toHaveLength(2);
+  });
+
+  it('is idempotent per map (basemap swaps re-run addParcelLayers)', () => {
+    const map = makeFakeMap(HOVER_MIN_ZOOM + 1);
+    wireParcelHover(map as unknown as Map);
+    wireParcelHover(map as unknown as Map); // second call must be a no-op
+    expect(map.parcelFillListeners()).toHaveLength(2);
   });
 });
