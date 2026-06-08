@@ -170,11 +170,13 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- user menu ----------
     'menu.sign_in': 'Sign in',
+    'menu.user_menu': 'User menu',
     'menu.sign_out': 'Sign out',
     'menu.view_profile': 'View profile',
     'menu.my_saved_parcels': 'My saved parcels',
     'menu.active': 'Active',
     'menu.fallback_user': 'User',
+    'menu.more_tools': 'More tools',
 
     // ---------- PRM save button (shared semantics) ----------
     'prm.save': 'Track parcel',
@@ -220,7 +222,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.layers.title': 'Tune the view',
     'tour.layers.body': 'Switch basemaps, fade the parcel and building overlays in or out, or flip on the 3D building view to see real heights behind the density shading.',
     'tour.help.title': 'Replay anytime',
-    'tour.help.body': "That's the tour. Select a parcel first and replay from this Help button to walk through the panel, charts and tracking steps too.",
+    'tour.help.body': "That's the tour. Open this account menu and choose \"Take the tour\" under More tools — select a parcel first to walk through the panel, charts and tracking steps too.",
 
     // ---------- generic errors ----------
     'error.no_egrid': 'No EGRID available for this parcel',
@@ -382,11 +384,13 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- user menu ----------
     'menu.sign_in': 'Se connecter',
+    'menu.user_menu': 'Menu utilisateur',
     'menu.sign_out': 'Se déconnecter',
     'menu.view_profile': 'Voir le profil',
     'menu.my_saved_parcels': 'Mes parcelles enregistrées',
     'menu.active': 'Actif',
     'menu.fallback_user': 'Utilisateur',
+    'menu.more_tools': "Plus d'outils",
 
     // ---------- PRM ----------
     'prm.save': 'Suivre la parcelle',
@@ -431,7 +435,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.layers.title': 'Ajuster la vue',
     'tour.layers.body': 'Changez de fond de carte, atténuez les calques parcelles et bâtiments, ou activez la vue 3D des bâtiments pour voir les hauteurs réelles derrière l’ombrage de densité.',
     'tour.help.title': 'Rejouer à tout moment',
-    'tour.help.body': 'C’est la fin de la visite. Sélectionnez d’abord une parcelle puis rejouez depuis ce bouton d’aide pour parcourir aussi le panneau, les graphiques et le suivi.',
+    'tour.help.body': 'C’est la fin de la visite. Ouvrez ce menu compte et choisissez « Faire la visite » sous Plus d’outils — sélectionnez d’abord une parcelle pour parcourir aussi le panneau, les graphiques et le suivi.',
 
     // ---------- errors ----------
     'error.no_egrid': 'Aucun EGRID disponible pour cette parcelle',
@@ -593,11 +597,13 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- user menu ----------
     'menu.sign_in': 'Anmelden',
+    'menu.user_menu': 'Benutzermenü',
     'menu.sign_out': 'Abmelden',
     'menu.view_profile': 'Profil anzeigen',
     'menu.my_saved_parcels': 'Meine gespeicherten Parzellen',
     'menu.active': 'Aktiv',
     'menu.fallback_user': 'Benutzer',
+    'menu.more_tools': 'Weitere Tools',
 
     // ---------- PRM ----------
     'prm.save': 'Parzelle verfolgen',
@@ -642,7 +648,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.layers.title': 'Ansicht anpassen',
     'tour.layers.body': 'Grundkarte wechseln, die Parzellen- und Gebäude-Überlagerung ein- oder ausblenden oder die 3D-Gebäudeansicht aktivieren, um die echten Höhen hinter der Dichte-Schattierung zu sehen.',
     'tour.help.title': 'Jederzeit erneut abspielen',
-    'tour.help.body': 'Das war die Tour. Wählen Sie zuerst eine Parzelle und spielen Sie über diese Hilfe-Schaltfläche erneut ab, um auch Panel, Diagramme und Verfolgen zu durchlaufen.',
+    'tour.help.body': 'Das war die Tour. Öffnen Sie dieses Konto-Menü und wählen Sie unter Weitere Tools „Tour starten“ — wählen Sie zuerst eine Parzelle, um auch Panel, Diagramme und Verfolgen zu durchlaufen.',
 
     // ---------- errors ----------
     'error.no_egrid': 'Kein EGRID für diese Parzelle verfügbar',
@@ -804,11 +810,13 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- user menu ----------
     'menu.sign_in': 'Accedi',
+    'menu.user_menu': 'Menu utente',
     'menu.sign_out': 'Esci',
     'menu.view_profile': 'Visualizza profilo',
     'menu.my_saved_parcels': 'Le mie particelle salvate',
     'menu.active': 'Attivo',
     'menu.fallback_user': 'Utente',
+    'menu.more_tools': 'Altri strumenti',
 
     // ---------- PRM ----------
     'prm.save': 'Segui la particella',
@@ -853,7 +861,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.layers.title': 'Regola la vista',
     'tour.layers.body': 'Cambia la mappa di base, attenua i livelli di particelle ed edifici, oppure attiva la vista 3D degli edifici per vedere le altezze reali dietro la sfumatura di densità.',
     'tour.help.title': 'Riproduci in qualsiasi momento',
-    'tour.help.body': 'Questo è il tour. Seleziona prima una particella e riproduci da questo pulsante di aiuto per percorrere anche pannello, grafici e tracciamento.',
+    'tour.help.body': 'Questo è il tour. Apri questo menu account e scegli «Avvia il tour» sotto Altri strumenti — seleziona prima una particella per percorrere anche pannello, grafici e tracciamento.',
 
     // ---------- errors ----------
     'error.no_egrid': 'Nessun EGRID disponibile per questa particella',

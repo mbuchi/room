@@ -104,7 +104,7 @@ export const appTourConfig: AppTourConfig = {
         id: "help",
         target: "[data-tour='help-button']",
         title: "Replay anytime",
-        body: "That's the tour. Select a parcel first and replay from this Help button to walk through the panel, charts and tracking steps too.",
+        body: "That's the tour. Open this account menu and choose \"Take the tour\" under More tools — select a parcel first to walk through the panel, charts and tracking steps too.",
         i18nKey: "tour.help",
         placement: "bottom",
       },

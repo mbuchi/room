@@ -10,6 +10,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.20',
+    date: 'June 8, 2026',
+    codename: 'Tidy Toolbar',
+    summary:
+      'A cleaner top bar. The secondary tools — Export image, My Exports, What’s new and Take a tour — now live tidily under your account menu, so the bar keeps only what you reach for most: search, locate, language and your account.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text:
+          'Slimmed the top bar to the essentials — logo, address search, locate, language and your account. Export image, My Exports, What’s new (release notes) and Take a tour moved into a new “More tools” section inside the account menu, with a red dot on What’s new when there are updates you haven’t read. The tour and What’s new stay reachable even when you’re signed out.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.19',
     date: 'June 6, 2026',
     codename: 'Browse First',
