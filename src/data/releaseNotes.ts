@@ -10,6 +10,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.22',
+    date: 'June 9, 2026',
+    codename: 'Smooth Zoom-Out',
+    summary:
+      'The amber hover highlight now only kicks in once you’re zoomed in to block level. Zoomed further out — where the map can show thousands of parcels at once — it stays off, so panning and zooming stay smooth even on modest hardware.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text:
+          'Gated the parcel hover highlight to block-level zoom (about z15 and closer). When you zoom out a lot the map can hold thousands of parcels, and re-painting the hover highlight on every mouse-move made low-spec machines stutter. Hover now switches off entirely while you’re zoomed out and returns the moment you zoom into a block — your selected parcel stays highlighted at every zoom.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.21',
     date: 'June 9, 2026',
     codename: 'Back to Hub',
