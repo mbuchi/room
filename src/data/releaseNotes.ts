@@ -18,6 +18,12 @@ export const RELEASES: Release[] = [
     items: [
       {
         kind: 'improved' as ChangeKind,
+        icon: Bot,
+        text: 'Claire now picks up @aireon/shared v1.9.1: the header drops the powered-by line, shows a larger Claire title, uses icon-only Studio/voice controls, and starts with the shorter parcel greeting.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
         icon: Map,
         text:
           'Migrated the map renderer from Mapbox GL JS to the open-source, BSD-licensed MapLibre GL JS. The same Mapbox-hosted basemaps (Dark, Light, Streets, Satellite, …) are still used, so nothing changes visually — hover, click-to-select, the basemap switcher, 3D buildings and screenshots all work exactly as before.',
