@@ -1,4 +1,4 @@
-import type { Map, ExpressionSpecification, MapLayerMouseEvent } from 'mapbox-gl';
+import type { Map, ExpressionSpecification, MapLayerMouseEvent } from 'maplibre-gl';
 // The parcel-interaction zoom gate now lives in @aireon/shared so every
 // map-first app shares ONE threshold + predicate — change it there and the
 // whole suite moves together. Imported here (and re-exported below) so this

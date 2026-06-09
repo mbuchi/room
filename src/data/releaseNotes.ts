@@ -10,6 +10,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.27',
+    date: 'June 9, 2026',
+    codename: 'Open Renderer',
+    summary:
+      'room now draws the map with the open-source MapLibre GL engine instead of Mapbox GL. The basemaps, parcels and 3D buildings look and behave exactly as before — an under-the-hood switch that drops a proprietary dependency.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text:
+          'Migrated the map renderer from Mapbox GL JS to the open-source, BSD-licensed MapLibre GL JS. The same Mapbox-hosted basemaps (Dark, Light, Streets, Satellite, …) are still used, so nothing changes visually — hover, click-to-select, the basemap switcher, 3D buildings and screenshots all work exactly as before.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.25',
     date: 'June 9, 2026',
     codename: 'Zoom to Select',

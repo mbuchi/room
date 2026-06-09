@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { Map } from 'mapbox-gl';
+import type { Map } from 'maplibre-gl';
 import {
   densityFillColor,
   densityFillOpacity,
