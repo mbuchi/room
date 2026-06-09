@@ -10,6 +10,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.24',
+    date: 'June 9, 2026',
+    codename: 'Open With',
+    summary:
+      'After you search an address, a new "Open with" button appears in the top bar — jump straight to the same spot in another Aireon app. The locate button also picks up the suite\'s shared navbar styling.',
+    items: [
+      {
+        kind: 'added' as ChangeKind,
+        icon: PanelsTopLeft,
+        text:
+          'Added an "Open with" menu to the navbar. Once you pick an address, it lets you reopen that exact location in any other Aireon suite app in one tap. The locate button now uses the shared suite navbar icon button, so all top-bar controls look and behave consistently across the suite.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.23',
     date: 'June 9, 2026',
     codename: 'Sharper Tour',

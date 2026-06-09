@@ -9,6 +9,7 @@ import UserMenu from './UserMenu';
 import {
   AireonHubLink,
   LocaleSelector,
+  OpenWithMenu,
   ReleaseNotesPanel,
   getReleaseNotesStrings,
   useReleaseNotes,
@@ -32,6 +33,9 @@ interface NavbarProps {
 const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata }: NavbarProps) => {
   const { locale, setLocale, t } = useI18n();
   const [showImages, setShowImages] = useState(false);
+  // The last address the user picked — powers the "Open with" cross-app menu so
+  // they can open the same spot in another suite app.
+  const [lastLocation, setLastLocation] = useState<{ lat: number; lng: number } | null>(null);
   const { startTour } = useTour();
   const { capture, isCapturing, toast, dismissToast } = useScreenshot(getCaptureMetadata);
   const rn = useReleaseNotes({
@@ -87,10 +91,30 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
         </div>
 
         <div className="flex-1 min-w-0 max-w-xl" data-tour="address-search">
-          <AddressGeoSearch onLocationSelect={onLocationSelect} />
+          <AddressGeoSearch
+            onLocationSelect={onLocationSelect}
+            onPick={(lat, lng) => setLastLocation({ lat, lng })}
+          />
         </div>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          {/* Open the address you just searched in another suite app. Appears
+              once a result is picked — the cross-app half of the geocoder. */}
+          {lastLocation && (
+            <OpenWithMenu
+              location={lastLocation}
+              currentAppId="room"
+              dark
+              label={t('nav.open_with')}
+              onOpen={(appId) =>
+                void signal.send('Open address in app', {
+                  lat: lastLocation.lat,
+                  lng: lastLocation.lng,
+                  metaData: { app: appId },
+                })
+              }
+            />
+          )}
           <div data-tour="map-tools" className="flex items-center gap-2 sm:gap-3">
             <LocateButton onLocate={onLocate} onError={onLocateError} />
           </div>
@@ -130,9 +154,10 @@ export default Navbar;
 
 interface AddressGeoSearchProps {
   onLocationSelect: (center: [number, number], placeName: string) => void;
+  onPick: (lat: number, lng: number) => void;
 }
 
-function AddressGeoSearch({ onLocationSelect }: AddressGeoSearchProps) {
+function AddressGeoSearch({ onLocationSelect, onPick }: AddressGeoSearchProps) {
   const { t } = useI18n();
   const [text, setText] = useState('');
   const [results, setResults] = useState<GeocodeResult[]>([]);
@@ -184,6 +209,7 @@ function AddressGeoSearch({ onLocationSelect }: AddressGeoSearchProps) {
     setText(result.label);
     setShowResults(false);
     setResults([]);
+    onPick(result.lat, result.lng);
     onLocationSelect([result.lng, result.lat], result.label);
     void signal.send('Search for Address', {
       address: result.label,

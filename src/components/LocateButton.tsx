@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Navigation, Loader2 } from 'lucide-react';
+import { Navigation } from 'lucide-react';
+import { NavIconButton } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
 
 // Geolocation error codes the callers receive. They map 1:1 to i18n keys
@@ -75,22 +76,13 @@ const LocateButton = ({ onLocate, onError }: LocateButtonProps) => {
   };
 
   return (
-    <button
+    <NavIconButton
+      icon={<Navigation size={18} aria-hidden="true" />}
+      label={t('map.locate.button')}
       onClick={handleClick}
-      disabled={isLocating}
-      className="group relative flex items-center justify-center w-9 h-9 rounded-lg bg-gray-800/80 border border-gray-700/50 transition-all duration-200 hover:bg-red-600/20 hover:border-red-500/40 active:scale-90 disabled:opacity-50 disabled:cursor-wait"
-      title={t('map.locate.button')}
-      aria-label={t('map.locate.button')}
-    >
-      {isLocating ? (
-        <Loader2 size={18} className="text-gray-300 animate-spin" />
-      ) : (
-        <Navigation
-          size={17}
-          className="text-gray-300 transition-all duration-200 group-hover:text-red-400 group-hover:drop-shadow-[0_0_6px_rgba(220,38,38,0.4)]"
-        />
-      )}
-    </button>
+      dark
+      className={isLocating ? 'animate-pulse' : ''}
+    />
   );
 };
 
