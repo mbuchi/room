@@ -94,14 +94,22 @@ export function densityLineOpacity(zone: ActiveZone | null, opacity: number): Ex
 }
 
 /**
- * Zoom below which the parcel hover-highlight is switched off entirely. Parcel
- * tiles are z12–16 and the map opens at z16.5, so users *zoom out* to lose
- * hover. Below ~block level the viewport fills with thousands of parcels, and
- * updating the hover layer's filter on every mousemove re-tessellates it each
- * frame — which pegs low-spec CPUs (the original report) — while the parcels
- * are too small to hover precisely anyway. So hover only lives at/above here.
+ * Zoom floor for parcel *interaction* — BOTH the hover-highlight and
+ * click-to-select are switched off below it. Parcel tiles are z12–16 and the
+ * map opens at z16.5, so users *zoom out* to lose interaction. Below ~block
+ * level the viewport fills with thousands of parcels: they're too small to
+ * target precisely, a click almost always lands on the "wrong" tiny parcel,
+ * and updating the hover layer's filter on every mousemove re-tessellates it
+ * each frame — which pegs low-spec CPUs (the original report). So at an overview
+ * zoom the map is read-only context; hover *and* click come alive at/above here.
  */
-export const HOVER_MIN_ZOOM = 15;
+export const PARCEL_INTERACTION_MIN_ZOOM = 15;
+
+/** True when the map is zoomed in far enough for parcel hover + click-to-select.
+ *  The single predicate behind both gates so they can never drift apart. */
+export function isParcelInteractive(zoom: number): boolean {
+  return zoom >= PARCEL_INTERACTION_MIN_ZOOM;
+}
 
 /** Maps whose hover interaction is already wired, so re-adding the parcel
  *  layers after a basemap style swap doesn't stack duplicate listeners. */
@@ -110,7 +118,7 @@ const hoverWiredMaps = new WeakSet<Map>();
 /**
  * Wire the parcel hover-highlight, gated on zoom for performance. The
  * layer-scoped mousemove hit-test and the per-move `setFilter` are bound only
- * at/above HOVER_MIN_ZOOM and fully detached below it, so a zoomed-out map does
+ * at/above PARCEL_INTERACTION_MIN_ZOOM and detached below it, so a zoomed-out map does
  * no hover work at all. Map/delegated listeners survive `setStyle`, so this is
  * guarded to run once per map even though `addParcelLayers` re-runs on every
  * basemap swap.
@@ -140,7 +148,7 @@ export function wireParcelHover(map: Map) {
   // there's literally zero per-mousemove cost while zoomed out.
   let bound = false;
   const syncHover = () => {
-    const want = map.getZoom() >= HOVER_MIN_ZOOM;
+    const want = isParcelInteractive(map.getZoom());
     if (want === bound) return;
     bound = want;
     if (want) {
@@ -216,7 +224,7 @@ export function addParcelLayers(map: Map, opacity: number, zone: ActiveZone | nu
       // Never tessellate/paint the hover layer below block level — paired with
       // the zoom-gated listeners in wireParcelHover, the whole hover
       // interaction costs nothing while the map is zoomed out.
-      minzoom: HOVER_MIN_ZOOM,
+      minzoom: PARCEL_INTERACTION_MIN_ZOOM,
       filter: ['==', ['get', 'parcel_id'], ''],
     });
   }
