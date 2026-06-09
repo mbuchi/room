@@ -10,6 +10,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.23',
+    date: 'June 9, 2026',
+    codename: 'Sharper Tour',
+    summary:
+      'The guided tour no longer blurs the page behind it. Each step still dims the background and spotlights the highlighted area — but everything now stays crisp and clear instead of fuzzy.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'Removed the background blur from the guided tour. Tour steps still dim the page and spotlight the active element, but the rest of the screen now stays sharp instead of being blurred — clearer and more reliable across browsers.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.22',
     date: 'June 9, 2026',
     codename: 'Smooth Zoom-Out',
