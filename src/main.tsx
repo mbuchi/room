@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { I18nProvider } from './contexts/I18nContext';
 import { installErrorLogging } from '@aireon/shared';
 import App from './App.tsx';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import '@aireon/shared/map-ui.css';
 import './index.css';
 
