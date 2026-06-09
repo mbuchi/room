@@ -32,6 +32,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.search_placeholder': 'Search addresses in Switzerland...',
     'nav.searching': 'Searching…',
     'nav.my_exports': 'My Exports',
+    'nav.open_with': 'Open with',
     'nav.select_language': 'Select language',
 
     // ---------- basemap switcher (MapControls) ----------
@@ -246,6 +247,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.search_placeholder': 'Rechercher des adresses en Suisse...',
     'nav.searching': 'Recherche…',
     'nav.my_exports': 'Mes exports',
+    'nav.open_with': 'Ouvrir avec',
     'nav.select_language': 'Sélectionner la langue',
 
     // ---------- basemap ----------
@@ -459,6 +461,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.search_placeholder': 'Adressen in der Schweiz suchen...',
     'nav.searching': 'Suche…',
     'nav.my_exports': 'Meine Exporte',
+    'nav.open_with': 'Öffnen mit',
     'nav.select_language': 'Sprache wählen',
 
     // ---------- basemap ----------
@@ -672,6 +675,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.search_placeholder': 'Cerca indirizzi in Svizzera...',
     'nav.searching': 'Ricerca…',
     'nav.my_exports': 'I miei export',
+    'nav.open_with': 'Apri con',
     'nav.select_language': 'Seleziona lingua',
 
     // ---------- basemap ----------
