@@ -1,4 +1,9 @@
 import type { Map, ExpressionSpecification, MapLayerMouseEvent } from 'mapbox-gl';
+// The parcel-interaction zoom gate now lives in @aireon/shared so every
+// map-first app shares ONE threshold + predicate — change it there and the
+// whole suite moves together. Imported here (and re-exported below) so this
+// module stays the local entry point its callers and tests already use.
+import { PARCEL_INTERACTION_MIN_ZOOM, isParcelInteractive } from '@aireon/shared/map-interaction';
 
 /**
  * Identity + percentile-breakpoints of the zone the choropleth is currently
@@ -93,23 +98,11 @@ export function densityLineOpacity(zone: ActiveZone | null, opacity: number): Ex
   return ['case', inZone(zone), opacity * 0.7, opacity * 0.12];
 }
 
-/**
- * Zoom floor for parcel *interaction* — BOTH the hover-highlight and
- * click-to-select are switched off below it. Parcel tiles are z12–16 and the
- * map opens at z16.5, so users *zoom out* to lose interaction. Below ~block
- * level the viewport fills with thousands of parcels: they're too small to
- * target precisely, a click almost always lands on the "wrong" tiny parcel,
- * and updating the hover layer's filter on every mousemove re-tessellates it
- * each frame — which pegs low-spec CPUs (the original report). So at an overview
- * zoom the map is read-only context; hover *and* click come alive at/above here.
- */
-export const PARCEL_INTERACTION_MIN_ZOOM = 15;
-
-/** True when the map is zoomed in far enough for parcel hover + click-to-select.
- *  The single predicate behind both gates so they can never drift apart. */
-export function isParcelInteractive(zoom: number): boolean {
-  return zoom >= PARCEL_INTERACTION_MIN_ZOOM;
-}
+// Re-export the suite-wide parcel-interaction zoom gate (PARCEL_INTERACTION_MIN_ZOOM
+// = block level; isParcelInteractive(zoom) = the predicate). Both gate the
+// hover-highlight (below) and the click-to-select in MapView, sharing one source
+// of truth in @aireon/shared so they can never drift apart from the rest of the suite.
+export { PARCEL_INTERACTION_MIN_ZOOM, isParcelInteractive };
 
 /** Maps whose hover interaction is already wired, so re-adding the parcel
  *  layers after a basemap style swap doesn't stack duplicate listeners. */
