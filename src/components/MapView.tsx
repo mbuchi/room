@@ -15,6 +15,7 @@ import {
   densityFillOpacity,
   densityLineColor,
   densityLineOpacity,
+  isParcelInteractive,
   type ActiveZone,
 } from '../lib/mapLayers';
 import { wgs84ToLv95 } from '../lib/coordTransform';
@@ -410,6 +411,11 @@ const MapView = () => {
     });
 
     map.on('click', 'parcel-fill', (e) => {
+      // Mirror the hover gate: parcels are only selectable once zoomed to block
+      // level. Below that the map is an overview — clicks would land on the
+      // wrong tiny parcel — so we ignore them. Address-search and ?lat/?lng
+      // deep-links fly to z17 first, so those selection paths stay unaffected.
+      if (!isParcelInteractive(map.getZoom())) return;
       if (!e.features?.length) return;
       const props = e.features[0].properties;
       if (!props) return;

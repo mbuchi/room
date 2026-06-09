@@ -10,6 +10,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.25',
+    date: 'June 9, 2026',
+    codename: 'Zoom to Select',
+    summary:
+      'Parcels are now only selectable once you have zoomed in to block level — the same threshold that already controls the hover highlight. Clicking while zoomed way out no longer picks the wrong tiny parcel.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text:
+          'Clicking the map now only selects a parcel once you have zoomed in past block level — matching the hover highlight, which already appears only at that zoom. When the map is zoomed out to an overview, parcels are too small to target precisely, so clicks are ignored instead of selecting a near-random parcel. Searching an address or opening a ?lat/?lng link still works at any zoom (they fly in first).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.24',
     date: 'June 9, 2026',
     codename: 'Open With',
