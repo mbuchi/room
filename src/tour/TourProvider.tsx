@@ -15,7 +15,6 @@ import Joyride, {
 } from "react-joyride";
 
 import { appTourConfig } from "./tour.config";
-import { SpotlightBlur } from "./SpotlightBlur";
 import { TourTooltip } from "./TourTooltip";
 import type { TourVariant } from "./tour.types";
 import { hasCompletedTour, markTourCompleted } from "./tourStorage";
@@ -125,11 +124,6 @@ export function TourProvider({ children }: { children: ReactNode }) {
     setSteps(toJoyrideSteps(nextVariant, tRef.current));
   }, []);
 
-  // A centered (target-less) step has no element to spotlight, so we suppress the
-  // blur there — blurring the whole page would hide the very thing the step talks
-  // about (e.g. "click anywhere on the map").
-  const [stepCentered, setStepCentered] = useState(false);
-
   const joyrideStyles = useMemo(
     () =>
       buildJoyrideStyles(
@@ -180,7 +174,6 @@ export function TourProvider({ children }: { children: ReactNode }) {
   }, [locale]);
 
   function handleCallback(data: CallBackProps) {
-    setStepCentered(data.step?.placement === "center");
     const finished: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
     if (finished.includes(data.status)) {
       markTourCompleted(
@@ -190,7 +183,6 @@ export function TourProvider({ children }: { children: ReactNode }) {
         appTourConfig.behavior.completionTtlDays,
       );
       setRun(false);
-      setStepCentered(false);
     }
   }
 
@@ -206,9 +198,6 @@ export function TourProvider({ children }: { children: ReactNode }) {
           to   { opacity: 1; transform: translateY(0)   scale(1); }
         }
       `}</style>
-      {/* Soft-focus the page behind the tour, leaving the spotlight sharp.
-          Suppressed on centered steps (no element to spotlight). */}
-      <SpotlightBlur active={run && !stepCentered} zIndex={9999} blurPx={3} radius={14} />
       <Joyride
         steps={steps}
         run={run}
