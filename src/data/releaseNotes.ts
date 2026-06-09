@@ -9,7 +9,24 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+
   {
+    version: '0.5.28',
+    date: 'June 9, 2026',
+    codename: 'Aligned Meta',
+    summary:
+      'The page metadata now uses the same description shown on the Aireon hub card.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'Updated the HTML meta, Open Graph and Twitter descriptions to match the Aireon hub card copy: "Check and visualize zoning categories and reverse utilizations in any municipality.".',
+        prs: [],
+      },
+    ],
+  },
+{
     version: '0.5.27',
     date: 'June 9, 2026',
     codename: 'Open Renderer',
