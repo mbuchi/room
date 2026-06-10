@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 export const RELEASES: Release[] = [
 
   {
+    version: '0.5.32',
+    date: 'June 11, 2026',
+    codename: 'Swiss Basemaps',
+    summary:
+      'The basemap switcher now offers the shared swisstopo gallery — six Swiss-made basemaps with live map thumbnails — in place of the Mapbox styles.',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Layers,
+        text:
+          'Replaced the Mapbox basemap list (Dark/Streets/Satellite/…) with the shared swisstopo basemap gallery: Standard, Light, Light Minimal, Dark, Dark Minimal and Aerial, each shown as a live thumbnail of the current map view.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.30',
     date: 'June 10, 2026',
     codename: 'Bird’s Eye',

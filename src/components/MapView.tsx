@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState, useCallback, type CSSProperties } from 'react';
 import { X } from 'lucide-react';
 import * as maplibregl from 'maplibre-gl';
-import type { StyleSpecification } from 'maplibre-gl';
 import {
-  MAPBOX_TOKEN,
-  basemapOptions,
   getInitialMapState,
   updateUrlParams,
 } from '../lib/mapConfig';
@@ -31,7 +28,14 @@ import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
-import { ClaireAssistant, loadMapboxStyleForMapLibre } from '@aireon/shared';
+import { ClaireAssistant } from '@aireon/shared';
+import {
+  BasemapPicker,
+  getBasemapStrings,
+  resolveBasemapStyle,
+  getBasemapOption,
+  themeBasemapId,
+} from '@aireon/shared/basemap';
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
@@ -56,8 +60,13 @@ const MapView = () => {
   const { t, locale } = useI18n();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const [selectedBasemap, setSelectedBasemap] = useState('dark');
-  const [isBasemapMenuOpen, setIsBasemapMenuOpen] = useState(false);
+  // room is dark-only, so the swisstopo basemap always pairs with the dark
+  // theme. The shared <BasemapPicker> owns the open/close state, the
+  // live-thumbnail gallery, the style swap and theme pairing — room just
+  // mirrors the current id via onChange.
+  const [selectedBasemap, setSelectedBasemap] = useState<string>(() =>
+    themeBasemapId(true),
+  );
   const [parcelOpacity, setParcelOpacity] = useState(0.6);
   const [buildingOpacity, setBuildingOpacity] = useState(0.85);
   const [is3DMode, setIs3DMode] = useState(false);
@@ -95,6 +104,8 @@ const MapView = () => {
   is3DModeRef.current = is3DMode;
   const parcelOpacityRef = useRef(parcelOpacity);
   parcelOpacityRef.current = parcelOpacity;
+  const buildingOpacityRef = useRef(buildingOpacity);
+  buildingOpacityRef.current = buildingOpacity;
   const activeZoneRef = useRef<ActiveZone | null>(null);
   activeZoneRef.current = activeZone;
 
@@ -224,49 +235,34 @@ const MapView = () => {
     applyParcelPaintRef.current();
   }, []);
 
-  const handleBasemapChange = useCallback((basemapId: string) => {
-    const map = mapRef.current;
-    if (!map) return;
-    const basemap = basemapOptions.find((b) => b.id === basemapId);
-    if (!basemap) return;
-
-    setSelectedBasemap(basemapId);
-    setIsBasemapMenuOpen(false);
-
-    const was3D = is3DMode;
-    // MapLibre can't consume `mapbox://` styles directly, so resolve the Mapbox
-    // style document (mapbox:// → https + token) before swapping it in.
-    void loadMapboxStyleForMapLibre(basemap.style, { token: MAPBOX_TOKEN })
-      .then((style) => {
-        if (mapRef.current !== map) return;
-        map.once('style.load', () => {
-          if (mapRef.current !== map) return;
-          addParcelLayers(map, parcelOpacity, activeZoneRef.current);
-          addBuildingLayers(map, buildingOpacity);
-          // Restore the selected-parcel highlight + density paint after the swap.
-          const parcel = selectedParcelRef.current;
-          if (parcel) {
-            const f: maplibregl.FilterSpecification = ['==', ['get', 'parcel_id'], parcel.parcelId];
-            if (map.getLayer('parcel-selected'))
-              map.setFilter('parcel-selected', f);
-            if (map.getLayer('parcel-selected-casing'))
-              map.setFilter('parcel-selected-casing', f);
-          }
-          applyParcelPaintRef.current();
-          if (was3D) {
-            if (map.getLayer('building-fill'))
-              map.setLayoutProperty('building-fill', 'visibility', 'none');
-            if (map.getLayer('building-outline'))
-              map.setLayoutProperty('building-outline', 'visibility', 'none');
-            addBuildingExtrusion(map, buildingOpacity);
-          }
-        });
-        map.setStyle(style as unknown as StyleSpecification);
-      })
-      .catch((error) => {
-        console.error(`Unable to load basemap "${basemap.id}" for MapLibre`, error);
-      });
-  }, [is3DMode, parcelOpacity, buildingOpacity]);
+  // Re-add room's own data layers after the shared <BasemapPicker> swaps the
+  // style (setStyle wipes every source/layer the app added). This is exactly
+  // what the old inline handleBasemapChange did in its style.load callback:
+  // re-add the parcel + building layers, restore the selected-parcel highlight,
+  // re-apply the density paint, and re-hydrate the 3D extrusion when active.
+  // The map-level click/mousemove/moveend listeners are NOT re-bound here:
+  // setStyle keeps map-level handlers, so re-adding them would stack duplicates.
+  const handleBasemapApplied = useCallback((map: maplibregl.Map) => {
+    addParcelLayers(map, parcelOpacityRef.current, activeZoneRef.current);
+    addBuildingLayers(map, buildingOpacityRef.current);
+    // Restore the selected-parcel highlight + density paint after the swap.
+    const parcel = selectedParcelRef.current;
+    if (parcel) {
+      const f: maplibregl.FilterSpecification = ['==', ['get', 'parcel_id'], parcel.parcelId];
+      if (map.getLayer('parcel-selected'))
+        map.setFilter('parcel-selected', f);
+      if (map.getLayer('parcel-selected-casing'))
+        map.setFilter('parcel-selected-casing', f);
+    }
+    applyParcelPaintRef.current();
+    if (is3DModeRef.current) {
+      if (map.getLayer('building-fill'))
+        map.setLayoutProperty('building-fill', 'visibility', 'none');
+      if (map.getLayer('building-outline'))
+        map.setLayoutProperty('building-outline', 'visibility', 'none');
+      addBuildingExtrusion(map, buildingOpacityRef.current);
+    }
+  }, []);
 
   const handleParcelOpacityChange = useCallback((value: number) => {
     setParcelOpacity(value);
@@ -381,16 +377,18 @@ const MapView = () => {
     const initialState = getInitialMapState();
     let cancelled = false;
 
-    // MapLibre needs a resolved style object (mapbox:// → https + token), so
-    // fetch the Mapbox style first, then create the map. Dark is room's default
-    // opening basemap.
-    void loadMapboxStyleForMapLibre('mapbox://styles/mapbox/dark-v11', { token: MAPBOX_TOKEN })
+    // Open on the swisstopo basemap that pairs with room's (always dark) theme.
+    // resolveBasemapStyle returns a ready style spec (including any runtime
+    // restyle for the minimal/dark variants); the shared <BasemapPicker> handles
+    // every later swap.
+    const initialBasemap = getBasemapOption(selectedBasemap);
+    void resolveBasemapStyle(initialBasemap)
       .then((style) => {
         if (cancelled || mapRef.current) return;
 
         const map = new maplibregl.Map({
           container,
-          style: style as unknown as StyleSpecification,
+          style,
           center: initialState.center,
           zoom: initialState.hasUrlCoords ? Math.max(initialState.zoom, 17) : initialState.zoom,
           // Keep the WebGL backbuffer readable so screenshot/export captures
@@ -482,11 +480,27 @@ const MapView = () => {
         getCaptureMetadata={getCaptureMetadata}
       />
       <div ref={mapContainerRef} className="absolute inset-0 top-14" data-tour="map-view" />
+
+      {/* Basemap selector — the shared @aireon/shared/basemap gallery picker
+          (6 swisstopo basemaps). room keeps its floating wrapper + tour anchor;
+          the picker owns the open/close state, the live-thumbnail gallery, the
+          style swap and theme pairing, and re-adds room's own data layers via
+          onBasemapApplied. room is dark-only, so dark is always true. */}
+      <div data-tour="layer-controls" className="absolute top-[72px] left-4 z-10 max-w-[calc(100vw-2rem)]">
+        <BasemapPicker
+          map={mapRef.current}
+          dark
+          value={selectedBasemap}
+          onChange={setSelectedBasemap}
+          labels={{
+            control: t('panel.basemap.fallback'),
+            options: getBasemapStrings(locale).options,
+          }}
+          onBasemapApplied={handleBasemapApplied}
+        />
+      </div>
+
       <MapControls
-        selectedBasemap={selectedBasemap}
-        isBasemapMenuOpen={isBasemapMenuOpen}
-        onToggleBasemapMenu={() => setIsBasemapMenuOpen(!isBasemapMenuOpen)}
-        onBasemapChange={handleBasemapChange}
         parcelOpacity={parcelOpacity}
         onParcelOpacityChange={handleParcelOpacityChange}
         buildingOpacity={buildingOpacity}

@@ -7,23 +7,6 @@ export const MAPBOX_TOKEN: string = (import.meta.env.VITE_MAPBOX_TOKEN as string
 export const DEFAULT_CENTER: [number, number] = [8.894175, 47.556806];
 export const DEFAULT_ZOOM = 16.5;
 
-export interface BasemapOption {
-  id: string;
-  name: string;
-  style: string;
-}
-
-export const basemapOptions: BasemapOption[] = [
-  { id: 'dark', name: 'Dark', style: 'mapbox://styles/mapbox/dark-v11' },
-  { id: 'streets', name: 'Streets', style: 'mapbox://styles/mapbox/streets-v12' },
-  { id: 'satellite', name: 'Satellite', style: 'mapbox://styles/mapbox/satellite-v9' },
-  { id: 'satellite-streets', name: 'Satellite Streets', style: 'mapbox://styles/mapbox/satellite-streets-v12' },
-  { id: 'light', name: 'Light', style: 'mapbox://styles/mapbox/light-v11' },
-  { id: 'outdoors', name: 'Outdoors', style: 'mapbox://styles/mapbox/outdoors-v12' },
-  { id: 'navigation-day', name: 'Navigation Day', style: 'mapbox://styles/mapbox/navigation-day-v1' },
-  { id: 'navigation-night', name: 'Navigation Night', style: 'mapbox://styles/mapbox/navigation-night-v1' },
-];
-
 export const buildingVolumeLegend = [
   { color: '#deebf7', label: '0 - 100' },
   { color: '#c6dbef', label: '100 - 250' },
