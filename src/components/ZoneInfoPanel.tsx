@@ -5,7 +5,7 @@ import {
   Calendar,
   Layers,
 } from 'lucide-react';
-import { Skeleton } from '@aireon/shared';
+import { Skeleton, ParcelAerialThumbnail } from '@aireon/shared';
 import type { ParcelData } from '../services/parcelDataService';
 import { useI18n } from '../contexts/I18nContext';
 
@@ -67,6 +67,24 @@ const ZoneInfoPanel = ({
               </p>
             )}
           </div>
+          {focusedParcel &&
+            Number.isFinite(focusedParcel.lng) &&
+            Number.isFinite(focusedParcel.lat) && (
+              <div className="shrink-0">
+                <ParcelAerialThumbnail
+                  lng={focusedParcel.lng}
+                  lat={focusedParcel.lat}
+                  areaM2={Number(parcelData?.parcel_area) || null}
+                  dark
+                  labels={{
+                    imageAlt: t('panel.info.satellite_alt'),
+                    expand: t('panel.info.satellite_expand'),
+                    dialogAria: t('panel.info.satellite_aria'),
+                    close: t('panel.info.close'),
+                  }}
+                />
+              </div>
+            )}
         </div>
       )}
 

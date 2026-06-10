@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 export const RELEASES: Release[] = [
 
   {
+    version: '0.5.30',
+    date: 'June 10, 2026',
+    codename: 'Bird’s Eye',
+    summary:
+      'The parcel panel now shows a swisstopo aerial thumbnail of the selected parcel that opens full-size on click.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Image,
+        text:
+          'Added a swisstopo aerial thumbnail to the parcel info panel header — an 88px bird’s-eye preview of the selected parcel that expands to a full-size lightbox.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.29',
     date: 'June 10, 2026',
     codename: 'Crisp Export',
