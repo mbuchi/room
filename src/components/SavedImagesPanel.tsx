@@ -11,7 +11,7 @@ import {
 } from '../services/imageService';
 import { useI18n } from '../contexts/I18nContext';
 
-const SHOWROOM_URL = 'https://swissnovo-showroom.vercel.app/';
+const SHOWROOM_URL = 'https://showroom.aireon.ch/';
 // Modal is a quick-glance preview; the full catalog lives in the Showroom
 // app, reachable via the "See all publications in Showroom" button.
 const MAX_VISIBLE_IMAGES = 3;

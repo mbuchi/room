@@ -393,6 +393,9 @@ const MapView = () => {
           style: style as unknown as StyleSpecification,
           center: initialState.center,
           zoom: initialState.hasUrlCoords ? Math.max(initialState.zoom, 17) : initialState.zoom,
+          // Keep the WebGL backbuffer readable so screenshot/export captures
+          // the map instead of a blank canvas (MapLibre v5 location).
+          canvasContextAttributes: { preserveDrawingBuffer: true },
         });
 
         mapRef.current = map;
