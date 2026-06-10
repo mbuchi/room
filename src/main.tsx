@@ -5,6 +5,7 @@ import { installErrorLogging } from '@aireon/shared';
 import App from './App.tsx';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '@aireon/shared/map-ui.css';
+import '@aireon/shared/basemap.css';
 import './index.css';
 
 installErrorLogging({ appName: 'room' });
