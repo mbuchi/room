@@ -1,4 +1,9 @@
-import type { Map, ExpressionSpecification } from 'mapbox-gl';
+import type { Map, ExpressionSpecification, MapLayerMouseEvent } from 'maplibre-gl';
+// The parcel-interaction zoom gate now lives in @aireon/shared so every
+// map-first app shares ONE threshold + predicate — change it there and the
+// whole suite moves together. Imported here (and re-exported below) so this
+// module stays the local entry point its callers and tests already use.
+import { PARCEL_INTERACTION_MIN_ZOOM, isParcelInteractive } from '@aireon/shared/map-interaction';
 
 /**
  * Identity + percentile-breakpoints of the zone the choropleth is currently
@@ -93,6 +98,66 @@ export function densityLineOpacity(zone: ActiveZone | null, opacity: number): Ex
   return ['case', inZone(zone), opacity * 0.7, opacity * 0.12];
 }
 
+// Re-export the suite-wide parcel-interaction zoom gate (PARCEL_INTERACTION_MIN_ZOOM
+// = block level; isParcelInteractive(zoom) = the predicate). Both gate the
+// hover-highlight (below) and the click-to-select in MapView, sharing one source
+// of truth in @aireon/shared so they can never drift apart from the rest of the suite.
+export { PARCEL_INTERACTION_MIN_ZOOM, isParcelInteractive };
+
+/** Maps whose hover interaction is already wired, so re-adding the parcel
+ *  layers after a basemap style swap doesn't stack duplicate listeners. */
+const hoverWiredMaps = new WeakSet<Map>();
+
+/**
+ * Wire the parcel hover-highlight, gated on zoom for performance. The
+ * layer-scoped mousemove hit-test and the per-move `setFilter` are bound only
+ * at/above PARCEL_INTERACTION_MIN_ZOOM and detached below it, so a zoomed-out map does
+ * no hover work at all. Map/delegated listeners survive `setStyle`, so this is
+ * guarded to run once per map even though `addParcelLayers` re-runs on every
+ * basemap swap.
+ */
+export function wireParcelHover(map: Map) {
+  if (hoverWiredMaps.has(map)) return;
+  hoverWiredMaps.add(map);
+
+  // The hover layer is briefly absent between a basemap setStyle() and its
+  // style.load re-add; a zoom/move event landing in that window would otherwise
+  // throw "layer does not exist", so both helpers no-op until it's back.
+  const onMove = (e: MapLayerMouseEvent) => {
+    if (!map.getLayer('parcel-hover')) return;
+    map.getCanvas().style.cursor = 'pointer';
+    if (e.features?.length) {
+      const id = e.features[0].properties?.parcel_id ?? '';
+      map.setFilter('parcel-hover', ['==', ['get', 'parcel_id'], id]);
+    }
+  };
+  const clearHover = () => {
+    map.getCanvas().style.cursor = '';
+    if (!map.getLayer('parcel-hover')) return;
+    map.setFilter('parcel-hover', ['==', ['get', 'parcel_id'], '']);
+  };
+
+  // Attach/detach the hover listeners as the map crosses the zoom threshold so
+  // there's literally zero per-mousemove cost while zoomed out.
+  let bound = false;
+  const syncHover = () => {
+    const want = isParcelInteractive(map.getZoom());
+    if (want === bound) return;
+    bound = want;
+    if (want) {
+      map.on('mousemove', 'parcel-fill', onMove);
+      map.on('mouseleave', 'parcel-fill', clearHover);
+    } else {
+      map.off('mousemove', 'parcel-fill', onMove);
+      map.off('mouseleave', 'parcel-fill', clearHover);
+      clearHover(); // drop any lingering highlight + pointer cursor
+    }
+  };
+
+  map.on('zoomend', syncHover);
+  syncHover(); // honour the initial zoom (e.g. a ?lat/?lng deep-link at z≥17)
+}
+
 export function addParcelLayers(map: Map, opacity: number, zone: ActiveZone | null = null) {
   if (!map.getSource('parcel-tiles')) {
     map.addSource('parcel-tiles', {
@@ -149,22 +214,16 @@ export function addParcelLayers(map: Map, opacity: number, zone: ActiveZone | nu
         'fill-color': '#fbbf24',
         'fill-opacity': 0.25,
       },
+      // Never tessellate/paint the hover layer below block level — paired with
+      // the zoom-gated listeners in wireParcelHover, the whole hover
+      // interaction costs nothing while the map is zoomed out.
+      minzoom: PARCEL_INTERACTION_MIN_ZOOM,
       filter: ['==', ['get', 'parcel_id'], ''],
     });
-
-    map.on('mousemove', 'parcel-fill', (e) => {
-      map.getCanvas().style.cursor = 'pointer';
-      if (e.features?.length) {
-        const id = e.features[0].properties?.parcel_id ?? '';
-        map.setFilter('parcel-hover', ['==', ['get', 'parcel_id'], id]);
-      }
-    });
-
-    map.on('mouseleave', 'parcel-fill', () => {
-      map.getCanvas().style.cursor = '';
-      map.setFilter('parcel-hover', ['==', ['get', 'parcel_id'], '']);
-    });
   }
+
+  // Re-runs on every basemap swap; wireParcelHover is idempotent per map.
+  wireParcelHover(map);
 
   if (!map.getLayer('parcel-selected')) {
     // White casing under a crisp inner line so "your parcel" pops cleanly

@@ -32,6 +32,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.search_placeholder': 'Search addresses in Switzerland...',
     'nav.searching': 'Searching…',
     'nav.my_exports': 'My Exports',
+    'nav.open_with': 'Open with',
     'nav.select_language': 'Select language',
 
     // ---------- basemap switcher (MapControls) ----------
@@ -63,6 +64,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.title': 'Parcel Information',
     'panel.info.toggle_raw_json': 'Toggle raw JSON',
     'panel.info.close': 'Close',
+    'panel.info.satellite_alt': 'Satellite view of the selected parcel',
+    'panel.info.satellite_aria': 'Parcel satellite preview',
+    'panel.info.satellite_expand': 'Enlarge aerial image',
     'panel.info.failed_to_load': 'Failed to load data',
     'panel.info.section.location': 'Location',
     'panel.info.section.zoning': 'Zoning',
@@ -246,6 +250,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.search_placeholder': 'Rechercher des adresses en Suisse...',
     'nav.searching': 'Recherche…',
     'nav.my_exports': 'Mes exports',
+    'nav.open_with': 'Ouvrir avec',
     'nav.select_language': 'Sélectionner la langue',
 
     // ---------- basemap ----------
@@ -277,6 +282,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.title': 'Informations de la parcelle',
     'panel.info.toggle_raw_json': 'Afficher/masquer le JSON brut',
     'panel.info.close': 'Fermer',
+    'panel.info.satellite_alt': 'Vue satellite de la parcelle sélectionnée',
+    'panel.info.satellite_aria': 'Aperçu satellite de la parcelle',
+    'panel.info.satellite_expand': 'Agrandir l’image aérienne',
     'panel.info.failed_to_load': 'Échec du chargement des données',
     'panel.info.section.location': 'Localisation',
     'panel.info.section.zoning': 'Zonage',
@@ -459,6 +467,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.search_placeholder': 'Adressen in der Schweiz suchen...',
     'nav.searching': 'Suche…',
     'nav.my_exports': 'Meine Exporte',
+    'nav.open_with': 'Öffnen mit',
     'nav.select_language': 'Sprache wählen',
 
     // ---------- basemap ----------
@@ -490,6 +499,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.title': 'Parzelleninformationen',
     'panel.info.toggle_raw_json': 'Rohes JSON ein-/ausblenden',
     'panel.info.close': 'Schliessen',
+    'panel.info.satellite_alt': 'Satellitenansicht der ausgewählten Parzelle',
+    'panel.info.satellite_aria': 'Parzellen-Satellitenvorschau',
+    'panel.info.satellite_expand': 'Luftbild vergrössern',
     'panel.info.failed_to_load': 'Daten konnten nicht geladen werden',
     'panel.info.section.location': 'Standort',
     'panel.info.section.zoning': 'Zonierung',
@@ -672,6 +684,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.search_placeholder': 'Cerca indirizzi in Svizzera...',
     'nav.searching': 'Ricerca…',
     'nav.my_exports': 'I miei export',
+    'nav.open_with': 'Apri con',
     'nav.select_language': 'Seleziona lingua',
 
     // ---------- basemap ----------
@@ -703,6 +716,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.title': 'Informazioni sulla particella',
     'panel.info.toggle_raw_json': 'Mostra/nascondi JSON grezzo',
     'panel.info.close': 'Chiudi',
+    'panel.info.satellite_alt': 'Vista satellitare della parcella selezionata',
+    'panel.info.satellite_aria': 'Anteprima satellitare della parcella',
+    'panel.info.satellite_expand': 'Ingrandisci l’immagine aerea',
     'panel.info.failed_to_load': 'Impossibile caricare i dati',
     'panel.info.section.location': 'Posizione',
     'panel.info.section.zoning': 'Zonizzazione',

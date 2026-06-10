@@ -9,6 +9,164 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+
+  {
+    version: '0.5.30',
+    date: 'June 10, 2026',
+    codename: 'Bird’s Eye',
+    summary:
+      'The parcel panel now shows a swisstopo aerial thumbnail of the selected parcel that opens full-size on click.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Image,
+        text:
+          'Added a swisstopo aerial thumbnail to the parcel info panel header — an 88px bird’s-eye preview of the selected parcel that expands to a full-size lightbox.',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.5.29',
+    date: 'June 10, 2026',
+    codename: 'Crisp Export',
+    summary:
+      'Saved map images are no longer blank, and the "See all in Showroom" link points to the current Showroom address.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Image,
+        text:
+          'Map screenshots now capture the actual map instead of a blank area — the WebGL canvas keeps its drawing buffer readable after the MapLibre renderer switch.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Map,
+        text:
+          'The "See all publications in Showroom" button now opens showroom.aireon.ch instead of the retired swissnovo address.',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.5.28',
+    date: 'June 9, 2026',
+    codename: 'Aligned Meta',
+    summary:
+      'The page metadata now uses the same description shown on the Aireon hub card.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'Updated the HTML meta, Open Graph and Twitter descriptions to match the Aireon hub card copy: "Check and visualize zoning categories and reverse utilizations in any municipality.".',
+        prs: [],
+      },
+    ],
+  },
+{
+    version: '0.5.27',
+    date: 'June 9, 2026',
+    codename: 'Open Renderer',
+    summary:
+      'room now draws the map with the open-source MapLibre GL engine instead of Mapbox GL. The basemaps, parcels and 3D buildings look and behave exactly as before — an under-the-hood switch that drops a proprietary dependency.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Bot,
+        text: 'Claire now picks up @aireon/shared v1.9.1: the header drops the powered-by line, shows a larger Claire title, uses icon-only Studio/voice controls, and starts with the shorter parcel greeting.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text:
+          'Migrated the map renderer from Mapbox GL JS to the open-source, BSD-licensed MapLibre GL JS. The same Mapbox-hosted basemaps (Dark, Light, Streets, Satellite, …) are still used, so nothing changes visually — hover, click-to-select, the basemap switcher, 3D buildings and screenshots all work exactly as before.',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.5.25',
+    date: 'June 9, 2026',
+    codename: 'Zoom to Select',
+    summary:
+      'Parcels are now only selectable once you have zoomed in to block level — the same threshold that already controls the hover highlight. Clicking while zoomed way out no longer picks the wrong tiny parcel.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text:
+          'Clicking the map now only selects a parcel once you have zoomed in past block level — matching the hover highlight, which already appears only at that zoom. When the map is zoomed out to an overview, parcels are too small to target precisely, so clicks are ignored instead of selecting a near-random parcel. Searching an address or opening a ?lat/?lng link still works at any zoom (they fly in first).',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.5.24',
+    date: 'June 9, 2026',
+    codename: 'Open With',
+    summary:
+      'After you search an address, a new "Open with" button appears in the top bar — jump straight to the same spot in another Aireon app. The locate button also picks up the suite\'s shared navbar styling.',
+    items: [
+      {
+        kind: 'added' as ChangeKind,
+        icon: PanelsTopLeft,
+        text:
+          'Added an "Open with" menu to the navbar. Once you pick an address, it lets you reopen that exact location in any other Aireon suite app in one tap. The locate button now uses the shared suite navbar icon button, so all top-bar controls look and behave consistently across the suite.',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.5.23',
+    date: 'June 9, 2026',
+    codename: 'Sharper Tour',
+    summary:
+      'The guided tour no longer blurs the page behind it. Each step still dims the background and spotlights the highlighted area — but everything now stays crisp and clear instead of fuzzy.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'Removed the background blur from the guided tour. Tour steps still dim the page and spotlight the active element, but the rest of the screen now stays sharp instead of being blurred — clearer and more reliable across browsers.',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.5.22',
+    date: 'June 9, 2026',
+    codename: 'Smooth Zoom-Out',
+    summary:
+      'The amber hover highlight now only kicks in once you’re zoomed in to block level. Zoomed further out — where the map can show thousands of parcels at once — it stays off, so panning and zooming stay smooth even on modest hardware.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text:
+          'Gated the parcel hover highlight to block-level zoom (about z15 and closer). When you zoom out a lot the map can hold thousands of parcels, and re-painting the hover highlight on every mouse-move made low-spec machines stutter. Hover now switches off entirely while you’re zoomed out and returns the moment you zoom into a block — your selected parcel stays highlighted at every zoom.',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.5.21',
+    date: 'June 9, 2026',
+    codename: 'Back to Hub',
+    summary:
+      'A small Aireon logo now sits at the left of the top bar, just before the room wordmark. Tap it to jump straight back to the Aireon hub — the same one-tap shortcut across every app in the suite.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text:
+          'Added the Aireon back-to-hub logo to the navbar, immediately before the room wordmark. One tap routes you to the Aireon hub, matching the consistent navigation now shared across the whole suite. The badge stays muted so it never competes with room’s own branding.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.5.20',
     date: 'June 8, 2026',

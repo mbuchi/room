@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { Plus, Minus, Compass } from 'lucide-react';
-import type { Map } from 'mapbox-gl';
+import type { Map } from 'maplibre-gl';
 import { useI18n } from '../contexts/I18nContext';
 
 interface ZoomControlProps {

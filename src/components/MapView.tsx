@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback, type CSSProperties } from 'react';
 import { X } from 'lucide-react';
-import mapboxgl from 'mapbox-gl';
+import * as maplibregl from 'maplibre-gl';
+import type { StyleSpecification } from 'maplibre-gl';
 import {
   MAPBOX_TOKEN,
   basemapOptions,
@@ -15,6 +16,7 @@ import {
   densityFillOpacity,
   densityLineColor,
   densityLineOpacity,
+  isParcelInteractive,
   type ActiveZone,
 } from '../lib/mapLayers';
 import { wgs84ToLv95 } from '../lib/coordTransform';
@@ -29,7 +31,7 @@ import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
-import { ClaireAssistant } from '@aireon/shared';
+import { ClaireAssistant, loadMapboxStyleForMapLibre } from '@aireon/shared';
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
@@ -53,7 +55,7 @@ const PANEL_OFFSET_PX = PANEL_WIDTH_PX + 16;
 const MapView = () => {
   const { t, locale } = useI18n();
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
   const [selectedBasemap, setSelectedBasemap] = useState('dark');
   const [isBasemapMenuOpen, setIsBasemapMenuOpen] = useState(false);
   const [parcelOpacity, setParcelOpacity] = useState(0.6);
@@ -75,7 +77,7 @@ const MapView = () => {
   // pane is a full-height right rail.
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
-  const locateMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const locateMarkerRef = useRef<maplibregl.Marker | null>(null);
   /**
    * The zone the density choropleth is currently painting (FSO + cz_local +
    * optional ratio_v percentile breakpoints). Set the instant a parcel is
@@ -223,7 +225,8 @@ const MapView = () => {
   }, []);
 
   const handleBasemapChange = useCallback((basemapId: string) => {
-    if (!mapRef.current) return;
+    const map = mapRef.current;
+    if (!map) return;
     const basemap = basemapOptions.find((b) => b.id === basemapId);
     if (!basemap) return;
 
@@ -231,30 +234,38 @@ const MapView = () => {
     setIsBasemapMenuOpen(false);
 
     const was3D = is3DMode;
-    mapRef.current.setStyle(basemap.style);
-
-    mapRef.current.once('style.load', () => {
-      if (!mapRef.current) return;
-      addParcelLayers(mapRef.current, parcelOpacity, activeZoneRef.current);
-      addBuildingLayers(mapRef.current, buildingOpacity);
-      // Restore the selected-parcel highlight + density paint after the swap.
-      const parcel = selectedParcelRef.current;
-      if (parcel) {
-        const f: mapboxgl.FilterSpecification = ['==', ['get', 'parcel_id'], parcel.parcelId];
-        if (mapRef.current.getLayer('parcel-selected'))
-          mapRef.current.setFilter('parcel-selected', f);
-        if (mapRef.current.getLayer('parcel-selected-casing'))
-          mapRef.current.setFilter('parcel-selected-casing', f);
-      }
-      applyParcelPaintRef.current();
-      if (was3D) {
-        if (mapRef.current.getLayer('building-fill'))
-          mapRef.current.setLayoutProperty('building-fill', 'visibility', 'none');
-        if (mapRef.current.getLayer('building-outline'))
-          mapRef.current.setLayoutProperty('building-outline', 'visibility', 'none');
-        addBuildingExtrusion(mapRef.current, buildingOpacity);
-      }
-    });
+    // MapLibre can't consume `mapbox://` styles directly, so resolve the Mapbox
+    // style document (mapbox:// → https + token) before swapping it in.
+    void loadMapboxStyleForMapLibre(basemap.style, { token: MAPBOX_TOKEN })
+      .then((style) => {
+        if (mapRef.current !== map) return;
+        map.once('style.load', () => {
+          if (mapRef.current !== map) return;
+          addParcelLayers(map, parcelOpacity, activeZoneRef.current);
+          addBuildingLayers(map, buildingOpacity);
+          // Restore the selected-parcel highlight + density paint after the swap.
+          const parcel = selectedParcelRef.current;
+          if (parcel) {
+            const f: maplibregl.FilterSpecification = ['==', ['get', 'parcel_id'], parcel.parcelId];
+            if (map.getLayer('parcel-selected'))
+              map.setFilter('parcel-selected', f);
+            if (map.getLayer('parcel-selected-casing'))
+              map.setFilter('parcel-selected-casing', f);
+          }
+          applyParcelPaintRef.current();
+          if (was3D) {
+            if (map.getLayer('building-fill'))
+              map.setLayoutProperty('building-fill', 'visibility', 'none');
+            if (map.getLayer('building-outline'))
+              map.setLayoutProperty('building-outline', 'visibility', 'none');
+            addBuildingExtrusion(map, buildingOpacity);
+          }
+        });
+        map.setStyle(style as unknown as StyleSpecification);
+      })
+      .catch((error) => {
+        console.error(`Unable to load basemap "${basemap.id}" for MapLibre`, error);
+      });
   }, [is3DMode, parcelOpacity, buildingOpacity]);
 
   const handleParcelOpacityChange = useCallback((value: number) => {
@@ -313,7 +324,7 @@ const MapView = () => {
     const el = document.createElement('div');
     el.className = 'locate-marker';
 
-    locateMarkerRef.current = new mapboxgl.Marker({ element: el })
+    locateMarkerRef.current = new maplibregl.Marker({ element: el })
       .setLngLat(coords)
       .addTo(map);
 
@@ -365,63 +376,83 @@ const MapView = () => {
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
-
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+    const container = mapContainerRef.current;
 
     const initialState = getInitialMapState();
+    let cancelled = false;
 
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
-      center: initialState.center,
-      zoom: initialState.hasUrlCoords ? Math.max(initialState.zoom, 17) : initialState.zoom,
-    });
+    // MapLibre needs a resolved style object (mapbox:// → https + token), so
+    // fetch the Mapbox style first, then create the map. Dark is room's default
+    // opening basemap.
+    void loadMapboxStyleForMapLibre('mapbox://styles/mapbox/dark-v11', { token: MAPBOX_TOKEN })
+      .then((style) => {
+        if (cancelled || mapRef.current) return;
 
-    mapRef.current = map;
+        const map = new maplibregl.Map({
+          container,
+          style: style as unknown as StyleSpecification,
+          center: initialState.center,
+          zoom: initialState.hasUrlCoords ? Math.max(initialState.zoom, 17) : initialState.zoom,
+          // Keep the WebGL backbuffer readable so screenshot/export captures
+          // the map instead of a blank canvas (MapLibre v5 location).
+          canvasContextAttributes: { preserveDrawingBuffer: true },
+        });
 
-    map.on('load', () => {
-      addParcelLayers(map, 0.6);
-      addBuildingLayers(map, 0.85);
-      const c = map.getCenter();
-      updateUrlParams(c.lat, c.lng, map.getZoom());
+        mapRef.current = map;
 
-      if (initialState.hasUrlCoords) {
-        map.once('idle', () => {
-          const point = map.project(initialState.center);
-          const features = map.queryRenderedFeatures(point, { layers: ['parcel-fill'] });
-          if (features.length && features[0].properties) {
-            selectParcelRef.current(
-              features[0].properties,
-              initialState.center[0],
-              initialState.center[1],
-            );
+        map.on('load', () => {
+          addParcelLayers(map, 0.6);
+          addBuildingLayers(map, 0.85);
+          const c = map.getCenter();
+          updateUrlParams(c.lat, c.lng, map.getZoom());
+
+          if (initialState.hasUrlCoords) {
+            map.once('idle', () => {
+              const point = map.project(initialState.center);
+              const features = map.queryRenderedFeatures(point, { layers: ['parcel-fill'] });
+              if (features.length && features[0].properties) {
+                selectParcelRef.current(
+                  features[0].properties,
+                  initialState.center[0],
+                  initialState.center[1],
+                );
+              }
+            });
           }
         });
-      }
-    });
 
-    map.on('mousemove', (e) => {
-      const { lng, lat } = e.lngLat;
-      setLv95Coords(wgs84ToLv95(lng, lat));
-    });
+        map.on('mousemove', (e) => {
+          const { lng, lat } = e.lngLat;
+          setLv95Coords(wgs84ToLv95(lng, lat));
+        });
 
-    map.on('mouseout', () => {
-      setLv95Coords(null);
-    });
+        map.on('mouseout', () => {
+          setLv95Coords(null);
+        });
 
-    map.on('click', 'parcel-fill', (e) => {
-      if (!e.features?.length) return;
-      const props = e.features[0].properties;
-      if (!props) return;
-      selectParcelRef.current(props, e.lngLat.lng, e.lngLat.lat);
-    });
+        map.on('click', 'parcel-fill', (e) => {
+          // Mirror the hover gate: parcels are only selectable once zoomed to block
+          // level. Below that the map is an overview — clicks would land on the
+          // wrong tiny parcel — so we ignore them. Address-search and ?lat/?lng
+          // deep-links fly to z17 first, so those selection paths stay unaffected.
+          if (!isParcelInteractive(map.getZoom())) return;
+          if (!e.features?.length) return;
+          const props = e.features[0].properties;
+          if (!props) return;
+          selectParcelRef.current(props, e.lngLat.lng, e.lngLat.lat);
+        });
 
-    map.on('moveend', () => {
-      const c = map.getCenter();
-      updateUrlParams(c.lat, c.lng, map.getZoom());
-    });
+        map.on('moveend', () => {
+          const c = map.getCenter();
+          updateUrlParams(c.lat, c.lng, map.getZoom());
+        });
+      })
+      .catch((error) => {
+        console.error('Unable to initialise the MapLibre map', error);
+      });
 
     return () => {
+      cancelled = true;
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
