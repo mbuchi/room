@@ -11,6 +11,29 @@ export { KIND_META } from '@aireon/shared';
 export const RELEASES: Release[] = [
 
   {
+    version: '0.5.29',
+    date: 'June 10, 2026',
+    codename: 'Crisp Export',
+    summary:
+      'Saved map images are no longer blank, and the "See all in Showroom" link points to the current Showroom address.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Image,
+        text:
+          'Map screenshots now capture the actual map instead of a blank area — the WebGL canvas keeps its drawing buffer readable after the MapLibre renderer switch.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Map,
+        text:
+          'The "See all publications in Showroom" button now opens showroom.aireon.ch instead of the retired swissnovo address.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.28',
     date: 'June 9, 2026',
     codename: 'Aligned Meta',
