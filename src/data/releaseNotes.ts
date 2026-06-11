@@ -18,6 +18,13 @@ export const RELEASES: Release[] = [
       'The basemap switcher now offers the shared swisstopo gallery — six Swiss-made basemaps with live map thumbnails — in place of the Mapbox styles.',
     items: [
       {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'Updated @aireon/shared to v1.14.5 so Claire uses the new WebP logo mark in the launcher, panel header, assistant badges and voice transcript instead of the old text/avatar treatment.',
+        prs: [],
+      },
+      {
         kind: 'changed' as ChangeKind,
         icon: Layers,
         text:
