@@ -9,7 +9,24 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  
   {
+    version: '0.5.34',
+    date: 'June 11, 2026',
+    codename: 'Shared Avatar Base',
+    summary:
+      'The account menu and avatar picker now use the same @aireon/shared v1.14.6 build as the rest of the Aireon suite.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text:
+          'Aligned room with @aireon/shared v1.14.6 so the shared account menu and profile avatar picker resolve from the same central package version across Aireon.',
+        prs: [],
+      },
+    ],
+  },
+{
     version: '0.5.33',
     date: 'June 11, 2026',
     codename: 'Avatar Rail',
