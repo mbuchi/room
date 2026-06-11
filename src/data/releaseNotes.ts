@@ -1,5 +1,5 @@
 import {
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -9,6 +9,30 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.5.33',
+    date: 'June 11, 2026',
+    codename: 'Avatar Rail',
+    summary:
+      'Avatar selection is faster, and a small bug button now lets you report problems directly from room.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text:
+          'Updated @aireon/shared to v1.14.5. The shared profile avatar picker renders as a three-row horizontal rail, applies a selected avatar instantly and shows a compact "Avatar updated" confirmation pill.',
+        prs: [],
+      },
+      {
+        kind: 'new' as ChangeKind,
+        icon: Bug,
+        text:
+          'Added the shared Aireon bug-report button. It opens a compact Bug/Feedback modal and sends reports through the fixed Node serverless errorlog proxy into the central Bug Tracker.',
+        prs: [],
+      },
+    ],
+  },
+
 
   {
     version: '0.5.32',
