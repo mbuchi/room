@@ -28,7 +28,7 @@ import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
-import { ClaireAssistant } from '@aireon/shared';
+import { BugReportButton, ClaireAssistant } from '@aireon/shared';
 import {
   BasemapPicker,
   getBasemapStrings,
@@ -39,6 +39,8 @@ import {
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
+import { useAuth } from '../auth/AuthContext';
+import { errorLogger } from '../lib/errorLog';
 
 interface SelectedParcel {
   parcelId: string;
@@ -58,6 +60,7 @@ const PANEL_OFFSET_PX = PANEL_WIDTH_PX + 16;
 
 const MapView = () => {
   const { t, locale } = useI18n();
+  const { email } = useAuth();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   // room is dark-only, so the swisstopo basemap always pairs with the dark
@@ -622,6 +625,13 @@ const MapView = () => {
           onClose={() => setToast(null)}
         />
       )}
+      <BugReportButton
+        logger={errorLogger}
+        locale={locale}
+        email={email}
+        darkMode={true}
+        metaData={{ rollout: 'bug-report-expanded' }}
+      />
     </div>
   );
 };
