@@ -110,7 +110,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
     <nav className="fixed top-0 left-0 right-0 z-50 h-14 bg-gray-950/95 backdrop-blur-md border-b border-gray-800/60 shadow-lg">
       <div className="h-full px-5 flex items-center gap-3 sm:gap-4">
         <div className="flex items-center flex-shrink-0 gap-3">
-          <AireonHubLink withDivider className="text-gray-100" logoClassName="h-[18px] w-auto" />
+          <AireonHubLink withDivider className="text-gray-100" />
           <div data-tour="app-title">
             <Logo />
           </div>
