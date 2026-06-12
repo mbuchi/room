@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.38',
+    date: 'June 12, 2026',
+    codename: 'Report Categories',
+    summary:
+      'The bug report form now lets users classify bugs and feedback before sending.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'Updated @aireon/shared to v1.16.0 so the Bug/Feedback dialog now includes optional category checkboxes. Error reports can be marked as data, UI, map/address, login/access or crash/performance issues; feedback can be marked as feature request, data improvement, usability, design/content or general feedback. Selected categories are sent with the report metadata.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.5.37',
     date: 'June 12, 2026',
     codename: 'Refreshed Account Menu',
