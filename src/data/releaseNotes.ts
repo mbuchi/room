@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.37',
+    date: 'June 12, 2026',
+    codename: 'Refreshed Account Menu',
+    summary:
+      'The account menu picks up the latest shared Aireon improvements: an inline edit button, an Open-in-proom shortcut and a leaner saved-parcels pipeline.',
+    items: [
+      {
+        kind: 'improved',
+        icon: PanelsTopLeft,
+        text:
+          'Refreshed the account menu via @aireon/shared v1.16.0: the profile button now sits beside the Active status line and is relabelled "edit", saved parcels gain an Open-in-proom shortcut, and the PRM pipeline is trimmed to four active stages.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.36',
     date: 'June 12, 2026',
     codename: 'Shared Map Toolbar',
