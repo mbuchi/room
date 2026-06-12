@@ -10,6 +10,23 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.5.35',
+    date: 'June 12, 2026',
+    codename: 'Theme-Aware Hub Mark',
+    summary:
+      'The top-left Aireon hub shortcut now renders as a transparent monochrome mark that follows light and dark themes.',
+    items: [
+      {
+        kind: 'improved',
+        icon: Sparkles,
+        text:
+          'Updated the top-left Aireon hub shortcut to use the hub-hosted transparent Aireon mark. It renders black on light themes and white on dark themes, while the browser favicon stays red on white.',
+        prs: [],
+      },
+    ],
+  },
+
   
   {
     version: '0.5.34',
