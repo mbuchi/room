@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.36',
+    date: 'June 12, 2026',
+    codename: 'Shared Map Toolbar',
+    summary:
+      'The navbar action cluster now uses the shared Aireon map toolbar, so locate, settings and language stay in lockstep with the rest of the suite.',
+    items: [
+      {
+        kind: 'improved',
+        icon: PanelsTopLeft,
+        text:
+          'Replaced the hand-rolled navbar action row and its mobile overflow menu with the shared @aireon/shared MapToolbar (v1.15.0). Locate, a new Settings placeholder and the language picker now share one component — same icons, order and behaviour — and fold into a single ⋯ menu on phones.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.5.35',
     date: 'June 12, 2026',
     codename: 'Theme-Aware Hub Mark',

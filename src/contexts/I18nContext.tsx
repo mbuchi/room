@@ -193,6 +193,10 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- SavedParcelsModal "open here" action ----------
     'modal.parcels.open_here': 'Open here',
 
+    // ---------- map toolbar (settings placeholder) ----------
+    'map.settings': 'Settings',
+    'map.settings_coming_soon': 'Settings are coming soon',
+
     // ---------- LocateButton + geolocation errors / toasts ----------
     'map.locate.button': 'Locate me',
     'map.locate.moved': 'Moved to your current location.',
@@ -409,6 +413,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.save_failed': 'Échec — réessayez',
 
     'modal.parcels.open_here': 'Ouvrir ici',
+
+    // ---------- map toolbar (settings placeholder) ----------
+    'map.settings': 'Paramètres',
+    'map.settings_coming_soon': 'Les paramètres arrivent bientôt',
 
     // ---------- geolocation ----------
     'map.locate.button': 'Me localiser',
@@ -627,6 +635,10 @@ const translations: Record<Locale, Record<string, string>> = {
 
     'modal.parcels.open_here': 'Hier öffnen',
 
+    // ---------- map toolbar (settings placeholder) ----------
+    'map.settings': 'Einstellungen',
+    'map.settings_coming_soon': 'Einstellungen folgen bald',
+
     // ---------- geolocation ----------
     'map.locate.button': 'Mich lokalisieren',
     'map.locate.moved': 'Zu Ihrem aktuellen Standort verschoben.',
@@ -843,6 +855,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.save_failed': 'Salvataggio fallito',
 
     'modal.parcels.open_here': 'Apri qui',
+
+    // ---------- map toolbar (settings placeholder) ----------
+    'map.settings': 'Impostazioni',
+    'map.settings_coming_soon': 'Le impostazioni arriveranno presto',
 
     // ---------- geolocation ----------
     'map.locate.button': 'Individuami',
