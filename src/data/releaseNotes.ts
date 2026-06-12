@@ -1,4 +1,5 @@
 import {
+  ShieldAlert,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
@@ -17,6 +18,13 @@ export const RELEASES: Release[] = [
     summary:
       'The account menu and avatar picker now use the same @aireon/shared v1.14.6 build as the rest of the Aireon suite.',
     items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'Updated @aireon/shared to v1.14.9 so the bug-report launcher, dialog header and Bug type selector now use the Lucide shield-alert icon across the shared widget.',
+        prs: [],
+      },
       {
         kind: 'improved' as ChangeKind,
         icon: Package,
