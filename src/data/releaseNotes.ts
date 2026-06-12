@@ -19,6 +19,13 @@ export const RELEASES: Release[] = [
       'The account menu and avatar picker now use the same @aireon/shared v1.14.6 build as the rest of the Aireon suite.',
     items: [
       {
+        kind: 'fixed' as ChangeKind,
+        icon: Package,
+        text:
+          'Updated @aireon/shared to v1.14.10 so the Claire launcher keeps the cute avatar icon, while the claire wordmark appears only at the centered top of the open chat dialog.',
+        prs: [],
+      },
+      {
         kind: 'improved' as ChangeKind,
         icon: ShieldAlert,
         text:
