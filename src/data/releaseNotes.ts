@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.40',
+    date: 'June 13, 2026',
+    codename: 'Shared App Navbar',
+    summary:
+      'The entire top bar is now the suite-shared Aireon navbar, so the hub badge, address search, map toolbar and account menu stay byte-for-byte in lockstep with the rest of the suite.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: PanelsTopLeft,
+        text:
+          'Replaced room’s hand-rolled header and inline address search with the shared <AppNavbar> from @aireon/shared v1.18.1. Same look and behaviour — Mapbox address search, “Open with”, the Locate · Settings · Language toolbar and the account menu — with far less app-specific code.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.5.39',
     date: 'June 13, 2026',
     codename: 'Claire, Front and Center',
