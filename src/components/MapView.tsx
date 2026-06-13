@@ -50,6 +50,21 @@ interface SelectedParcel {
   lat: number;
 }
 
+// Polygon-centroid helpers for the "Nearby comparables" query.
+type LngLatRing = [number, number][];
+type ParcelFeatureGeometry = { type?: string; coordinates?: unknown };
+function isLngLatRing(value: unknown): value is LngLatRing {
+  return Array.isArray(value) && value.every((p) => Array.isArray(p) && typeof p[0] === 'number' && typeof p[1] === 'number');
+}
+function firstRingFromGeometry(geometry: ParcelFeatureGeometry): LngLatRing | null {
+  const { coordinates } = geometry;
+  if (!Array.isArray(coordinates)) return null;
+  if (geometry.type === 'Polygon' && isLngLatRing(coordinates[0])) return coordinates[0];
+  const fp = coordinates[0];
+  if (geometry.type === 'MultiPolygon' && Array.isArray(fp) && isLngLatRing(fp[0])) return fp[0];
+  return null;
+}
+
 // Combined panel width — ZoneInfoPanel + ZonePanel stack vertically inside
 // a single right-side column. Tuned to fit the 2-column histogram grid
 // comfortably without dominating the map. The controls offset themselves by
@@ -336,6 +351,35 @@ const MapView = () => {
     setToast({ message: t(`map.locate.${code}`), type: 'error' });
   }, [t]);
 
+  // Gather rendered parcel features around a point for the "Nearby comparables"
+  // ranking. Reads straight off the vector tile — no backend call.
+  const queryParcelsAround = useCallback((lng: number, lat: number, radiusDeg: number, limit = 50) => {
+    const map = mapRef.current; if (!map) return [];
+    const sw = map.project([lng - radiusDeg, lat - radiusDeg]);
+    const ne = map.project([lng + radiusDeg, lat + radiusDeg]);
+    const bbox: [maplibregl.PointLike, maplibregl.PointLike] = [[Math.min(sw.x, ne.x), Math.min(sw.y, ne.y)], [Math.max(sw.x, ne.x), Math.max(sw.y, ne.y)]];
+    const layers = ['parcel-fill', 'parcel-hover', 'parcel-3d'].filter((id) => map.getLayer(id));
+    if (!layers.length) return [];
+    const features = map.queryRenderedFeatures(bbox, { layers });
+    const seen = new Set<string | number>();
+    const out: Array<{ properties: Record<string, unknown>; lng: number; lat: number }> = [];
+    for (const f of features) {
+      const props = (f.properties ?? {}) as Record<string, unknown>;
+      const id = (props.parcel_id ?? f.id) as string | number | undefined;
+      if (id == null || seen.has(id)) continue; seen.add(id);
+      const ring = firstRingFromGeometry(f.geometry as ParcelFeatureGeometry); if (!ring?.length) continue;
+      let sx = 0, sy = 0; for (const [x, y] of ring) { sx += x; sy += y; }
+      out.push({ properties: props, lng: sx / ring.length, lat: sy / ring.length });
+      if (out.length >= limit) break;
+    }
+    return out;
+  }, []);
+
+  const handleFlyToParcel = useCallback((lng: number, lat: number) => {
+    const map = mapRef.current; if (!map) return;
+    map.flyTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), 16.5), duration: 1200 });
+  }, []);
+
   const handleCloseInfoPanel = useCallback(() => {
     setSelectedParcel(null);
     setParcelData(null);
@@ -588,6 +632,8 @@ const MapView = () => {
               isLoading={parcelDataLoading}
               error={parcelDataError}
               focusedParcel={focusedHandle}
+              queryNearbyParcels={queryParcelsAround}
+              onJumpTo={handleFlyToParcel}
             />
           )}
 

@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.6.0',
+    date: 'June 13, 2026',
+    codename: 'Nearby Comparables',
+    summary:
+      'The parcel info panel now surfaces up to five nearby parcels that are for sale, ranked by distance, plot size and zone similarity — each a tappable card that flies the map there.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'New “Nearby comparables (for sale)” section at the bottom of the parcel facts. It reads for-sale parcels straight off the map tiles, ranks the five closest matches and shows each one’s CHF/m² and the difference versus the selected parcel. Click a card to fly the map to that parcel.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.5.41',
     date: 'June 13, 2026',
     codename: 'Tidy-up',
