@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   AlertCircle,
   MapPin,
@@ -5,9 +6,22 @@ import {
   Calendar,
   Layers,
 } from 'lucide-react';
-import { Skeleton, ParcelAerialThumbnail } from '@aireon/shared';
+import {
+  Skeleton,
+  ParcelAerialThumbnail,
+  ComparablesPanel,
+  rankComparables,
+  type Comparable,
+} from '@aireon/shared';
 import type { ParcelData } from '../services/parcelDataService';
 import { useI18n } from '../contexts/I18nContext';
+
+const COMPS_HEADING: Record<string, string> = {
+  en: 'Nearby comparables (for sale)',
+  fr: 'Parcelles à vendre à proximité',
+  de: 'Vergleichbare Verkäufe in der Nähe',
+  it: 'Parcelle in vendita nelle vicinanze',
+};
 
 /**
  * Identity of the parcel the user has currently focused. Mirrors MapView's
@@ -29,6 +43,10 @@ interface ZoneInfoPanelProps {
   /** The currently-selected parcel — used for the header address fallback.
    *  Saving is handled by the panel-footer SaveToPrmBar, not here. */
   focusedParcel?: FocusedParcelHandle | null;
+  /** Query rendered parcel features around a point — fed to the comparables ranking. */
+  queryNearbyParcels?: (lng: number, lat: number, radiusDeg: number, limit?: number) => Array<{ properties: Record<string, unknown>; lng: number; lat: number }>;
+  /** Fly the map to a comparable parcel when its card is clicked. */
+  onJumpTo?: (lng: number, lat: number) => void;
 }
 
 /**
@@ -47,8 +65,43 @@ const ZoneInfoPanel = ({
   isLoading,
   error,
   focusedParcel = null,
+  queryNearbyParcels,
+  onJumpTo,
 }: ZoneInfoPanelProps) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+
+  // ── Nearby comparables ──────────────────────────────────────────────────
+  const [comparables, setComparables] = useState<Comparable[]>([]);
+  const [compsLoading, setCompsLoading] = useState(false);
+
+  // The selected parcel's raw tile props carry is_sell / estimated_price_m2 /
+  // parcel_area / cz_local; lng/lat are the click-derived centroid coords.
+  const parcelProps = focusedParcel?.props ?? null;
+  const lng = focusedParcel?.lng ?? null;
+  const lat = focusedParcel?.lat ?? null;
+  const refPriceM2 = (() => {
+    const v = (parcelProps?.estimated_price_m2 ?? parcelProps?.price_m2);
+    if (v == null) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  })();
+
+  useEffect(() => {
+    if (!queryNearbyParcels || lat == null || lng == null || !Number.isFinite(lat) || !Number.isFinite(lng)) { setComparables([]); setCompsLoading(false); return; }
+    let cancelled = false; let timer: ReturnType<typeof setTimeout> | null = null;
+    setCompsLoading(true); setComparables([]);
+    const refProps = { ...(parcelProps ?? {}) };
+    const tryQuery = (attempt = 0): void => {
+      if (cancelled) return;
+      const radii = [0.006, 0.012, 0.025];
+      const pool = queryNearbyParcels(lng, lat, radii[Math.min(attempt, radii.length - 1)], 80);
+      const ranked = rankComparables({ ref: { lng, lat, properties: refProps }, pool, limit: 5, onlyForSale: true });
+      if (ranked.length > 0 || attempt >= 4) { setComparables(ranked); setCompsLoading(false); }
+      else { timer = setTimeout(() => tryQuery(attempt + 1), 400); }
+    };
+    tryQuery();
+    return () => { cancelled = true; if (timer) clearTimeout(timer); };
+  }, [lng, lat, parcelProps, queryNearbyParcels]);
 
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full">
@@ -167,6 +220,22 @@ const ZoneInfoPanel = ({
               ratio={parcelData.ratio_s}
             />
           </div>
+        )}
+
+        {queryNearbyParcels && onJumpTo && (
+          <section className="px-4 py-3 border-t border-slate-700/60">
+            <p className="mb-2 text-[10px] font-semibold uppercase text-slate-500">
+              {COMPS_HEADING[locale] ?? COMPS_HEADING.en}
+            </p>
+            <ComparablesPanel
+              refPriceM2={refPriceM2}
+              comparables={comparables}
+              loading={compsLoading}
+              darkMode
+              onJumpTo={onJumpTo}
+              locale={locale}
+            />
+          </section>
         )}
       </div>
     </div>
