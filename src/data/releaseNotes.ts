@@ -11,6 +11,30 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.41',
+    date: 'June 13, 2026',
+    codename: 'Tidy-up',
+    summary:
+      'A small polish pass: the guided tour now calls the product family by its current name, and the mobile parcel sheet sizes itself to the visible viewport.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Type,
+        text:
+          'The “Track this parcel” tour step now refers to the Aireon suite (was “SwissNovo suite”) in all four languages, matching the rest of the app.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: LayoutPanelTop,
+        text:
+          'The mobile parcel sheet now uses dynamic viewport (dvh) units, so its grab handle and tabs no longer slip under the browser’s address bar when expanded.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.5.40',
     date: 'June 13, 2026',
     codename: 'Shared App Navbar',

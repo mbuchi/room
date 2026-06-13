@@ -88,7 +88,7 @@ export const appTourConfig: AppTourConfig = {
         id: "track-parcel",
         target: "[data-tour='track-parcel']",
         title: "Track this parcel",
-        body: "Found a parcel worth watching? Track it to save it to your proom workspace, where it syncs across the whole SwissNovo suite. Open it later in proom in one click. (Sign in to enable.)",
+        body: "Found a parcel worth watching? Track it to save it to your proom workspace, where it syncs across the whole Aireon suite. Open it later in proom in one click. (Sign in to enable.)",
         i18nKey: "tour.track_parcel",
         placement: "top",
       },

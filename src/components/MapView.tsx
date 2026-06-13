@@ -522,11 +522,11 @@ const MapView = () => {
       {selectedParcel && (
         <div
           className="z-30 flex flex-col bg-gray-950/95 backdrop-blur-xl shadow-2xl
-            fixed inset-x-0 bottom-0 h-[var(--sheet-h)] max-h-[90vh] rounded-t-2xl border-t border-gray-800/60 animate-slide-up
+            fixed inset-x-0 bottom-0 h-[var(--sheet-h)] max-h-[90dvh] rounded-t-2xl border-t border-gray-800/60 animate-slide-up
             md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right"
           style={
             {
-              '--sheet-h': sheetExpanded ? '90vh' : '56vh',
+              '--sheet-h': sheetExpanded ? '90dvh' : '56dvh',
               '--panel-w': `${PANEL_WIDTH_PX}px`,
             } as CSSProperties & Record<string, string>
           }
