@@ -1,6 +1,6 @@
 import {
   ShieldAlert,
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -10,6 +10,23 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.7.0',
+    date: 'June 13, 2026',
+    codename: 'Navbar Buttons',
+    summary:
+      'Save image and My exports are now direct buttons in the navbar, matching the suite-standard layout.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Camera,
+        text:
+          'Save image and My exports moved from the account menu into the navbar as direct buttons, matching the suite-standard layout (valoo).',
+        prs: [],
+      },
+    ],
+  },
+
   {
     version: '0.6.0',
     date: 'June 13, 2026',

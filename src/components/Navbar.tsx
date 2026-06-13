@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Camera, CheckCircle, HelpCircle, Images } from 'lucide-react';
+import { Tag, Footprints } from 'lucide-react';
 import type { ScreenshotMetadata } from '../services/imageService';
 import { type LocateErrorCode, requestGeolocation } from './LocateButton';
 import SavedImagesPanel from './SavedImagesPanel';
@@ -31,11 +31,12 @@ interface NavbarProps {
 /**
  * room's top bar is the suite-shared {@link AppNavbar} (the canonical pattern):
  * hub badge + wordmark · Mapbox address search · MapToolbar + cross-app
- * "Open with" + account menu. room is dark-only, so Save image / My exports /
- * What's new / Tour live in the account-menu "More tools" section (variant-2
- * navbar) and the toolbar shows only Locate · Settings · Language. The app
- * wires its own handlers, labels, account menu and the side panels (saved
- * images, release notes, capture feedback).
+ * "Open with" + account menu. The MapToolbar wires Save image (Camera) · My
+ * exports (Layers) · Locate · Settings · Language as direct navbar buttons
+ * (room is dark-only, so no theme toggle). The account menu's "More tools"
+ * section holds only What's new + Tour. The app wires its own handlers, labels,
+ * account menu and the side panels (saved images, release notes, capture
+ * feedback).
  */
 const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata }: NavbarProps) => {
   const { locale, setLocale, t } = useI18n();
@@ -63,30 +64,15 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
     storageKey: 'room:lastSeenReleaseVersion',
   });
 
-  // Variant-2 navbar: secondary tools live in the user-dropdown "More tools"
-  // section instead of crowding the bar. Order mirrors the suite reference:
-  // export → exports → changes → tour.
+  // Account-menu "More tools" section: What's new + Tour only (matching valoo).
+  // Save image / My exports are navbar buttons (wired into the toolbar below),
+  // NOT menu items.
   const tourVariant = appTourConfig.variants.long.length > 0 ? 'long' : 'short';
   const toolbarItems: MapUserMenuAction[] = [
     {
-      key: 'export',
-      label: t('panel.screenshot.save_image'),
-      icon: <Camera size={16} aria-hidden="true" />,
-      onClick: capture,
-      disabled: isCapturing,
-      signedOut: true,
-    },
-    {
-      key: 'exports',
-      label: t('nav.my_exports'),
-      icon: <Images size={16} aria-hidden="true" />,
-      onClick: () => setShowImages(true),
-      signedOut: true,
-    },
-    {
       key: 'changes',
       label: getReleaseNotesStrings(locale).whatsNew,
-      icon: <CheckCircle size={16} aria-hidden="true" />,
+      icon: <Tag size={16} aria-hidden="true" />,
       dot: rn.hasUnread,
       onClick: rn.openPanel,
       signedOut: true,
@@ -94,7 +80,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
     {
       key: 'tour',
       label: t('tour.long_label'),
-      icon: <HelpCircle size={16} aria-hidden="true" />,
+      icon: <Footprints size={16} aria-hidden="true" />,
       onClick: () => startTour(tourVariant),
       signedOut: true,
     },
@@ -148,6 +134,9 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
         toolbar={{
           locale,
           onLocaleChange: setLocale,
+          onCapture: capture,
+          isCapturing,
+          onShowImages: () => setShowImages(true),
           onLocate: handleLocate,
           isLocating,
           labels: {
