@@ -31,6 +31,9 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- navbar ----------
     'nav.search_placeholder': 'Search addresses in Switzerland...',
     'nav.searching': 'Searching…',
+    'nav.search_no_results': 'No matching addresses',
+    'nav.clear_search': 'Clear search',
+    'nav.search_results_count': '{count} results',
     'nav.my_exports': 'My Exports',
     'nav.open_with': 'Open with',
     'nav.select_language': 'Select language',
@@ -253,6 +256,9 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- navbar ----------
     'nav.search_placeholder': 'Rechercher des adresses en Suisse...',
     'nav.searching': 'Recherche…',
+    'nav.search_no_results': 'Aucune adresse correspondante',
+    'nav.clear_search': 'Effacer la recherche',
+    'nav.search_results_count': '{count} résultats',
     'nav.my_exports': 'Mes exports',
     'nav.open_with': 'Ouvrir avec',
     'nav.select_language': 'Sélectionner la langue',
@@ -474,6 +480,9 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- navbar ----------
     'nav.search_placeholder': 'Adressen in der Schweiz suchen...',
     'nav.searching': 'Suche…',
+    'nav.search_no_results': 'Keine passenden Adressen',
+    'nav.clear_search': 'Suche löschen',
+    'nav.search_results_count': '{count} Ergebnisse',
     'nav.my_exports': 'Meine Exporte',
     'nav.open_with': 'Öffnen mit',
     'nav.select_language': 'Sprache wählen',
@@ -695,6 +704,9 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- navbar ----------
     'nav.search_placeholder': 'Cerca indirizzi in Svizzera...',
     'nav.searching': 'Ricerca…',
+    'nav.search_no_results': 'Nessun indirizzo corrispondente',
+    'nav.clear_search': 'Cancella ricerca',
+    'nav.search_results_count': '{count} risultati',
     'nav.my_exports': 'I miei export',
     'nav.open_with': 'Apri con',
     'nav.select_language': 'Seleziona lingua',
