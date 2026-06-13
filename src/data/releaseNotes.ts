@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.5.39',
+    date: 'June 13, 2026',
+    codename: 'Claire, Front and Center',
+    summary:
+      'Claire’s chat header and message avatars get a tidier, more consistent layout.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Bot,
+        text:
+          'Updated @aireon/shared to v1.16.1: Claire’s “claire” wordmark is now left-aligned in the chat header, and her blinking-face avatar appears in front of every message, including the opening greeting.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.5.38',
     date: 'June 12, 2026',
     codename: 'Report Categories',
