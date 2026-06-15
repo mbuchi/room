@@ -19,6 +19,8 @@ import { useTour } from '../tour/TourProvider';
 import { useScreenshot } from '../hooks/useScreenshot';
 import { signal } from '../lib/signal';
 import { useI18n } from '../contexts/I18nContext';
+import { useAuth } from '../auth/AuthContext';
+import { errorLogger } from '../lib/errorLog';
 
 interface NavbarProps {
   onLocationSelect: (center: [number, number], placeName: string) => void;
@@ -39,6 +41,7 @@ interface NavbarProps {
  */
 const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata }: NavbarProps) => {
   const { locale, setLocale, t } = useI18n();
+  const { email } = useAuth();
   const [showImages, setShowImages] = useState(false);
   // The last address the user picked — AppNavbar tracks it to render the
   // "Open with" menu; we mirror it here so the cross-app telemetry keeps the
@@ -149,7 +152,13 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
             more: t('menu.more_tools'),
           },
         }}
-        userMenu={<UserMenu toolbarItems={toolbarItems} toolbarLabel={t('menu.more_tools')} />}
+        userMenu={
+          <UserMenu
+            toolbarItems={toolbarItems}
+            toolbarLabel={t('menu.more_tools')}
+            bugReport={{ logger: errorLogger, email, metaData: { rollout: 'bug-report-expanded' } }}
+          />
+        }
       />
 
       <SavedImagesPanel isOpen={showImages} onClose={() => setShowImages(false)} />

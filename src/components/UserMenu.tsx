@@ -1,13 +1,15 @@
-import { MapUserMenu, type PrmRecord, type PrmLocale, type MapUserMenuAction } from '@aireon/shared';
+import { MapUserMenu, type PrmRecord, type PrmLocale, type MapUserMenuAction, type MapUserMenuProps } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
 
 interface UserMenuProps {
   /** Secondary tools shown under the "More tools" section of the dropdown (variant-2 navbar). */
   toolbarItems?: MapUserMenuAction[];
   toolbarLabel?: string;
+  /** Bug-report config — surfaces a "Report a problem" row in the More-tools group. */
+  bugReport?: MapUserMenuProps['bugReport'];
 }
 
-export default function UserMenu({ toolbarItems, toolbarLabel }: UserMenuProps) {
+export default function UserMenu({ toolbarItems, toolbarLabel, bugReport }: UserMenuProps) {
   const { t, locale } = useI18n();
 
   const openParcelHere = (rec: PrmRecord) => {
@@ -25,6 +27,7 @@ export default function UserMenu({ toolbarItems, toolbarLabel }: UserMenuProps) 
       onOpenSavedParcel={openParcelHere}
       toolbarItems={toolbarItems}
       toolbarLabel={toolbarLabel}
+      bugReport={bugReport}
       labels={{
         signIn: t('menu.sign_in'),
         userMenu: t('menu.user_menu'),

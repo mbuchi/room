@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.7.3',
+    date: 'June 16, 2026',
+    codename: 'Tidy Tools',
+    summary:
+      'Report a problem now lives in the account menu, right under Take the tour.',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Bug,
+        text:
+          'The bug-report control moved out of the floating shield button and into the account menu’s “More tools” group, appearing as a “Report a problem” row just below “Take the tour”. Same dialog, tidier map.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.7.2',
     date: 'June 14, 2026',
     codename: 'Dark Rails',
