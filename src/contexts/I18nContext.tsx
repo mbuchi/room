@@ -37,6 +37,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.my_exports': 'My Exports',
     'nav.open_with': 'Open with',
     'nav.select_language': 'Select language',
+    'nav.toggle_light': 'Switch to light theme',
+    'nav.toggle_dark': 'Switch to dark theme',
 
     // ---------- basemap switcher (MapControls) ----------
     'panel.basemap.fallback': 'Basemap',
@@ -262,6 +264,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.my_exports': 'Mes exports',
     'nav.open_with': 'Ouvrir avec',
     'nav.select_language': 'Sélectionner la langue',
+    'nav.toggle_light': 'Passer au thème clair',
+    'nav.toggle_dark': 'Passer au thème sombre',
 
     // ---------- basemap ----------
     'panel.basemap.fallback': 'Fond de carte',
@@ -486,6 +490,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.my_exports': 'Meine Exporte',
     'nav.open_with': 'Öffnen mit',
     'nav.select_language': 'Sprache wählen',
+    'nav.toggle_light': 'Zum hellen Thema wechseln',
+    'nav.toggle_dark': 'Zum dunklen Thema wechseln',
 
     // ---------- basemap ----------
     'panel.basemap.fallback': 'Grundkarte',
@@ -710,6 +716,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.my_exports': 'I miei export',
     'nav.open_with': 'Apri con',
     'nav.select_language': 'Seleziona lingua',
+    'nav.toggle_light': 'Passa al tema chiaro',
+    'nav.toggle_dark': 'Passa al tema scuro',
 
     // ---------- basemap ----------
     'panel.basemap.fallback': 'Mappa di base',
