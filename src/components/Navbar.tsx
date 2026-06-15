@@ -17,7 +17,6 @@ import { RELEASES, REPO_URL } from '../data/releaseNotes';
 import { appTourConfig } from '../tour/tour.config';
 import { useTour } from '../tour/TourProvider';
 import { useScreenshot } from '../hooks/useScreenshot';
-import { geocodeAddress } from '../lib/geocode';
 import { signal } from '../lib/signal';
 import { useI18n } from '../contexts/I18nContext';
 
@@ -104,10 +103,9 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
             clear: t('nav.clear_search'),
             resultsCount: (n) => t('nav.search_results_count', { count: n }),
           },
-          // room standardises on the suite Mapbox geocoder (CH-scoped). The
-          // shared AddressSearch handles debounce + aborting internally; we just
-          // forward the abort signal.
-          search: (text, { signal: sig }) => geocodeAddress(text, sig),
+          // room uses the shared AddressSearch's built-in geo.admin (swisstopo)
+          // geocoder — the suite-standard tokenless Swiss federal address search.
+          // No `search` override here = the shared geo.admin default.
           onSelect: (r: AddressSearchResult) => {
             setLastLocation({ lat: r.lat, lng: r.lng });
             onLocationSelect([r.lng, r.lat], r.label);
