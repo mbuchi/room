@@ -35,11 +35,11 @@ const MapControls = ({
             : undefined)
         }
       >
-        <div className="rounded-lg shadow-lg p-4 min-w-[240px] bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 space-y-4">
+        <div className="rounded-lg shadow-lg p-4 min-w-[240px] bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700/50 space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">{t('panel.layers.parcel')}</span>
-              <span className="text-[10px] font-semibold text-red-400 tabular-nums">{Math.round(parcelOpacity * 100)}%</span>
+              <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('panel.layers.parcel')}</span>
+              <span className="text-[10px] font-semibold text-red-500 dark:text-red-400 tabular-nums">{Math.round(parcelOpacity * 100)}%</span>
             </div>
             <input
               type="range"
@@ -53,10 +53,10 @@ const MapControls = ({
             />
           </div>
 
-          <div className="border-t border-gray-700/40 pt-4">
+          <div className="border-t border-gray-200 dark:border-gray-700/40 pt-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">{t('panel.layers.building')}</span>
-              <span className="text-[10px] font-semibold text-red-400 tabular-nums">{Math.round(buildingOpacity * 100)}%</span>
+              <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('panel.layers.building')}</span>
+              <span className="text-[10px] font-semibold text-red-500 dark:text-red-400 tabular-nums">{Math.round(buildingOpacity * 100)}%</span>
             </div>
             <input
               type="range"
@@ -70,16 +70,16 @@ const MapControls = ({
             />
           </div>
 
-          <div className="border-t border-gray-700/40 pt-3">
+          <div className="border-t border-gray-200 dark:border-gray-700/40 pt-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Box size={14} className="text-gray-500" />
-                <span className="text-xs font-medium text-gray-300">{t('panel.layers.3d_view')}</span>
+                <Box size={14} className="text-gray-400 dark:text-gray-500" />
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{t('panel.layers.3d_view')}</span>
               </div>
               <button
                 onClick={onToggle3D}
                 className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${
-                  is3DMode ? 'bg-red-600' : 'bg-gray-600'
+                  is3DMode ? 'bg-red-600' : 'bg-gray-300 dark:bg-gray-600'
                 }`}
                 role="switch"
                 aria-checked={is3DMode}

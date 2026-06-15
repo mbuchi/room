@@ -1,5 +1,5 @@
 import {
-  ShieldAlert,
+  ShieldAlert, Palette,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
@@ -10,6 +10,23 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.8.0',
+    date: 'June 16, 2026',
+    codename: 'Light Switch',
+    summary:
+      'room now has a light theme. A Sun/Moon toggle in the toolbar flips the whole app — map, charts, zone panels and chrome — between light and dark, and the swisstopo basemap follows along.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Palette,
+        text:
+          'A theme toggle (Sun ⇄ Moon) now sits in the navbar toolbar. Switch between room’s signature dark look and a new bright light theme; every surface — the layer controls, the density legend, the zone-distribution charts (gauge, boxplot, histograms, time line and scatter), the parcel-facts panel, saved images and coordinates — repaints to match. The basemap pairs itself to the theme (a light map in light mode, a dark map in dark mode) until you pick one yourself, and your choice is remembered for next time. room still opens in dark mode by default.',
+        prs: [],
+      },
+    ],
+  },
+
   {
     version: '0.7.6',
     date: 'June 16, 2026',

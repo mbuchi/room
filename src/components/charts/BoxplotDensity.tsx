@@ -21,6 +21,7 @@ interface BoxplotDensityProps {
   /** Selected parcel's value, or null when not applicable. */
   selectedValue: number | null;
   unit?: string;
+  darkMode?: boolean;
 }
 
 // Small Gaussian kernel density estimator, inlined so we don't pull in a
@@ -75,19 +76,27 @@ const BoxplotDensity = ({
   summary,
   selectedValue,
   unit,
+  darkMode = true,
 }: BoxplotDensityProps) => {
   const { t } = useI18n();
   const kde = useMemo(() => gaussianKDE(distribution), [distribution]);
+  // Neutral structural chrome only; the red density area encodes the data.
+  const axisStroke = darkMode ? '#4b5563' : '#cbd5e1';
+  const tickFill = darkMode ? '#9ca3af' : '#6b7280';
+  const gridStroke = darkMode ? '#374151' : '#e5e7eb';
+  const tooltipStyle = darkMode
+    ? { background: '#0b1220', border: '1px solid #374151', color: '#e5e7eb' }
+    : { background: '#ffffff', border: '1px solid #e5e7eb', color: '#111827' };
 
   const hasData = distribution.length >= 2 && kde.length > 0;
 
   if (!hasData) {
     return (
-      <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
+      <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
+        <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider mb-2">
           {title}
         </h4>
-        <p className="text-xs text-gray-500">{t('panel.zone.not_enough_data')}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500">{t('panel.zone.not_enough_data')}</p>
       </div>
     );
   }
@@ -95,13 +104,13 @@ const BoxplotDensity = ({
   const xDomain: [number, number] = [kde[0].x, kde[kde.length - 1].x];
 
   return (
-    <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
+    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
       <div className="flex items-baseline justify-between mb-2">
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+        <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
           {title}
         </h4>
         {selectedValue != null && (
-          <span className="text-[11px] font-mono text-red-400">
+          <span className="text-[11px] font-mono text-red-500 dark:text-red-400">
             {t('panel.zone.chart_you_prefix', { value: formatValue(selectedValue, unit) })}
           </span>
         )}
@@ -123,19 +132,17 @@ const BoxplotDensity = ({
               type="number"
               domain={xDomain}
               tickFormatter={(v: number) => formatTick(v, unit)}
-              stroke="#4b5563"
-              tick={{ fontSize: 10, fill: '#9ca3af' }}
-              axisLine={{ stroke: '#374151' }}
-              tickLine={{ stroke: '#374151' }}
+              stroke={axisStroke}
+              tick={{ fontSize: 10, fill: tickFill }}
+              axisLine={{ stroke: gridStroke }}
+              tickLine={{ stroke: gridStroke }}
             />
             <YAxis hide domain={[0, 'dataMax']} />
             <Tooltip
               contentStyle={{
-                background: '#0b1220',
-                border: '1px solid #374151',
+                ...tooltipStyle,
                 borderRadius: 6,
                 fontSize: 11,
-                color: '#e5e7eb',
               }}
               formatter={(value: number) => value.toFixed(4)}
               labelFormatter={(v: number) => formatValue(v, unit)}
@@ -170,13 +177,14 @@ const BoxplotDensity = ({
                 <Boxplot
                   xAxisMap={(props as { xAxisMap?: Record<string, XAxisLike> }).xAxisMap}
                   summary={summary}
+                  darkMode={darkMode}
                 />
               )}
             />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <p className="mt-1 text-[10px] text-gray-500 font-mono">
+      <p className="mt-1 text-[10px] text-gray-400 dark:text-gray-500 font-mono">
         {t('panel.zone.summary_line', {
           n: summary.n,
           p50: formatValue(summary.p50, unit),
@@ -194,19 +202,26 @@ interface XAxisLike {
 interface CustomizedProps {
   xAxisMap?: Record<string, XAxisLike>;
   summary: ZoneSummary;
+  darkMode?: boolean;
 }
 
 // Recharts' Customized renders its child with a bag of internal props; we
 // pull the x-axis scale function out so the box geometry shares the chart's
 // coordinate system. The cast is unavoidable — Recharts doesn't ship a
 // public type for `xAxisMap`.
-const Boxplot = ({ xAxisMap, summary }: CustomizedProps) => {
+const Boxplot = ({ xAxisMap, summary, darkMode = true }: CustomizedProps) => {
   const firstAxisKey = xAxisMap ? Object.keys(xAxisMap)[0] : undefined;
   const xScale =
     firstAxisKey && xAxisMap
       ? (xAxisMap[firstAxisKey] as XAxisLike).scale
       : null;
   if (!xScale) return null;
+
+  // Structural box/whisker neutrals adapt to the theme.
+  const whisker = darkMode ? '#6b7280' : '#6b7280';
+  const boxStroke = darkMode ? '#9ca3af' : '#6b7280';
+  const boxFill = darkMode ? 'rgba(156, 163, 175, 0.18)' : 'rgba(100, 116, 139, 0.14)';
+  const median = darkMode ? '#f3f4f6' : '#111827';
 
   const px = (v: number) => xScale(v);
   const y = BOX_TOP;
@@ -221,7 +236,7 @@ const Boxplot = ({ xAxisMap, summary }: CustomizedProps) => {
         x2={px(summary.p5)}
         y1={cy}
         y2={cy}
-        stroke="#6b7280"
+        stroke={whisker}
         strokeWidth={1}
         strokeDasharray="2 2"
       />
@@ -230,7 +245,7 @@ const Boxplot = ({ xAxisMap, summary }: CustomizedProps) => {
         x2={px(summary.p25)}
         y1={cy}
         y2={cy}
-        stroke="#9ca3af"
+        stroke={boxStroke}
         strokeWidth={1}
       />
       <line
@@ -238,7 +253,7 @@ const Boxplot = ({ xAxisMap, summary }: CustomizedProps) => {
         x2={px(summary.p95)}
         y1={cy}
         y2={cy}
-        stroke="#9ca3af"
+        stroke={boxStroke}
         strokeWidth={1}
       />
       <line
@@ -246,7 +261,7 @@ const Boxplot = ({ xAxisMap, summary }: CustomizedProps) => {
         x2={px(summary.max)}
         y1={cy}
         y2={cy}
-        stroke="#6b7280"
+        stroke={whisker}
         strokeWidth={1}
         strokeDasharray="2 2"
       />
@@ -256,8 +271,8 @@ const Boxplot = ({ xAxisMap, summary }: CustomizedProps) => {
         y={y}
         width={Math.max(1, px(summary.p75) - px(summary.p25))}
         height={h}
-        fill="rgba(156, 163, 175, 0.18)"
-        stroke="#9ca3af"
+        fill={boxFill}
+        stroke={boxStroke}
         strokeWidth={1}
         rx={2}
       />
@@ -267,7 +282,7 @@ const Boxplot = ({ xAxisMap, summary }: CustomizedProps) => {
         x2={px(summary.p50)}
         y1={y}
         y2={y + h}
-        stroke="#f3f4f6"
+        stroke={median}
         strokeWidth={1.5}
       />
       {/* whisker caps */}
@@ -278,7 +293,7 @@ const Boxplot = ({ xAxisMap, summary }: CustomizedProps) => {
           x2={px(v)}
           y1={cy - 4}
           y2={cy + 4}
-          stroke="#6b7280"
+          stroke={whisker}
           strokeWidth={1}
         />
       ))}

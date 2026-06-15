@@ -5,6 +5,7 @@ import { humanPercentileReading } from '../../services/statsMath';
 interface PercentileGaugeProps {
   /** 0..100 — where this parcel sits in the zone distribution. */
   percentile: number;
+  darkMode?: boolean;
 }
 
 const W = 260;
@@ -20,9 +21,16 @@ const R = 100;
  * can read "dark = densely utilised" as one idea, both in the panel and on
  * the map. Underneath, a single sentence narrates the rank.
  */
-const PercentileGauge = ({ percentile }: PercentileGaugeProps) => {
+const PercentileGauge = ({ percentile, darkMode = true }: PercentileGaugeProps) => {
   const { locale, t } = useI18n();
   const clamped = Math.max(0, Math.min(100, percentile));
+
+  // Neutral structural chrome adapts to the theme; the gradient arc (a
+  // data-encoding scale) does NOT.
+  const onSurface = darkMode ? '#f3f4f6' : '#111827';
+  const tickLine = darkMode ? '#4b5563' : '#cbd5e1';
+  const tickLabel = darkMode ? '#6b7280' : '#6b7280';
+  const subLabel = darkMode ? '#9ca3af' : '#6b7280';
 
   // We build the arc by sampling along the angle so the gradient feels
   // continuous; recharts has no native arc gauge.
@@ -52,8 +60,8 @@ const PercentileGauge = ({ percentile }: PercentileGaugeProps) => {
   }, [clamped]);
 
   return (
-    <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
-      <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
+    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
+      <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider mb-2">
         {t('panel.zone.percentile_title')}
       </h4>
       <div className="flex flex-col items-center">
@@ -79,8 +87,8 @@ const PercentileGauge = ({ percentile }: PercentileGaugeProps) => {
             const ly = CY - (R - 34) * Math.sin(a);
             return (
               <g key={p}>
-                <line x1={tx1} y1={ty1} x2={tx2} y2={ty2} stroke="#4b5563" strokeWidth={1} />
-                <text x={lx} y={ly + 3} fontSize={9} fill="#6b7280" textAnchor="middle">
+                <line x1={tx1} y1={ty1} x2={tx2} y2={ty2} stroke={tickLine} strokeWidth={1} />
+                <text x={lx} y={ly + 3} fontSize={9} fill={tickLabel} textAnchor="middle">
                   {p}
                 </text>
               </g>
@@ -92,26 +100,26 @@ const PercentileGauge = ({ percentile }: PercentileGaugeProps) => {
             y1={CY}
             x2={needle.x}
             y2={needle.y}
-            stroke="#f3f4f6"
+            stroke={onSurface}
             strokeWidth={2.5}
             strokeLinecap="round"
           />
-          <circle cx={CX} cy={CY} r={5} fill="#f3f4f6" />
+          <circle cx={CX} cy={CY} r={5} fill={onSurface} />
           <text
             x={CX}
             y={CY - R / 2}
             textAnchor="middle"
-            fill="#f3f4f6"
+            fill={onSurface}
             fontSize={24}
             fontWeight={600}
           >
             {Math.round(clamped)}
           </text>
-          <text x={CX} y={CY - R / 2 + 16} textAnchor="middle" fill="#9ca3af" fontSize={10}>
+          <text x={CX} y={CY - R / 2 + 16} textAnchor="middle" fill={subLabel} fontSize={10}>
             {t('panel.zone.percentile_label')}
           </text>
         </svg>
-        <p className="mt-2 text-[12px] text-gray-300 text-center leading-snug px-1">
+        <p className="mt-2 text-[12px] text-gray-600 dark:text-gray-300 text-center leading-snug px-1">
           {humanPercentileReading(clamped, locale)}
         </p>
       </div>

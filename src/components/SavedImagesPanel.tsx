@@ -145,9 +145,9 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
         {lines.map((l) => (
           <div
             key={l.key}
-            className="flex items-center gap-1.5 text-[11px] text-gray-400"
+            className="flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-400"
           >
-            <span className="text-gray-500 flex-shrink-0">{l.icon}</span>
+            <span className="text-gray-400 dark:text-gray-500 flex-shrink-0">{l.icon}</span>
             <span className="truncate" title={l.text}>{l.text}</span>
           </div>
         ))}
@@ -190,23 +190,23 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
     );
 
     return (
-      <div className="text-xs text-gray-200 space-y-2">
+      <div className="text-xs text-gray-700 dark:text-gray-200 space-y-2">
         <div className="space-y-1">
           {rows.map((r) => (
             <div key={r.label} className="flex gap-3">
-              <span className="w-24 flex-shrink-0 text-gray-500">{r.label}</span>
+              <span className="w-24 flex-shrink-0 text-gray-400 dark:text-gray-500">{r.label}</span>
               <span className="flex-1 break-words font-medium">{r.value}</span>
             </div>
           ))}
         </div>
         {extras.length > 0 && (
-          <div className="pt-2 border-t border-gray-700 space-y-1">
-            <p className="text-[10px] uppercase tracking-wide text-gray-500">
+          <div className="pt-2 border-t border-gray-200 dark:border-gray-700 space-y-1">
+            <p className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
               {t('panel.images.additional_metadata')}
             </p>
             {extras.map(([k, v]) => (
               <div key={k} className="flex gap-3">
-                <span className="w-24 flex-shrink-0 text-gray-500 break-all">{k}</span>
+                <span className="w-24 flex-shrink-0 text-gray-400 dark:text-gray-500 break-all">{k}</span>
                 <span className="flex-1 break-words font-medium">
                   {typeof v === 'object' ? JSON.stringify(v) : String(v)}
                 </span>
@@ -222,13 +222,13 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
     <>
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-        <div className="relative bg-gray-900 border border-gray-800/60 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-gray-800/60">
+        <div className="relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/60 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-gray-200 dark:border-gray-800/60">
             <div className="flex items-center gap-2 min-w-0">
               <ImageIcon size={18} className="text-red-500 flex-shrink-0" />
-              <h2 className="text-base font-semibold text-gray-100 truncate">{t('panel.images.title')}</h2>
+              <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">{t('panel.images.title')}</h2>
               {!isLoading && (
-                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-500/15 text-red-300">
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-500/15 text-red-600 dark:text-red-300">
                   {images.length}
                 </span>
               )}
@@ -238,7 +238,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                 href={SHOWROOM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-300 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-300 transition-colors"
               >
                 {t('panel.images.see_all_in_showroom')}
                 <ExternalLink size={13} />
@@ -249,14 +249,14 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                 rel="noopener noreferrer"
                 aria-label={t('panel.images.see_all_in_showroom')}
                 title={t('panel.images.see_all_in_showroom')}
-                className="sm:hidden p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-300 transition-colors"
+                className="sm:hidden p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-300 transition-colors"
               >
                 <ExternalLink size={16} />
               </a>
               <button
                 onClick={() => load(true)}
                 disabled={isRefreshing}
-                className="p-2 rounded-lg hover:bg-gray-800 text-gray-400 transition-colors disabled:opacity-50"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors disabled:opacity-50"
                 aria-label={t('panel.images.refresh')}
                 title={t('panel.images.refresh')}
               >
@@ -264,7 +264,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
               </button>
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg hover:bg-gray-800 text-gray-400 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
                 aria-label={t('panel.images.close')}
                 title={t('panel.images.close')}
               >
@@ -279,7 +279,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
-                    className="rounded-xl border border-gray-800/60 overflow-hidden bg-gray-900/60 flex flex-col"
+                    className="rounded-xl border border-gray-200 dark:border-gray-800/60 overflow-hidden bg-gray-100/80 dark:bg-gray-900/60 flex flex-col"
                   >
                     <Skeleton dark className="w-full aspect-video" radius={0} delay={`${i * 90}ms`} />
                     <div className="p-3 flex-1 flex flex-col gap-2">
@@ -299,19 +299,19 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
               </div>
             ) : error ? (
               <div className="text-center py-12">
-                <p className="text-sm text-red-400 mb-3">{error}</p>
+                <p className="text-sm text-red-500 dark:text-red-400 mb-3">{error}</p>
                 <button
                   onClick={() => load()}
-                  className="text-xs text-red-400 hover:text-red-300 font-medium"
+                  className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 font-medium"
                 >
                   {t('panel.images.try_again')}
                 </button>
               </div>
             ) : images.length === 0 ? (
               <div className="text-center py-16">
-                <ImageIcon size={40} className="mx-auto text-gray-600 mb-3" />
-                <p className="text-sm text-gray-400 mb-1">{t('panel.images.empty_title')}</p>
-                <p className="text-xs text-gray-500">
+                <ImageIcon size={40} className="mx-auto text-gray-300 dark:text-gray-600 mb-3" />
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('panel.images.empty_title')}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">
                   {t('panel.images.empty_hint')}
                 </p>
               </div>
@@ -321,11 +321,11 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                 {visibleImages.map((img) => (
                   <div
                     key={img.id}
-                    className="group rounded-xl border border-gray-800/60 overflow-hidden bg-gray-900/60 flex flex-col"
+                    className="group rounded-xl border border-gray-200 dark:border-gray-800/60 overflow-hidden bg-gray-100/80 dark:bg-gray-900/60 flex flex-col"
                   >
                     <button
                       onClick={() => setPreviewImage(img)}
-                      className="relative aspect-video bg-gray-950 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
+                      className="relative aspect-video bg-gray-200 dark:bg-gray-950 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
                     >
                       <img
                         src={img.public_url}
@@ -336,15 +336,15 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                     </button>
                     <div className="p-3 flex-1 flex flex-col gap-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-red-500/15 text-red-300">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-red-500/15 text-red-600 dark:text-red-300">
                           {APP_LABELS[img.app_source] || img.app_source}
                         </span>
-                        <p className="text-xs font-medium text-gray-100 truncate flex-1 min-w-0">
+                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate flex-1 min-w-0">
                           {img.original_filename}
                         </p>
                       </div>
-                      <p className="text-[11px] text-gray-400">{formatDate(img.created_at)}</p>
-                      <p className="text-[11px] text-gray-500">
+                      <p className="text-[11px] text-gray-500 dark:text-gray-400">{formatDate(img.created_at)}</p>
+                      <p className="text-[11px] text-gray-400 dark:text-gray-500">
                         {img.width}×{img.height} · {formatSize(img.file_size)}
                       </p>
                       {renderCardMeta(img.custom_metadata)}
@@ -353,7 +353,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                           href={img.public_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-[11px] font-medium text-red-300 bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                          className="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-[11px] font-medium text-red-600 dark:text-red-300 bg-red-500/10 hover:bg-red-500/20 transition-colors"
                         >
                           <ExternalLink size={12} />
                           {t('panel.images.open')}
@@ -361,7 +361,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                         <button
                           onClick={() => handleDelete(img.id)}
                           disabled={deletingId === img.id}
-                          className="inline-flex items-center justify-center px-2 py-1.5 rounded-md text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                          className="inline-flex items-center justify-center px-2 py-1.5 rounded-md text-red-500 dark:text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors disabled:opacity-50"
                           aria-label={t('panel.images.delete')}
                           title={t('panel.images.delete')}
                         >
@@ -378,12 +378,12 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                 </div>
                 {hiddenCount > 0 && (
                   <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 px-3 py-3 rounded-lg bg-red-500/5 border border-red-500/20">
-                    <p className="text-xs text-gray-300 text-center sm:text-left">
+                    <p className="text-xs text-gray-600 dark:text-gray-300 text-center sm:text-left">
                       {t('panel.images.showing_latest', {
                         visible: visibleImages.length,
                         total: images.length,
                       })}{' '}
-                      <span className="text-gray-400">
+                      <span className="text-gray-500 dark:text-gray-400">
                         {t(
                           hiddenCount === 1
                             ? 'panel.images.more_in_showroom_one'
@@ -421,7 +421,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
           >
             <button
               onClick={() => setPreviewImage(null)}
-              className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-gray-900 text-gray-100 border border-gray-700 shadow-lg flex items-center justify-center hover:bg-gray-800"
+              className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800"
               aria-label={t('panel.images.close_preview')}
               title={t('panel.images.close_preview')}
             >
@@ -434,8 +434,8 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                 className="max-w-full max-h-[80vh] lg:max-h-[90vh] rounded-lg shadow-2xl object-contain"
               />
             </div>
-            <div className="w-full lg:w-80 flex-shrink-0 bg-gray-900 border border-gray-800/60 rounded-lg shadow-xl p-4 overflow-y-auto max-h-[40vh] lg:max-h-[90vh]">
-              <p className="text-sm font-semibold text-gray-100 mb-1 break-all">
+            <div className="w-full lg:w-80 flex-shrink-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/60 rounded-lg shadow-xl p-4 overflow-y-auto max-h-[40vh] lg:max-h-[90vh]">
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1 break-all">
                 {previewImage.original_filename}
               </p>
               {renderPreviewMeta(previewImage)}

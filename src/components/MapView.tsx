@@ -71,16 +71,24 @@ function firstRingFromGeometry(geometry: ParcelFeatureGeometry): LngLatRing | nu
 const PANEL_WIDTH_PX = 460;
 const PANEL_OFFSET_PX = PANEL_WIDTH_PX + 16;
 
+// Initial theme: room keeps its signature dark look by default and only flips
+// to light when the user has explicitly saved that choice (the suite-wide
+// `theme` key the toggle writes). The toggle then drives both the `dark` class
+// and the BasemapPicker's theme-paired basemap.
+const prefersDarkMode = (): boolean => localStorage.getItem('theme') !== 'light';
+
 const MapView = () => {
   const { t, locale } = useI18n();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  // room is dark-only, so the swisstopo basemap always pairs with the dark
-  // theme. The shared <BasemapPicker> owns the open/close state, the
-  // live-thumbnail gallery, the style swap and theme pairing — room just
-  // mirrors the current id via onChange.
+  // Light/dark theme. Drives the `dark` class on <html>, the BasemapPicker's
+  // theme-paired basemap and every `dark:` chrome variant.
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(prefersDarkMode);
+  // The basemap pairs with the active theme. The shared <BasemapPicker> owns the
+  // open/close state, the live-thumbnail gallery, the style swap and the
+  // theme pairing (pairWithTheme default-on) — room just mirrors the current id.
   const [selectedBasemap, setSelectedBasemap] = useState<string>(() =>
-    themeBasemapId(true),
+    themeBasemapId(prefersDarkMode()),
   );
   const [parcelOpacity, setParcelOpacity] = useState(0.6);
   const [buildingOpacity, setBuildingOpacity] = useState(0.85);
@@ -249,6 +257,23 @@ const MapView = () => {
     setActiveZone(null);
     applyParcelPaintRef.current();
   }, []);
+
+  // Theme toggle. Flipping isDarkMode drives the <html> `dark` class (which
+  // every `dark:` chrome variant + the tour read) and the persisted `theme`
+  // key; the shared <BasemapPicker pairWithTheme> reacts to the new `dark` prop
+  // and swaps the basemap light↔dark itself (until the user pins one).
+  const toggleDarkMode = useCallback(() => setIsDarkMode((prev) => !prev), []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
 
   // Re-add room's own data layers after the shared <BasemapPicker> swaps the
   // style (setStyle wipes every source/layer the app added). This is exactly
@@ -522,6 +547,8 @@ const MapView = () => {
         onLocate={handleLocate}
         onLocateError={handleLocateError}
         getCaptureMetadata={getCaptureMetadata}
+        darkMode={isDarkMode}
+        onToggleTheme={toggleDarkMode}
       />
       <div ref={mapContainerRef} className="absolute inset-0 top-14" data-tour="map-view" />
 
@@ -529,11 +556,12 @@ const MapView = () => {
           (6 swisstopo basemaps). room keeps its floating wrapper + tour anchor;
           the picker owns the open/close state, the live-thumbnail gallery, the
           style swap and theme pairing, and re-adds room's own data layers via
-          onBasemapApplied. room is dark-only, so dark is always true. */}
+          onBasemapApplied. The picker pairs the basemap to the active theme
+          (pairWithTheme default-on) until the user pins one. */}
       <div data-tour="layer-controls" className="absolute top-[72px] left-4 z-10 max-w-[calc(100vw-2rem)]">
         <BasemapPicker
           map={mapRef.current}
-          dark
+          dark={isDarkMode}
           value={selectedBasemap}
           onChange={setSelectedBasemap}
           labels={{
@@ -556,14 +584,14 @@ const MapView = () => {
       />
       <ZoomControl
         getMap={() => mapRef.current}
-        isDarkMode={true}
+        isDarkMode={isDarkMode}
         align="left"
         className={`bottom-24 md:bottom-8 ${selectedParcel ? 'hidden md:block' : ''}`}
       />
       {selectedParcel && (
         <div
-          className="z-30 flex flex-col bg-gray-950/95 backdrop-blur-xl shadow-2xl
-            fixed inset-x-0 bottom-0 h-[var(--sheet-h)] max-h-[90dvh] rounded-t-2xl border-t border-gray-800/60 animate-slide-up
+          className="z-30 flex flex-col bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl shadow-2xl
+            fixed inset-x-0 bottom-0 h-[var(--sheet-h)] max-h-[90dvh] rounded-t-2xl border-t border-gray-200 dark:border-gray-800/60 animate-slide-up
             md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right"
           style={
             {
@@ -579,17 +607,17 @@ const MapView = () => {
             aria-label={sheetExpanded ? t('panel.sheet.collapse') : t('panel.sheet.expand')}
             className="md:hidden flex-shrink-0 w-full flex items-center justify-center pt-2.5 pb-1.5 group"
           >
-            <span className="h-1.5 w-10 rounded-full bg-gray-700 group-hover:bg-gray-600 group-active:bg-gray-500 transition-colors" />
+            <span className="h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-700 group-hover:bg-gray-400 dark:group-hover:bg-gray-600 group-active:bg-gray-500 transition-colors" />
           </button>
 
-          <div className="flex items-stretch border-b border-gray-800/60 flex-shrink-0">
+          <div className="flex items-stretch border-b border-gray-200 dark:border-gray-800/60 flex-shrink-0">
             <button
               data-tour="zone-charts"
               onClick={() => setPanelTab('zone')}
               className={`flex-1 px-3 py-3 text-[13px] md:text-xs font-medium tracking-tight transition-colors border-b-2 ${
                 panelTab === 'zone'
-                  ? 'text-gray-100 border-red-500/80'
-                  : 'text-gray-500 hover:text-gray-300 border-transparent'
+                  ? 'text-gray-900 dark:text-gray-100 border-red-500/80'
+                  : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 border-transparent'
               }`}
             >
               {t('panel.tabs.zone_distribution')}
@@ -599,8 +627,8 @@ const MapView = () => {
               onClick={() => setPanelTab('facts')}
               className={`flex-1 px-3 py-3 text-[13px] md:text-xs font-medium tracking-tight transition-colors border-b-2 ${
                 panelTab === 'facts'
-                  ? 'text-gray-100 border-red-500/80'
-                  : 'text-gray-500 hover:text-gray-300 border-transparent'
+                  ? 'text-gray-900 dark:text-gray-100 border-red-500/80'
+                  : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 border-transparent'
               }`}
             >
               {t('panel.tabs.parcel_facts')}
@@ -609,7 +637,7 @@ const MapView = () => {
               onClick={handleCloseInfoPanel}
               title={t('panel.info.close')}
               aria-label={t('panel.info.close')}
-              className="px-3.5 md:px-3 text-gray-500 hover:text-gray-200 hover:bg-gray-800/60 transition-colors border-l border-gray-800/60"
+              className="px-3.5 md:px-3 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors border-l border-gray-200 dark:border-gray-800/60"
             >
               <X size={18} className="md:hidden" />
               <X size={16} className="hidden md:block" />
@@ -622,6 +650,7 @@ const MapView = () => {
               parcelData={parcelData}
               onZoneStatsLoaded={handleZoneStatsLoaded}
               onZoneStatsCleared={handleZoneStatsCleared}
+              darkMode={isDarkMode}
             />
           ) : (
             <ZoneInfoPanel
@@ -631,6 +660,7 @@ const MapView = () => {
               focusedParcel={focusedHandle}
               queryNearbyParcels={queryParcelsAround}
               onJumpTo={handleFlyToParcel}
+              darkMode={isDarkMode}
             />
           )}
 
@@ -643,7 +673,7 @@ const MapView = () => {
           appName="room"
           geminiApiKey={import.meta.env.VITE_GEMINI_API_KEY as string | undefined}
           voiceCallEnabled
-          darkMode={true}
+          darkMode={isDarkMode}
           properties={selectedParcel.props}
           lngLat={{ lng: selectedParcel.lng, lat: selectedParcel.lat }}
           headerAddress={

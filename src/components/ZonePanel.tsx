@@ -31,6 +31,8 @@ interface ZonePanelProps {
   onZoneStatsLoaded: (stats: ZoneStatsResponse) => void;
   /** Cleared when the panel closes so MapView can wipe the feature-state. */
   onZoneStatsCleared: () => void;
+  /** Active theme — drives the loading-skeleton shimmer chrome. */
+  darkMode?: boolean;
 }
 
 interface MetricSpec {
@@ -58,7 +60,7 @@ type Tab = 'distributions' | 'scatter';
  * lifecycle and the dropdown that switches zones without re-fetching the
  * parcel itself — the map's feature-state repaints off the new payload.
  */
-const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePanelProps) => {
+const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode = true }: ZonePanelProps) => {
   const { locale, t } = useI18n();
   const [activeCzLocal, setActiveCzLocal] = useState<string | null>(null);
   const [stats, setStats] = useState<ZoneStatsResponse | null>(null);
@@ -163,9 +165,9 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
 
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-gray-800/40 space-y-2.5">
+      <div className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40 space-y-2.5">
         {stats?.zone.municipality_name && (
-          <p className="text-[11px] text-gray-500">
+          <p className="text-[11px] text-gray-400 dark:text-gray-500">
             {stats.zone.municipality_name} · {t('panel.zone.parcels_suffix', { count: stats.zone.parcel_count })}
           </p>
         )}
@@ -178,15 +180,15 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
           />
         )}
         {stats && (
-          <div className="flex items-center gap-1 rounded-md bg-gray-900/80 border border-gray-800/60 p-0.5">
+          <div className="flex items-center gap-1 rounded-md bg-gray-100/80 dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800/60 p-0.5">
             {(['distributions', 'scatter'] as Tab[]).map((tabId) => (
               <button
                 key={tabId}
                 onClick={() => setTab(tabId)}
                 className={`flex-1 px-3 py-1 text-[11px] font-medium rounded transition-colors ${
                   tab === tabId
-                    ? 'bg-gray-800 text-gray-100'
-                    : 'text-gray-500 hover:text-gray-300'
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                 }`}
               >
                 {tabId === 'distributions' ? t('panel.zone.tab.distributions') : t('panel.zone.tab.scatter')}
@@ -197,17 +199,17 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {loading && !stats && <ChartsSkeleton />}
+        {loading && !stats && <ChartsSkeleton darkMode={darkMode} />}
 
         {error && !loading && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
             <div className="flex items-start gap-2.5">
-              <AlertCircle size={14} className="text-red-400 mt-0.5 flex-shrink-0" />
+              <AlertCircle size={14} className="text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-xs font-medium text-red-400">
+                <p className="text-xs font-medium text-red-500 dark:text-red-400">
                   {t('panel.zone.error_title')}
                 </p>
-                <p className="text-[11px] text-red-400/60 mt-1 leading-relaxed">{error}</p>
+                <p className="text-[11px] text-red-500/70 dark:text-red-400/60 mt-1 leading-relaxed">{error}</p>
               </div>
             </div>
           </div>
@@ -215,12 +217,13 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
 
         {stats && tab === 'distributions' && (
           <>
-            <PercentileGauge percentile={percentile} />
+            <PercentileGauge percentile={percentile} darkMode={darkMode} />
             <BoxplotDensity
               title={t('panel.zone.boxplot_title')}
               distribution={stats.distributions.ratio_v ?? []}
               summary={stats.summary.ratio_v ?? emptySummary()}
               selectedValue={selectedValues.ratio_v ?? null}
+              darkMode={darkMode}
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {METRICS.map((m) => (
@@ -230,10 +233,11 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
                   distribution={stats.distributions[m.key] ?? []}
                   selectedValue={selectedValues[m.key] ?? null}
                   unit={m.unit}
+                  darkMode={darkMode}
                 />
               ))}
             </div>
-            <UtilizationOverTime ageCohorts={stats.age_cohorts} />
+            <UtilizationOverTime ageCohorts={stats.age_cohorts} darkMode={darkMode} />
           </>
         )}
 
@@ -241,6 +245,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
           <VolumeVsAreaScatter
             parcels={stats.parcels}
             selectedEgrid={parcelData?.egrid ?? null}
+            darkMode={darkMode}
           />
         )}
       </div>
@@ -248,15 +253,15 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared }: ZonePa
   );
 };
 
-const ChartsSkeleton = () => (
+const ChartsSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
   <div className="space-y-3">
     {[0, 1, 2, 3].map((i) => (
       <div
         key={i}
-        className="bg-gray-900/60 border border-gray-800/40 rounded-lg p-3 space-y-2"
+        className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/40 rounded-lg p-3 space-y-2"
       >
-        <Skeleton dark width={120} height={10} radius={4} delay={`${i * 70}ms`} />
-        <Skeleton dark height={150} radius={6} delay={`${i * 70}ms`} className="w-full" />
+        <Skeleton dark={darkMode} width={120} height={10} radius={4} delay={`${i * 70}ms`} />
+        <Skeleton dark={darkMode} height={150} radius={6} delay={`${i * 70}ms`} className="w-full" />
       </div>
     ))}
   </div>

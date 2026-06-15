@@ -18,6 +18,7 @@ interface DistributionHistogramProps {
   unit?: string;
   /** Bin count — 20 is the spec default; expose for fine-tuning later. */
   bins?: number;
+  darkMode?: boolean;
 }
 
 interface HistogramBin {
@@ -69,29 +70,37 @@ const DistributionHistogram = ({
   selectedValue,
   unit,
   bins = 20,
+  darkMode = true,
 }: DistributionHistogramProps) => {
   const { t } = useI18n();
   const data = useMemo(() => buildHistogram(distribution, bins), [distribution, bins]);
+  // Neutral structural chrome only; the bar grey + red ReferenceLine encode data.
+  const axisStroke = darkMode ? '#4b5563' : '#cbd5e1';
+  const tickFill = darkMode ? '#9ca3af' : '#6b7280';
+  const gridStroke = darkMode ? '#374151' : '#e5e7eb';
+  const tooltipStyle = darkMode
+    ? { background: '#0b1220', border: '1px solid #374151', color: '#e5e7eb' }
+    : { background: '#ffffff', border: '1px solid #e5e7eb', color: '#111827' };
 
   if (!data.length) {
     return (
-      <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
+      <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
+        <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider mb-1">
           {title}
         </h4>
-        <p className="text-xs text-gray-500">{t('panel.zone.no_data')}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500">{t('panel.zone.no_data')}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
+    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
       <div className="flex items-baseline justify-between mb-1">
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+        <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
           {title}
         </h4>
         {selectedValue != null && Number.isFinite(selectedValue) && (
-          <span className="text-[11px] font-mono text-red-400">
+          <span className="text-[11px] font-mono text-red-500 dark:text-red-400">
             {t('panel.zone.chart_you_prefix', { value: format(selectedValue, unit) })}
           </span>
         )}
@@ -104,19 +113,17 @@ const DistributionHistogram = ({
               type="number"
               domain={['dataMin', 'dataMax']}
               tickFormatter={(v: number) => formatTick(v)}
-              stroke="#4b5563"
-              tick={{ fontSize: 10, fill: '#9ca3af' }}
-              axisLine={{ stroke: '#374151' }}
-              tickLine={{ stroke: '#374151' }}
+              stroke={axisStroke}
+              tick={{ fontSize: 10, fill: tickFill }}
+              axisLine={{ stroke: gridStroke }}
+              tickLine={{ stroke: gridStroke }}
             />
             <YAxis hide />
             <Tooltip
               contentStyle={{
-                background: '#0b1220',
-                border: '1px solid #374151',
+                ...tooltipStyle,
                 borderRadius: 6,
                 fontSize: 11,
-                color: '#e5e7eb',
               }}
               formatter={(value: number) => [
                 t(value === 1 ? 'panel.zone.tooltip_count_one' : 'panel.zone.tooltip_count_other', { count: value }),
