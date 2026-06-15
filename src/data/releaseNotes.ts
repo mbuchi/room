@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.7.4',
+    date: 'June 16, 2026',
+    codename: 'History Up Top',
+    summary:
+      'My search history now sits in the account menu’s “More tools” group, right after Take the tour.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'My search history now lives in the account menu’s “More tools” section, right after “Take the tour” — it used to sit lower down, near “Sign out”.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.7.3',
     date: 'June 16, 2026',
     codename: 'Tidy Tools',
