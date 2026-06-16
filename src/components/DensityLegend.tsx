@@ -45,15 +45,15 @@ const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null }: DensityLe
 
   return (
     <div
-      className="absolute bottom-8 left-4 z-20 hidden md:block w-[268px] rounded-xl bg-gray-950/90 backdrop-blur-md border border-gray-800/70 shadow-2xl p-3 transition-[right] duration-300"
+      className="absolute bottom-8 left-4 z-20 hidden md:block w-[268px] rounded-xl bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border border-gray-200 dark:border-gray-800/70 shadow-2xl p-3 transition-[right] duration-300"
       style={rightOffsetPx != null ? { right: `${rightOffsetPx}px`, left: 'auto' } : undefined}
       data-tour="density-legend"
     >
       <div className="flex items-baseline justify-between mb-1.5">
-        <p className="text-[11px] font-semibold text-gray-200 tracking-tight">
+        <p className="text-[11px] font-semibold text-gray-800 dark:text-gray-200 tracking-tight">
           {t('legend.title')}
         </p>
-        <p className="text-[9px] text-gray-500 uppercase tracking-wider">{t('legend.metric')}</p>
+        <p className="text-[9px] text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('legend.metric')}</p>
       </div>
 
       {/* Gradient bar + markers */}
@@ -63,7 +63,7 @@ const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null }: DensityLe
         {/* 100% allowance reference */}
         {showAllowance && (
           <div
-            className="absolute -top-0.5 h-3.5 w-px bg-white/70"
+            className="absolute -top-0.5 h-3.5 w-px bg-gray-700/70 dark:bg-white/70"
             style={{ left: `${posOf(100)}%` }}
             title={t('legend.allowance_tooltip')}
           />
@@ -81,22 +81,22 @@ const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null }: DensityLe
       </div>
 
       {/* Scale endpoints */}
-      <div className="flex items-center justify-between text-[9px] text-gray-500 tabular-nums">
+      <div className="flex items-center justify-between text-[9px] text-gray-400 dark:text-gray-500 tabular-nums">
         <span>{fmtPct(lo)}</span>
-        <span className="text-gray-600">{t('legend.median')} {fmtPct(stops[2])}</span>
+        <span className="text-gray-500 dark:text-gray-600">{t('legend.median')} {fmtPct(stops[2])}</span>
         <span>{fmtPct(hi)}{youOver ? '+' : ''}</span>
       </div>
 
       {/* You-are-here reading */}
       {selectedRatioV != null && (
-        <p className="mt-2 text-[10px] text-gray-400 leading-snug">
+        <p className="mt-2 text-[10px] text-gray-500 dark:text-gray-400 leading-snug">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-sky-400 mr-1 align-middle" />
           {t('legend.you', { value: fmtPct(selectedRatioV) })}
         </p>
       )}
-      <p className="mt-1 text-[9px] text-gray-600 leading-snug">
+      <p className="mt-1 text-[9px] text-gray-500 dark:text-gray-600 leading-snug">
         {showAllowance && (
-          <span className="inline-block h-2 w-px bg-white/70 mr-1 align-middle" />
+          <span className="inline-block h-2 w-px bg-gray-700/70 dark:bg-white/70 mr-1 align-middle" />
         )}
         {t('legend.allowance_hint')}
       </p>

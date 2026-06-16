@@ -60,22 +60,37 @@ body {
 }
 
 .maplibregl-ctrl-group {
-  background: rgba(17, 24, 39, 0.9) !important;
-  border: 1px solid rgba(75, 85, 99, 0.5) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
   border-radius: 10px !important;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
 }
 
 .maplibregl-ctrl-group button {
-  border-color: rgba(55, 65, 81, 0.5) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
 }
 
 .maplibregl-ctrl-group button:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Dark theme: invert the surfaces and flip the (dark-on-light) glyphs to white. */
+html.dark .maplibregl-ctrl-group {
+  background: rgba(17, 24, 39, 0.9) !important;
+  border: 1px solid rgba(75, 85, 99, 0.5) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+html.dark .maplibregl-ctrl-group button {
+  border-color: rgba(55, 65, 81, 0.5) !important;
+}
+
+html.dark .maplibregl-ctrl-group button:hover {
   background-color: rgba(55, 65, 81, 0.8) !important;
 }
 
-.maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+html.dark .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
   filter: invert(1);
 }
 

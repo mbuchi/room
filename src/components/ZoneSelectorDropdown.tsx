@@ -61,43 +61,43 @@ const ZoneSelectorDropdown = ({
         type="button"
         onClick={() => setOpen((v) => !v)}
         disabled={isLoading}
-        className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-gray-900/80 border border-gray-700/60 hover:border-red-500/40 transition-colors text-left disabled:opacity-60"
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-gray-100/80 dark:bg-gray-900/80 border border-gray-300 dark:border-gray-700/60 hover:border-red-500/40 transition-colors text-left disabled:opacity-60"
       >
         <div className="min-w-0">
-          <p className="text-[9px] uppercase tracking-wider text-gray-500 font-semibold">
+          <p className="text-[9px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-semibold">
             {t('panel.zone.zoning_category')}
           </p>
-          <p className="mt-0.5 text-sm font-mono text-gray-100 truncate">
+          <p className="mt-0.5 text-sm font-mono text-gray-900 dark:text-gray-100 truncate">
             {currentCzLocal || '—'}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {selectedCount != null && (
-            <span className="text-[10px] text-gray-500 font-mono">{t('panel.zone.parcels_suffix', { count: selectedCount })}</span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">{t('panel.zone.parcels_suffix', { count: selectedCount })}</span>
           )}
           <ChevronDown
             size={14}
-            className={`text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
+            className={`text-gray-500 dark:text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`}
           />
         </div>
       </button>
 
       {open && (
-        <div className="absolute z-20 mt-1 left-0 right-0 rounded-lg bg-gray-900 border border-gray-700/70 shadow-2xl overflow-hidden">
-          <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-800">
-            <Search size={12} className="text-gray-500" />
+        <div className="absolute z-20 mt-1 left-0 right-0 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/70 shadow-2xl overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-200 dark:border-gray-800">
+            <Search size={12} className="text-gray-400 dark:text-gray-500" />
             <input
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('panel.zone.filter_zones_placeholder')}
               aria-label={t('panel.zone.filter_zones_placeholder')}
-              className="flex-1 bg-transparent text-xs text-gray-200 placeholder-gray-600 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+              className="flex-1 bg-transparent text-xs text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
             />
           </div>
           <div className="max-h-64 overflow-y-auto py-1">
             {filtered.length === 0 && (
-              <p className="px-3 py-3 text-xs text-gray-500">{t('panel.zone.no_matching_zones')}</p>
+              <p className="px-3 py-3 text-xs text-gray-400 dark:text-gray-500">{t('panel.zone.no_matching_zones')}</p>
             )}
             {filtered.map((z) => {
               const active = z.cz_local === currentCzLocal;
@@ -112,12 +112,12 @@ const ZoneSelectorDropdown = ({
                   }}
                   className={`w-full flex items-center justify-between gap-2 px-3 py-1.5 text-left text-xs transition-colors ${
                     active
-                      ? 'bg-red-600/15 text-red-300'
-                      : 'text-gray-300 hover:bg-gray-800/80'
+                      ? 'bg-red-600/15 text-red-600 dark:text-red-300'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/80'
                   }`}
                 >
                   <span className="font-mono truncate">{z.cz_local}</span>
-                  <span className="text-[10px] text-gray-500 font-mono flex-shrink-0">
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono flex-shrink-0">
                     {z.parcel_count}
                   </span>
                 </button>

@@ -18,6 +18,7 @@ interface VolumeVsAreaScatterProps {
   parcels: ZoneParcel[];
   /** EGRID of the user-selected parcel — gets the red highlighted dot. */
   selectedEgrid: string | null;
+  darkMode?: boolean;
 }
 
 const CHART_HEIGHT = 240;
@@ -28,8 +29,16 @@ const CHART_HEIGHT = 240;
  * scales with parcel size. The selected parcel is drawn as a larger red dot
  * on top — instant visual placement against the cloud.
  */
-const VolumeVsAreaScatter = ({ parcels, selectedEgrid }: VolumeVsAreaScatterProps) => {
+const VolumeVsAreaScatter = ({ parcels, selectedEgrid, darkMode = true }: VolumeVsAreaScatterProps) => {
   const { t } = useI18n();
+  // Neutral structural chrome only; series/point colors encode the data.
+  const axisStroke = darkMode ? '#4b5563' : '#cbd5e1';
+  const tickFill = darkMode ? '#9ca3af' : '#6b7280';
+  const gridStroke = darkMode ? '#374151' : '#e5e7eb';
+  const labelFill = darkMode ? '#6b7280' : '#6b7280';
+  const tooltipStyle = darkMode
+    ? { background: '#0b1220', border: '1px solid #374151', color: '#e5e7eb' }
+    : { background: '#ffffff', border: '1px solid #e5e7eb', color: '#111827' };
   const { points, selected, line } = useMemo(() => {
     const pts = parcels
       .filter((p) => Number.isFinite(p.area) && Number.isFinite(p.volume))
@@ -61,41 +70,41 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid }: VolumeVsAreaScatterProp
 
   if (!points.length) {
     return (
-      <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
+      <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
+        <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider mb-1">
           {t('panel.zone.scatter_title')}
         </h4>
-        <p className="text-xs text-gray-500">{t('panel.zone.scatter_no_data')}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500">{t('panel.zone.scatter_no_data')}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
+    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
       <div className="flex items-baseline justify-between mb-2">
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+        <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
           {t('panel.zone.scatter_title')}
         </h4>
-        <span className="text-[10px] text-gray-500 font-mono">{t('panel.zone.parcels_suffix', { count: points.length })}</span>
+        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">{t('panel.zone.parcels_suffix', { count: points.length })}</span>
       </div>
       <div style={{ width: '100%', height: CHART_HEIGHT }}>
         <ResponsiveContainer>
           <ComposedChart margin={{ top: 8, right: 14, bottom: 22, left: 8 }}>
-            <CartesianGrid stroke="#1f2937" strokeDasharray="2 4" />
+            <CartesianGrid stroke={gridStroke} strokeDasharray="2 4" />
             <XAxis
               dataKey="x"
               type="number"
               name="Area"
               unit=" m²"
-              stroke="#4b5563"
-              tick={{ fontSize: 10, fill: '#9ca3af' }}
-              axisLine={{ stroke: '#374151' }}
-              tickLine={{ stroke: '#374151' }}
+              stroke={axisStroke}
+              tick={{ fontSize: 10, fill: tickFill }}
+              axisLine={{ stroke: gridStroke }}
+              tickLine={{ stroke: gridStroke }}
               label={{
                 value: t('panel.zone.scatter_axis_area'),
                 position: 'insideBottom',
                 offset: -10,
-                fill: '#6b7280',
+                fill: labelFill,
                 fontSize: 10,
               }}
             />
@@ -104,21 +113,19 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid }: VolumeVsAreaScatterProp
               type="number"
               name="Volume"
               unit=" m³"
-              stroke="#4b5563"
-              tick={{ fontSize: 10, fill: '#9ca3af' }}
-              axisLine={{ stroke: '#374151' }}
-              tickLine={{ stroke: '#374151' }}
+              stroke={axisStroke}
+              tick={{ fontSize: 10, fill: tickFill }}
+              axisLine={{ stroke: gridStroke }}
+              tickLine={{ stroke: gridStroke }}
               width={72}
             />
             <ZAxis range={[18, 18]} />
             <Tooltip
-              cursor={{ strokeDasharray: '3 3', stroke: '#374151' }}
+              cursor={{ strokeDasharray: '3 3', stroke: gridStroke }}
               contentStyle={{
-                background: '#0b1220',
-                border: '1px solid #374151',
+                ...tooltipStyle,
                 borderRadius: 6,
                 fontSize: 11,
-                color: '#e5e7eb',
               }}
               formatter={(value: number) =>
                 Math.abs(value) >= 100 ? value.toFixed(0) : value.toFixed(2)
@@ -157,7 +164,7 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid }: VolumeVsAreaScatterProp
         </ResponsiveContainer>
       </div>
       {selected && (
-        <p className="mt-1 text-[10px] text-gray-500 font-mono">
+        <p className="mt-1 text-[10px] text-gray-400 dark:text-gray-500 font-mono">
           {t('panel.zone.scatter_you_prefix', {
             area: selected.x.toFixed(0),
             volume: selected.y.toFixed(0),

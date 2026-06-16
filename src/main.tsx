@@ -11,10 +11,14 @@ import './index.css';
 
 errorLogger.install();
 
-// room is dark-only: assert the suite-standard `dark` class on <html> before
-// first paint so Tailwind `dark:` variants and the tour's dark detection resolve
-// correctly. There is no light theme, so this is unconditional (no toggle).
-document.documentElement.classList.add('dark');
+// room keeps its signature dark look by default, but now ships a light/dark
+// toggle. Assert the suite-standard `dark` class on <html> before first paint
+// (so Tailwind `dark:` variants and the tour's dark detection resolve with no
+// flash) unless the user has explicitly saved a light choice. MapView owns the
+// toggle and keeps this class + the `theme` key in sync thereafter.
+if (localStorage.getItem('theme') !== 'light') {
+  document.documentElement.classList.add('dark');
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

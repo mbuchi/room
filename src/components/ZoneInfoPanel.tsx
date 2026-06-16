@@ -47,6 +47,8 @@ interface ZoneInfoPanelProps {
   queryNearbyParcels?: (lng: number, lat: number, radiusDeg: number, limit?: number) => Array<{ properties: Record<string, unknown>; lng: number; lat: number }>;
   /** Fly the map to a comparable parcel when its card is clicked. */
   onJumpTo?: (lng: number, lat: number) => void;
+  /** Active theme — drives the shared aerial thumbnail + comparables chrome. */
+  darkMode?: boolean;
 }
 
 /**
@@ -67,6 +69,7 @@ const ZoneInfoPanel = ({
   focusedParcel = null,
   queryNearbyParcels,
   onJumpTo,
+  darkMode = true,
 }: ZoneInfoPanelProps) => {
   const { t, locale } = useI18n();
 
@@ -106,14 +109,14 @@ const ZoneInfoPanel = ({
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full">
       {(parcelData?.address || isLoading || focusedParcel) && (
-        <div className="px-4 py-2.5 border-b border-gray-800/40 flex items-center gap-2">
+        <div className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40 flex items-center gap-2">
           <div className="min-w-0 flex-1">
             {parcelData?.address ? (
-              <p className="text-xs text-gray-400 truncate">{parcelData.address}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{parcelData.address}</p>
             ) : isLoading ? (
-              <Skeleton dark width={180} height={10} radius={4} />
+              <Skeleton dark={darkMode} width={180} height={10} radius={4} />
             ) : (
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
                 {focusedParcel
                   ? formatLngLat(focusedParcel.lng, focusedParcel.lat)
                   : ''}
@@ -128,7 +131,7 @@ const ZoneInfoPanel = ({
                   lng={focusedParcel.lng}
                   lat={focusedParcel.lat}
                   areaM2={Number(parcelData?.parcel_area) || null}
-                  dark
+                  dark={darkMode}
                   labels={{
                     imageAlt: t('panel.info.satellite_alt'),
                     expand: t('panel.info.satellite_expand'),
@@ -142,17 +145,17 @@ const ZoneInfoPanel = ({
       )}
 
       <div className="flex-1 overflow-y-auto">
-        {isLoading && <ZoneInfoSkeleton />}
+        {isLoading && <ZoneInfoSkeleton darkMode={darkMode} />}
 
         {!isLoading && error && (
           <div className="m-4 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
             <div className="flex items-start gap-2.5">
-              <AlertCircle size={14} className="text-red-400 mt-0.5 flex-shrink-0" />
+              <AlertCircle size={14} className="text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-xs font-medium text-red-400">
+                <p className="text-xs font-medium text-red-500 dark:text-red-400">
                   {t('panel.info.failed_to_load')}
                 </p>
-                <p className="text-[11px] text-red-400/60 mt-1 leading-relaxed">{error}</p>
+                <p className="text-[11px] text-red-500/70 dark:text-red-400/60 mt-1 leading-relaxed">{error}</p>
               </div>
             </div>
           </div>
@@ -160,13 +163,13 @@ const ZoneInfoPanel = ({
 
         {!isLoading && !error && parcelData && (
           <div className="p-4 space-y-4">
-            <Section icon={<MapPin size={12} className="text-red-400/80" />} title={t('panel.info.section.location')}>
+            <Section icon={<MapPin size={12} className="text-red-500/80 dark:text-red-400/80" />} title={t('panel.info.section.location')}>
               <Row label={t('panel.info.row.municipality')} value={parcelData.municipality_name} />
               <Row label={t('panel.info.row.fso')} value={parcelData.fso} mono />
               {parcelData.egrid && <Row label={t('panel.info.row.egrid')} value={parcelData.egrid} mono />}
             </Section>
 
-            <Section icon={<Layers size={12} className="text-amber-400/80" />} title={t('panel.info.section.zoning')}>
+            <Section icon={<Layers size={12} className="text-amber-500/80 dark:text-amber-400/80" />} title={t('panel.info.section.zoning')}>
               <Row label={t('panel.info.row.cz_local')} value={parcelData.cz_local} mono />
               <Row label={t('panel.info.row.cz_canton')} value={parcelData.cz_canton} mono />
               <Row
@@ -175,7 +178,7 @@ const ZoneInfoPanel = ({
               />
             </Section>
 
-            <Section icon={<Building2 size={12} className="text-teal-400/80" />} title={t('panel.info.section.built')}>
+            <Section icon={<Building2 size={12} className="text-teal-500/80 dark:text-teal-400/80" />} title={t('panel.info.section.built')}>
               <Row
                 label={t('panel.info.row.parcel_area')}
                 value={parcelData.parcel_area != null ? `${fmt(parcelData.parcel_area)} m²` : null}
@@ -195,7 +198,7 @@ const ZoneInfoPanel = ({
               />
             </Section>
 
-            <Section icon={<Calendar size={12} className="text-sky-400/80" />} title={t('panel.info.section.age')}>
+            <Section icon={<Calendar size={12} className="text-sky-500/80 dark:text-sky-400/80" />} title={t('panel.info.section.age')}>
               <Row
                 label={t('panel.info.row.year_built')}
                 value={parcelData.bldg_constr_year != null ? String(parcelData.bldg_constr_year) : null}
@@ -223,15 +226,15 @@ const ZoneInfoPanel = ({
         )}
 
         {queryNearbyParcels && onJumpTo && (
-          <section className="px-4 py-3 border-t border-slate-700/60">
-            <p className="mb-2 text-[10px] font-semibold uppercase text-slate-500">
+          <section className="px-4 py-3 border-t border-gray-200 dark:border-slate-700/60">
+            <p className="mb-2 text-[10px] font-semibold uppercase text-gray-400 dark:text-slate-500">
               {COMPS_HEADING[locale] ?? COMPS_HEADING.en}
             </p>
             <ComparablesPanel
               refPriceM2={refPriceM2}
               comparables={comparables}
               loading={compsLoading}
-              darkMode
+              darkMode={darkMode}
               onJumpTo={onJumpTo}
               locale={locale}
             />
@@ -242,18 +245,18 @@ const ZoneInfoPanel = ({
   );
 };
 
-const ZoneInfoSkeleton = () => (
+const ZoneInfoSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
   <div className="p-4 space-y-4">
     {[0, 1, 2, 3].map((i) => (
       <div
         key={i}
-        className="bg-gray-900/60 border border-gray-800/40 rounded-lg p-3 space-y-2"
+        className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/40 rounded-lg p-3 space-y-2"
       >
-        <Skeleton dark width={80} height={10} radius={4} delay={`${i * 60}ms`} />
+        <Skeleton dark={darkMode} width={80} height={10} radius={4} delay={`${i * 60}ms`} />
         {[0, 1, 2].map((j) => (
           <div key={j} className="flex items-baseline justify-between gap-3">
-            <Skeleton dark width={70} height={10} radius={4} delay={`${i * 60}ms`} />
-            <Skeleton dark width={60} height={10} radius={4} delay={`${i * 60}ms`} />
+            <Skeleton dark={darkMode} width={70} height={10} radius={4} delay={`${i * 60}ms`} />
+            <Skeleton dark={darkMode} width={60} height={10} radius={4} delay={`${i * 60}ms`} />
           </div>
         ))}
       </div>
@@ -270,10 +273,10 @@ const Section = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  <div className="bg-gray-900/60 border border-gray-800/50 rounded-lg p-3">
+  <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
     <div className="flex items-center gap-1.5 mb-2">
       {icon}
-      <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+      <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
         {title}
       </span>
     </div>
@@ -293,9 +296,9 @@ const Row = ({
   if (value === null || value === undefined || value === '') return null;
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <span className="text-[11px] text-gray-500">{label}</span>
+      <span className="text-[11px] text-gray-400 dark:text-gray-500">{label}</span>
       <span
-        className={`text-[11px] text-gray-200 text-right truncate ${
+        className={`text-[11px] text-gray-800 dark:text-gray-200 text-right truncate ${
           mono ? 'font-mono' : 'font-medium'
         }`}
       >
@@ -324,11 +327,11 @@ const RatioCard = ({
   const { t } = useI18n();
   if (ratio == null) {
     return (
-      <div className="bg-gray-900/60 border border-gray-800/50 rounded-lg p-3">
-        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+      <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
+        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
           {label}
         </p>
-        <p className="mt-1.5 text-xs text-gray-500">{hint ?? t('panel.info.no_data_for_parcel')}</p>
+        <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">{hint ?? t('panel.info.no_data_for_parcel')}</p>
       </div>
     );
   }
@@ -337,21 +340,21 @@ const RatioCard = ({
   const over = ratio > 100;
 
   return (
-    <div className="bg-gray-900/60 border border-gray-800/50 rounded-lg p-3">
+    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
       <div className="flex items-baseline justify-between mb-1.5">
-        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
           {label}
         </p>
         <p
           className={`text-xs font-semibold tabular-nums ${
-            over ? 'text-red-400' : 'text-gray-200'
+            over ? 'text-red-500 dark:text-red-400' : 'text-gray-800 dark:text-gray-200'
           }`}
         >
           {Math.round(ratio)}%
           {over && ' ↑'}
         </p>
       </div>
-      <div className="h-2 w-full rounded-full bg-gray-800 overflow-hidden">
+      <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
         <div
           className={`h-full rounded-full ${over ? 'bg-red-500' : 'bg-amber-400'}`}
           style={{ width: `${pct}%` }}
@@ -365,31 +368,31 @@ const FreeVolumeCard = ({ freeV }: { freeV: number | null }) => {
   const { t } = useI18n();
   if (freeV == null) {
     return (
-      <div className="bg-gray-900/60 border border-gray-800/50 rounded-lg p-3">
-        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+      <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
+        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
           {t('panel.info.free_v.label')}
         </p>
-        <p className="mt-1.5 text-xs text-gray-500">{t('panel.info.no_data_for_parcel')}</p>
+        <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">{t('panel.info.no_data_for_parcel')}</p>
       </div>
     );
   }
   const positive = freeV >= 0;
   return (
-    <div className="bg-gray-900/60 border border-gray-800/50 rounded-lg p-3">
+    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
       <div className="flex items-baseline justify-between">
-        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
           {t('panel.info.free_v.label')}
         </p>
         <p
           className={`text-xs font-semibold tabular-nums ${
-            positive ? 'text-emerald-400' : 'text-red-400'
+            positive ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'
           }`}
         >
           {positive ? '+' : ''}
           {fmt(freeV)} m³
         </p>
       </div>
-      <p className="mt-1 text-[10px] text-gray-500">
+      <p className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">
         {positive ? t('panel.info.free_v.positive') : t('panel.info.free_v.negative')}
       </p>
     </div>

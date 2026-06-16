@@ -2,6 +2,8 @@ import { MapUserMenu, type PrmRecord, type PrmLocale, type MapUserMenuAction, ty
 import { useI18n } from '../contexts/I18nContext';
 
 interface UserMenuProps {
+  /** Active theme — drives the account-menu dropdown chrome. */
+  darkMode?: boolean;
   /** Secondary tools shown under the "More tools" section of the dropdown (variant-2 navbar). */
   toolbarItems?: MapUserMenuAction[];
   toolbarLabel?: string;
@@ -9,7 +11,7 @@ interface UserMenuProps {
   bugReport?: MapUserMenuProps['bugReport'];
 }
 
-export default function UserMenu({ toolbarItems, toolbarLabel, bugReport }: UserMenuProps) {
+export default function UserMenu({ darkMode = true, toolbarItems, toolbarLabel, bugReport }: UserMenuProps) {
   const { t, locale } = useI18n();
 
   const openParcelHere = (rec: PrmRecord) => {
@@ -21,7 +23,7 @@ export default function UserMenu({ toolbarItems, toolbarLabel, bugReport }: User
 
   return (
     <MapUserMenu
-      dark
+      dark={darkMode}
       locale={locale as PrmLocale}
       savedParcelsOpenHereLabel={t('modal.parcels.open_here')}
       onOpenSavedParcel={openParcelHere}

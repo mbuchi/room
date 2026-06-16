@@ -27,19 +27,22 @@ interface NavbarProps {
   onLocate: (coords: [number, number]) => void;
   onLocateError: (code: LocateErrorCode) => void;
   getCaptureMetadata?: () => ScreenshotMetadata;
+  /** Active theme — drives the toolbar's Sun/Moon icon and the account-menu chrome. */
+  darkMode: boolean;
+  /** Flip the light/dark theme. */
+  onToggleTheme: () => void;
 }
 
 /**
  * room's top bar is the suite-shared {@link AppNavbar} (the canonical pattern):
  * hub badge + wordmark · Mapbox address search · MapToolbar + cross-app
  * "Open with" + account menu. The MapToolbar wires Save image (Camera) · My
- * exports (Layers) · Locate · Settings · Language as direct navbar buttons
- * (room is dark-only, so no theme toggle). The account menu's "More tools"
- * section holds only What's new + Tour. The app wires its own handlers, labels,
- * account menu and the side panels (saved images, release notes, capture
- * feedback).
+ * exports (Layers) · Theme (Sun/Moon) · Locate · Settings · Language as direct
+ * navbar buttons. The account menu's "More tools" section holds only What's new
+ * + Tour. The app wires its own handlers, labels, account menu and the side
+ * panels (saved images, release notes, capture feedback).
  */
-const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata }: NavbarProps) => {
+const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata, darkMode, onToggleTheme }: NavbarProps) => {
   const { locale, setLocale, t } = useI18n();
   const { email } = useAuth();
   const [showImages, setShowImages] = useState(false);
@@ -92,7 +95,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
     <>
       <AppNavbar
         appName="room"
-        dark
+        dark={darkMode}
         position="fixed top-0 left-0 right-0 z-50"
         brandTourId="app-title"
         searchTourId="address-search"
@@ -138,13 +141,14 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
           onCapture: capture,
           isCapturing,
           onShowImages: () => setShowImages(true),
+          onToggleTheme,
           onLocate: handleLocate,
           isLocating,
           labels: {
             saveImage: t('panel.screenshot.save_image'),
             myImages: t('nav.my_exports'),
-            toggleLight: t('panel.basemap.light'),
-            toggleDark: t('panel.basemap.dark'),
+            toggleLight: t('nav.toggle_light'),
+            toggleDark: t('nav.toggle_dark'),
             locateMe: t('map.locate.button'),
             settings: t('map.settings'),
             settingsComingSoon: t('map.settings_coming_soon'),
@@ -154,6 +158,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata 
         }}
         userMenu={
           <UserMenu
+            darkMode={darkMode}
             toolbarItems={toolbarItems}
             toolbarLabel={t('menu.more_tools')}
             bugReport={{ logger: errorLogger, email, metaData: { rollout: 'bug-report-expanded' } }}

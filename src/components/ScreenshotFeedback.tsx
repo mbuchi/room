@@ -24,9 +24,9 @@ export default function ScreenshotFeedback({ isCapturing, toast, onDismiss }: Sc
           role="status"
           aria-live="polite"
         >
-          <div className="flex flex-col items-center gap-3 px-6 py-5 rounded-xl bg-gray-900 border border-gray-700/60 shadow-2xl">
+          <div className="flex flex-col items-center gap-3 px-6 py-5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 shadow-2xl">
             <Loader2 size={36} className="animate-spin text-red-500" />
-            <span className="text-sm font-medium text-gray-200">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
               {t('panel.screenshot.creating_image')}
             </span>
           </div>

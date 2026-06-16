@@ -15,6 +15,7 @@ import { useI18n } from '../../contexts/I18nContext';
 
 interface UtilizationOverTimeProps {
   ageCohorts: ZoneStatsResponse['age_cohorts'];
+  darkMode?: boolean;
 }
 
 const CHART_HEIGHT = 200;
@@ -48,8 +49,15 @@ export function orderAgeCohorts(
  * order. (The raw cohort labels render as ALL / 20 / 40 / 60.)
  * Reads at a glance whether the zone is densifying or losing utilisation.
  */
-const UtilizationOverTime = ({ ageCohorts }: UtilizationOverTimeProps) => {
+const UtilizationOverTime = ({ ageCohorts, darkMode = true }: UtilizationOverTimeProps) => {
   const { t } = useI18n();
+  // Neutral structural chrome only; the line/dot reds encode the data.
+  const axisStroke = darkMode ? '#4b5563' : '#cbd5e1';
+  const tickFill = darkMode ? '#9ca3af' : '#6b7280';
+  const gridStroke = darkMode ? '#374151' : '#e5e7eb';
+  const tooltipStyle = darkMode
+    ? { background: '#0b1220', border: '1px solid #374151', color: '#e5e7eb' }
+    : { background: '#ffffff', border: '1px solid #e5e7eb', color: '#111827' };
   const data = orderAgeCohorts(ageCohorts).map((c) => ({
     label: c.cohort_label,
     ratio_v: c.mean_ratio_v,
@@ -59,39 +67,37 @@ const UtilizationOverTime = ({ ageCohorts }: UtilizationOverTimeProps) => {
   const allFinite = data.every((d) => Number.isFinite(d.ratio_v));
 
   return (
-    <div className="bg-gray-900/60 border border-gray-800/60 rounded-lg p-3">
-      <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
+    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
+      <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider mb-2">
         {t('panel.zone.over_time_title')}
       </h4>
       {!allFinite ? (
-        <p className="text-xs text-gray-500">{t('panel.zone.over_time_no_data')}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500">{t('panel.zone.over_time_no_data')}</p>
       ) : (
         <div style={{ width: '100%', height: CHART_HEIGHT }}>
           <ResponsiveContainer>
             <LineChart data={data} margin={{ top: 10, right: 12, bottom: 6, left: 6 }}>
-              <CartesianGrid stroke="#1f2937" strokeDasharray="2 4" vertical={false} />
+              <CartesianGrid stroke={gridStroke} strokeDasharray="2 4" vertical={false} />
               <XAxis
                 dataKey="label"
-                stroke="#4b5563"
-                tick={{ fontSize: 10, fill: '#9ca3af' }}
-                axisLine={{ stroke: '#374151' }}
-                tickLine={{ stroke: '#374151' }}
+                stroke={axisStroke}
+                tick={{ fontSize: 10, fill: tickFill }}
+                axisLine={{ stroke: gridStroke }}
+                tickLine={{ stroke: gridStroke }}
               />
               <YAxis
-                stroke="#4b5563"
-                tick={{ fontSize: 10, fill: '#9ca3af' }}
-                axisLine={{ stroke: '#374151' }}
-                tickLine={{ stroke: '#374151' }}
+                stroke={axisStroke}
+                tick={{ fontSize: 10, fill: tickFill }}
+                axisLine={{ stroke: gridStroke }}
+                tickLine={{ stroke: gridStroke }}
                 tickFormatter={(v: number) => v.toFixed(2)}
                 width={48}
               />
               <Tooltip
                 contentStyle={{
-                  background: '#0b1220',
-                  border: '1px solid #374151',
+                  ...tooltipStyle,
                   borderRadius: 6,
                   fontSize: 11,
-                  color: '#e5e7eb',
                 }}
                 formatter={(value, _name, item) => {
                   const v = typeof value === 'number' ? value : Number(value);

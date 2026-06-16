@@ -138,7 +138,7 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
     return (
       <div
         data-tour="track-parcel"
-        className="flex-shrink-0 border-t border-gray-800/60 bg-gray-950/95 px-3 py-3 print:hidden"
+        className="flex-shrink-0 border-t border-gray-200 dark:border-gray-800/60 bg-white/95 dark:bg-gray-950/95 px-3 py-3 print:hidden"
       >
         <div className="flex items-stretch gap-2">
           <button
@@ -148,7 +148,7 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
             title={t('prm.saved')}
             aria-label={t('prm.saved')}
             aria-pressed
-            className="group flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30 text-sm font-semibold transition-colors hover:bg-emerald-500/25 disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+            className="group flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 ring-1 ring-emerald-400/30 text-sm font-semibold transition-colors hover:bg-emerald-500/25 disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
           >
             {removing ? (
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
@@ -164,7 +164,7 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
               rel="noopener noreferrer"
               title={t('prm.open_in_proom')}
               aria-label={t('prm.open_in_proom')}
-              className="inline-flex items-center justify-center gap-1.5 h-11 px-3.5 rounded-xl bg-gray-800/70 hover:bg-gray-700/80 text-gray-200 hover:text-white ring-1 ring-gray-700/60 transition-colors text-xs font-medium"
+              className="inline-flex items-center justify-center gap-1.5 h-11 px-3.5 rounded-xl bg-gray-100 dark:bg-gray-800/70 hover:bg-gray-200 dark:hover:bg-gray-700/80 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white ring-1 ring-gray-200 dark:ring-gray-700/60 transition-colors text-xs font-medium"
             >
               <ExternalLink className="h-4 w-4" aria-hidden />
               <span className="hidden sm:inline">{t('prm.open_in_proom')}</span>
@@ -191,7 +191,7 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
   return (
     <div
       data-tour="track-parcel"
-      className="flex-shrink-0 border-t border-gray-800/60 bg-gray-950/95 px-3 py-3 print:hidden"
+      className="flex-shrink-0 border-t border-gray-200 dark:border-gray-800/60 bg-white/95 dark:bg-gray-950/95 px-3 py-3 print:hidden"
     >
       <button
         type="button"
@@ -201,11 +201,11 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
         aria-label={label}
         className={`group w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-semibold transition-all duration-150 disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 active:scale-[0.99] ${
           saving
-            ? 'bg-gray-800/60 text-gray-400 ring-1 ring-gray-700/50'
+            ? 'bg-gray-100 dark:bg-gray-800/60 text-gray-400 ring-1 ring-gray-200 dark:ring-gray-700/50'
             : error
               ? 'bg-red-600/90 text-white ring-1 ring-red-500/40 hover:bg-red-500'
               : signedOut
-                ? 'bg-gray-800/80 text-gray-100 ring-1 ring-gray-600/60 hover:bg-gray-700/80'
+                ? 'bg-gray-100 dark:bg-gray-800/80 text-gray-700 dark:text-gray-100 ring-1 ring-gray-200 dark:ring-gray-600/60 hover:bg-gray-200 dark:hover:bg-gray-700/80'
                 : 'bg-emerald-600 text-white ring-1 ring-emerald-500/40 hover:bg-emerald-500 shadow-lg shadow-emerald-900/30'
         }`}
       >
@@ -219,7 +219,7 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
         <span>{label}</span>
       </button>
       {!signedOut && !error && (
-        <p className="mt-1.5 text-center text-[10px] text-gray-500">{t('prm.bar_hint')}</p>
+        <p className="mt-1.5 text-center text-[10px] text-gray-400 dark:text-gray-500">{t('prm.bar_hint')}</p>
       )}
     </div>
   );
