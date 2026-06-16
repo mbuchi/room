@@ -34,7 +34,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'nav.search_no_results': 'No matching addresses',
     'nav.clear_search': 'Clear search',
     'nav.search_results_count': '{count} results',
-    'nav.my_exports': 'My Exports',
+    'nav.my_exports': 'My exports',
     'nav.open_with': 'Open with',
     'nav.select_language': 'Select language',
     'nav.toggle_light': 'Switch to light theme',
