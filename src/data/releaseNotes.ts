@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.7.5',
+    date: 'June 16, 2026',
+    codename: 'Untrack Toggle',
+    summary:
+      'The “Track parcel” bar now toggles — click it again to untrack the parcel.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bookmark,
+        text:
+          'You can now untrack a parcel with the same control you used to track it. The green “Tracked” bar is now a button — click it to remove the parcel from your proom list.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.7.4',
     date: 'June 16, 2026',
     codename: 'History Up Top',

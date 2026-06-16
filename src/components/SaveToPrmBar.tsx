@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Bookmark, BookmarkCheck, ExternalLink, Loader2, LogIn } from 'lucide-react';
 import {
   createPrmRecord,
+  deletePrmRecord,
   fetchPrmByParcel,
   PROOM_APP_URL,
   PrmAuthRequiredError as AuthRequiredError,
@@ -13,7 +14,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { useAuth } from '../auth/AuthContext';
 import { signal } from '../lib/signal';
 
-type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'unsaving' | 'error';
 
 interface SaveToPrmBarProps {
   /** The currently-focused parcel; the save target. */
@@ -109,18 +110,53 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
     }
   };
 
-  // ---- Saved: show the confirmation + an Open-in-proom action ----
-  if (status === 'saved') {
+  const handleRemove = async () => {
+    if (!savedRecord) return;
+    if (!isAuthenticated || !accessToken) {
+      promptLogin();
+      return;
+    }
+    setStatus('unsaving');
+    try {
+      await deletePrmRecord(accessToken, savedRecord.id);
+      setSavedRecord(null);
+      setStatus('idle');
+    } catch (err) {
+      if (err instanceof AuthRequiredError) {
+        promptLogin();
+        setStatus('saved');
+        return;
+      }
+      console.error('PRM remove failed', err);
+      setStatus('error');
+    }
+  };
+
+  // ---- Saved (or removing): the pill is now a button — click it to untrack ----
+  if (status === 'saved' || status === 'unsaving') {
+    const removing = status === 'unsaving';
     return (
       <div
         data-tour="track-parcel"
         className="flex-shrink-0 border-t border-gray-800/60 bg-gray-950/95 px-3 py-3 print:hidden"
       >
         <div className="flex items-stretch gap-2">
-          <div className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30 text-sm font-semibold">
-            <BookmarkCheck className="h-4 w-4" aria-hidden />
+          <button
+            type="button"
+            onClick={handleRemove}
+            disabled={removing}
+            title={t('prm.saved')}
+            aria-label={t('prm.saved')}
+            aria-pressed
+            className="group flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/30 text-sm font-semibold transition-colors hover:bg-emerald-500/25 disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+          >
+            {removing ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <BookmarkCheck className="h-4 w-4" aria-hidden />
+            )}
             <span>{t('prm.saved')}</span>
-          </div>
+          </button>
           {savedRecord && (
             <a
               href={`${PROOM_APP_URL}/?prm=${encodeURIComponent(savedRecord.id)}`}
