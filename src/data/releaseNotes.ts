@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.7.6',
+    date: 'June 16, 2026',
+    codename: 'Mission Control',
+    summary:
+      'A redesigned, on-brand sign-in screen with the Aireon look.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'The sign-in screen has a fresh Aireon look — the Aireon wordmark on a dark “mission-control” card with a subtle map-grid texture and a soft red glow, replacing the old white SWISSNOVO card. It now matches the rest of the Aireon suite.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.7.5',
     date: 'June 16, 2026',
     codename: 'Untrack Toggle',
