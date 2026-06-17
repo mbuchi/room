@@ -19,6 +19,13 @@ export const RELEASES: Release[] = [
     items: [
       {
         kind: 'improved' as ChangeKind,
+        icon: Package,
+        text:
+          'The Open with menu now drops retired apps from the suite target list, so cross-app launches only show active Aireon apps.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
         icon: Layers,
         text:
           'Top-level map controls now inherit the shared Aireon navbar spacing tokens, keeping the basemap selector and layer controls aligned with the same offset used by roofs and roots.',
