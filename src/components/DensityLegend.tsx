@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useGlass } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
 import { DENSITY_RAMP, type ActiveZone } from '../lib/mapLayers';
 
@@ -25,6 +26,8 @@ const ABSOLUTE_STOPS = [0, 50, 100, 150, 220];
  */
 const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null }: DensityLegendProps) => {
   const { t } = useI18n();
+  const { level: glassLevel } = useGlass();
+  const glassOn = glassLevel > 0;
 
   const stops = useMemo(() => {
     const bp = zone.breakpoints;
@@ -45,7 +48,7 @@ const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null }: DensityLe
 
   return (
     <div
-      className="absolute bottom-8 left-4 z-20 hidden md:block w-[268px] rounded-xl bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border border-gray-200 dark:border-gray-800/70 shadow-2xl p-3 transition-[right] duration-300"
+      className={`absolute bottom-8 left-4 z-20 hidden md:block w-[268px] rounded-xl ${glassOn ? 'glass-control' : 'bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border border-gray-200 dark:border-gray-800/70 shadow-2xl'} p-3 transition-[right] duration-300`}
       style={rightOffsetPx != null ? { right: `${rightOffsetPx}px`, left: 'auto' } : undefined}
       data-tour="density-legend"
     >

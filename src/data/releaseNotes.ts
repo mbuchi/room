@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.9.0',
+    date: 'June 18, 2026',
+    codename: 'Liquid Glass',
+    summary:
+      'A new Liquid Glass appearance setting lets the map chrome and panels turn translucent — pick Off, Frosted or Liquid from the navbar settings.',
+    items: [
+      {
+        kind: 'added' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'A new “Appearance” control in the navbar settings (the gear menu) adds the suite-wide Liquid Glass look. Choose Off (room’s original solid panels), Frosted or Liquid, and the floating map chrome — zoom control, layer controls and the density legend — plus the parcel side panel, the account menu and the saved-images window turn into translucent frosted glass. Off is the default and leaves every surface exactly as before; your choice is remembered for next time.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.8.1',
     date: 'June 17, 2026',
     codename: 'Find Your Way',

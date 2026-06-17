@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { Box } from 'lucide-react';
+import { useGlass } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
 
 interface MapControlsProps {
@@ -25,6 +26,12 @@ const MapControls = ({
   rightOffsetPx = null,
 }: MapControlsProps) => {
   const { t } = useI18n();
+  const { level: glassLevel } = useGlass();
+  const glassOn = glassLevel > 0;
+  // Translucent `.glass-control` at glass level >0; original solid card at Off.
+  const cardClass = glassOn
+    ? 'glass-control border'
+    : 'shadow-lg bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700/50';
   return (
     <>
       <div
@@ -35,7 +42,7 @@ const MapControls = ({
             : undefined)
         }
       >
-        <div className="rounded-lg shadow-lg p-4 min-w-[240px] bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700/50 space-y-4">
+        <div className={`rounded-lg p-4 min-w-[240px] space-y-4 ${cardClass}`}>
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('panel.layers.parcel')}</span>
