@@ -10,6 +10,8 @@ import {
   ReleaseNotesPanel,
   getReleaseNotesStrings,
   useReleaseNotes,
+  useGlass,
+  buildGlassSettingsItem,
   type MapUserMenuAction,
   type AddressSearchResult,
 } from '@aireon/shared';
@@ -44,6 +46,7 @@ interface NavbarProps {
  */
 const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata, darkMode, onToggleTheme }: NavbarProps) => {
   const { locale, setLocale, t } = useI18n();
+  const { level: glassLevel, setLevel: setGlassLevel } = useGlass();
   const { email } = useAuth();
   const [showImages, setShowImages] = useState(false);
   // The last address the user picked — AppNavbar tracks it to render the
@@ -144,6 +147,9 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
           onToggleTheme,
           onLocate: handleLocate,
           isLocating,
+          settingsItems: [
+            buildGlassSettingsItem({ level: glassLevel, setLevel: setGlassLevel, locale }),
+          ],
           labels: {
             saveImage: t('panel.screenshot.save_image'),
             myImages: t('nav.my_exports'),

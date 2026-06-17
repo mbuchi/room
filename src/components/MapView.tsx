@@ -28,7 +28,7 @@ import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
-import { ClaireAssistant } from '@aireon/shared';
+import { ClaireAssistant, useGlass } from '@aireon/shared';
 import {
   BasemapPicker,
   getBasemapStrings,
@@ -79,6 +79,10 @@ const prefersDarkMode = (): boolean => localStorage.getItem('theme') !== 'light'
 
 const MapView = () => {
   const { t, locale } = useI18n();
+  // Liquid Glass appearance level (0=Off, 1=Frosted, 2=Liquid). Drives the
+  // translucent map chrome + the `data-glass` attribute on <html>.
+  const { level: glassLevel } = useGlass();
+  const glassOn = glassLevel > 0;
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   // Light/dark theme. Drives the `dark` class on <html>, the BasemapPicker's
@@ -274,6 +278,13 @@ const MapView = () => {
       localStorage.setItem('theme', 'light');
     }
   }, [isDarkMode]);
+
+  // Stamp the glass level onto <html> — the SAME element that carries `.dark` —
+  // so the compound `.dark[data-glass='N']` glass tokens resolve in both themes.
+  // <html> (not a wrapper div) so panels that portal to <body> still resolve.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-glass', String(glassLevel));
+  }, [glassLevel]);
 
   // Re-add room's own data layers after the shared <BasemapPicker> swaps the
   // style (setStyle wipes every source/layer the app added). This is exactly
@@ -590,9 +601,9 @@ const MapView = () => {
       />
       {selectedParcel && (
         <div
-          className="z-30 flex flex-col bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl shadow-2xl
+          className={`z-30 flex flex-col ${glassOn ? 'glass-surface' : 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl shadow-2xl'}
             fixed inset-x-0 bottom-0 h-[var(--sheet-h)] max-h-[90dvh] rounded-t-2xl border-t border-gray-200 dark:border-gray-800/60 animate-slide-up
-            md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right"
+            md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right`}
           style={
             {
               '--sheet-h': sheetExpanded ? '90dvh' : '56dvh',

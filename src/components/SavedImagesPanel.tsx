@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, RefreshCw, Trash2, Image as ImageIcon, ExternalLink, Loader2, MapPin, Compass, Hash, Map as MapIcon } from 'lucide-react';
-import { Skeleton } from '@aireon/shared';
+import { Skeleton, useGlass } from '@aireon/shared';
 import {
   listImages,
   deleteImage,
@@ -46,6 +46,10 @@ interface SavedImagesPanelProps {
 
 export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelProps) {
   const { t, locale } = useI18n();
+  // Read glass at the TOP, above the `!isOpen` early return, so the hook order
+  // stays stable across renders.
+  const { level: glassLevel } = useGlass();
+  const glassOn = glassLevel > 0;
   const [images, setImages] = useState<SavedImage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -222,7 +226,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
     <>
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-        <div className="relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/60 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden">
+        <div className={`relative rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden ${glassOn ? 'glass-surface' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/60 shadow-2xl'}`}>
           <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-gray-200 dark:border-gray-800/60">
             <div className="flex items-center gap-2 min-w-0">
               <ImageIcon size={18} className="text-red-500 flex-shrink-0" />
