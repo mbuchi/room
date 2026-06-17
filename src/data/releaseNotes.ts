@@ -18,6 +18,13 @@ export const RELEASES: Release[] = [
       'room now has a light theme. A Sun/Moon toggle in the toolbar flips the whole app — map, charts, zone panels and chrome — between light and dark, and the swisstopo basemap follows along.',
     items: [
       {
+        kind: 'improved' as ChangeKind,
+        icon: Code2,
+        text:
+          'SEO: added a canonical URL and JSON-LD structured data (WebApplication/SoftwareApplication) to the page head so search engines and AI answer engines can index room from a raw page fetch.',
+        prs: [],
+      },
+      {
         kind: 'new' as ChangeKind,
         icon: Palette,
         text:
