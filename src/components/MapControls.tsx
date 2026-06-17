@@ -28,7 +28,7 @@ const MapControls = ({
   return (
     <>
       <div
-        className="absolute top-[72px] z-10 transition-[right] duration-300 right-4 md:[right:var(--md-right,1rem)]"
+        className="absolute aireon-map-control-top aireon-z-map-control transition-[right] duration-300 aireon-map-control-right md:[right:var(--md-right,1rem)]"
         style={
           (panelOpen && rightOffsetPx != null
             ? ({ '--md-right': `${rightOffsetPx}px` } as CSSProperties & Record<string, string>)

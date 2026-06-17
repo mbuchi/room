@@ -19,6 +19,13 @@ export const RELEASES: Release[] = [
     items: [
       {
         kind: 'improved' as ChangeKind,
+        icon: Layers,
+        text:
+          'Top-level map controls now inherit the shared Aireon navbar spacing tokens, keeping the basemap selector and layer controls aligned with the same offset used by roofs and roots.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
         icon: BookOpen,
         text:
           'A short “Frequently asked questions” section now sits at the bottom of the Parcel facts panel — what room calculates, where its zoning data comes from, and a reminder that the utilization figure is indicative, not binding. The same Q&A is published as FAQ structured data so search and AI answer engines can surface it.',

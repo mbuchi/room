@@ -558,7 +558,7 @@ const MapView = () => {
           style swap and theme pairing, and re-adds room's own data layers via
           onBasemapApplied. The picker pairs the basemap to the active theme
           (pairWithTheme default-on) until the user pins one. */}
-      <div data-tour="layer-controls" className="absolute top-[72px] left-4 z-10 max-w-[calc(100vw-2rem)]">
+      <div data-tour="layer-controls" className="absolute aireon-map-control-top aireon-map-control-left aireon-z-map-control max-w-[calc(100vw-2rem)]">
         <BasemapPicker
           map={mapRef.current}
           dark={isDarkMode}
