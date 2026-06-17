@@ -134,7 +134,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.summary_line': 'n={n} · p50 {p50} · mean {mean}',
 
     // ---------- "My Exports" modal (SavedImagesPanel) ----------
-    'panel.images.title': 'My Exports',
+    'panel.images.title': 'My exports',
     'panel.images.see_all_in_showroom': 'See all publications in Showroom',
     'panel.images.refresh': 'Refresh',
     'panel.images.close': 'Close',
