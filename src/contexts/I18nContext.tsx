@@ -29,7 +29,7 @@ import type { Locale } from '@aireon/shared';
 const translations: Record<Locale, Record<string, string>> = {
   en: {
     // ---------- navbar ----------
-    'nav.search_placeholder': 'Search addresses in Switzerland...',
+    'nav.search_placeholder': 'Search address...',
     'nav.searching': 'Searching…',
     'nav.search_no_results': 'No matching addresses',
     'nav.clear_search': 'Clear search',
@@ -265,7 +265,7 @@ const translations: Record<Locale, Record<string, string>> = {
   },
   fr: {
     // ---------- navbar ----------
-    'nav.search_placeholder': 'Rechercher des adresses en Suisse...',
+    'nav.search_placeholder': 'Rechercher une adresse...',
     'nav.searching': 'Recherche…',
     'nav.search_no_results': 'Aucune adresse correspondante',
     'nav.clear_search': 'Effacer la recherche',
@@ -500,7 +500,7 @@ const translations: Record<Locale, Record<string, string>> = {
   },
   de: {
     // ---------- navbar ----------
-    'nav.search_placeholder': 'Adressen in der Schweiz suchen...',
+    'nav.search_placeholder': 'Adresse suchen...',
     'nav.searching': 'Suche…',
     'nav.search_no_results': 'Keine passenden Adressen',
     'nav.clear_search': 'Suche löschen',
@@ -735,7 +735,7 @@ const translations: Record<Locale, Record<string, string>> = {
   },
   it: {
     // ---------- navbar ----------
-    'nav.search_placeholder': 'Cerca indirizzi in Svizzera...',
+    'nav.search_placeholder': 'Cerca indirizzo...',
     'nav.searching': 'Ricerca…',
     'nav.search_no_results': 'Nessun indirizzo corrispondente',
     'nav.clear_search': 'Cancella ricerca',
