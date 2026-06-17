@@ -19,6 +19,13 @@ export const RELEASES: Release[] = [
     items: [
       {
         kind: 'improved' as ChangeKind,
+        icon: BookOpen,
+        text:
+          'A short “Frequently asked questions” section now sits at the bottom of the Parcel facts panel — what room calculates, where its zoning data comes from, and a reminder that the utilization figure is indicative, not binding. The same Q&A is published as FAQ structured data so search and AI answer engines can surface it.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
         icon: Code2,
         text:
           'SEO: added a canonical URL and JSON-LD structured data (WebApplication/SoftwareApplication) to the page head so search engines and AI answer engines can index room from a raw page fetch.',

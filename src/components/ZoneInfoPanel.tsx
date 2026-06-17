@@ -5,6 +5,8 @@ import {
   Building2,
   Calendar,
   Layers,
+  HelpCircle,
+  ChevronDown,
 } from 'lucide-react';
 import {
   Skeleton,
@@ -240,8 +242,57 @@ const ZoneInfoPanel = ({
             />
           </section>
         )}
+
+        <ParcelFaq />
       </div>
     </div>
+  );
+};
+
+/**
+ * Compact "Frequently asked questions" disclosure pinned to the bottom of the
+ * parcel-facts pane. Native <details>/<summary> — keyboard- and screenreader-
+ * accessible with zero deps — styled to match the panel's Section cards. The
+ * Q&A text is mirrored byte-for-byte (EN) into the FAQPage JSON-LD in
+ * index.html so the visible content backs the structured data. The third
+ * question is the binding-utilisation disclaimer, surfaced exactly where the
+ * user reads the ratioV / freeV figures.
+ */
+const ParcelFaq = () => {
+  const { t } = useI18n();
+  const qas: Array<{ q: string; a: string }> = [
+    { q: t('faq.q1'), a: t('faq.a1') },
+    { q: t('faq.q2'), a: t('faq.a2') },
+    { q: t('faq.q3'), a: t('faq.a3') },
+  ];
+  return (
+    <section className="px-4 py-3 border-t border-gray-200 dark:border-gray-800/50">
+      <div className="flex items-center gap-1.5 mb-2">
+        <HelpCircle size={12} className="text-gray-400 dark:text-gray-500" />
+        <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+          {t('faq.title')}
+        </span>
+      </div>
+      <div className="space-y-1.5">
+        {qas.map(({ q, a }) => (
+          <details
+            key={q}
+            className="group bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg overflow-hidden"
+          >
+            <summary className="flex items-center justify-between gap-2 cursor-pointer list-none px-3 py-2 text-[11px] font-medium text-gray-700 dark:text-gray-200 select-none hover:bg-gray-200/50 dark:hover:bg-gray-800/40 transition-colors">
+              <span>{q}</span>
+              <ChevronDown
+                size={13}
+                className="flex-shrink-0 text-gray-400 dark:text-gray-500 transition-transform group-open:rotate-180"
+              />
+            </summary>
+            <p className="px-3 pb-2.5 pt-0.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+              {a}
+            </p>
+          </details>
+        ))}
+      </div>
+    </section>
   );
 };
 

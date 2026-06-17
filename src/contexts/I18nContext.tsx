@@ -253,6 +253,15 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.bar_hint': 'Track this parcel in your proom workspace',
     'panel.sheet.expand': 'Expand panel',
     'panel.sheet.collapse': 'Collapse panel',
+
+    // ---------- FAQ (parcel-facts disclosure; mirrors the FAQPage JSON-LD) ----------
+    'faq.title': 'Frequently asked questions',
+    'faq.q1': 'What does room calculate?',
+    'faq.a1': 'room shows the zoning, permitted density and utilization potential for a Swiss parcel based on its land-use zone.',
+    'faq.q2': "Where does room's zoning data come from?",
+    'faq.a2': 'From official cantonal and communal land-use (Nutzungsplanung) data for the selected parcel.',
+    'faq.q3': "Is room's utilization figure binding?",
+    'faq.a3': 'No. It is an indicative calculation; the binding utilization is set by the competent authority under the applicable regulations.',
   },
   fr: {
     // ---------- navbar ----------
@@ -479,6 +488,15 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.bar_hint': 'Suivez cette parcelle dans votre espace proom',
     'panel.sheet.expand': 'Agrandir le panneau',
     'panel.sheet.collapse': 'Réduire le panneau',
+
+    // ---------- FAQ (informations de la parcelle ; reflète le JSON-LD FAQPage) ----------
+    'faq.title': 'Questions fréquentes',
+    'faq.q1': 'Que calcule room ?',
+    'faq.a1': 'room indique le zonage, la densité autorisée et le potentiel d’utilisation d’une parcelle suisse selon sa zone d’affectation.',
+    'faq.q2': 'D’où proviennent les données de zonage de room ?',
+    'faq.a2': 'Des données officielles d’affectation du sol (Nutzungsplanung) cantonales et communales pour la parcelle sélectionnée.',
+    'faq.q3': 'Le taux d’utilisation de room est-il contraignant ?',
+    'faq.a3': 'Non. Il s’agit d’un calcul indicatif ; l’utilisation contraignante est fixée par l’autorité compétente selon la réglementation applicable.',
   },
   de: {
     // ---------- navbar ----------
@@ -705,6 +723,15 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.bar_hint': 'Diese Parzelle in Ihrem proom-Arbeitsbereich verfolgen',
     'panel.sheet.expand': 'Panel vergrössern',
     'panel.sheet.collapse': 'Panel verkleinern',
+
+    // ---------- FAQ (Parzellen-Fakten; spiegelt das FAQPage-JSON-LD) ----------
+    'faq.title': 'Häufige Fragen',
+    'faq.q1': 'Was berechnet room?',
+    'faq.a1': 'room zeigt die Zonierung, die zulässige Dichte und das Nutzungspotenzial einer Schweizer Parzelle anhand ihrer Nutzungszone.',
+    'faq.q2': 'Woher stammen die Zonierungsdaten von room?',
+    'faq.a2': 'Aus den amtlichen kantonalen und kommunalen Daten der Nutzungsplanung für die ausgewählte Parzelle.',
+    'faq.q3': 'Ist der Ausnützungswert von room verbindlich?',
+    'faq.a3': 'Nein. Es handelt sich um eine Richtberechnung; die verbindliche Ausnützung legt die zuständige Behörde nach den geltenden Vorschriften fest.',
   },
   it: {
     // ---------- navbar ----------
@@ -931,6 +958,15 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.bar_hint': 'Tieni traccia di questa particella nel tuo spazio proom',
     'panel.sheet.expand': 'Espandi il pannello',
     'panel.sheet.collapse': 'Riduci il pannello',
+
+    // ---------- FAQ (dati particella; rispecchia il JSON-LD FAQPage) ----------
+    'faq.title': 'Domande frequenti',
+    'faq.q1': 'Cosa calcola room?',
+    'faq.a1': 'room mostra la zonizzazione, la densità ammessa e il potenziale di utilizzo di una particella svizzera in base alla sua zona di utilizzazione.',
+    'faq.q2': 'Da dove provengono i dati di zonizzazione di room?',
+    'faq.a2': 'Dai dati ufficiali cantonali e comunali di utilizzazione del suolo (Nutzungsplanung) per la particella selezionata.',
+    'faq.q3': 'Il valore di utilizzo di room è vincolante?',
+    'faq.a3': 'No. È un calcolo indicativo; l’utilizzo vincolante è stabilito dall’autorità competente secondo la normativa applicabile.',
   },
 };
 
