@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.8.1',
+    date: 'June 17, 2026',
+    codename: 'Find Your Way',
+    summary:
+      'The address search now uses the suite-standard wording.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Type,
+        text:
+          'The address search box now reads the suite-standard “Search address…” placeholder (and its German, French and Italian equivalents), so room matches the wording used across the other Aireon map apps.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.8.0',
     date: 'June 16, 2026',
     codename: 'Light Switch',
