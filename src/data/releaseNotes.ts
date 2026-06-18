@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.9.1',
+    date: 'June 18, 2026',
+    codename: 'Lighter Footprint',
+    summary:
+      'Dropped an unused address-search dependency from the build; room uses the suite-standard tokenless Swiss federal address search.',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Package,
+        text:
+          'Removed the unused @mapbox/mapbox-gl-geocoder dependency. room searches addresses with the suite-standard tokenless geo.admin service, so this package was never imported — dropping it trims the dependency tree with no behaviour change.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.9.0',
     date: 'June 18, 2026',
     codename: 'Liquid Glass',
