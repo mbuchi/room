@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, lazy, Suspense } from 'react';
 import { Tag, Footprints } from 'lucide-react';
 import type { ScreenshotMetadata } from '../services/imageService';
 import { type LocateErrorCode, requestGeolocation } from './LocateButton';
@@ -7,7 +7,6 @@ import ScreenshotFeedback from './ScreenshotFeedback';
 import UserMenu from './UserMenu';
 import {
   AppNavbar,
-  ReleaseNotesPanel,
   getReleaseNotesStrings,
   useReleaseNotes,
   useGlass,
@@ -15,7 +14,11 @@ import {
   type MapUserMenuAction,
   type AddressSearchResult,
 } from '@aireon/shared';
-import { RELEASES, REPO_URL } from '../data/releaseNotes';
+import { CURRENT_VERSION } from '../data/releaseMeta';
+
+// Code-split: the large RELEASES array + the changelog panel load only when the
+// user opens What's New, keeping the release-notes blob out of the entry bundle.
+const ChangelogPanel = lazy(() => import('./ChangelogPanel'));
 import { appTourConfig } from '../tour/tour.config';
 import { useTour } from '../tour/TourProvider';
 import { useScreenshot } from '../hooks/useScreenshot';
@@ -68,7 +71,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
   const { startTour } = useTour();
   const { capture, isCapturing, toast, dismissToast } = useScreenshot(getCaptureMetadata);
   const rn = useReleaseNotes({
-    currentVersion: RELEASES[0].version,
+    currentVersion: CURRENT_VERSION,
     storageKey: 'room:lastSeenReleaseVersion',
   });
 
@@ -175,14 +178,9 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
 
       <SavedImagesPanel isOpen={showImages} onClose={() => setShowImages(false)} />
       {rn.isOpen && (
-        <ReleaseNotesPanel
-          onClose={rn.closePanel}
-          locale={locale}
-          releases={RELEASES}
-          repoUrl={REPO_URL}
-          brandPrefix="r"
-          brandSuffix="m"
-        />
+        <Suspense fallback={null}>
+          <ChangelogPanel onClose={rn.closePanel} locale={locale} />
+        </Suspense>
       )}
       <ScreenshotFeedback isCapturing={isCapturing} toast={toast} onDismiss={dismissToast} />
     </>

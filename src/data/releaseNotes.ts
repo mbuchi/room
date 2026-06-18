@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.9.3',
+    date: 'June 18, 2026',
+    codename: 'Lazy Changelog',
+    summary:
+      'Trimmed the initial download: the What’s-New release history now loads on demand instead of shipping in the first bundle.',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Zap,
+        text:
+          'perf: lazy-load the changelog out of the entry bundle. The release-notes data and the What’s-New panel are now code-split into their own chunk, loaded only when you open What’s New, so the rest of the app starts a little faster.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.9.2',
     date: 'June 18, 2026',
     codename: 'Share the View',
