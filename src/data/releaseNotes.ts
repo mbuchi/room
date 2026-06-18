@@ -24,6 +24,13 @@ export const RELEASES: Release[] = [
           'perf: lazy-load the changelog out of the entry bundle. The release-notes data and the What’s-New panel are now code-split into their own chunk, loaded only when you open What’s New, so the rest of the app starts a little faster.',
         prs: [],
       },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Image,
+        text:
+          'My exports now uses proper dialog focus handling for the gallery, preview and delete confirmation, replaces native browser confirm/alert prompts with in-app UI, and uses dynamic viewport sizing on mobile.',
+        prs: [],
+      },
     ],
   },
 
