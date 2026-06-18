@@ -103,6 +103,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
         brandTourId="app-title"
         searchTourId="address-search"
         userMenuTourId="help-button"
+        share={{ locale }}
         search={{
           locale,
           labels: {

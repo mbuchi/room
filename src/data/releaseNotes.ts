@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.9.2',
+    date: 'June 18, 2026',
+    codename: 'Share the View',
+    summary:
+      'A new "Share this view" button in the navbar lets you copy a link to the current map view with one click.',
+    items: [
+      {
+        kind: 'added' as ChangeKind,
+        icon: Camera,
+        text:
+          'Added a "Share this view" button to the navbar — it copies a link to the current map view and confirms with a "Link copied to clipboard" pill.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.9.1',
     date: 'June 18, 2026',
     codename: 'Lighter Footprint',
