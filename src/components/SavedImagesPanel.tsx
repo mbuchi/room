@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, RefreshCw, Trash2, Image as ImageIcon, ExternalLink, Loader2, MapPin, Compass, Hash, Map as MapIcon } from 'lucide-react';
-import { Skeleton, useGlass } from '@aireon/shared';
+import { Skeleton, useFocusTrap, useGlass } from '@aireon/shared';
 import {
   listImages,
   deleteImage,
@@ -54,14 +54,37 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<SavedImage | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<SavedImage | null>(null);
+
+  const closePanel = useCallback(() => {
+    setPendingDelete(null);
+    setPreviewImage(null);
+    setNotice(null);
+    onClose();
+  }, [onClose]);
+
+  const panelRef = useFocusTrap<HTMLDivElement>({
+    active: isOpen && !previewImage && !pendingDelete,
+    onEscape: closePanel,
+  });
+  const previewRef = useFocusTrap<HTMLDivElement>({
+    active: isOpen && Boolean(previewImage) && !pendingDelete,
+    onEscape: () => setPreviewImage(null),
+  });
+  const confirmRef = useFocusTrap<HTMLDivElement>({
+    active: isOpen && Boolean(pendingDelete),
+    onEscape: () => setPendingDelete(null),
+  });
 
   const load = useCallback(async (showRefresh = false) => {
     try {
       if (showRefresh) setIsRefreshing(true);
       else setIsLoading(true);
       setError(null);
+      setNotice(null);
       // No app_source filter — list across every app the user has used so
       // screenshots saved in Roofs and other apps appear here too. The APP
       // badge on each card identifies the source app.
@@ -79,25 +102,23 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
     if (isOpen) load();
   }, [isOpen, load]);
 
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      if (previewImage) setPreviewImage(null);
-      else if (isOpen) onClose();
-    };
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
-  }, [isOpen, onClose, previewImage]);
+  const requestDelete = (image: SavedImage) => {
+    setNotice(null);
+    setPendingDelete(image);
+  };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm(t('panel.images.delete_confirm'))) return;
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const id = pendingDelete.id;
     setDeletingId(id);
     try {
       await deleteImage(id);
       setImages((prev) => prev.filter((img) => img.id !== id));
       if (previewImage?.id === id) setPreviewImage(null);
+      setPendingDelete(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : t('panel.images.failed_to_delete'));
+      setPendingDelete(null);
+      setNotice(err instanceof Error ? err.message : t('panel.images.failed_to_delete'));
     } finally {
       setDeletingId(null);
     }
@@ -225,12 +246,18 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
   return createPortal(
     <>
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-        <div className={`relative rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden ${glassOn ? 'glass-surface' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/60 shadow-2xl'}`}>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closePanel} />
+        <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="saved-images-title"
+          className={`relative rounded-2xl w-full max-w-4xl max-h-[85dvh] flex flex-col overflow-hidden ${glassOn ? 'glass-surface' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/60 shadow-2xl'}`}
+        >
           <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-gray-200 dark:border-gray-800/60">
             <div className="flex items-center gap-2 min-w-0">
               <ImageIcon size={18} className="text-red-500 flex-shrink-0" />
-              <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">{t('panel.images.title')}</h2>
+              <h2 id="saved-images-title" className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">{t('panel.images.title')}</h2>
               {!isLoading && (
                 <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-red-500/15 text-red-600 dark:text-red-300">
                   {images.length}
@@ -267,7 +294,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                 <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
               </button>
               <button
-                onClick={onClose}
+                onClick={closePanel}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
                 aria-label={t('panel.images.close')}
                 title={t('panel.images.close')}
@@ -276,6 +303,12 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
               </button>
             </div>
           </div>
+
+          {notice && (
+            <div role="alert" className="mx-4 mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs font-medium text-red-700 dark:text-red-200">
+              {notice}
+            </div>
+          )}
 
           <div className="flex-1 overflow-y-auto p-4">
             {isLoading ? (
@@ -363,7 +396,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                           {t('panel.images.open')}
                         </a>
                         <button
-                          onClick={() => handleDelete(img.id)}
+                          onClick={() => requestDelete(img)}
                           disabled={deletingId === img.id}
                           className="inline-flex items-center justify-center px-2 py-1.5 rounded-md text-red-500 dark:text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors disabled:opacity-50"
                           aria-label={t('panel.images.delete')}
@@ -420,7 +453,11 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
         >
           <div className="absolute inset-0 bg-black/85" />
           <div
-            className="relative w-full max-w-6xl max-h-[95vh] flex flex-col lg:flex-row gap-4"
+            ref={previewRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={previewImage.original_filename}
+            className="relative w-full max-w-6xl max-h-[95dvh] flex flex-col lg:flex-row gap-4"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -435,14 +472,55 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
               <img
                 src={previewImage.public_url}
                 alt={previewImage.original_filename}
-                className="max-w-full max-h-[80vh] lg:max-h-[90vh] rounded-lg shadow-2xl object-contain"
+                className="max-w-full max-h-[80dvh] lg:max-h-[90dvh] rounded-lg shadow-2xl object-contain"
               />
             </div>
-            <div className="w-full lg:w-80 flex-shrink-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/60 rounded-lg shadow-xl p-4 overflow-y-auto max-h-[40vh] lg:max-h-[90vh]">
+            <div className="w-full lg:w-80 flex-shrink-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/60 rounded-lg shadow-xl p-4 overflow-y-auto max-h-[40dvh] lg:max-h-[90dvh]">
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1 break-all">
                 {previewImage.original_filename}
               </p>
               {renderPreviewMeta(previewImage)}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {pendingDelete && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setPendingDelete(null)} />
+          <div
+            ref={confirmRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="saved-image-delete-title"
+            className={`relative w-full max-w-sm rounded-2xl p-5 ${glassOn ? 'glass-surface' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800/60 shadow-2xl'}`}
+          >
+            <h2 id="saved-image-delete-title" className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              {t('panel.images.delete')}
+            </h2>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+              {t('panel.images.delete_confirm')}
+            </p>
+            <p className="mt-2 break-all text-xs text-gray-500 dark:text-gray-400">
+              {pendingDelete.original_filename}
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setPendingDelete(null)}
+                className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                {t('panel.images.cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deletingId === pendingDelete.id}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 disabled:opacity-60"
+              >
+                {deletingId === pendingDelete.id && <Loader2 size={14} className="animate-spin" />}
+                {t('panel.images.delete')}
+              </button>
             </div>
           </div>
         </div>
