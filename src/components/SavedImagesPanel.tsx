@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { X, RefreshCw, Trash2, Image as ImageIcon, ExternalLink, Loader2, MapPin, Compass, Hash, Map as MapIcon } from 'lucide-react';
-import { Skeleton, useFocusTrap, useGlass } from '@aireon/shared';
+import { RefreshCw, Trash2, Image as ImageIcon, ExternalLink, Loader2, MapPin, Compass, Hash, Map as MapIcon } from 'lucide-react';
+import { CloseButton, Skeleton, useFocusTrap, useGlass } from '@aireon/shared';
 import {
   listImages,
   deleteImage,
@@ -293,14 +293,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
               >
                 <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
               </button>
-              <button
-                onClick={closePanel}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
-                aria-label={t('panel.images.close')}
-                title={t('panel.images.close')}
-              >
-                <X size={16} />
-              </button>
+              <CloseButton onClick={closePanel} label={t('panel.images.close')} />
             </div>
           </div>
 
@@ -460,14 +453,12 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
             className="relative w-full max-w-6xl max-h-[95dvh] flex flex-col lg:flex-row gap-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
+            <CloseButton
+              variant="surface"
               onClick={() => setPreviewImage(null)}
-              className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 shadow-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800"
-              aria-label={t('panel.images.close_preview')}
-              title={t('panel.images.close_preview')}
-            >
-              <X size={16} />
-            </button>
+              label={t('panel.images.close_preview')}
+              className="absolute -top-3 -right-3 z-10"
+            />
             <div className="flex-1 min-w-0 flex items-center justify-center">
               <img
                 src={previewImage.public_url}

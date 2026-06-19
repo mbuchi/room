@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useCallback, type CSSProperties } from 'react';
-import { X } from 'lucide-react';
 import * as maplibregl from 'maplibre-gl';
 import {
   getInitialMapState,
@@ -28,7 +27,7 @@ import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
-import { ClaireAssistant, useGlass } from '@aireon/shared';
+import { ClaireAssistant, CloseButton, useGlass } from '@aireon/shared';
 import {
   BasemapPicker,
   getBasemapStrings,
@@ -644,15 +643,11 @@ const MapView = () => {
             >
               {t('panel.tabs.parcel_facts')}
             </button>
-            <button
+            <CloseButton
               onClick={handleCloseInfoPanel}
-              title={t('panel.info.close')}
-              aria-label={t('panel.info.close')}
-              className="px-3.5 md:px-3 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors border-l border-gray-200 dark:border-gray-800/60"
-            >
-              <X size={18} className="md:hidden" />
-              <X size={16} className="hidden md:block" />
-            </button>
+              label={t('panel.info.close')}
+              className="border-l border-gray-200 dark:border-gray-800/60 rounded-none"
+            />
           </div>
 
           {/* Scrollable tab content — flex-1 so the Save CTA footer stays pinned. */}

@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.9.4',
+    date: 'June 19, 2026',
+    codename: 'One Close Button',
+    summary:
+      'Every dismiss (×) control — the parcel panel, the My exports gallery and preview, and toast notifications — now uses the shared suite-standard close button, so they look and behave the same everywhere and stay legible in light and dark themes.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'Adopted the shared CloseButton from @aireon/shared v1.46.0 across the app: the parcel info panel, the My exports panel header and image preview, and toast notifications now share one consistent, accessible close control.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.9.3',
     date: 'June 18, 2026',
     codename: 'Lazy Changelog',
