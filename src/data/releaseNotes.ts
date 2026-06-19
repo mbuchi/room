@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.1',
+    date: 'June 20, 2026',
+    codename: 'Admin Pill',
+    summary:
+      'Suite admins now see a small “admin” pill on their account avatar, so it’s clear at a glance when you’re signed in with elevated access.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BadgeCheck,
+        text:
+          'Suite admins now see a small “admin” pill on their account avatar (via @aireon/shared v1.49.0).',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.10.0',
     date: 'June 19, 2026',
     codename: 'Ask Claire',
