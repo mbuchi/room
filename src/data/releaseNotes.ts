@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.0',
+    date: 'June 19, 2026',
+    codename: 'Ask Claire',
+    summary:
+      'A prominent "Ask Claire" button now sits in the parcel panel, right above Track parcel, so you can open the AI assistant for the selected parcel in one tap. The floating launcher is still there too.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'Added a full-width "Ask Claire" call-to-action to the selected-parcel panel, next to the Track action, opening room’s existing Claire assistant pre-focused on that parcel. The floating Claire launcher is kept, so you now have both entry points.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.9.4',
     date: 'June 19, 2026',
     codename: 'One Close Button',
