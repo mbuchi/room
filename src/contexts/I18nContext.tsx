@@ -176,6 +176,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.screenshot.image_saved': 'Image saved',
     'panel.screenshot.view_image': 'View image',
     'panel.screenshot.dismiss': 'Dismiss',
+    'toast.dismiss': 'Dismiss',
     'panel.screenshot.failed': 'Failed to save image',
 
     // ---------- user menu ----------
@@ -413,6 +414,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.screenshot.image_saved': 'Image enregistrée',
     'panel.screenshot.view_image': 'Voir l’image',
     'panel.screenshot.dismiss': 'Rejeter',
+    'toast.dismiss': 'Fermer',
     'panel.screenshot.failed': 'Échec de l’enregistrement de l’image',
 
     // ---------- user menu ----------
@@ -649,6 +651,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.screenshot.image_saved': 'Bild gespeichert',
     'panel.screenshot.view_image': 'Bild ansehen',
     'panel.screenshot.dismiss': 'Verwerfen',
+    'toast.dismiss': 'Schliessen',
     'panel.screenshot.failed': 'Bild konnte nicht gespeichert werden',
 
     // ---------- user menu ----------
@@ -885,6 +888,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.screenshot.image_saved': 'Immagine salvata',
     'panel.screenshot.view_image': 'Visualizza immagine',
     'panel.screenshot.dismiss': 'Ignora',
+    'toast.dismiss': 'Chiudi',
     'panel.screenshot.failed': 'Impossibile salvare l’immagine',
 
     // ---------- user menu ----------

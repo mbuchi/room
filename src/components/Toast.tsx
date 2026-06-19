@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { X, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { CloseButton } from '@aireon/shared';
+import { useI18n } from '../contexts/I18nContext';
 
 type ToastType = 'error' | 'success' | 'info';
 
@@ -44,6 +46,7 @@ const colorMap = {
 };
 
 const Toast = ({ message, type = 'info', duration = 4000, onClose }: ToastProps) => {
+  const { t } = useI18n();
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
 
@@ -84,12 +87,13 @@ const Toast = ({ message, type = 'info', duration = 4000, onClose }: ToastProps)
           <p className={`${colors.text} text-sm font-medium leading-snug flex-1`}>
             {message}
           </p>
-          <button
+          <CloseButton
+            dark
+            size="sm"
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0 mt-0.5"
-          >
-            <X size={14} />
-          </button>
+            label={t('toast.dismiss')}
+            className="flex-shrink-0 mt-0.5"
+          />
         </div>
         <div className="h-[2px] w-full bg-gray-800/50">
           <div
