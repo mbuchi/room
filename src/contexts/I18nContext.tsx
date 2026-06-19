@@ -67,6 +67,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- ZoneInfoPanel — sections & rows ----------
     'panel.info.title': 'Parcel Information',
+    'panel.info.ask_claire': 'Ask Claire',
     'panel.info.toggle_raw_json': 'Toggle raw JSON',
     'panel.info.close': 'Close',
     'panel.info.satellite_alt': 'Satellite view of the selected parcel',
@@ -305,6 +306,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- ZoneInfoPanel ----------
     'panel.info.title': 'Informations de la parcelle',
+    'panel.info.ask_claire': 'Demander à Claire',
     'panel.info.toggle_raw_json': 'Afficher/masquer le JSON brut',
     'panel.info.close': 'Fermer',
     'panel.info.satellite_alt': 'Vue satellite de la parcelle sélectionnée',
@@ -542,6 +544,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- ZoneInfoPanel ----------
     'panel.info.title': 'Parzelleninformationen',
+    'panel.info.ask_claire': 'Claire fragen',
     'panel.info.toggle_raw_json': 'Rohes JSON ein-/ausblenden',
     'panel.info.close': 'Schliessen',
     'panel.info.satellite_alt': 'Satellitenansicht der ausgewählten Parzelle',
@@ -779,6 +782,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- ZoneInfoPanel ----------
     'panel.info.title': 'Informazioni sulla particella',
+    'panel.info.ask_claire': 'Chiedi a Claire',
     'panel.info.toggle_raw_json': 'Mostra/nascondi JSON grezzo',
     'panel.info.close': 'Chiudi',
     'panel.info.satellite_alt': 'Vista satellitare della parcella selezionata',

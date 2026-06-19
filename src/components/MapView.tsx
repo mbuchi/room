@@ -98,6 +98,11 @@ const MapView = () => {
   const [is3DMode, setIs3DMode] = useState(false);
   const [lv95Coords, setLv95Coords] = useState<[number, number] | null>(null);
 
+  // Controlled open-state for the Claire assistant so the in-panel "Ask Claire"
+  // button can open it. The floating launcher stays (showLauncher default-on),
+  // so users get both entry points; both drive this one piece of state.
+  const [claireOpen, setClaireOpen] = useState(false);
+
   const [selectedParcel, setSelectedParcel] = useState<SelectedParcel | null>(null);
   const [parcelData, setParcelData] = useState<ParcelData | null>(null);
   const [parcelDataLoading, setParcelDataLoading] = useState(false);
@@ -670,8 +675,14 @@ const MapView = () => {
             />
           )}
 
-          {/* Prominent, always-visible Save-to-PRM call to action. */}
-          <SaveToPrmBar focusedParcel={focusedHandle} parcelData={parcelData} />
+          {/* Prominent, always-visible Save-to-PRM call to action — plus the
+              in-context "Ask Claire" CTA above it (opens the controlled Claire
+              assistant; the floating launcher is kept too). */}
+          <SaveToPrmBar
+            focusedParcel={focusedHandle}
+            parcelData={parcelData}
+            onAskClaire={() => setClaireOpen(true)}
+          />
         </div>
       )}
       {selectedParcel && (
@@ -679,6 +690,8 @@ const MapView = () => {
           appName="room"
           geminiApiKey={import.meta.env.VITE_GEMINI_API_KEY as string | undefined}
           voiceCallEnabled
+          open={claireOpen}
+          onOpenChange={setClaireOpen}
           darkMode={isDarkMode}
           properties={selectedParcel.props}
           lngLat={{ lng: selectedParcel.lng, lat: selectedParcel.lat }}

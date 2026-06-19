@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bookmark, BookmarkCheck, ExternalLink, Loader2, LogIn } from 'lucide-react';
+import { Bookmark, BookmarkCheck, ExternalLink, Loader2, LogIn, Sparkles } from 'lucide-react';
 import {
   createPrmRecord,
   deletePrmRecord,
@@ -21,6 +21,9 @@ interface SaveToPrmBarProps {
   focusedParcel: FocusedParcelHandle | null;
   /** Parcel facts (for label / area / municipality on the saved record). */
   parcelData: ParcelData | null;
+  /** Open the Claire assistant (owned by MapView). Renders the prominent
+   *  full-width "Ask Claire" call-to-action above the Track button. */
+  onAskClaire?: () => void;
 }
 
 /**
@@ -31,7 +34,7 @@ interface SaveToPrmBarProps {
  * the "is this already saved?" probe, mirroring the suite-wide PRM pattern
  * (valoo/SaveParcelButton, scoore LocationScore).
  */
-const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
+const SaveToPrmBar = ({ focusedParcel, parcelData, onAskClaire }: SaveToPrmBarProps) => {
   const { t } = useI18n();
   const { accessToken, isAuthenticated, promptLogin } = useAuth();
   const [status, setStatus] = useState<SaveStatus>('idle');
@@ -63,6 +66,20 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
   }, [parcelId, isAuthenticated, accessToken]);
 
   if (!focusedParcel?.parcelId) return null;
+
+  // Prominent full-width "Ask Claire" CTA. Rendered above the Track action in
+  // every state (saved / idle / signed-out) so the AI assistant is always one
+  // tap away. The floating launcher is kept too — this is the in-context entry.
+  const askClaireButton = onAskClaire ? (
+    <button
+      type="button"
+      onClick={onAskClaire}
+      className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold bg-gradient-to-br from-amber-400 to-orange-500 text-[#1a0f00] shadow-sm transition hover:brightness-105 active:scale-[0.99] mb-2"
+    >
+      <Sparkles size={16} aria-hidden="true" />
+      {t('panel.info.ask_claire')}
+    </button>
+  ) : null;
 
   const handleSave = async () => {
     if (!isAuthenticated || !accessToken) {
@@ -140,6 +157,7 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
         data-tour="track-parcel"
         className="flex-shrink-0 border-t border-gray-200 dark:border-gray-800/60 bg-white/95 dark:bg-gray-950/95 px-3 py-3 print:hidden"
       >
+        {askClaireButton}
         <div className="flex items-stretch gap-2">
           <button
             type="button"
@@ -193,6 +211,7 @@ const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
       data-tour="track-parcel"
       className="flex-shrink-0 border-t border-gray-200 dark:border-gray-800/60 bg-white/95 dark:bg-gray-950/95 px-3 py-3 print:hidden"
     >
+      {askClaireButton}
       <button
         type="button"
         onClick={handleSave}
