@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.6',
+    date: 'June 20, 2026',
+    codename: 'Focus',
+    summary:
+      'On desktop the floating Claire launcher is now the single entry point — the duplicate in-panel "Ask Claire" button shows on phones only.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          "On desktop the floating Claire launcher is the one entry point, so the duplicate 'Ask Claire' button in the panel now appears on phones only — where the launcher is hidden. Either way opens the same Claire chat. (via @aireon/shared v1.55.0)",
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.10.5',
     date: 'June 20, 2026',
     codename: 'Theme Follows You',
