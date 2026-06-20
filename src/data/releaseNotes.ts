@@ -11,6 +11,36 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.8',
+    date: 'June 20, 2026',
+    codename: 'Clean Export',
+    summary:
+      'Saved images now capture only the map and its legend — the interactive chrome is dropped, fonts embed without errors, and the parcel-panel shadow no longer bleeds in.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Camera,
+        text:
+          'Exported images (Save image / My exports) now drop the interactive chrome — navbar + address search, the Claire launcher, the zoom control, and other map controls — so only the map result and its legend are captured. (via @aireon/shared v1.57.0)',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bug,
+        text:
+          'Saving an image no longer logs a cssRules SecurityError — the Google Fonts stylesheet is now loaded with crossorigin so fonts embed cleanly.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bug,
+        text:
+          'Removed the faint vertical strip beside the parcel panel in saved images (its drop-shadow is dropped during capture; the live UI is unchanged).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.7',
     date: 'June 21, 2026',
     codename: 'Dock',

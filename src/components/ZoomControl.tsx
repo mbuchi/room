@@ -52,6 +52,7 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null,
 
   return (
     <div
+      data-screenshot-ignore="true"
       className={`absolute z-10 ${edgeClass} ${className}`}
       style={offsetStyle}
     >
