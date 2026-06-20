@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { GlassProvider } from '@aireon/shared';
+import { GlassProvider, initTheme } from '@aireon/shared';
 import { I18nProvider } from './contexts/I18nContext';
 import App from './App.tsx';
 import { errorLogger } from './lib/errorLog';
@@ -14,13 +14,12 @@ import './index.css';
 errorLogger.install();
 
 // room keeps its signature dark look by default, but now ships a light/dark
-// toggle. Assert the suite-standard `dark` class on <html> before first paint
-// (so Tailwind `dark:` variants and the tour's dark detection resolve with no
-// flash) unless the user has explicitly saved a light choice. MapView owns the
-// toggle and keeps this class + the `theme` key in sync thereafter.
-if (localStorage.getItem('theme') !== 'light') {
-  document.documentElement.classList.add('dark');
-}
+// toggle. initTheme resolves the cross-app `aireon_theme` cookie (shared by
+// every *.aireon.ch app) → localStorage mirror → OS preference → room's dark
+// default, and applies the suite-standard `dark` class on <html> before first
+// paint (so Tailwind `dark:` variants and the tour's dark detection resolve
+// with no flash). MapView owns the toggle and calls setTheme thereafter.
+initTheme('dark');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
