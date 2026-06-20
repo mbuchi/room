@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.3',
+    date: 'June 20, 2026',
+    codename: 'Tidy Top Bar',
+    summary:
+      'The top bar is tidier. Share this view and the dark/light toggle moved into the account menu, and search history is now a one-tap button right in the bar.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text:
+          'Tidied the top bar — Share this view and the dark/light toggle moved into the account menu; search history is now a one-tap button in the bar.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.10.2',
     date: 'June 20, 2026',
     codename: 'Shared Translations',

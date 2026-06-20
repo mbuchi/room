@@ -9,9 +9,12 @@ interface UserMenuProps {
   toolbarLabel?: string;
   /** Bug-report config — surfaces a "Report a problem" row in the More-tools group. */
   bugReport?: MapUserMenuProps['bugReport'];
+  /** Show the menu's built-in "My search history" row. Pass false when the
+   *  navbar already exposes search history as its own button (avoids a dupe). */
+  showSearchHistory?: boolean;
 }
 
-export default function UserMenu({ darkMode = true, toolbarItems, toolbarLabel, bugReport }: UserMenuProps) {
+export default function UserMenu({ darkMode = true, toolbarItems, toolbarLabel, bugReport, showSearchHistory }: UserMenuProps) {
   const { t, locale } = useI18n();
 
   const openParcelHere = (rec: PrmRecord) => {
@@ -29,6 +32,7 @@ export default function UserMenu({ darkMode = true, toolbarItems, toolbarLabel, 
       onOpenSavedParcel={openParcelHere}
       toolbarItems={toolbarItems}
       toolbarLabel={toolbarLabel}
+      showSearchHistory={showSearchHistory}
       bugReport={bugReport}
       labels={{
         signIn: t('menu.sign_in'),

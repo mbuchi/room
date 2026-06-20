@@ -1,5 +1,5 @@
-import { useState, useCallback, lazy, Suspense } from 'react';
-import { Tag, Footprints } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
+import { Tag, Footprints, Share2, Sun, Moon, History } from 'lucide-react';
 import type { ScreenshotMetadata } from '../services/imageService';
 import { type LocateErrorCode, requestGeolocation } from './LocateButton';
 import SavedImagesPanel from './SavedImagesPanel';
@@ -7,7 +7,13 @@ import ScreenshotFeedback from './ScreenshotFeedback';
 import UserMenu from './UserMenu';
 import {
   AppNavbar,
+  NavIconButton,
+  ShareCopiedToast,
+  SearchHistoryModal,
+  getAuthToken,
   getReleaseNotesStrings,
+  getShareStrings,
+  getSearchHistoryStrings,
   useReleaseNotes,
   useGlass,
   buildGlassSettingsItem,
@@ -52,6 +58,16 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
   const { level: glassLevel, setLevel: setGlassLevel } = useGlass();
   const { email } = useAuth();
   const [showImages, setShowImages] = useState(false);
+  // Search history is now a one-tap navbar button (moved out of the account
+  // menu's built-in row) — it opens the shared SearchHistoryModal.
+  const [showHistory, setShowHistory] = useState(false);
+  // The modal's authToken prop is a synchronous string; getAuthToken() is async,
+  // so resolve it once into state (re-run on sign-in/out so the list refreshes).
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  // "Share this view" moved out of the navbar into the account menu; it copies
+  // the current link and flashes the suite-standard "Link copied" pill.
+  const [shareCopied, setShareCopied] = useState(false);
+  const shareTimerRef = useRef<ReturnType<typeof setTimeout>>();
   // The last address the user picked — AppNavbar tracks it to render the
   // "Open with" menu; we mirror it here so the cross-app telemetry keeps the
   // lat/lng of the spot being opened.
@@ -75,11 +91,53 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
     storageKey: 'room:lastSeenReleaseVersion',
   });
 
-  // Account-menu "More tools" section: What's new + Tour only (matching valoo).
-  // Save image / My exports are navbar buttons (wired into the toolbar below),
-  // NOT menu items.
+  // Resolve the bearer token for the search-history modal; re-run on sign-in /
+  // sign-out (email flips) so the list refreshes immediately.
+  useEffect(() => {
+    let active = true;
+    void getAuthToken().then((token) => {
+      if (active) setAuthToken(token);
+    });
+    return () => {
+      active = false;
+    };
+  }, [email]);
+
+  // Copy the current view's link and flash the "Link copied" pill — the same
+  // behaviour as a navbar Share button, now driven from the menu row.
+  const handleShare = useCallback(() => {
+    void navigator.clipboard?.writeText(window.location.href).then(() => {
+      setShareCopied(true);
+      if (shareTimerRef.current) clearTimeout(shareTimerRef.current);
+      shareTimerRef.current = setTimeout(() => setShareCopied(false), 1800);
+    }).catch(() => { /* clipboard blocked — no-op */ });
+    void signal.send('Share view', {});
+  }, []);
+
+  // Account-menu "More tools" section. The navbar is being decluttered down to
+  // the highest-frequency controls (address search + history button), so the
+  // lower-frequency chrome now lives here, roughly ordered by use: the quick
+  // actions (Share this view, dark-mode toggle) first, then What's new + Tour.
+  // Save image / My exports stay navbar buttons (wired into the toolbar below).
+  // All are `signedOut: true` so anonymous visitors keep reaching them.
   const tourVariant = appTourConfig.variants.long.length > 0 ? 'long' : 'short';
+  const shareStrings = getShareStrings(locale);
   const toolbarItems: MapUserMenuAction[] = [
+    {
+      key: 'share',
+      label: shareStrings.share,
+      icon: <Share2 size={16} aria-hidden="true" />,
+      onClick: handleShare,
+      signedOut: true,
+    },
+    {
+      key: 'theme',
+      label: darkMode ? t('nav.toggle_light') : t('nav.toggle_dark'),
+      icon: darkMode ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />,
+      onClick: onToggleTheme,
+      signedOut: true,
+      keepOpenOnClick: true,
+    },
     {
       key: 'changes',
       label: getReleaseNotesStrings(locale).whatsNew,
@@ -106,7 +164,6 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
         brandTourId="app-title"
         searchTourId="address-search"
         userMenuTourId="help-button"
-        share={{ locale }}
         search={{
           locale,
           labels: {
@@ -142,13 +199,27 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
             }
           },
         }}
+        actionsExtra={
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Search history is a one-tap navbar button — the highest-frequency
+                secondary control — opening the shared SearchHistoryModal. It was
+                moved out of the account menu's built-in row (suppressed below). */}
+            <NavIconButton
+              icon={<History size={18} aria-hidden="true" />}
+              label={getSearchHistoryStrings(locale).menuRow}
+              onClick={() => setShowHistory(true)}
+              dark={darkMode}
+            />
+          </div>
+        }
         toolbar={{
           locale,
           onLocaleChange: setLocale,
           onCapture: capture,
           isCapturing,
           onShowImages: () => setShowImages(true),
-          onToggleTheme,
+          // Dark-mode toggle moved into the account menu; the toolbar keeps
+          // Save image · My exports · Locate · language · appearance (glass gear).
           onLocate: handleLocate,
           isLocating,
           settingsItems: [
@@ -171,6 +242,9 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
             darkMode={darkMode}
             toolbarItems={toolbarItems}
             toolbarLabel={t('menu.more_tools')}
+            // Search history is a navbar button now, so suppress the menu's
+            // built-in "My search history" row to avoid duplicating it.
+            showSearchHistory={false}
             bugReport={{ logger: errorLogger, email, metaData: { rollout: 'bug-report-expanded' } }}
           />
         }
@@ -182,7 +256,16 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
           <ChangelogPanel onClose={rn.closePanel} locale={locale} />
         </Suspense>
       )}
+      {showHistory && (
+        <SearchHistoryModal
+          locale={locale}
+          dark={darkMode}
+          authToken={authToken}
+          onClose={() => setShowHistory(false)}
+        />
+      )}
       <ScreenshotFeedback isCapturing={isCapturing} toast={toast} onDismiss={dismissToast} />
+      <ShareCopiedToast show={shareCopied} label={shareStrings.copied} dark={darkMode} />
     </>
   );
 };
