@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.2',
+    date: 'June 20, 2026',
+    codename: 'Shared Translations',
+    summary:
+      'The language system now runs on the suite-shared i18n engine — same translations, but faster (fewer re-renders) and consistent with the rest of the apps.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Languages,
+        text:
+          'Switched the translation provider to the shared @aireon/shared createI18n factory (v1.50.0) — memoized, so the UI re-renders less.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.10.1',
     date: 'June 20, 2026',
     codename: 'Admin Pill',
