@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Bookmark, BookmarkCheck, ExternalLink, Loader2, LogIn, Sparkles } from 'lucide-react';
+import { Bookmark, BookmarkCheck, ExternalLink, LogIn, Sparkles } from 'lucide-react';
 import {
   createPrmRecord,
   deletePrmRecord,
@@ -169,7 +169,11 @@ const SaveToPrmBar = ({ focusedParcel, parcelData, onAskClaire }: SaveToPrmBarPr
             className="group flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 ring-1 ring-emerald-400/30 text-sm font-semibold transition-colors hover:bg-emerald-500/25 disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
           >
             {removing ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              <span className="inline-flex items-center gap-0.5" aria-hidden="true">
+                <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
+                <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:150ms]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:300ms]" />
+              </span>
             ) : (
               <BookmarkCheck className="h-4 w-4" aria-hidden />
             )}
@@ -229,7 +233,11 @@ const SaveToPrmBar = ({ focusedParcel, parcelData, onAskClaire }: SaveToPrmBarPr
         }`}
       >
         {saving ? (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          <span className="inline-flex items-center gap-0.5" aria-hidden="true">
+            <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
+            <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:150ms]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:300ms]" />
+          </span>
         ) : signedOut ? (
           <LogIn className="h-4 w-4" aria-hidden />
         ) : (

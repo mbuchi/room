@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.4',
+    date: 'June 20, 2026',
+    codename: 'Settle',
+    summary:
+      'Loading states are calmer — content now settles in with skeleton placeholders instead of spinning icons.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Layers,
+        text:
+          'Loading spinners are now skeleton-style placeholders, matching the rest of the suite.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.10.3',
     date: 'June 20, 2026',
     codename: 'Tidy Top Bar',
