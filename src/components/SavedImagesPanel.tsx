@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { RefreshCw, Trash2, Image as ImageIcon, ExternalLink, Loader2, MapPin, Compass, Hash, Map as MapIcon } from 'lucide-react';
+import { RefreshCw, Trash2, Image as ImageIcon, ExternalLink, MapPin, Compass, Hash, Map as MapIcon } from 'lucide-react';
 import { CloseButton, Skeleton, useFocusTrap, useGlass } from '@aireon/shared';
 import {
   listImages,
@@ -291,7 +291,15 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                 aria-label={t('panel.images.refresh')}
                 title={t('panel.images.refresh')}
               >
-                <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+                {isRefreshing ? (
+                  <span className="inline-flex items-center gap-0.5" aria-hidden="true">
+                    <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:150ms]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:300ms]" />
+                  </span>
+                ) : (
+                  <RefreshCw size={16} />
+                )}
               </button>
               <CloseButton onClick={closePanel} label={t('panel.images.close')} />
             </div>
@@ -396,7 +404,11 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                           title={t('panel.images.delete')}
                         >
                           {deletingId === img.id ? (
-                            <Loader2 size={12} className="animate-spin" />
+                            <span className="inline-flex items-center gap-0.5" aria-hidden="true">
+                              <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
+                              <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:150ms]" />
+                              <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:300ms]" />
+                            </span>
                           ) : (
                             <Trash2 size={12} />
                           )}
@@ -509,7 +521,13 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                 disabled={deletingId === pendingDelete.id}
                 className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 disabled:opacity-60"
               >
-                {deletingId === pendingDelete.id && <Loader2 size={14} className="animate-spin" />}
+                {deletingId === pendingDelete.id && (
+                  <span className="inline-flex items-center gap-0.5" aria-hidden="true">
+                    <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:150ms]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse [animation-delay:300ms]" />
+                  </span>
+                )}
                 {t('panel.images.delete')}
               </button>
             </div>
