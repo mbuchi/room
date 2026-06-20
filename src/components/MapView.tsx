@@ -27,7 +27,7 @@ import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
-import { ClaireAssistant, CloseButton, useGlass } from '@aireon/shared';
+import { ClaireAssistant, CloseButton, useGlass, getStoredTheme, setTheme } from '@aireon/shared';
 import {
   BasemapPicker,
   getBasemapStrings,
@@ -71,10 +71,11 @@ const PANEL_WIDTH_PX = 460;
 const PANEL_OFFSET_PX = PANEL_WIDTH_PX + 16;
 
 // Initial theme: room keeps its signature dark look by default and only flips
-// to light when the user has explicitly saved that choice (the suite-wide
-// `theme` key the toggle writes). The toggle then drives both the `dark` class
-// and the BasemapPicker's theme-paired basemap.
-const prefersDarkMode = (): boolean => localStorage.getItem('theme') !== 'light';
+// to light when the user has stored that choice. getStoredTheme reads the
+// cross-app `aireon_theme` cookie (cookie wins over the localStorage mirror);
+// null → room's dark default. The toggle then drives both the `dark` class and
+// the BasemapPicker's theme-paired basemap via the shared setTheme.
+const prefersDarkMode = (): boolean => getStoredTheme() !== 'light';
 
 const MapView = () => {
   const { t, locale } = useI18n();
@@ -273,14 +274,10 @@ const MapView = () => {
   const toggleDarkMode = useCallback(() => setIsDarkMode((prev) => !prev), []);
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (isDarkMode) {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    // setTheme writes the cross-app `aireon_theme` cookie + localStorage mirror
+    // + the `.dark` class on <html>, and (when signed in) syncs the choice to
+    // the member profile so it follows the user across devices.
+    setTheme(isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
   // Stamp the glass level onto <html> — the SAME element that carries `.dark` —

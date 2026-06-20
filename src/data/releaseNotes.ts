@@ -11,6 +11,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.5',
+    date: 'June 20, 2026',
+    codename: 'Theme Follows You',
+    summary:
+      'Your light/dark choice now carries across every Aireon app — and across your devices when signed in.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Palette,
+        text:
+          'Your light/dark choice now carries across every Aireon app — and across your devices when signed in.',
+        prs: [],
+      },
+    ],
+  },
+
+  {
     version: '0.10.4',
     date: 'June 20, 2026',
     codename: 'Settle',
