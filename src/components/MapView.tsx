@@ -27,7 +27,7 @@ import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
-import { ClaireAssistant, CloseButton, useGlass, getStoredTheme, setTheme } from '@aireon/shared';
+import { ClaireAssistant, CloseButton, useGlass, useIsMobile, getStoredTheme, setTheme } from '@aireon/shared';
 import {
   BasemapPicker,
   getBasemapStrings,
@@ -83,6 +83,11 @@ const MapView = () => {
   // translucent map chrome + the `data-glass` attribute on <html>.
   const { level: glassLevel } = useGlass();
   const glassOn = glassLevel > 0;
+  // Phone vs. desktop, via the shared (max-width:767px) hook — the exact
+  // complement of Tailwind's `md:`. Desktop gets the floating Claire launcher
+  // as the single entry point; on phones the launcher is hidden and the
+  // in-panel "Ask Claire" button is the entry point instead.
+  const isMobile = useIsMobile();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   // Light/dark theme. Drives the `dark` class on <html>, the BasemapPicker's
@@ -672,13 +677,15 @@ const MapView = () => {
             />
           )}
 
-          {/* Prominent, always-visible Save-to-PRM call to action — plus the
-              in-context "Ask Claire" CTA above it (opens the controlled Claire
-              assistant; the floating launcher is kept too). */}
+          {/* Prominent, always-visible Save-to-PRM call to action. On phones it
+              also carries the in-context "Ask Claire" CTA (the floating launcher
+              is hidden there); on desktop the launcher is the single entry point,
+              so onAskClaire is undefined and the panel button drops out. Both
+              paths open the same controlled Claire assistant. */}
           <SaveToPrmBar
             focusedParcel={focusedHandle}
             parcelData={parcelData}
-            onAskClaire={() => setClaireOpen(true)}
+            onAskClaire={isMobile ? () => setClaireOpen(true) : undefined}
           />
         </div>
       )}
@@ -689,6 +696,8 @@ const MapView = () => {
           voiceCallEnabled
           open={claireOpen}
           onOpenChange={setClaireOpen}
+          panelOpen={!!selectedParcel}
+          hideLauncherOnMobile
           darkMode={isDarkMode}
           properties={selectedParcel.props}
           lngLat={{ lng: selectedParcel.lng, lat: selectedParcel.lat }}
