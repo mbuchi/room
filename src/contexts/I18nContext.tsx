@@ -265,6 +265,20 @@ const translations: Record<Locale, Record<string, string>> = {
     'faq.a2': 'From official cantonal and communal land-use (Nutzungsplanung) data for the selected parcel.',
     'faq.q3': "Is room's utilization figure binding?",
     'faq.a3': 'No. It is an indicative calculation; the binding utilization is set by the competent authority under the applicable regulations.',
+
+    // ---------- MapControlDock ----------
+    'nav.map_settings_open': 'Open map settings',
+    'nav.map_settings': 'Map settings',
+
+    // ---------- density legend chip (mobile) ----------
+    'panel.legend.collapse': 'Hide legend',
+
+    // ---------- AboutModal ----------
+    'about.menu': 'About this app',
+    'about.description': 'Explore zone density and development potential across Switzerland.',
+    'about.mapData': 'Map data',
+    'about.renderer': 'Rendering',
+    'about.close': 'Close',
   },
   fr: {
     // ---------- navbar ----------
@@ -503,6 +517,20 @@ const translations: Record<Locale, Record<string, string>> = {
     'faq.a2': 'Des données officielles d’affectation du sol (Nutzungsplanung) cantonales et communales pour la parcelle sélectionnée.',
     'faq.q3': 'Le taux d’utilisation de room est-il contraignant ?',
     'faq.a3': 'Non. Il s’agit d’un calcul indicatif ; l’utilisation contraignante est fixée par l’autorité compétente selon la réglementation applicable.',
+
+    // ---------- MapControlDock ----------
+    'nav.map_settings_open': 'Ouvrir les paramètres de la carte',
+    'nav.map_settings': 'Paramètres carte',
+
+    // ---------- density legend chip (mobile) ----------
+    'panel.legend.collapse': 'Masquer la légende',
+
+    // ---------- AboutModal ----------
+    'about.menu': "À propos de l'app",
+    'about.description': 'Explorez la densité de zone et le potentiel de développement en Suisse.',
+    'about.mapData': 'Données cartographiques',
+    'about.renderer': 'Rendu',
+    'about.close': 'Fermer',
   },
   de: {
     // ---------- navbar ----------
@@ -741,6 +769,20 @@ const translations: Record<Locale, Record<string, string>> = {
     'faq.a2': 'Aus den amtlichen kantonalen und kommunalen Daten der Nutzungsplanung für die ausgewählte Parzelle.',
     'faq.q3': 'Ist der Ausnützungswert von room verbindlich?',
     'faq.a3': 'Nein. Es handelt sich um eine Richtberechnung; die verbindliche Ausnützung legt die zuständige Behörde nach den geltenden Vorschriften fest.',
+
+    // ---------- MapControlDock ----------
+    'nav.map_settings_open': 'Karteneinstellungen öffnen',
+    'nav.map_settings': 'Karteneinstellungen',
+
+    // ---------- density legend chip (mobile) ----------
+    'panel.legend.collapse': 'Legende ausblenden',
+
+    // ---------- AboutModal ----------
+    'about.menu': 'Über diese App',
+    'about.description': 'Erkunden Sie Zonendichte und Bebauungspotenzial in der ganzen Schweiz.',
+    'about.mapData': 'Kartendaten',
+    'about.renderer': 'Darstellung',
+    'about.close': 'Schliessen',
   },
   it: {
     // ---------- navbar ----------
@@ -979,6 +1021,20 @@ const translations: Record<Locale, Record<string, string>> = {
     'faq.a2': 'Dai dati ufficiali cantonali e comunali di utilizzazione del suolo (Nutzungsplanung) per la particella selezionata.',
     'faq.q3': 'Il valore di utilizzo di room è vincolante?',
     'faq.a3': 'No. È un calcolo indicativo; l’utilizzo vincolante è stabilito dall’autorità competente secondo la normativa applicabile.',
+
+    // ---------- MapControlDock ----------
+    'nav.map_settings_open': 'Apri le impostazioni della mappa',
+    'nav.map_settings': 'Impostazioni mappa',
+
+    // ---------- density legend chip (mobile) ----------
+    'panel.legend.collapse': 'Nascondi legenda',
+
+    // ---------- AboutModal ----------
+    'about.menu': "Informazioni sull'app",
+    'about.description': "Esplora la densità di zona e il potenziale edificatorio in tutta la Svizzera.",
+    'about.mapData': 'Dati cartografici',
+    'about.renderer': 'Rendering',
+    'about.close': 'Chiudi',
   },
 };
 
