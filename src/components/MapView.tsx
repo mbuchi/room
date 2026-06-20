@@ -19,15 +19,15 @@ import { wgs84ToLv95 } from '../lib/coordTransform';
 import { fetchParcelData, ParcelDataError, type ParcelData } from '../services/parcelDataService';
 import { prefetchZoneStats, type ZoneStatsResponse } from '../services/zoneStatsService';
 import DensityLegend from './DensityLegend';
+import AboutModal from './AboutModal';
 import type { ScreenshotMetadata } from '../services/imageService';
 import Navbar from './Navbar';
-import MapControls from './MapControls';
 import ZoomControl from './ZoomControl';
 import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
-import { ClaireAssistant, CloseButton, useGlass, useIsMobile, getStoredTheme, setTheme } from '@aireon/shared';
+import { ClaireAssistant, CloseButton, MapControlDock, MapLegendChip, SegmentedTabs, useGlass, useIsMobile, getStoredTheme, setTheme } from '@aireon/shared';
 import {
   BasemapPicker,
   getBasemapStrings,
@@ -108,6 +108,10 @@ const MapView = () => {
   // button can open it. The floating launcher stays (showLauncher default-on),
   // so users get both entry points; both drive this one piece of state.
   const [claireOpen, setClaireOpen] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
+  // Mobile tools sheet: which control card is shown (avoids scrolling by tabbing).
+  const [dockTab, setDockTab] = useState<'parcel' | 'building' | '3d'>('parcel');
+  const [legendOpen, setLegendOpen] = useState(false);
 
   const [selectedParcel, setSelectedParcel] = useState<SelectedParcel | null>(null);
   const [parcelData, setParcelData] = useState<ParcelData | null>(null);
@@ -480,6 +484,9 @@ const MapView = () => {
           // Keep the WebGL backbuffer readable so screenshot/export captures
           // the map instead of a blank canvas (MapLibre v5 location).
           canvasContextAttributes: { preserveDrawingBuffer: true },
+          // Disable the built-in attribution control — AboutModal carries the
+          // swisstopo + MapLibre credits in the suite-standard pattern.
+          attributionControl: false,
         });
 
         mapRef.current = map;
@@ -566,6 +573,7 @@ const MapView = () => {
         getCaptureMetadata={getCaptureMetadata}
         darkMode={isDarkMode}
         onToggleTheme={toggleDarkMode}
+        onAbout={() => setShowAboutModal(true)}
       />
       <div ref={mapContainerRef} className="absolute inset-0 top-14" data-tour="map-view" />
 
@@ -589,16 +597,101 @@ const MapView = () => {
         />
       </div>
 
-      <MapControls
-        parcelOpacity={parcelOpacity}
-        onParcelOpacityChange={handleParcelOpacityChange}
-        buildingOpacity={buildingOpacity}
-        onBuildingOpacityChange={handleBuildingOpacityChange}
-        is3DMode={is3DMode}
-        onToggle3D={handleToggle3D}
-        panelOpen={!!selectedParcel}
-        rightOffsetPx={selectedParcel ? PANEL_OFFSET_PX : null}
-      />
+      {/* --- Map control cards (parcel opacity / building opacity / 3D) ---
+          Desktop: floating stack positioned right, shifts left when panel opens.
+          Mobile:  FAB bottom-right → bottom sheet with tabbed cards (no scroll). */}
+      {(() => {
+        const { level: _gl } = { level: glassLevel };
+        const cardSurface = glassOn
+          ? 'glass-control border'
+          : 'shadow-lg bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700/50';
+
+        const parcelCard = (
+          <div className={`${cardSurface} rounded-lg p-4 min-w-[240px] transition-colors`}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('panel.layers.parcel')}</span>
+              <span className="text-[10px] font-semibold text-red-500 dark:text-red-400 tabular-nums">{Math.round(parcelOpacity * 100)}%</span>
+            </div>
+            <input
+              type="range" min="0" max="1" step="0.01"
+              value={parcelOpacity}
+              onChange={(e) => handleParcelOpacityChange(parseFloat(e.target.value))}
+              aria-label={t('panel.layers.parcel')}
+              className="w-full slider-groove"
+            />
+          </div>
+        );
+
+        const buildingCard = (
+          <div className={`${cardSurface} rounded-lg p-4 min-w-[240px] transition-colors`}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('panel.layers.building')}</span>
+              <span className="text-[10px] font-semibold text-red-500 dark:text-red-400 tabular-nums">{Math.round(buildingOpacity * 100)}%</span>
+            </div>
+            <input
+              type="range" min="0" max="1" step="0.01"
+              value={buildingOpacity}
+              onChange={(e) => handleBuildingOpacityChange(parseFloat(e.target.value))}
+              aria-label={t('panel.layers.building')}
+              className="w-full slider-groove"
+            />
+          </div>
+        );
+
+        const tdCard = (
+          <div className={`${cardSurface} rounded-lg p-4 min-w-[240px] transition-colors`}>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{t('panel.layers.3d_view')}</span>
+              <button
+                onClick={handleToggle3D}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${is3DMode ? 'bg-red-600' : 'bg-gray-300 dark:bg-gray-600'}`}
+                role="switch"
+                aria-checked={is3DMode}
+                aria-label={t('panel.layers.3d_view')}
+              >
+                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200 ${is3DMode ? 'translate-x-[18px]' : 'translate-x-[3px]'}`} />
+              </button>
+            </div>
+          </div>
+        );
+
+        const DOCK_TABS = [
+          { id: 'parcel' as const, label: t('panel.layers.parcel'), card: parcelCard },
+          { id: 'building' as const, label: t('panel.layers.building'), card: buildingCard },
+          { id: '3d' as const, label: t('panel.layers.3d_view'), card: tdCard },
+        ];
+
+        return (
+          <MapControlDock
+            dark={isDarkMode}
+            fabLabel={t('nav.map_settings_open')}
+            sheetTitle={t('nav.map_settings')}
+            desktopClassName={`transition-[right] duration-300 ${selectedParcel ? `!right-[${PANEL_OFFSET_PX}px]` : ''}`}
+          >
+            {isMobile ? (
+              <div className="min-w-[260px]">
+                <SegmentedTabs<'parcel' | 'building' | '3d'>
+                  tabs={DOCK_TABS.map(({ id, label }) => ({ id, label }))}
+                  value={dockTab}
+                  onChange={setDockTab}
+                  ariaLabel={t('nav.map_settings')}
+                  dark={isDarkMode}
+                  size="md"
+                  activeTone="accent"
+                  className="mb-3"
+                />
+                {DOCK_TABS.find((tab) => tab.id === dockTab)?.card}
+              </div>
+            ) : (
+              <>
+                {parcelCard}
+                {buildingCard}
+                {tdCard}
+              </>
+            )}
+          </MapControlDock>
+        );
+      })()}
       <ZoomControl
         getMap={() => mapRef.current}
         isDarkMode={isDarkMode}
@@ -627,33 +720,24 @@ const MapView = () => {
             <span className="h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-700 group-hover:bg-gray-400 dark:group-hover:bg-gray-600 group-active:bg-gray-500 transition-colors" />
           </button>
 
-          <div className="flex items-stretch border-b border-gray-200 dark:border-gray-800/60 flex-shrink-0">
-            <button
-              data-tour="zone-charts"
-              onClick={() => setPanelTab('zone')}
-              className={`flex-1 px-3 py-3 text-[13px] md:text-xs font-medium tracking-tight transition-colors border-b-2 ${
-                panelTab === 'zone'
-                  ? 'text-gray-900 dark:text-gray-100 border-red-500/80'
-                  : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 border-transparent'
-              }`}
-            >
-              {t('panel.tabs.zone_distribution')}
-            </button>
-            <button
-              data-tour="zone-info-panel"
-              onClick={() => setPanelTab('facts')}
-              className={`flex-1 px-3 py-3 text-[13px] md:text-xs font-medium tracking-tight transition-colors border-b-2 ${
-                panelTab === 'facts'
-                  ? 'text-gray-900 dark:text-gray-100 border-red-500/80'
-                  : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 border-transparent'
-              }`}
-            >
-              {t('panel.tabs.parcel_facts')}
-            </button>
+          <div className="flex items-stretch border-b border-gray-200 dark:border-gray-800/60 flex-shrink-0 px-3 py-2 gap-2">
+            <div className="flex-1" data-tour="zone-charts zone-info-panel">
+              <SegmentedTabs<'zone' | 'facts'>
+                tabs={[
+                  { id: 'zone', label: t('panel.tabs.zone_distribution') },
+                  { id: 'facts', label: t('panel.tabs.parcel_facts') },
+                ]}
+                value={panelTab}
+                onChange={setPanelTab}
+                ariaLabel={t('panel.tabs.zone_distribution')}
+                dark={isDarkMode}
+                size="sm"
+                activeTone="accent"
+              />
+            </div>
             <CloseButton
               onClick={handleCloseInfoPanel}
               label={t('panel.info.close')}
-              className="border-l border-gray-200 dark:border-gray-800/60 rounded-none"
             />
           </div>
 
@@ -708,13 +792,41 @@ const MapView = () => {
           }
         />
       )}
+      {/* --- Density legend: MapLegendChip on mobile, always-visible card on desktop --- */}
       {selectedParcel && activeZone && (
-        <DensityLegend
-          zone={activeZone}
-          selectedRatioV={parcelData?.ratio_v ?? null}
-          rightOffsetPx={PANEL_OFFSET_PX}
+        isMobile ? (
+          <div className="absolute bottom-6 left-4 z-10" data-tour="density-legend">
+            <MapLegendChip
+              open={legendOpen}
+              onOpen={() => setLegendOpen(true)}
+              onClose={() => setLegendOpen(false)}
+              chipLabel={t('legend.title')}
+              collapseLabel={t('panel.legend.collapse')}
+              dark={isDarkMode}
+            >
+              <DensityLegend
+                zone={activeZone}
+                selectedRatioV={parcelData?.ratio_v ?? null}
+                inline
+              />
+            </MapLegendChip>
+          </div>
+        ) : (
+          <DensityLegend
+            zone={activeZone}
+            selectedRatioV={parcelData?.ratio_v ?? null}
+            rightOffsetPx={PANEL_OFFSET_PX}
+          />
+        )
+      )}
+
+      {showAboutModal && (
+        <AboutModal
+          glassLevel={glassLevel}
+          onClose={() => setShowAboutModal(false)}
         />
       )}
+
       <CoordinateDisplay coords={lv95Coords} />
       {toast && (
         <Toast

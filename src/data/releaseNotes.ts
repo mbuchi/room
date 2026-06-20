@@ -1,5 +1,5 @@
 import {
-  ShieldAlert, Palette,
+  ShieldAlert, Palette, Info,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
@@ -10,6 +10,43 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.10.7',
+    date: 'June 21, 2026',
+    codename: 'Dock',
+    summary:
+      'Aireon mobile-UX standard: MapControlDock FAB, MapLegendChip, SegmentedTabs panel header, About modal with map credits.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text:
+          'Map controls now use the suite-standard MapControlDock: a FAB on mobile opens a bottom sheet with tabbed Parcel / Building / 3D cards; on desktop the floating stack shifts clear of the open panel.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text:
+          'The density legend collapses to a MapLegendChip on mobile so it never overlaps the panel; on desktop it stays pinned bottom-left.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: PanelsTopLeft,
+        text:
+          'Panel tab header (Zone distribution / Parcel facts) now uses the shared SegmentedTabs component for a consistent cross-suite look.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Info,
+        text:
+          'New "About this app" entry in the account menu opens a modal listing the swisstopo map data and MapLibre GL renderer credits; built-in attribution control removed.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.10.6',
     date: 'June 20, 2026',

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
-import { Tag, Footprints, Share2, Sun, Moon, History } from 'lucide-react';
+import { Tag, Footprints, Share2, Sun, Moon, History, Info } from 'lucide-react';
 import type { ScreenshotMetadata } from '../services/imageService';
 import { type LocateErrorCode, requestGeolocation } from './LocateButton';
 import SavedImagesPanel from './SavedImagesPanel';
@@ -42,6 +42,8 @@ interface NavbarProps {
   darkMode: boolean;
   /** Flip the light/dark theme. */
   onToggleTheme: () => void;
+  /** Open the About modal (swisstopo/MapLibre credits). */
+  onAbout: () => void;
 }
 
 /**
@@ -53,7 +55,7 @@ interface NavbarProps {
  * + Tour. The app wires its own handlers, labels, account menu and the side
  * panels (saved images, release notes, capture feedback).
  */
-const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata, darkMode, onToggleTheme }: NavbarProps) => {
+const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata, darkMode, onToggleTheme, onAbout }: NavbarProps) => {
   const { locale, setLocale, t } = useI18n();
   const { level: glassLevel, setLevel: setGlassLevel } = useGlass();
   const { email } = useAuth();
@@ -151,6 +153,13 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
       label: t('tour.long_label'),
       icon: <Footprints size={16} aria-hidden="true" />,
       onClick: () => startTour(tourVariant),
+      signedOut: true,
+    },
+    {
+      key: 'about',
+      label: t('about.menu'),
+      icon: <Info size={16} aria-hidden="true" />,
+      onClick: onAbout,
       signedOut: true,
     },
   ];

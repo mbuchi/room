@@ -10,6 +10,11 @@ interface DensityLegendProps {
   selectedRatioV: number | null;
   /** Right-edge offset (px) so the legend stays clear of the info pane on md+. */
   rightOffsetPx?: number | null;
+  /**
+   * When true, renders as an inline block (no absolute positioning, no
+   * hidden/block visibility gate) — used inside MapLegendChip on mobile.
+   */
+  inline?: boolean;
 }
 
 const ABSOLUTE_STOPS = [0, 50, 100, 150, 220];
@@ -24,7 +29,7 @@ const ABSOLUTE_STOPS = [0, 50, 100, 150, 220];
  * selected parcel's utilisation, and a 100% reference tick marks "fully built
  * to the zone allowance" whenever it falls inside the visible range.
  */
-const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null }: DensityLegendProps) => {
+const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null, inline = false }: DensityLegendProps) => {
   const { t } = useI18n();
   const { level: glassLevel } = useGlass();
   const glassOn = glassLevel > 0;
@@ -48,8 +53,8 @@ const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null }: DensityLe
 
   return (
     <div
-      className={`absolute bottom-8 left-4 z-20 hidden md:block w-[268px] rounded-xl ${glassOn ? 'glass-control' : 'bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border border-gray-200 dark:border-gray-800/70 shadow-2xl'} p-3 transition-[right] duration-300`}
-      style={rightOffsetPx != null ? { right: `${rightOffsetPx}px`, left: 'auto' } : undefined}
+      className={`${inline ? 'w-full' : 'absolute bottom-8 left-4 z-20 hidden md:block w-[268px]'} rounded-xl ${glassOn ? 'glass-control' : 'bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border border-gray-200 dark:border-gray-800/70 shadow-2xl'} p-3 transition-[right] duration-300`}
+      style={!inline && rightOffsetPx != null ? { right: `${rightOffsetPx}px`, left: 'auto' } : undefined}
       data-tour="density-legend"
     >
       <div className="flex items-baseline justify-between mb-1.5">
