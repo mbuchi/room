@@ -700,6 +700,11 @@ const MapView = () => {
       />
       {selectedParcel && (
         <div
+          // The non-glass panel surface carries a large `shadow-2xl`; on desktop
+          // it's a right rail whose drop-shadow bleeds a faint vertical strip onto
+          // the map in saved images. data-screenshot-deshadow blanks that shadow
+          // only during capture (live UI unchanged) via suppressCaptureShadows().
+          data-screenshot-deshadow=""
           className={`z-30 flex flex-col ${glassOn ? 'glass-surface' : 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl shadow-2xl'}
             fixed inset-x-0 bottom-0 h-[var(--sheet-h)] max-h-[90dvh] rounded-t-2xl border-t border-gray-200 dark:border-gray-800/60 animate-slide-up
             md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right`}
