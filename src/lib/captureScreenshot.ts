@@ -6,6 +6,22 @@ export interface CaptureOptions {
   quality?: number;
 }
 
+// html-to-image rasterises a clone of the DOM through an SVG <foreignObject>,
+// which the browser paints at animation time-0. Any element with a running
+// entrance animation is therefore drawn at its keyframe `from` state — e.g. the
+// parcel panel's slide-in (from: translateX(100%); opacity:0) lands off-screen,
+// dropping it from the saved image. Blanking CSS animations + transitions for
+// the capture makes html-to-image inline `animation: none` (it copies computed
+// style), so every node rasterises at its settled state. Reverted in `finally`.
+function freezeMotionForCapture(): () => void {
+  const style = document.createElement('style');
+  style.setAttribute('data-screenshot-motion-freeze', '');
+  style.textContent =
+    '*,*::before,*::after{animation:none !important;transition:none !important}';
+  document.head.appendChild(style);
+  return () => style.remove();
+}
+
 // Default to WebP for ~5-10x smaller uploads vs PNG; quality 0.85 is the
 // sweet spot for screenshots (visually indistinguishable, much lighter).
 export async function captureBrowserScreenshot(
@@ -19,6 +35,9 @@ export async function captureBrowserScreenshot(
   // the live UI once the canvas is rasterised — wrapped in try/finally so the
   // restore runs even if encoding throws.
   const restoreShadows = suppressCaptureShadows();
+  // Keep the parcel info panel (and any other animated content) in the export:
+  // freeze entrance animations so the clone rasterises at its settled state.
+  const restoreMotion = freezeMotionForCapture();
   try {
     const canvas = await toCanvas(target, {
       backgroundColor: getComputedStyle(document.body).backgroundColor || '#ffffff',
@@ -41,6 +60,7 @@ export async function captureBrowserScreenshot(
     if (!blob) throw new Error('Failed to encode screenshot');
     return blob;
   } finally {
+    restoreMotion();
     restoreShadows();
   }
 }

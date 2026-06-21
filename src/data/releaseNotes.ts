@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.10',
+    date: 'June 21, 2026',
+    codename: 'Panel In Frame',
+    summary:
+      'The parcel info panel is back in saved images — it was being dropped from the export.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Camera,
+        text:
+          'Save image now includes the parcel info panel — it was dropped from the export because its slide-in animation left it off-frame at capture time.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.9',
     date: 'June 21, 2026',
     codename: 'Tighter Labels',
