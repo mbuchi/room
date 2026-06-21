@@ -210,13 +210,21 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
         }}
         actionsExtra={
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Search history is a one-tap navbar button — the highest-frequency
-                secondary control — opening the shared SearchHistoryModal. It was
-                moved out of the account menu's built-in row (suppressed below). */}
+            {/* Two navbar icon buttons mirroring valoo: Search history (the
+                highest-frequency secondary control, opens the shared
+                SearchHistoryModal — its account-menu row is suppressed below) +
+                About (info icon, opens the shared AboutModal). Share and the
+                dark-mode toggle live in the account menu. */}
             <NavIconButton
               icon={<History size={18} aria-hidden="true" />}
               label={getSearchHistoryStrings(locale).menuRow}
               onClick={() => setShowHistory(true)}
+              dark={darkMode}
+            />
+            <NavIconButton
+              icon={<Info size={18} aria-hidden="true" />}
+              label={t('about.menu')}
+              onClick={onAbout}
               dark={darkMode}
             />
           </div>
