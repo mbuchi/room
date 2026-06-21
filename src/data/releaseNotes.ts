@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.9',
+    date: 'June 21, 2026',
+    codename: 'Tighter Labels',
+    summary:
+      'Two map button labels are now shorter and snappier across all four languages.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Type,
+        text:
+          'Shortened two button labels: “Track parcel” → “Track” and the locate-me control → “Locate” (all four languages).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.8',
     date: 'June 20, 2026',
     codename: 'Clean Export',

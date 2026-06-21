@@ -191,7 +191,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'menu.more_tools': 'More tools',
 
     // ---------- PRM save button (shared semantics) ----------
-    'prm.save': 'Track parcel',
+    'prm.save': 'Track',
     'prm.saving': 'Saving…',
     'prm.saved': 'Tracked',
     'prm.open_in_proom': 'Open in proom',
@@ -206,7 +206,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'map.settings_coming_soon': 'Settings are coming soon',
 
     // ---------- LocateButton + geolocation errors / toasts ----------
-    'map.locate.button': 'Locate me',
+    'map.locate.button': 'Locate',
     'map.locate.moved': 'Moved to your current location.',
     'map.locate.not_supported': 'Geolocation is not supported by your browser.',
     'map.locate.permission_denied': 'Location access was denied. Please enable location permissions in your browser settings.',
@@ -444,7 +444,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'menu.more_tools': "Plus d'outils",
 
     // ---------- PRM ----------
-    'prm.save': 'Suivre la parcelle',
+    'prm.save': 'Suivre',
     'prm.saving': 'Enregistrement…',
     'prm.saved': 'Suivie',
     'prm.open_in_proom': 'Ouvrir dans proom',
@@ -458,7 +458,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'map.settings_coming_soon': 'Les paramètres arrivent bientôt',
 
     // ---------- geolocation ----------
-    'map.locate.button': 'Me localiser',
+    'map.locate.button': 'Localiser',
     'map.locate.moved': 'Déplacé vers votre position actuelle.',
     'map.locate.not_supported': 'La géolocalisation n’est pas prise en charge par votre navigateur.',
     'map.locate.permission_denied': 'L’accès à la position a été refusé. Veuillez activer les autorisations de localisation dans les paramètres de votre navigateur.',
@@ -696,7 +696,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'menu.more_tools': 'Weitere Tools',
 
     // ---------- PRM ----------
-    'prm.save': 'Parzelle verfolgen',
+    'prm.save': 'Verfolgen',
     'prm.saving': 'Speichern…',
     'prm.saved': 'Verfolgt',
     'prm.open_in_proom': 'In proom öffnen',
@@ -710,7 +710,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'map.settings_coming_soon': 'Einstellungen folgen bald',
 
     // ---------- geolocation ----------
-    'map.locate.button': 'Mich lokalisieren',
+    'map.locate.button': 'Orten',
     'map.locate.moved': 'Zu Ihrem aktuellen Standort verschoben.',
     'map.locate.not_supported': 'Standortbestimmung wird von Ihrem Browser nicht unterstützt.',
     'map.locate.permission_denied': 'Der Standortzugriff wurde verweigert. Bitte aktivieren Sie die Standortberechtigungen in den Browsereinstellungen.',
@@ -948,7 +948,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'menu.more_tools': 'Altri strumenti',
 
     // ---------- PRM ----------
-    'prm.save': 'Segui la particella',
+    'prm.save': 'Segui',
     'prm.saving': 'Salvataggio…',
     'prm.saved': 'Seguita',
     'prm.open_in_proom': 'Apri in proom',
@@ -962,7 +962,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'map.settings_coming_soon': 'Le impostazioni arriveranno presto',
 
     // ---------- geolocation ----------
-    'map.locate.button': 'Individuami',
+    'map.locate.button': 'Localizza',
     'map.locate.moved': 'Spostato alla tua posizione attuale.',
     'map.locate.not_supported': 'La geolocalizzazione non è supportata dal tuo browser.',
     'map.locate.permission_denied': 'L’accesso alla posizione è stato negato. Abilita le autorizzazioni di posizione nelle impostazioni del browser.',
