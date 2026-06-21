@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.14',
+    date: 'June 21, 2026',
+    codename: 'Access, Enforced',
+    summary:
+      'room now respects the access level and launch status set for it in the hub’s App Manager.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BadgeCheck,
+        text:
+          'room now respects the access level and launch status set for it in the hub’s App Manager: member-only asks you to sign in, admin-only or under construction shows a short notice. Public apps — the default — are unaffected.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.13',
     date: 'June 21, 2026',
     codename: 'Locate, Relocated',
