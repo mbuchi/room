@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.11',
+    date: 'June 21, 2026',
+    codename: 'About At Hand',
+    summary:
+      'The top bar now has an About (info) icon next to Search history.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Info,
+        text:
+          'The top bar now has an About (info) icon next to Search history, opening the app details directly instead of only from the account menu — matching valoo and the other Aireon apps.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.10',
     date: 'June 21, 2026',
     codename: 'Panel In Frame',
