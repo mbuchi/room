@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
-import { Tag, Footprints, Share2, Sun, Moon, History, Info } from 'lucide-react';
+import { Tag, Footprints, Share2, Sun, Moon, History, Info, LocateFixed } from 'lucide-react';
 import type { ScreenshotMetadata } from '../services/imageService';
 import { type LocateErrorCode, requestGeolocation } from './LocateButton';
 import SavedImagesPanel from './SavedImagesPanel';
@@ -126,6 +126,17 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
   const shareStrings = getShareStrings(locale);
   const toolbarItems: MapUserMenuAction[] = [
     {
+      // Locate me / GPS — moved out of the navbar toolbar into the account menu
+      // (top of "More tools"). `signedOut` keeps it reachable for anonymous
+      // visitors, matching the old always-visible toolbar button.
+      key: 'locate',
+      label: t('map.locate.button'),
+      icon: <LocateFixed size={16} aria-hidden="true" />,
+      onClick: handleLocate,
+      disabled: isLocating,
+      signedOut: true,
+    },
+    {
       key: 'share',
       label: shareStrings.share,
       icon: <Share2 size={16} aria-hidden="true" />,
@@ -235,10 +246,8 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
           onCapture: capture,
           isCapturing,
           onShowImages: () => setShowImages(true),
-          // Dark-mode toggle moved into the account menu; the toolbar keeps
-          // Save image · My exports · Locate · language · appearance (glass gear).
-          onLocate: handleLocate,
-          isLocating,
+          // Dark-mode toggle + Locate moved into the account menu; the toolbar
+          // keeps Save image · My exports · language · appearance (glass gear).
           settingsItems: [
             buildGlassSettingsItem({ level: glassLevel, setLevel: setGlassLevel, locale }),
           ],
