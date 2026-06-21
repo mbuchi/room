@@ -692,10 +692,14 @@ const MapView = () => {
           </MapControlDock>
         );
       })()}
+      {/* Suite-standard zoom/compass control — pinned bottom-RIGHT, shifting clear
+          of the info pane (PANEL_OFFSET_PX) when a parcel is selected, exactly like
+          the MapControlDock and density legend. Hidden on phones once the parcel
+          bottom-sheet is up. */}
       <ZoomControl
         getMap={() => mapRef.current}
         isDarkMode={isDarkMode}
-        align="left"
+        rightOffsetPx={selectedParcel ? PANEL_OFFSET_PX : null}
         className={`bottom-24 md:bottom-8 ${selectedParcel ? 'hidden md:block' : ''}`}
       />
       {selectedParcel && (
@@ -797,7 +801,9 @@ const MapView = () => {
           }
         />
       )}
-      {/* --- Density legend: MapLegendChip on mobile, always-visible card on desktop --- */}
+      {/* --- Density legend: MapLegendChip on mobile; desktop = always-visible card
+          pinned bottom-LEFT (its base position). The bottom-right corner now hosts
+          the zoom control, so the legend no longer shifts clear of the panel. --- */}
       {selectedParcel && activeZone && (
         isMobile ? (
           <div className="absolute bottom-6 left-4 z-10" data-tour="density-legend">
@@ -820,7 +826,6 @@ const MapView = () => {
           <DensityLegend
             zone={activeZone}
             selectedRatioV={parcelData?.ratio_v ?? null}
-            rightOffsetPx={PANEL_OFFSET_PX}
           />
         )
       )}
