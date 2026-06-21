@@ -1,6 +1,6 @@
 import {
   ShieldAlert, Palette, Info,
-  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera,
+  Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -10,6 +10,22 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.10.13',
+    date: 'June 21, 2026',
+    codename: 'Locate, Relocated',
+    summary:
+      'Locate me has moved from the top bar into the account menu, tidying the navbar in line with the other Aireon map apps.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LocateFixed,
+        text:
+          'Moved Locate me (find my location) out of the navbar toolbar and into the account menu, at the top of "More tools" — decluttering the top bar to match the other Aireon map apps.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.10.12',
     date: 'June 21, 2026',
