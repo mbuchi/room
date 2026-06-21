@@ -574,6 +574,7 @@ const MapView = () => {
         darkMode={isDarkMode}
         onToggleTheme={toggleDarkMode}
         onAbout={() => setShowAboutModal(true)}
+        selectedParcel={selectedParcel}
       />
       <div ref={mapContainerRef} className="absolute inset-0 top-14" data-tour="map-view" />
 

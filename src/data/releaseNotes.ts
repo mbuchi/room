@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.15',
+    date: 'June 22, 2026',
+    codename: 'Open With Parcel',
+    summary:
+      'The "Open with" menu now activates when you click a parcel on the map — not just after an address search.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text:
+          'The "Open with" cross-app menu now appears whenever a parcel is selected by clicking the map, falling back to the last searched address. Previously it only activated after an address search.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.14',
     date: 'June 21, 2026',
     codename: 'Access, Enforced',
