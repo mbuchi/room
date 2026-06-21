@@ -223,3 +223,20 @@ html.dark .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
   animation: locate-pulse 2s ease-out infinite;
 }
 
+/* ============================================================
+   Claire launcher — clear room's parcel info pane on desktop.
+   The shared @aireon/shared ClaireAssistant launcher hardcodes
+   `md:right-[436px]` for its panelOpen shift (sized for ~420px panels),
+   but room's panel is PANEL_WIDTH_PX = 460px, so the smiley tucks ~24px
+   under the pane's left edge. Nudge it to PANEL_OFFSET_PX (460 + 16 = 476px)
+   so it sits clear of the pane and aligned above the bottom-right zoom
+   control. Scoped to the panelOpen launcher (z-[1100] + the launcher's
+   data-screenshot-ignore wrapper); md+ only — on phones the launcher is
+   hidden (hideLauncherOnMobile) and the panel is a bottom sheet.
+   ============================================================ */
+@media (min-width: 768px) {
+  div.fixed.z-\[1100\][data-screenshot-ignore='true'] {
+    right: 476px;
+  }
+}
+

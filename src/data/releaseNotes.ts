@@ -11,6 +11,29 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.12',
+    date: 'June 21, 2026',
+    codename: 'Controls In Place',
+    summary:
+      'The zoom control now sits in the bottom-right corner and Claire no longer overlaps the parcel info panel — matching the other Aireon map apps.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text:
+          'Moved the zoom/compass control from the bottom-left to the bottom-right corner, in line with the other Aireon map apps. The density legend now takes its place at the bottom-left.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bot,
+        text:
+          'On desktop the Claire launcher no longer tucks under the left edge of the parcel info panel — it now sits clear of the panel, stacked just above the zoom control.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.11',
     date: 'June 21, 2026',
     codename: 'About At Hand',
