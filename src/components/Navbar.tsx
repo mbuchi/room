@@ -8,6 +8,7 @@ import UserMenu from './UserMenu';
 import {
   AppNavbar,
   NavIconButton,
+  OpenWithMenu,
   ShareCopiedToast,
   SearchHistoryModal,
   getAuthToken,
@@ -44,6 +45,9 @@ interface NavbarProps {
   onToggleTheme: () => void;
   /** Open the About modal (swisstopo/MapLibre credits). */
   onAbout: () => void;
+  /** Currently selected parcel — drives the "Open with" cross-app menu so the
+   *  menu is enabled for map-click selections, not just address searches. */
+  selectedParcel?: { lng: number; lat: number } | null;
 }
 
 /**
@@ -55,7 +59,7 @@ interface NavbarProps {
  * + Tour. The app wires its own handlers, labels, account menu and the side
  * panels (saved images, release notes, capture feedback).
  */
-const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata, darkMode, onToggleTheme, onAbout }: NavbarProps) => {
+const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata, darkMode, onToggleTheme, onAbout, selectedParcel }: NavbarProps) => {
   const { locale, setLocale, t } = useI18n();
   const { level: glassLevel, setLevel: setGlassLevel } = useGlass();
   const { email } = useAuth();
@@ -70,10 +74,14 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
   // the current link and flashes the suite-standard "Link copied" pill.
   const [shareCopied, setShareCopied] = useState(false);
   const shareTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  // The last address the user picked — AppNavbar tracks it to render the
-  // "Open with" menu; we mirror it here so the cross-app telemetry keeps the
-  // lat/lng of the spot being opened.
+  // Remembered for the "Open with" cross-app menu when no parcel is selected
+  // (e.g. after an address search with no map click). The selected parcel's
+  // lngLat takes priority when available — it's always the freshest state.
   const [lastLocation, setLastLocation] = useState<{ lat: number; lng: number } | null>(null);
+  // The effective location for "Open with": parcel click > address search.
+  const openWithLocation = selectedParcel
+    ? { lat: selectedParcel.lat, lng: selectedParcel.lng }
+    : lastLocation;
   // Locate-me state lifted into the navbar so the shared MapToolbar can render
   // its MapPin button with the canonical disabled-while-locating behaviour.
   const [isLocating, setIsLocating] = useState(false);
@@ -206,26 +214,30 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
             });
           },
         }}
-        openWith={{
-          currentAppId: 'room',
-          label: t('nav.open_with'),
-          onOpen: (appId) => {
-            if (lastLocation) {
-              void signal.send('Open address in app', {
-                lat: lastLocation.lat,
-                lng: lastLocation.lng,
-                metaData: { app: appId },
-              });
-            }
-          },
-        }}
         actionsExtra={
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Two navbar icon buttons mirroring valoo: Search history (the
-                highest-frequency secondary control, opens the shared
-                SearchHistoryModal — its account-menu row is suppressed below) +
-                About (info icon, opens the shared AboutModal). Share and the
-                dark-mode toggle live in the account menu. */}
+          /* "Open with" is first — opens the current parcel/location in another
+             suite app. It uses the selected parcel's lngLat when available
+             (map-click), falling back to the last address search result. Two
+             navbar icon buttons follow: Search history (opens the shared
+             SearchHistoryModal directly; its account-menu row is suppressed in
+             UserMenu) and About (info icon, opens the shared AboutModal —
+             the suite-standard placement). */
+          <>
+            {openWithLocation && (
+              <OpenWithMenu
+                location={openWithLocation}
+                currentAppId="room"
+                dark={darkMode}
+                label={t('nav.open_with')}
+                onOpen={(appId) =>
+                  void signal.send('Open address in app', {
+                    lat: openWithLocation.lat,
+                    lng: openWithLocation.lng,
+                    metaData: { app: appId },
+                  })
+                }
+              />
+            )}
             <NavIconButton
               icon={<History size={18} aria-hidden="true" />}
               label={getSearchHistoryStrings(locale).menuRow}
@@ -238,7 +250,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
               onClick={onAbout}
               dark={darkMode}
             />
-          </div>
+          </>
         }
         toolbar={{
           locale,
