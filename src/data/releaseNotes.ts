@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.17',
+    date: 'June 22, 2026',
+    codename: 'Claire chat, secured',
+    summary:
+      'Claire\'s chat now runs through a secure server-side proxy, so the AI key is no longer shipped in the app.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'Claire\'s chat now routes through a secure server-side proxy - the same one her voice calls already use - so the Gemini AI key is no longer shipped in the app. No change to how Claire works for you.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.16',
     date: 'June 22, 2026',
     codename: 'Hyphens, not em-dashes',
