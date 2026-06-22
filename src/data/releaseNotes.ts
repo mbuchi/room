@@ -11,7 +11,7 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
-    version: '0.10.17',
+    version: '0.10.18',
     date: 'June 22, 2026',
     codename: 'Shared v1.64.0',
     summary:
@@ -22,6 +22,22 @@ export const RELEASES: Release[] = [
         icon: Package,
         text:
           'Updated @aireon/shared to v1.64.0, which removes em-dashes from shared UI strings (Claire labels, What\'s New button, saved-parcels / bug-report dialogs).',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.10.17',
+    date: 'June 22, 2026',
+    codename: 'Claire chat, secured',
+    summary:
+      'Claire\'s chat now runs through a secure server-side proxy, so the AI key is no longer shipped in the app.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'Claire\'s chat now routes through a secure server-side proxy - the same one her voice calls already use - so the Gemini AI key is no longer shipped in the app. No change to how Claire works for you.',
         prs: [],
       },
     ],
