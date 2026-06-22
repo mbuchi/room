@@ -1,9 +1,9 @@
 {
   "name": "room",
   "private": true,
-  "version": "0.10.15",
+  "version": "0.10.16",
   "type": "module",
-  "description": "room — Swiss zoning density explorer: how densely built is this zone, and where does your parcel sit on the distribution?",
+  "description": "room - Swiss zoning density explorer: how densely built is this zone, and where does your parcel sit on the distribution?",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mbuchi/room.git"

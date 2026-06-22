@@ -11,11 +11,27 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.16',
+    date: 'June 22, 2026',
+    codename: 'Hyphens, not em-dashes',
+    summary:
+      'Tidied up the punctuation across the interface - every em-dash is now a plain hyphen for a cleaner, more consistent read.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Type,
+        text:
+          'Swapped every em-dash in the interface copy - titles, tooltips, the guided tour and release notes - for a plain hyphen, so the text reads consistently everywhere.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.15',
     date: 'June 22, 2026',
     codename: 'Open With Parcel',
     summary:
-      'The "Open with" menu now activates when you click a parcel on the map — not just after an address search.',
+      'The "Open with" menu now activates when you click a parcel on the map - not just after an address search.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -37,7 +53,7 @@ export const RELEASES: Release[] = [
         kind: 'improved' as ChangeKind,
         icon: BadgeCheck,
         text:
-          'room now respects the access level and launch status set for it in the hub’s App Manager: member-only asks you to sign in, admin-only or under construction shows a short notice. Public apps — the default — are unaffected.',
+          'room now respects the access level and launch status set for it in the hub’s App Manager: member-only asks you to sign in, admin-only or under construction shows a short notice. Public apps - the default - are unaffected.',
         prs: [],
       },
     ],
@@ -53,7 +69,7 @@ export const RELEASES: Release[] = [
         kind: 'improved' as ChangeKind,
         icon: LocateFixed,
         text:
-          'Moved Locate me (find my location) out of the navbar toolbar and into the account menu, at the top of "More tools" — decluttering the top bar to match the other Aireon map apps.',
+          'Moved Locate me (find my location) out of the navbar toolbar and into the account menu, at the top of "More tools" - decluttering the top bar to match the other Aireon map apps.',
         prs: [],
       },
     ],
@@ -63,7 +79,7 @@ export const RELEASES: Release[] = [
     date: 'June 21, 2026',
     codename: 'Controls In Place',
     summary:
-      'The zoom control now sits in the bottom-right corner and Claire no longer overlaps the parcel info panel — matching the other Aireon map apps.',
+      'The zoom control now sits in the bottom-right corner and Claire no longer overlaps the parcel info panel - matching the other Aireon map apps.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -76,7 +92,7 @@ export const RELEASES: Release[] = [
         kind: 'fixed' as ChangeKind,
         icon: Bot,
         text:
-          'On desktop the Claire launcher no longer tucks under the left edge of the parcel info panel — it now sits clear of the panel, stacked just above the zoom control.',
+          'On desktop the Claire launcher no longer tucks under the left edge of the parcel info panel - it now sits clear of the panel, stacked just above the zoom control.',
         prs: [],
       },
     ],
@@ -92,7 +108,7 @@ export const RELEASES: Release[] = [
         kind: 'improved' as ChangeKind,
         icon: Info,
         text:
-          'The top bar now has an About (info) icon next to Search history, opening the app details directly instead of only from the account menu — matching valoo and the other Aireon apps.',
+          'The top bar now has an About (info) icon next to Search history, opening the app details directly instead of only from the account menu - matching valoo and the other Aireon apps.',
         prs: [],
       },
     ],
@@ -102,13 +118,13 @@ export const RELEASES: Release[] = [
     date: 'June 21, 2026',
     codename: 'Panel In Frame',
     summary:
-      'The parcel info panel is back in saved images — it was being dropped from the export.',
+      'The parcel info panel is back in saved images - it was being dropped from the export.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: Camera,
         text:
-          'Save image now includes the parcel info panel — it was dropped from the export because its slide-in animation left it off-frame at capture time.',
+          'Save image now includes the parcel info panel - it was dropped from the export because its slide-in animation left it off-frame at capture time.',
         prs: [],
       },
     ],
@@ -134,20 +150,20 @@ export const RELEASES: Release[] = [
     date: 'June 20, 2026',
     codename: 'Clean Export',
     summary:
-      'Saved images now capture only the map and its legend — the interactive chrome is dropped, fonts embed without errors, and the parcel-panel shadow no longer bleeds in.',
+      'Saved images now capture only the map and its legend - the interactive chrome is dropped, fonts embed without errors, and the parcel-panel shadow no longer bleeds in.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Camera,
         text:
-          'Exported images (Save image / My exports) now drop the interactive chrome — navbar + address search, the Claire launcher, the zoom control, and other map controls — so only the map result and its legend are captured. (via @aireon/shared v1.57.0)',
+          'Exported images (Save image / My exports) now drop the interactive chrome - navbar + address search, the Claire launcher, the zoom control, and other map controls - so only the map result and its legend are captured. (via @aireon/shared v1.57.0)',
         prs: [],
       },
       {
         kind: 'fixed' as ChangeKind,
         icon: Bug,
         text:
-          'Saving an image no longer logs a cssRules SecurityError — the Google Fonts stylesheet is now loaded with crossorigin so fonts embed cleanly.',
+          'Saving an image no longer logs a cssRules SecurityError - the Google Fonts stylesheet is now loaded with crossorigin so fonts embed cleanly.',
         prs: [],
       },
       {
@@ -201,13 +217,13 @@ export const RELEASES: Release[] = [
     date: 'June 20, 2026',
     codename: 'Focus',
     summary:
-      'On desktop the floating Claire launcher is now the single entry point — the duplicate in-panel "Ask Claire" button shows on phones only.',
+      'On desktop the floating Claire launcher is now the single entry point - the duplicate in-panel "Ask Claire" button shows on phones only.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
         text:
-          "On desktop the floating Claire launcher is the one entry point, so the duplicate 'Ask Claire' button in the panel now appears on phones only — where the launcher is hidden. Either way opens the same Claire chat. (via @aireon/shared v1.55.0)",
+          "On desktop the floating Claire launcher is the one entry point, so the duplicate 'Ask Claire' button in the panel now appears on phones only - where the launcher is hidden. Either way opens the same Claire chat. (via @aireon/shared v1.55.0)",
         prs: [],
       },
     ],
@@ -218,13 +234,13 @@ export const RELEASES: Release[] = [
     date: 'June 20, 2026',
     codename: 'Theme Follows You',
     summary:
-      'Your light/dark choice now carries across every Aireon app — and across your devices when signed in.',
+      'Your light/dark choice now carries across every Aireon app - and across your devices when signed in.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Palette,
         text:
-          'Your light/dark choice now carries across every Aireon app — and across your devices when signed in.',
+          'Your light/dark choice now carries across every Aireon app - and across your devices when signed in.',
         prs: [],
       },
     ],
@@ -235,7 +251,7 @@ export const RELEASES: Release[] = [
     date: 'June 20, 2026',
     codename: 'Settle',
     summary:
-      'Loading states are calmer — content now settles in with skeleton placeholders instead of spinning icons.',
+      'Loading states are calmer - content now settles in with skeleton placeholders instead of spinning icons.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -258,7 +274,7 @@ export const RELEASES: Release[] = [
         kind: 'improved' as ChangeKind,
         icon: LayoutPanelTop,
         text:
-          'Tidied the top bar — Share this view and the dark/light toggle moved into the account menu; search history is now a one-tap button in the bar.',
+          'Tidied the top bar - Share this view and the dark/light toggle moved into the account menu; search history is now a one-tap button in the bar.',
         prs: [],
       },
     ],
@@ -269,13 +285,13 @@ export const RELEASES: Release[] = [
     date: 'June 20, 2026',
     codename: 'Shared Translations',
     summary:
-      'The language system now runs on the suite-shared i18n engine — same translations, but faster (fewer re-renders) and consistent with the rest of the apps.',
+      'The language system now runs on the suite-shared i18n engine - same translations, but faster (fewer re-renders) and consistent with the rest of the apps.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Languages,
         text:
-          'Switched the translation provider to the shared @aireon/shared createI18n factory (v1.50.0) — memoized, so the UI re-renders less.',
+          'Switched the translation provider to the shared @aireon/shared createI18n factory (v1.50.0) - memoized, so the UI re-renders less.',
         prs: [],
       },
     ],
@@ -320,7 +336,7 @@ export const RELEASES: Release[] = [
     date: 'June 19, 2026',
     codename: 'One Close Button',
     summary:
-      'Every dismiss (×) control — the parcel panel, the My exports gallery and preview, and toast notifications — now uses the shared suite-standard close button, so they look and behave the same everywhere and stay legible in light and dark themes.',
+      'Every dismiss (×) control - the parcel panel, the My exports gallery and preview, and toast notifications - now uses the shared suite-standard close button, so they look and behave the same everywhere and stay legible in light and dark themes.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -367,7 +383,7 @@ export const RELEASES: Release[] = [
         kind: 'added' as ChangeKind,
         icon: Camera,
         text:
-          'Added a "Share this view" button to the navbar — it copies a link to the current map view and confirms with a "Link copied to clipboard" pill.',
+          'Added a "Share this view" button to the navbar - it copies a link to the current map view and confirms with a "Link copied to clipboard" pill.',
         prs: [],
       },
     ],
@@ -384,7 +400,7 @@ export const RELEASES: Release[] = [
         kind: 'changed' as ChangeKind,
         icon: Package,
         text:
-          'Removed the unused @mapbox/mapbox-gl-geocoder dependency. room searches addresses with the suite-standard tokenless geo.admin service, so this package was never imported — dropping it trims the dependency tree with no behaviour change.',
+          'Removed the unused @mapbox/mapbox-gl-geocoder dependency. room searches addresses with the suite-standard tokenless geo.admin service, so this package was never imported - dropping it trims the dependency tree with no behaviour change.',
         prs: [],
       },
     ],
@@ -395,7 +411,7 @@ export const RELEASES: Release[] = [
     date: 'June 18, 2026',
     codename: 'Liquid Glass',
     summary:
-      'A new Liquid Glass appearance setting lets the map chrome and panels turn translucent — pick Off, Frosted or Liquid from the navbar settings.',
+      'A new Liquid Glass appearance setting lets the map chrome and panels turn translucent - pick Off, Frosted or Liquid from the navbar settings.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
@@ -408,7 +424,7 @@ export const RELEASES: Release[] = [
         kind: 'added' as ChangeKind,
         icon: Sparkles,
         text:
-          'A new “Appearance” control in the navbar settings (the gear menu) adds the suite-wide Liquid Glass look. Choose Off (room’s original solid panels), Frosted or Liquid, and the floating map chrome — zoom control, layer controls and the density legend — plus the parcel side panel, the account menu and the saved-images window turn into translucent frosted glass. Off is the default and leaves every surface exactly as before; your choice is remembered for next time.',
+          'A new “Appearance” control in the navbar settings (the gear menu) adds the suite-wide Liquid Glass look. Choose Off (room’s original solid panels), Frosted or Liquid, and the floating map chrome - zoom control, layer controls and the density legend - plus the parcel side panel, the account menu and the saved-images window turn into translucent frosted glass. Off is the default and leaves every surface exactly as before; your choice is remembered for next time.',
         prs: [],
       },
     ],
@@ -436,7 +452,7 @@ export const RELEASES: Release[] = [
     date: 'June 16, 2026',
     codename: 'Light Switch',
     summary:
-      'room now has a light theme. A Sun/Moon toggle in the toolbar flips the whole app — map, charts, zone panels and chrome — between light and dark, and the swisstopo basemap follows along.',
+      'room now has a light theme. A Sun/Moon toggle in the toolbar flips the whole app - map, charts, zone panels and chrome - between light and dark, and the swisstopo basemap follows along.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -456,7 +472,7 @@ export const RELEASES: Release[] = [
         kind: 'improved' as ChangeKind,
         icon: BookOpen,
         text:
-          'A short “Frequently asked questions” section now sits at the bottom of the Parcel facts panel — what room calculates, where its zoning data comes from, and a reminder that the utilization figure is indicative, not binding. The same Q&A is published as FAQ structured data so search and AI answer engines can surface it.',
+          'A short “Frequently asked questions” section now sits at the bottom of the Parcel facts panel - what room calculates, where its zoning data comes from, and a reminder that the utilization figure is indicative, not binding. The same Q&A is published as FAQ structured data so search and AI answer engines can surface it.',
         prs: [],
       },
       {
@@ -470,7 +486,7 @@ export const RELEASES: Release[] = [
         kind: 'new' as ChangeKind,
         icon: Palette,
         text:
-          'A theme toggle (Sun ⇄ Moon) now sits in the navbar toolbar. Switch between room’s signature dark look and a new bright light theme; every surface — the layer controls, the density legend, the zone-distribution charts (gauge, boxplot, histograms, time line and scatter), the parcel-facts panel, saved images and coordinates — repaints to match. The basemap pairs itself to the theme (a light map in light mode, a dark map in dark mode) until you pick one yourself, and your choice is remembered for next time. room still opens in dark mode by default.',
+          'A theme toggle (Sun ⇄ Moon) now sits in the navbar toolbar. Switch between room’s signature dark look and a new bright light theme; every surface - the layer controls, the density legend, the zone-distribution charts (gauge, boxplot, histograms, time line and scatter), the parcel-facts panel, saved images and coordinates - repaints to match. The basemap pairs itself to the theme (a light map in light mode, a dark map in dark mode) until you pick one yourself, and your choice is remembered for next time. room still opens in dark mode by default.',
         prs: [],
       },
     ],
@@ -487,7 +503,7 @@ export const RELEASES: Release[] = [
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
         text:
-          'The sign-in screen has a fresh Aireon look — the Aireon wordmark on a dark “mission-control” card with a subtle map-grid texture and a soft red glow, replacing the old white SWISSNOVO card. It now matches the rest of the Aireon suite.',
+          'The sign-in screen has a fresh Aireon look - the Aireon wordmark on a dark “mission-control” card with a subtle map-grid texture and a soft red glow, replacing the old white SWISSNOVO card. It now matches the rest of the Aireon suite.',
         prs: [],
       },
     ],
@@ -498,13 +514,13 @@ export const RELEASES: Release[] = [
     date: 'June 16, 2026',
     codename: 'Untrack Toggle',
     summary:
-      'The “Track parcel” bar now toggles — click it again to untrack the parcel.',
+      'The “Track parcel” bar now toggles - click it again to untrack the parcel.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: Bookmark,
         text:
-          'You can now untrack a parcel with the same control you used to track it. The green “Tracked” bar is now a button — click it to remove the parcel from your proom list.',
+          'You can now untrack a parcel with the same control you used to track it. The green “Tracked” bar is now a button - click it to remove the parcel from your proom list.',
         prs: [],
       },
     ],
@@ -521,7 +537,7 @@ export const RELEASES: Release[] = [
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
         text:
-          'My search history now lives in the account menu’s “More tools” section, right after “Take the tour” — it used to sit lower down, near “Sign out”.',
+          'My search history now lives in the account menu’s “More tools” section, right after “Take the tour” - it used to sit lower down, near “Sign out”.',
         prs: [],
       },
     ],
@@ -600,7 +616,7 @@ export const RELEASES: Release[] = [
     date: 'June 13, 2026',
     codename: 'Nearby Comparables',
     summary:
-      'The parcel info panel now surfaces up to five nearby parcels that are for sale, ranked by distance, plot size and zone similarity — each a tappable card that flies the map there.',
+      'The parcel info panel now surfaces up to five nearby parcels that are for sale, ranked by distance, plot size and zone similarity - each a tappable card that flies the map there.',
     items: [
       {
         kind: 'new' as ChangeKind,
@@ -647,7 +663,7 @@ export const RELEASES: Release[] = [
         kind: 'improved' as ChangeKind,
         icon: PanelsTopLeft,
         text:
-          'Replaced room’s hand-rolled header and inline address search with the shared <AppNavbar> from @aireon/shared v1.18.1. Same look and behaviour — Mapbox address search, “Open with”, the Locate · Settings · Language toolbar and the account menu — with far less app-specific code.',
+          'Replaced room’s hand-rolled header and inline address search with the shared <AppNavbar> from @aireon/shared v1.18.1. Same look and behaviour - Mapbox address search, “Open with”, the Locate · Settings · Language toolbar and the account menu - with far less app-specific code.',
         prs: [],
       },
     ],
@@ -714,7 +730,7 @@ export const RELEASES: Release[] = [
         kind: 'improved',
         icon: PanelsTopLeft,
         text:
-          'Replaced the hand-rolled navbar action row and its mobile overflow menu with the shared @aireon/shared MapToolbar (v1.15.0). Locate, a new Settings placeholder and the language picker now share one component — same icons, order and behaviour — and fold into a single ⋯ menu on phones.',
+          'Replaced the hand-rolled navbar action row and its mobile overflow menu with the shared @aireon/shared MapToolbar (v1.15.0). Locate, a new Settings placeholder and the language picker now share one component - same icons, order and behaviour - and fold into a single ⋯ menu on phones.',
         prs: [],
       },
     ],
@@ -804,7 +820,7 @@ export const RELEASES: Release[] = [
     date: 'June 11, 2026',
     codename: 'Swiss Basemaps',
     summary:
-      'The basemap switcher now offers the shared swisstopo gallery — six Swiss-made basemaps with live map thumbnails — in place of the Mapbox styles.',
+      'The basemap switcher now offers the shared swisstopo gallery - six Swiss-made basemaps with live map thumbnails - in place of the Mapbox styles.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -833,7 +849,7 @@ export const RELEASES: Release[] = [
         kind: 'new' as ChangeKind,
         icon: Image,
         text:
-          'Added a swisstopo aerial thumbnail to the parcel info panel header — an 88px bird’s-eye preview of the selected parcel that expands to a full-size lightbox.',
+          'Added a swisstopo aerial thumbnail to the parcel info panel header - an 88px bird’s-eye preview of the selected parcel that expands to a full-size lightbox.',
         prs: [],
       },
     ],
@@ -849,7 +865,7 @@ export const RELEASES: Release[] = [
         kind: 'fixed' as ChangeKind,
         icon: Image,
         text:
-          'Map screenshots now capture the actual map instead of a blank area — the WebGL canvas keeps its drawing buffer readable after the MapLibre renderer switch.',
+          'Map screenshots now capture the actual map instead of a blank area - the WebGL canvas keeps its drawing buffer readable after the MapLibre renderer switch.',
         prs: [],
       },
       {
@@ -882,7 +898,7 @@ export const RELEASES: Release[] = [
     date: 'June 9, 2026',
     codename: 'Open Renderer',
     summary:
-      'room now draws the map with the open-source MapLibre GL engine instead of Mapbox GL. The basemaps, parcels and 3D buildings look and behave exactly as before — an under-the-hood switch that drops a proprietary dependency.',
+      'room now draws the map with the open-source MapLibre GL engine instead of Mapbox GL. The basemaps, parcels and 3D buildings look and behave exactly as before - an under-the-hood switch that drops a proprietary dependency.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -894,7 +910,7 @@ export const RELEASES: Release[] = [
         kind: 'improved' as ChangeKind,
         icon: Map,
         text:
-          'Migrated the map renderer from Mapbox GL JS to the open-source, BSD-licensed MapLibre GL JS. The same Mapbox-hosted basemaps (Dark, Light, Streets, Satellite, …) are still used, so nothing changes visually — hover, click-to-select, the basemap switcher, 3D buildings and screenshots all work exactly as before.',
+          'Migrated the map renderer from Mapbox GL JS to the open-source, BSD-licensed MapLibre GL JS. The same Mapbox-hosted basemaps (Dark, Light, Streets, Satellite, …) are still used, so nothing changes visually - hover, click-to-select, the basemap switcher, 3D buildings and screenshots all work exactly as before.',
         prs: [],
       },
     ],
@@ -904,13 +920,13 @@ export const RELEASES: Release[] = [
     date: 'June 9, 2026',
     codename: 'Zoom to Select',
     summary:
-      'Parcels are now only selectable once you have zoomed in to block level — the same threshold that already controls the hover highlight. Clicking while zoomed way out no longer picks the wrong tiny parcel.',
+      'Parcels are now only selectable once you have zoomed in to block level - the same threshold that already controls the hover highlight. Clicking while zoomed way out no longer picks the wrong tiny parcel.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Map,
         text:
-          'Clicking the map now only selects a parcel once you have zoomed in past block level — matching the hover highlight, which already appears only at that zoom. When the map is zoomed out to an overview, parcels are too small to target precisely, so clicks are ignored instead of selecting a near-random parcel. Searching an address or opening a ?lat/?lng link still works at any zoom (they fly in first).',
+          'Clicking the map now only selects a parcel once you have zoomed in past block level - matching the hover highlight, which already appears only at that zoom. When the map is zoomed out to an overview, parcels are too small to target precisely, so clicks are ignored instead of selecting a near-random parcel. Searching an address or opening a ?lat/?lng link still works at any zoom (they fly in first).',
         prs: [],
       },
     ],
@@ -920,7 +936,7 @@ export const RELEASES: Release[] = [
     date: 'June 9, 2026',
     codename: 'Open With',
     summary:
-      'After you search an address, a new "Open with" button appears in the top bar — jump straight to the same spot in another Aireon app. The locate button also picks up the suite\'s shared navbar styling.',
+      'After you search an address, a new "Open with" button appears in the top bar - jump straight to the same spot in another Aireon app. The locate button also picks up the suite\'s shared navbar styling.',
     items: [
       {
         kind: 'added' as ChangeKind,
@@ -936,13 +952,13 @@ export const RELEASES: Release[] = [
     date: 'June 9, 2026',
     codename: 'Sharper Tour',
     summary:
-      'The guided tour no longer blurs the page behind it. Each step still dims the background and spotlights the highlighted area — but everything now stays crisp and clear instead of fuzzy.',
+      'The guided tour no longer blurs the page behind it. Each step still dims the background and spotlights the highlighted area - but everything now stays crisp and clear instead of fuzzy.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
         text:
-          'Removed the background blur from the guided tour. Tour steps still dim the page and spotlight the active element, but the rest of the screen now stays sharp instead of being blurred — clearer and more reliable across browsers.',
+          'Removed the background blur from the guided tour. Tour steps still dim the page and spotlight the active element, but the rest of the screen now stays sharp instead of being blurred - clearer and more reliable across browsers.',
         prs: [],
       },
     ],
@@ -952,13 +968,13 @@ export const RELEASES: Release[] = [
     date: 'June 9, 2026',
     codename: 'Smooth Zoom-Out',
     summary:
-      'The amber hover highlight now only kicks in once you’re zoomed in to block level. Zoomed further out — where the map can show thousands of parcels at once — it stays off, so panning and zooming stay smooth even on modest hardware.',
+      'The amber hover highlight now only kicks in once you’re zoomed in to block level. Zoomed further out - where the map can show thousands of parcels at once - it stays off, so panning and zooming stay smooth even on modest hardware.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Zap,
         text:
-          'Gated the parcel hover highlight to block-level zoom (about z15 and closer). When you zoom out a lot the map can hold thousands of parcels, and re-painting the hover highlight on every mouse-move made low-spec machines stutter. Hover now switches off entirely while you’re zoomed out and returns the moment you zoom into a block — your selected parcel stays highlighted at every zoom.',
+          'Gated the parcel hover highlight to block-level zoom (about z15 and closer). When you zoom out a lot the map can hold thousands of parcels, and re-painting the hover highlight on every mouse-move made low-spec machines stutter. Hover now switches off entirely while you’re zoomed out and returns the moment you zoom into a block - your selected parcel stays highlighted at every zoom.',
         prs: [],
       },
     ],
@@ -968,7 +984,7 @@ export const RELEASES: Release[] = [
     date: 'June 9, 2026',
     codename: 'Back to Hub',
     summary:
-      'A small Aireon logo now sits at the left of the top bar, just before the room wordmark. Tap it to jump straight back to the Aireon hub — the same one-tap shortcut across every app in the suite.',
+      'A small Aireon logo now sits at the left of the top bar, just before the room wordmark. Tap it to jump straight back to the Aireon hub - the same one-tap shortcut across every app in the suite.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -984,13 +1000,13 @@ export const RELEASES: Release[] = [
     date: 'June 8, 2026',
     codename: 'Tidy Toolbar',
     summary:
-      'A cleaner top bar. The secondary tools — Export image, My Exports, What’s new and Take a tour — now live tidily under your account menu, so the bar keeps only what you reach for most: search, locate, language and your account.',
+      'A cleaner top bar. The secondary tools - Export image, My Exports, What’s new and Take a tour - now live tidily under your account menu, so the bar keeps only what you reach for most: search, locate, language and your account.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: LayoutPanelTop,
         text:
-          'Slimmed the top bar to the essentials — logo, address search, locate, language and your account. Export image, My Exports, What’s new (release notes) and Take a tour moved into a new “More tools” section inside the account menu, with a red dot on What’s new when there are updates you haven’t read. The tour and What’s new stay reachable even when you’re signed out.',
+          'Slimmed the top bar to the essentials - logo, address search, locate, language and your account. Export image, My Exports, What’s new (release notes) and Take a tour moved into a new “More tools” section inside the account menu, with a red dot on What’s new when there are updates you haven’t read. The tour and What’s new stay reachable even when you’re signed out.',
         prs: [],
       },
     ],
@@ -1000,13 +1016,13 @@ export const RELEASES: Release[] = [
     date: 'June 6, 2026',
     codename: 'Browse First',
     summary:
-      'No sign-in pop-up on arrival — the zoning map opens straight away. You are only asked to sign in when you use a feature that needs an account, like tracking a parcel or exporting a snapshot.',
+      'No sign-in pop-up on arrival - the zoning map opens straight away. You are only asked to sign in when you use a feature that needs an account, like tracking a parcel or exporting a snapshot.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
         text:
-          'Dropped the welcome sign-in pop-up that used to appear on a fresh visit. room now opens directly into the map for everyone. The sign-in invitation appears only when you act on a feature that needs an account — tracking a parcel or exporting a screenshot — and it now opens as an in-app modal instead of bouncing you to the sign-in page.',
+          'Dropped the welcome sign-in pop-up that used to appear on a fresh visit. room now opens directly into the map for everyone. The sign-in invitation appears only when you act on a feature that needs an account - tracking a parcel or exporting a screenshot - and it now opens as an in-app modal instead of bouncing you to the sign-in page.',
         prs: [],
       },
     ],
@@ -1016,12 +1032,12 @@ export const RELEASES: Release[] = [
     date: 'June 5, 2026',
     codename: 'One Sign-In',
     summary:
-      'Sign in once, and you are signed in everywhere. room now joins suite-wide single sign-on, so if you are already logged in to another Aireon app in this browser, room signs you in automatically — no second password.',
+      'Sign in once, and you are signed in everywhere. room now joins suite-wide single sign-on, so if you are already logged in to another Aireon app in this browser, room signs you in automatically - no second password.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: BadgeCheck,
-        text: "Cross-app single sign-on now works: if you're signed in to any Aireon app in this browser, room signs you in automatically on load — a brief, UI-less check, no second password. Anonymous visitors are unaffected.",
+        text: "Cross-app single sign-on now works: if you're signed in to any Aireon app in this browser, room signs you in automatically on load - a brief, UI-less check, no second password. Anonymous visitors are unaffected.",
         prs: [],
       },
     ],
@@ -1031,12 +1047,12 @@ export const RELEASES: Release[] = [
     date: 'June 4, 2026',
     codename: 'Tour, Fixed',
     summary:
-      'The guided tour is more reliable and far more useful. It now walks every step in order from the start — under the new React Compiler an old timing bug could leave it showing only some steps or none. The steps are also richer: clearer guidance to click the map for a parcel’s density and ranking, a new step on tracking a parcel to your proom workspace, and a plainer “N / M” progress counter.',
+      'The guided tour is more reliable and far more useful. It now walks every step in order from the start - under the new React Compiler an old timing bug could leave it showing only some steps or none. The steps are also richer: clearer guidance to click the map for a parcel’s density and ranking, a new step on tracking a parcel to your proom workspace, and a plainer “N / M” progress counter.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: Sparkles,
-        text: 'Fixed the guided tour computing its step list during the first render — before the map and panel anchors had mounted — which under the React Compiler could leave it stuck showing 0 or only some steps. Steps are now computed from the live page the moment the tour starts, so every configured step appears in order.',
+        text: 'Fixed the guided tour computing its step list during the first render - before the map and panel anchors had mounted - which under the React Compiler could leave it stuck showing 0 or only some steps. Steps are now computed from the live page the moment the tour starts, so every configured step appears in order.',
         prs: [],
       },
       {
@@ -1048,7 +1064,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'added' as ChangeKind,
         icon: Bookmark,
-        text: 'Added a tour step explaining how to track a parcel — saving it to your proom workspace, synced across the SwissNovo suite — plus a clearer step on reading the zone-distribution charts.',
+        text: 'Added a tour step explaining how to track a parcel - saving it to your proom workspace, synced across the SwissNovo suite - plus a clearer step on reading the zone-distribution charts.',
         prs: [],
       },
       {
@@ -1064,7 +1080,7 @@ export const RELEASES: Release[] = [
     date: 'June 4, 2026',
     codename: 'Spotlight Focus',
     summary:
-      'The guided tour now softly blurs the page behind its overlay again — but the highlighted element stays perfectly sharp. Earlier the blur either covered the focused element too or had to be removed entirely; now only the surroundings go soft-focus, so your eye is drawn to exactly what the step is pointing at.',
+      'The guided tour now softly blurs the page behind its overlay again - but the highlighted element stays perfectly sharp. Earlier the blur either covered the focused element too or had to be removed entirely; now only the surroundings go soft-focus, so your eye is drawn to exactly what the step is pointing at.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -1079,12 +1095,12 @@ export const RELEASES: Release[] = [
     date: 'June 4, 2026',
     codename: 'Track Parcel',
     summary:
-      'The parcel-save button now reads “Track parcel” (was “Save to PRM”) so new users immediately get what it does — “PRM” was jargon. Localised across English, French, German and Italian.',
+      'The parcel-save button now reads “Track parcel” (was “Save to PRM”) so new users immediately get what it does - “PRM” was jargon. Localised across English, French, German and Italian.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Languages,
-        text: 'Renamed the parcel-save action from “Save to PRM” to “Track parcel” (and “Saved to PRM” → “Tracked”) for new-user clarity, localised in en/fr/de/it. No change to behaviour — it still saves the parcel to your proom workspace.',
+        text: 'Renamed the parcel-save action from “Save to PRM” to “Track parcel” (and “Saved to PRM” → “Tracked”) for new-user clarity, localised in en/fr/de/it. No change to behaviour - it still saves the parcel to your proom workspace.',
         prs: [],
       },
     ],
@@ -1094,12 +1110,12 @@ export const RELEASES: Release[] = [
     date: 'June 4, 2026',
     codename: 'Compiler On',
     summary:
-      'Turned on the React Compiler 1.0 so the app memoizes itself at build time — fewer needless re-renders, with no change to how anything behaves.',
+      'Turned on the React Compiler 1.0 so the app memoizes itself at build time - fewer needless re-renders, with no change to how anything behaves.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Zap,
-        text: 'Enabled the React Compiler 1.0 (Babel plugin, target React 18) for automatic compile-time memoization — fewer needless re-renders, no behaviour change. Healthcheck: 29/29 components compiled.',
+        text: 'Enabled the React Compiler 1.0 (Babel plugin, target React 18) for automatic compile-time memoization - fewer needless re-renders, no behaviour change. Healthcheck: 29/29 components compiled.',
         prs: [],
       },
     ],
@@ -1124,7 +1140,7 @@ export const RELEASES: Release[] = [
     date: 'June 3, 2026',
     codename: 'Out From Under',
     summary:
-      'The +/- zoom control no longer disappears behind the density legend. When you select a parcel, the legend slides to the bottom-right to clear the detail panel — but the previous fix slid the zoom control to that exact same spot, so the legend sat on top of it. The zoom control now lives in the bottom-left corner, well clear of both the legend and the panel.',
+      'The +/- zoom control no longer disappears behind the density legend. When you select a parcel, the legend slides to the bottom-right to clear the detail panel - but the previous fix slid the zoom control to that exact same spot, so the legend sat on top of it. The zoom control now lives in the bottom-left corner, well clear of both the legend and the panel.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
@@ -1159,7 +1175,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'fixed' as ChangeKind,
         icon: Sparkles,
-        text: 'The guided product tour no longer blurs the background — the focused element and page stay sharp behind the dimmed tour overlay.',
+        text: 'The guided product tour no longer blurs the background - the focused element and page stay sharp behind the dimmed tour overlay.',
         prs: [],
       },
     ],
@@ -1169,7 +1185,7 @@ export const RELEASES: Release[] = [
     date: 'June 3, 2026',
     codename: 'Step Aside',
     summary:
-      'Fixes the desktop +/- zoom control getting covered by the right-hand detail panel. The control is meant to slide left when the panel opens, but an inline style was overriding the responsive rule that does the shifting, so on wider screens the control stayed put and the panel sat on top of it. The basemap/layers control was already shifting correctly — the zoom control now matches it.',
+      'Fixes the desktop +/- zoom control getting covered by the right-hand detail panel. The control is meant to slide left when the panel opens, but an inline style was overriding the responsive rule that does the shifting, so on wider screens the control stayed put and the panel sat on top of it. The basemap/layers control was already shifting correctly - the zoom control now matches it.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
@@ -1184,7 +1200,7 @@ export const RELEASES: Release[] = [
     date: 'June 2, 2026',
     codename: 'Suite Alignment',
     summary:
-      'A small consistency pass to bring room back in line with the rest of the SwissNovo suite. The typography design tokens are restored to the suite-standard --hood- prefix (the previous rename to --room- was the drift, not the fix — every app forks hood and shares that namespace). Focus rings on the top-bar controls now use the keyboard-only focus-visible mechanism the rest of the suite uses, and Tailwind\'s class-based dark mode is now declared explicitly (room remains dark-only by design).',
+      'A small consistency pass to bring room back in line with the rest of the SwissNovo suite. The typography design tokens are restored to the suite-standard --hood- prefix (the previous rename to --room- was the drift, not the fix - every app forks hood and shares that namespace). Focus rings on the top-bar controls now use the keyboard-only focus-visible mechanism the rest of the suite uses, and Tailwind\'s class-based dark mode is now declared explicitly (room remains dark-only by design).',
     items: [
       {
         kind: 'changed' as ChangeKind,
@@ -1195,7 +1211,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'changed' as ChangeKind,
         icon: BadgeCheck,
-        text: 'Top-bar controls (sign-in, user menu, screenshot button, zone-filter input, address search) now use focus-visible: focus rings appear only for keyboard navigation, with a ring offset for clarity on the dark bar — matching the suite-wide focus standard already used by the zoom control.',
+        text: 'Top-bar controls (sign-in, user menu, screenshot button, zone-filter input, address search) now use focus-visible: focus rings appear only for keyboard navigation, with a ring offset for clarity on the dark bar - matching the suite-wide focus standard already used by the zoom control.',
         prs: [],
       },
       {
@@ -1260,7 +1276,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'fixed' as ChangeKind,
         icon: MessageSquare,
-        text: 'Claire\'s section headings no longer show literal "###" hashes — the shared chat renderer formats Markdown headings (#–######) as styled bold heading text.',
+        text: 'Claire\'s section headings no longer show literal "###" hashes - the shared chat renderer formats Markdown headings (#–######) as styled bold heading text.',
         prs: [],
       },
       {
@@ -1291,12 +1307,12 @@ export const RELEASES: Release[] = [
     date: 'May 30, 2026',
     codename: 'Axis & Order',
     summary:
-      'Two fixes for the zone-distribution charts in the side pane. The numbers running down the left of the utilisation-over-time and area-vs-volume charts were getting clipped at the pane edge — they now have room to render in full. And the utilisation-over-time line was plotting its age cohorts in the wrong order (60 / 40 / 20 / ALL); it now reads ALL first, then the 20 / 40 / 60 windows ascending, so the trend flows left-to-right the way the caption promises.',
+      'Two fixes for the zone-distribution charts in the side pane. The numbers running down the left of the utilisation-over-time and area-vs-volume charts were getting clipped at the pane edge - they now have room to render in full. And the utilisation-over-time line was plotting its age cohorts in the wrong order (60 / 40 / 20 / ALL); it now reads ALL first, then the 20 / 40 / 60 windows ascending, so the trend flows left-to-right the way the caption promises.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: BarChart3,
-        text: 'Left Y-axis tick labels on the utilisation-over-time and area-vs-volume charts no longer get cut off at the pane edge — the axes are sized to fit the numbers.',
+        text: 'Left Y-axis tick labels on the utilisation-over-time and area-vs-volume charts no longer get cut off at the pane edge - the axes are sized to fit the numbers.',
         prs: [19],
       },
       {
@@ -1312,12 +1328,12 @@ export const RELEASES: Release[] = [
     date: 'May 29, 2026',
     codename: 'Always Loads',
     summary:
-      'Fixes a regression where the parcel info pane could spin forever and never load. The browser cache upgrade introduced in v0.4.0 could get blocked by another open tab, and because the data fetch waited on the cache first, it never reached the network. The cache is now strictly non-blocking — if it can’t open, the app loads straight from the network instead of hanging. Also adds an automated test suite so this class of bug is caught before every release.',
+      'Fixes a regression where the parcel info pane could spin forever and never load. The browser cache upgrade introduced in v0.4.0 could get blocked by another open tab, and because the data fetch waited on the cache first, it never reached the network. The cache is now strictly non-blocking - if it can’t open, the app loads straight from the network instead of hanging. Also adds an automated test suite so this class of bug is caught before every release.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: Database,
-        text: 'Info pane stuck loading: the IndexedDB cache could block on a version upgrade (e.g. when the app was open in another tab), and the parcel/zone fetch awaited it before hitting the network — so nothing loaded. The cache now times out / yields immediately when blocked, closes politely so it never blocks other tabs, and the data fetch always proceeds.',
+        text: 'Info pane stuck loading: the IndexedDB cache could block on a version upgrade (e.g. when the app was open in another tab), and the parcel/zone fetch awaited it before hitting the network - so nothing loaded. The cache now times out / yields immediately when blocked, closes politely so it never blocks other tabs, and the data fetch always proceeds.',
         prs: [],
       },
       {
@@ -1333,19 +1349,19 @@ export const RELEASES: Release[] = [
     date: 'May 29, 2026',
     codename: 'Studio Polish',
     summary:
-      'A big usability pass for phones and a much more prominent “Save to PRM”. The right-side pane is now a proper bottom sheet on mobile — peek at the headline, drag the handle to expand to the full charts, and the map stays visible the whole time (it used to open as a 460px panel that covered the screen). And saving a parcel to your proom workspace is now a full-width call-to-action pinned to the bottom of the pane, visible on both the Zone distribution and Parcel facts tabs.',
+      'A big usability pass for phones and a much more prominent “Save to PRM”. The right-side pane is now a proper bottom sheet on mobile - peek at the headline, drag the handle to expand to the full charts, and the map stays visible the whole time (it used to open as a 460px panel that covered the screen). And saving a parcel to your proom workspace is now a full-width call-to-action pinned to the bottom of the pane, visible on both the Zone distribution and Parcel facts tabs.',
     highlight: true,
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Bookmark,
-        text: 'Save to PRM is now a prominent, full-width button pinned to the bottom of the info pane — visible on both tabs, with clear Saving / Saved / Sign-in states and a quick “Open in proom” link. It used to be a small pill tucked in the Parcel-facts header.',
+        text: 'Save to PRM is now a prominent, full-width button pinned to the bottom of the info pane - visible on both tabs, with clear Saving / Saved / Sign-in states and a quick “Open in proom” link. It used to be a small pill tucked in the Parcel-facts header.',
         prs: [],
       },
       {
         kind: 'improved' as ChangeKind,
         icon: LayoutPanelTop,
-        text: 'Mobile: the info pane is a draggable bottom sheet now — peek height by default, tap the handle to expand to the full charts, map stays in view. Previously it opened as a fixed 460px rail that covered small screens.',
+        text: 'Mobile: the info pane is a draggable bottom sheet now - peek height by default, tap the handle to expand to the full charts, map stays in view. Previously it opened as a fixed 460px rail that covered small screens.',
         prs: [],
       },
       {
@@ -1361,13 +1377,13 @@ export const RELEASES: Release[] = [
     date: 'May 29, 2026',
     codename: 'Density Lens',
     summary:
-      'The map now actually answers the question room exists for — “how densely is this zone built, and where does my parcel sit?”. Clicking a parcel paints its whole zone as a density choropleth straight off the vector tiles (no waiting), colouring every parcel by where its volume utilisation falls in the zone, with the rest of the map dimmed so the zone reads as one block. A new legend decodes the ramp and drops a “You” marker at your parcel. Plus a real speed-up: the persistent cache that was silently broken now works, and the zone aggregate is warmed in parallel the instant you click.',
+      'The map now actually answers the question room exists for - “how densely is this zone built, and where does my parcel sit?”. Clicking a parcel paints its whole zone as a density choropleth straight off the vector tiles (no waiting), colouring every parcel by where its volume utilisation falls in the zone, with the rest of the map dimmed so the zone reads as one block. A new legend decodes the ramp and drops a “You” marker at your parcel. Plus a real speed-up: the persistent cache that was silently broken now works, and the zone aggregate is warmed in parallel the instant you click.',
     highlight: true,
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: Map,
-        text: 'Density choropleth now paints. It was keyed on a tile field that does not exist (`egrid`), so the map showed flat grey — it now keys on `parcel_id` and colours directly from each parcel’s `ratioV`.',
+        text: 'Density choropleth now paints. It was keyed on a tile field that does not exist (`egrid`), so the map showed flat grey - it now keys on `parcel_id` and colours directly from each parcel’s `ratioV`.',
         prs: [],
       },
       {
@@ -1391,13 +1407,13 @@ export const RELEASES: Release[] = [
       {
         kind: 'fixed' as ChangeKind,
         icon: Database,
-        text: 'The persistent (IndexedDB) zone-stats cache was never actually created — a second object store silently failed to initialise, so every reload re-paid the network cost. Fixed, so repeat visits are instant.',
+        text: 'The persistent (IndexedDB) zone-stats cache was never actually created - a second object store silently failed to initialise, so every reload re-paid the network cost. Fixed, so repeat visits are instant.',
         prs: [],
       },
       {
         kind: 'improved' as ChangeKind,
         icon: Zap,
-        text: 'Zone statistics are now warmed in parallel the moment you click a parcel (using the tile’s own zone fields), and concurrent requests are de-duplicated — removing a sequential round-trip from the first-click wait.',
+        text: 'Zone statistics are now warmed in parallel the moment you click a parcel (using the tile’s own zone fields), and concurrent requests are de-duplicated - removing a sequential round-trip from the first-click wait.',
         prs: [],
       },
     ],
@@ -1407,7 +1423,7 @@ export const RELEASES: Release[] = [
     date: 'May 27, 2026',
     codename: 'Inter Polish',
     summary:
-      'Typography refresh aligning room with the SwissNovo suite — UI body, headings, and panels now ride on Inter (variable, OpenType cv11 + ss01 + tabular figures, antialiased) for a more professional tech-grade dark look. Varela Round is preserved only for the room wordmark with the red `oo`. Parcel IDs and code surfaces switch to JetBrains Mono via the new `--room-mono` token.',
+      'Typography refresh aligning room with the SwissNovo suite - UI body, headings, and panels now ride on Inter (variable, OpenType cv11 + ss01 + tabular figures, antialiased) for a more professional tech-grade dark look. Varela Round is preserved only for the room wordmark with the red `oo`. Parcel IDs and code surfaces switch to JetBrains Mono via the new `--room-mono` token.',
     highlight: true,
     items: [
       {
@@ -1435,12 +1451,12 @@ export const RELEASES: Release[] = [
     date: 'May 27, 2026',
     codename: 'Studio Shortcut',
     summary:
-      'Claire now offers a Studio shortcut — deep-link the current parcel into doorway with one tap.',
+      'Claire now offers a Studio shortcut - deep-link the current parcel into doorway with one tap.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
-        text: 'Claire: Studio button — deep-link the current parcel into doorway.',
+        text: 'Claire: Studio button - deep-link the current parcel into doorway.',
         prs: [],
       },
     ],
@@ -1450,12 +1466,12 @@ export const RELEASES: Release[] = [
     date: 'May 26, 2026',
     codename: 'Cadastral Fallback',
     summary:
-      'Picked up the latest shared library — Claire now resolves parcel EGRID via cadastral identify as a fallback.',
+      'Picked up the latest shared library - Claire now resolves parcel EGRID via cadastral identify as a fallback.',
     items: [
       {
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
-        text: 'Updated @aireon/shared to v0.33.0 — Claire now resolves parcel EGRID via cadastral identify as a fallback.',
+        text: 'Updated @aireon/shared to v0.33.0 - Claire now resolves parcel EGRID via cadastral identify as a fallback.',
         prs: [],
       },
     ],
@@ -1470,7 +1486,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
-        text: 'Bumped @aireon/shared to v0.32.0 — release-notes button icon switched from Tag to CheckCircle.',
+        text: 'Bumped @aireon/shared to v0.32.0 - release-notes button icon switched from Tag to CheckCircle.',
         prs: [],
       },
     ],
@@ -1480,19 +1496,19 @@ export const RELEASES: Release[] = [
     date: 'May 25, 2026',
     codename: 'Quatre Langues',
     summary:
-      'room now speaks four languages. Pick English, French, German or Italian from the new flag selector in the top bar — the navbar, panels, modals, charts, tour and toasts all switch instantly, and your choice is remembered across visits.',
+      'room now speaks four languages. Pick English, French, German or Italian from the new flag selector in the top bar - the navbar, panels, modals, charts, tour and toasts all switch instantly, and your choice is remembered across visits.',
     highlight: true,
     items: [
       {
         kind: 'new' as ChangeKind,
         icon: Bookmark,
-        text: 'Save the focused parcel to your PRM list — a new "Save to PRM" button now sits in the Parcel facts header, flips to "Saved" once stored, and offers a one-click link to open the record in proom.',
+        text: 'Save the focused parcel to your PRM list - a new "Save to PRM" button now sits in the Parcel facts header, flips to "Saved" once stored, and offers a one-click link to open the record in proom.',
         prs: [],
       },
       {
         kind: 'new' as ChangeKind,
         icon: Languages,
-        text: 'Deep i18n pass: every user-facing string in room — navbar, layer controls, parcel-facts panel, zone-distribution charts, the "My Exports" modal, the location-permission modal, screenshot toasts, user menu, onboarding tour, error messages — is now translated to EN / FR / DE / IT. The LocaleSelector in the navbar (also new) lets you switch on the fly.',
+        text: 'Deep i18n pass: every user-facing string in room - navbar, layer controls, parcel-facts panel, zone-distribution charts, the "My Exports" modal, the location-permission modal, screenshot toasts, user menu, onboarding tour, error messages - is now translated to EN / FR / DE / IT. The LocaleSelector in the navbar (also new) lets you switch on the fly.',
         prs: [],
       },
       {
@@ -1508,7 +1524,7 @@ export const RELEASES: Release[] = [
     date: 'May 25, 2026',
     codename: 'Already Loaded',
     summary:
-      'Zone and parcel data now stick around between visits. The first click after a reload pulls from the browser instead of the network, so previously-seen parcels open instantly — no more 1–45 s wait while RES recomputes the same aggregate.',
+      'Zone and parcel data now stick around between visits. The first click after a reload pulls from the browser instead of the network, so previously-seen parcels open instantly - no more 1–45 s wait while RES recomputes the same aggregate.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -1519,7 +1535,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'improved' as ChangeKind,
         icon: Database,
-        text: 'Each persistent store gets a 50 MB LRU budget with no expiry — zone aggregates only change monthly, so cached entries stay valid until the budget evicts the least-recently-used ones. Cache lives entirely client-side; nothing leaves your browser.',
+        text: 'Each persistent store gets a 50 MB LRU budget with no expiry - zone aggregates only change monthly, so cached entries stay valid until the budget evicts the least-recently-used ones. Cache lives entirely client-side; nothing leaves your browser.',
         prs: [],
       },
     ],
@@ -1529,7 +1545,7 @@ export const RELEASES: Release[] = [
     date: 'May 25, 2026',
     codename: 'Two Tabs, Full Height',
     summary:
-      'The right-side info pane is now a two-tab UI — Zone distribution (default) and Parcel facts — each using the full pane height, so neither feels squeezed.',
+      'The right-side info pane is now a two-tab UI - Zone distribution (default) and Parcel facts - each using the full pane height, so neither feels squeezed.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -1544,12 +1560,12 @@ export const RELEASES: Release[] = [
     date: 'May 25, 2026',
     codename: 'Call Claire',
     summary:
-      'Claire now has a phone button in her header — click to start a live voice conversation with her, powered by Google\'s Gemini Live (Aoede voice). Same Claire, same parcel grounding; just speak naturally. Picks up @aireon/shared v0.25.1, which also adds an automatic 429/5xx fallback across Gemini chat models so Claire stays responsive when her primary model is rate-limited.',
+      'Claire now has a phone button in her header - click to start a live voice conversation with her, powered by Google\'s Gemini Live (Aoede voice). Same Claire, same parcel grounding; just speak naturally. Picks up @aireon/shared v0.25.1, which also adds an automatic 429/5xx fallback across Gemini chat models so Claire stays responsive when her primary model is rate-limited.',
     items: [
       {
         kind: 'new' as ChangeKind,
         icon: Phone,
-        text: 'New phone button in Claire\'s header. Click it to start a live voice call — Claire listens, you speak naturally in DE/EN/FR/IT, and she answers out loud. Live transcript overlay shows both sides as you talk. Powered by Gemini 3.1 Flash Live preview (voice "Aoede").',
+        text: 'New phone button in Claire\'s header. Click it to start a live voice call - Claire listens, you speak naturally in DE/EN/FR/IT, and she answers out loud. Live transcript overlay shows both sides as you talk. Powered by Gemini 3.1 Flash Live preview (voice "Aoede").',
         prs: [],
       },
       {
@@ -1565,12 +1581,12 @@ export const RELEASES: Release[] = [
     date: 'May 25, 2026',
     codename: 'Right Runtime, Right Signature',
     summary:
-      'The previous attempt at outlasting the cold-cache 504 silently broke the proxy — it switched runtimes but kept the wrong handler signature. Now using the Node (req, res) signature so the function actually runs.',
+      'The previous attempt at outlasting the cold-cache 504 silently broke the proxy - it switched runtimes but kept the wrong handler signature. Now using the Node (req, res) signature so the function actually runs.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: Timer,
-        text: 'Rewrote /api/zone-stats as a Node serverless function with the (req, res) handler signature (matching api/claire-pois.ts). The Web (Request)=>Response signature only fires on the Edge runtime — under runtime: "nodejs" it hangs until maxDuration. Token is now hardcoded for the same reason as claire-pois.ts (stale team-level env var would override).',
+        text: 'Rewrote /api/zone-stats as a Node serverless function with the (req, res) handler signature (matching api/claire-pois.ts). The Web (Request)=>Response signature only fires on the Edge runtime - under runtime: "nodejs" it hangs until maxDuration. Token is now hardcoded for the same reason as claire-pois.ts (stale team-level env var would override).',
         prs: [],
       },
     ],
@@ -1580,18 +1596,18 @@ export const RELEASES: Release[] = [
     date: 'May 25, 2026',
     codename: 'Cold Cache, Warm Reception',
     summary:
-      'First-time clicks on previously-unseen zones no longer fail with a 504 — the proxy now waits long enough for the RES backend\'s cold SQL aggregate to finish, and the client retries once just in case.',
+      'First-time clicks on previously-unseen zones no longer fail with a 504 - the proxy now waits long enough for the RES backend\'s cold SQL aggregate to finish, and the client retries once just in case.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: Timer,
-        text: '/api/zone-stats moved off the Edge runtime (~25s wall-time) onto the Node runtime with maxDuration: 60. RES /zone_stats takes ~45s on the first call for an uncached (fso, cz_local) — once cached, ~1s. Without this, the first user to query a zone got a 504.',
+        text: '/api/zone-stats moved off the Edge runtime (~25s wall-time) onto the Node runtime with maxDuration: 60. RES /zone_stats takes ~45s on the first call for an uncached (fso, cz_local) - once cached, ~1s. Without this, the first user to query a zone got a 504.',
         prs: [],
       },
       {
         kind: 'improved' as ChangeKind,
         icon: Timer,
-        text: 'Client-side retry once on 502/504 in zoneStatsService — by the time the retry fires, RES has cached the response, so the second attempt is sub-second.',
+        text: 'Client-side retry once on 502/504 in zoneStatsService - by the time the retry fires, RES has cached the response, so the second attempt is sub-second.',
         prs: [],
       },
     ],
@@ -1601,7 +1617,7 @@ export const RELEASES: Release[] = [
     date: 'May 25, 2026',
     codename: 'Charts Get the Room',
     summary:
-      'Rebalanced the right-hand info panel so the zone-distribution charts get most of the height — the parcel facts now occupy roughly the top third, the distribution panel the bottom two-thirds.',
+      'Rebalanced the right-hand info panel so the zone-distribution charts get most of the height - the parcel facts now occupy roughly the top third, the distribution panel the bottom two-thirds.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -1616,7 +1632,7 @@ export const RELEASES: Release[] = [
     date: 'May 24, 2026',
     codename: 'Link Preview',
     summary:
-      'Sharing a room link in Slack, WhatsApp, Discord, Teams etc. now shows a real screenshot of the app — the choropleth map with the zone-density panel — instead of the placeholder Bolt image.',
+      'Sharing a room link in Slack, WhatsApp, Discord, Teams etc. now shows a real screenshot of the app - the choropleth map with the zone-density panel - instead of the placeholder Bolt image.',
     items: [
       {
         kind: 'improved' as ChangeKind,
@@ -1631,12 +1647,12 @@ export const RELEASES: Release[] = [
     date: 'May 24, 2026',
     codename: 'Zone Stats Online',
     summary:
-      'Zone distribution charts now actually appear when you click a parcel — the parcel_data response uses RES\'s canonical fso_num field, which we weren\'t reading.',
+      'Zone distribution charts now actually appear when you click a parcel - the parcel_data response uses RES\'s canonical fso_num field, which we weren\'t reading.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: BarChart3,
-        text: 'Read fso_num (and fso_num_2021) as aliases for fso when parsing /parcel_data — without this the zone-stats fetch was silently skipped and the right-hand distribution panel stayed empty.',
+        text: 'Read fso_num (and fso_num_2021) as aliases for fso when parsing /parcel_data - without this the zone-stats fetch was silently skipped and the right-hand distribution panel stayed empty.',
         prs: [],
       },
     ],
@@ -1646,7 +1662,7 @@ export const RELEASES: Release[] = [
     date: 'May 24, 2026',
     codename: 'How Dense, Really?',
     summary:
-      'The first build of room — a map-first explorer that answers one core question: how densely built is this zone, and where does the selected parcel sit on the distribution?',
+      'The first build of room - a map-first explorer that answers one core question: how densely built is this zone, and where does the selected parcel sit on the distribution?',
     highlight: true,
     items: [
       {
@@ -1658,13 +1674,13 @@ export const RELEASES: Release[] = [
       {
         kind: 'new' as ChangeKind,
         icon: BarChart3,
-        text: 'Zone summary panel: municipality, zoning category, sub-zone, parcel area, existing building volume, year of construction, floor-area proxy, ratioV and freeV — pulled live from the RES /parcel_data endpoint.',
+        text: 'Zone summary panel: municipality, zoning category, sub-zone, parcel area, existing building volume, year of construction, floor-area proxy, ratioV and freeV - pulled live from the RES /parcel_data endpoint.',
         prs: [],
       },
       {
         kind: 'new' as ChangeKind,
         icon: Activity,
-        text: 'Six distribution histograms — ratioV, freeV, ratioS, GFZ, building height, number of floors — each with a "you are here" reference line marking the selected parcel.',
+        text: 'Six distribution histograms - ratioV, freeV, ratioS, GFZ, building height, number of floors - each with a "you are here" reference line marking the selected parcel.',
         prs: [],
       },
       {

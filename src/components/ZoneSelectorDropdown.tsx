@@ -68,7 +68,7 @@ const ZoneSelectorDropdown = ({
             {t('panel.zone.zoning_category')}
           </p>
           <p className="mt-0.5 text-sm font-mono text-gray-900 dark:text-gray-100 truncate">
-            {currentCzLocal || '—'}
+            {currentCzLocal || '-'}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
