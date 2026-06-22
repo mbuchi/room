@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.17',
+    date: 'June 22, 2026',
+    codename: 'Shared v1.64.0',
+    summary:
+      'Refreshed the shared interface library so the bits room borrows from it read with plain hyphens, not em-dashes.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text:
+          'Updated @aireon/shared to v1.64.0, which removes em-dashes from shared UI strings (Claire labels, What\'s New button, saved-parcels / bug-report dialogs).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.16',
     date: 'June 22, 2026',
     codename: 'Hyphens, not em-dashes',
