@@ -786,7 +786,6 @@ const MapView = () => {
       {selectedParcel && (
         <ClaireAssistant
           appName="room"
-          geminiApiKey={import.meta.env.VITE_GEMINI_API_KEY as string | undefined}
           voiceCallEnabled
           open={claireOpen}
           onOpenChange={setClaireOpen}
