@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.22',
+    date: 'June 24, 2026',
+    codename: 'Quieter map console',
+    summary:
+      'Cleared a harmless but noisy basemap console warning. No visible change to the map.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Map,
+        text:
+          'The map no longer logs a repeated "type number, but found null" warning from the swisstopo basemap contour lines. Shipped via the shared @aireon/shared v1.67.0 update; the map looks and behaves the same.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.21',
     date: 'June 23, 2026',
     codename: 'Steadier parcel hover',
