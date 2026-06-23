@@ -11,7 +11,7 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
-    version: '0.10.20',
+    version: '0.10.21',
     date: 'June 23, 2026',
     codename: 'Steadier parcel hover',
     summary:
@@ -21,7 +21,7 @@ export const RELEASES: Release[] = [
         kind: 'fixed' as ChangeKind,
         icon: Zap,
         text:
-          'Moving the mouse quickly while zoomed out no longer makes the parcel highlight race through every parcel on the way to where you stop. The hover highlight now switches off below block-level zoom (z16), where a single view holds too many tiny parcels to track smoothly. Zoom in past z16 and hover works exactly as before.',
+          'Moving the mouse quickly while zoomed out no longer makes the parcel highlight race through every parcel on the way to where you stop. The hover highlight now appears only once you zoom in close (zoom 17 and above), so a zoomed-out map stays a clean overview. Zoom in to z17 and hover works as before.',
         prs: [],
       },
     ],
