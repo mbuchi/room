@@ -1,3 +1,4 @@
+import { DEFAULT_MAP_ZOOM } from '@aireon/shared/map-defaults';
 // Publishable client token — restricted by domain in the Mapbox console.
 // Set in Vercel project env (Production + Preview) as VITE_MAPBOX_TOKEN.
 // Falls back to an empty string in local dev — Mapbox will then refuse to
@@ -5,7 +6,7 @@
 export const MAPBOX_TOKEN: string = (import.meta.env.VITE_MAPBOX_TOKEN as string | undefined) ?? '';
 
 export const DEFAULT_CENTER: [number, number] = [8.894175, 47.556806];
-export const DEFAULT_ZOOM = 16.5;
+export const DEFAULT_ZOOM = DEFAULT_MAP_ZOOM;
 
 export const buildingVolumeLegend = [
   { color: '#deebf7', label: '0 - 100' },

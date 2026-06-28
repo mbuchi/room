@@ -1,6 +1,7 @@
 import {
   ShieldAlert, Palette, Info,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
+  ZoomIn,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -10,6 +11,21 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.10.23',
+    date: 'June 28, 2026',
+    codename: 'Shared launch zoom',
+    summary:
+      'The map now uses the shared Aireon default zoom when no zoom is provided in the link.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ZoomIn,
+        text: 'Opening the map without a ?zoom= value now starts from the shared @aireon/shared map default: zoom 18. Links with an explicit ?zoom= value still keep that zoom.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.10.22',
     date: 'June 24, 2026',
