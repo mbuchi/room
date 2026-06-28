@@ -24,6 +24,13 @@ export const RELEASES: Release[] = [
           'The map no longer logs a repeated "type number, but found null" warning from the swisstopo basemap contour lines. Shipped via the shared @aireon/shared v1.67.0 update; the map looks and behaves the same.',
         prs: [],
       },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'Deployment checks now load the private shared Aireon package through a read-only deploy key, so preview and production builds no longer depend on a developer machine\'s Git credentials.',
+        prs: [],
+      },
     ],
   },
   {
