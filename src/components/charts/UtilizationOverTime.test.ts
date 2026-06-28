@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { orderAgeCohorts } from './UtilizationOverTime';
+import { orderAgeCohorts } from './orderAgeCohorts';
 import type { ZoneStatsResponse } from '../../services/zoneStatsService';
 
 type AgeCohorts = ZoneStatsResponse['age_cohorts'];

@@ -19,7 +19,6 @@ import { wgs84ToLv95 } from '../lib/coordTransform';
 import { fetchParcelData, ParcelDataError, type ParcelData } from '../services/parcelDataService';
 import { prefetchZoneStats, type ZoneStatsResponse } from '../services/zoneStatsService';
 import DensityLegend from './DensityLegend';
-import AboutModal from './AboutModal';
 import type { ScreenshotMetadata } from '../services/imageService';
 import Navbar from './Navbar';
 import ZoomControl from './ZoomControl';
@@ -27,7 +26,7 @@ import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
 import ZonePanel from './ZonePanel';
 import SaveToPrmBar from './SaveToPrmBar';
-import { ClaireAssistant, CloseButton, MapControlDock, MapLegendChip, SegmentedTabs, useGlass, useIsMobile, getStoredTheme, setTheme } from '@aireon/shared';
+import { AboutModal, ClaireAssistant, CloseButton, MapControlDock, MapLegendChip, SegmentedTabs, useGlass, useIsMobile, getStoredTheme, setTheme } from '@aireon/shared';
 import {
   BasemapPicker,
   getBasemapStrings,
@@ -832,7 +831,23 @@ const MapView = () => {
 
       {showAboutModal && (
         <AboutModal
+          wordmark={<>r<span className="text-red-600">oo</span>m</>}
+          description={t('about.description')}
+          credits={[
+            {
+              label: t('about.mapData'),
+              name: '\u00a9 swisstopo',
+              href: 'https://www.swisstopo.admin.ch',
+            },
+            {
+              label: t('about.renderer'),
+              name: 'MapLibre GL',
+              href: 'https://maplibre.org',
+            },
+          ]}
+          closeLabel={t('about.close')}
           glassLevel={glassLevel}
+          dark={isDarkMode}
           onClose={() => setShowAboutModal(false)}
         />
       )}

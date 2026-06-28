@@ -40,6 +40,13 @@ export const RELEASES: Release[] = [
           'Moving the mouse quickly while zoomed out no longer makes the parcel highlight race through every parcel on the way to where you stop. The hover highlight now appears only once you zoom in close (zoom 17 and above), so a zoomed-out map stays a clean overview. Zoom in to z17 and hover works as before.',
         prs: [],
       },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Info,
+        text:
+          'The About dialog now uses the suite-standard shared modal from @aireon/shared v1.66.0 while keeping room\'s own swisstopo and MapLibre credits.',
+        prs: [],
+      },
     ],
   },
   {
