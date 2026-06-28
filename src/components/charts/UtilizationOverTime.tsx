@@ -7,11 +7,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import type {
-  ZoneAgeCohort,
-  ZoneStatsResponse,
-} from '../../services/zoneStatsService';
+import type { ZoneStatsResponse } from '../../services/zoneStatsService';
 import { useI18n } from '../../contexts/I18nContext';
+import { orderAgeCohorts } from './orderAgeCohorts';
 
 interface UtilizationOverTimeProps {
   ageCohorts: ZoneStatsResponse['age_cohorts'];
@@ -19,28 +17,6 @@ interface UtilizationOverTimeProps {
 }
 
 const CHART_HEIGHT = 200;
-
-type AgeCohorts = ZoneStatsResponse['age_cohorts'];
-type CohortKey = keyof AgeCohorts;
-
-/**
- * The canonical left-to-right order for the line: the all-encompassing "now"
- * (ALL) snapshot first as the baseline, then the age windows in ascending
- * order (20 → 40 → 60). The defect this replaces built the array in the raw
- * object/insertion order, which surfaced as 60 / 40 / 20 / ALL and scrambled
- * the trend.
- */
-const COHORT_ORDER: CohortKey[] = ['now', 'last20', 'last40', 'last60'];
-
-/**
- * Return the age cohorts as an ordered array (ALL, then 20 / 40 / 60).
- * Pure and side-effect free so the ordering can be unit-tested directly.
- */
-export function orderAgeCohorts(
-  ageCohorts: AgeCohorts,
-): Array<ZoneAgeCohort & { cohort: CohortKey }> {
-  return COHORT_ORDER.map((cohort) => ({ ...ageCohorts[cohort], cohort }));
-}
 
 /**
  * Four-point line: how mean `ratio_v` evolves across age cohorts. The cohorts

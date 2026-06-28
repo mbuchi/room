@@ -24,6 +24,13 @@ export const RELEASES: Release[] = [
           'The map no longer logs a repeated "type number, but found null" warning from the swisstopo basemap contour lines. Shipped via the shared @aireon/shared v1.67.0 update; the map looks and behaves the same.',
         prs: [],
       },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'Deployment checks now load the private shared Aireon package through a read-only deploy key, so preview and production builds no longer depend on a developer machine\'s Git credentials.',
+        prs: [],
+      },
     ],
   },
   {
@@ -38,6 +45,13 @@ export const RELEASES: Release[] = [
         icon: Zap,
         text:
           'Moving the mouse quickly while zoomed out no longer makes the parcel highlight race through every parcel on the way to where you stop. The hover highlight now appears only once you zoom in close (zoom 17 and above), so a zoomed-out map stays a clean overview. Zoom in to z17 and hover works as before.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Info,
+        text:
+          'The About dialog now uses the suite-standard shared modal from @aireon/shared v1.66.0 while keeping room\'s own swisstopo and MapLibre credits.',
         prs: [],
       },
     ],
