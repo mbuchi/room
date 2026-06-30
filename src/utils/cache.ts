@@ -118,7 +118,9 @@ export interface IndexedDBCacheOptions {
 
 // Bumped from 1 → 2 to repair installs whose `room-cache` DB was created with
 // only one of its two stores (see `stores` above). The 1→2 upgrade creates
-// any missing store without wiping existing data.
+// any missing store without wiping existing data. Bumped 2 → 3 to add the
+// `city-market` store (cityMarketService) — same idempotent create-missing
+// upgrade, existing parcel-data / zone-stats entries are preserved.
 //
 // CRITICAL: a version bump means `open()` runs an upgrade, and an upgrade can
 // be **blocked** by another still-open connection on the OLD version (a second
@@ -128,7 +130,7 @@ export interface IndexedDBCacheOptions {
 // If it hung, the parcel/zone fetch would never even reach the network and the
 // info pane would spin forever. Hence the `onblocked` + timeout fallbacks below
 // and the `onversionchange` self-close so we never block a future upgrade.
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 // A healthy open resolves in single-digit ms; only a genuinely blocked upgrade
 // takes longer. Past this we give up on the persistent cache for the session
 // and let every read/write fall through to the network — never hang.
