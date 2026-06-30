@@ -112,13 +112,13 @@ export function humanPercentileReading(
   // callers receive the English copy. Keeping the locale arg keeps the API
   // forward-compatible without forcing callers to change later.
   if (p === 100) {
-    return 'This parcel is the most intensively utilised in the zone.';
+    return 'This parcel is the most intensively utilized in the zone.';
   }
   if (p === 0) {
-    return 'This parcel is the least intensively utilised in the zone.';
+    return 'This parcel is the least intensively utilized in the zone.';
   }
   if (p >= 50) {
-    return `${moreIntensive}% of comparable parcels are utilised more intensively.`;
+    return `${moreIntensive}% of comparable parcels are utilized more intensively.`;
   }
-  return `${p}% of comparable parcels are utilised less intensively.`;
+  return `${p}% of comparable parcels are utilized less intensively.`;
 }

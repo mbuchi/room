@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.11.3',
+    date: 'July 1, 2026',
+    codename: 'Spell it our way',
+    summary:
+      'US English spelling across the UI.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Type,
+        text:
+          'Switched the interface copy to US English spelling (for example "utilization" instead of "utilisation"), so the wording is consistent throughout the app. No functional change.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.11.2',
     date: 'June 30, 2026',
     codename: 'Median on the mark',
@@ -589,7 +605,7 @@ export const RELEASES: Release[] = [
         kind: 'changed' as ChangeKind,
         icon: Package,
         text:
-          'Removed the unused @mapbox/mapbox-gl-geocoder dependency. room searches addresses with the suite-standard tokenless geo.admin service, so this package was never imported - dropping it trims the dependency tree with no behaviour change.',
+          'Removed the unused @mapbox/mapbox-gl-geocoder dependency. room searches addresses with the suite-standard tokenless geo.admin service, so this package was never imported - dropping it trims the dependency tree with no behavior change.',
         prs: [],
       },
     ],
@@ -852,7 +868,7 @@ export const RELEASES: Release[] = [
         kind: 'improved' as ChangeKind,
         icon: PanelsTopLeft,
         text:
-          'Replaced room’s hand-rolled header and inline address search with the shared <AppNavbar> from @aireon/shared v1.18.1. Same look and behaviour - Mapbox address search, “Open with”, the Locate · Settings · Language toolbar and the account menu - with far less app-specific code.',
+          'Replaced room’s hand-rolled header and inline address search with the shared <AppNavbar> from @aireon/shared v1.18.1. Same look and behavior - Mapbox address search, “Open with”, the Locate · Settings · Language toolbar and the account menu - with far less app-specific code.',
         prs: [],
       },
     ],
@@ -903,7 +919,7 @@ export const RELEASES: Release[] = [
         kind: 'improved',
         icon: PanelsTopLeft,
         text:
-          'Refreshed the account menu via @aireon/shared v1.16.0: the profile button now sits beside the Active status line and is relabelled "edit", saved parcels gain an Open-in-proom shortcut, and the PRM pipeline is trimmed to four active stages.',
+          'Refreshed the account menu via @aireon/shared v1.16.0: the profile button now sits beside the Active status line and is relabeled "edit", saved parcels gain an Open-in-proom shortcut, and the PRM pipeline is trimmed to four active stages.',
         prs: [],
       },
     ],
@@ -919,7 +935,7 @@ export const RELEASES: Release[] = [
         kind: 'improved',
         icon: PanelsTopLeft,
         text:
-          'Replaced the hand-rolled navbar action row and its mobile overflow menu with the shared @aireon/shared MapToolbar (v1.15.0). Locate, a new Settings placeholder and the language picker now share one component - same icons, order and behaviour - and fold into a single ⋯ menu on phones.',
+          'Replaced the hand-rolled navbar action row and its mobile overflow menu with the shared @aireon/shared MapToolbar (v1.15.0). Locate, a new Settings placeholder and the language picker now share one component - same icons, order and behavior - and fold into a single ⋯ menu on phones.',
         prs: [],
       },
     ],
@@ -1247,7 +1263,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'improved' as ChangeKind,
         icon: Map,
-        text: 'Rewrote the tour content to be concrete: the map step now spells out that clicking the map picks a parcel and shades its whole zone by built-volume percentile, and points to the facts and distribution panel it opens. Corrected the map step so it spotlights the map (it no longer just centres a blank tooltip).',
+        text: 'Rewrote the tour content to be concrete: the map step now spells out that clicking the map picks a parcel and shades its whole zone by built-volume percentile, and points to the facts and distribution panel it opens. Corrected the map step so it spotlights the map (it no longer just centers a blank tooltip).',
         prs: [],
       },
       {
@@ -1289,7 +1305,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'improved' as ChangeKind,
         icon: Languages,
-        text: 'Renamed the parcel-save action from “Save to PRM” to “Track parcel” (and “Saved to PRM” → “Tracked”) for new-user clarity, localised in en/fr/de/it. No change to behaviour - it still saves the parcel to your proom workspace.',
+        text: 'Renamed the parcel-save action from “Save to PRM” to “Track parcel” (and “Saved to PRM” → “Tracked”) for new-user clarity, localized in en/fr/de/it. No change to behavior - it still saves the parcel to your proom workspace.',
         prs: [],
       },
     ],
@@ -1304,7 +1320,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'improved' as ChangeKind,
         icon: Zap,
-        text: 'Enabled the React Compiler 1.0 (Babel plugin, target React 18) for automatic compile-time memoization - fewer needless re-renders, no behaviour change. Healthcheck: 29/29 components compiled.',
+        text: 'Enabled the React Compiler 1.0 (Babel plugin, target React 18) for automatic compile-time memoization - fewer needless re-renders, no behavior change. Healthcheck: 29/29 components compiled.',
         prs: [],
       },
     ],
@@ -1496,18 +1512,18 @@ export const RELEASES: Release[] = [
     date: 'May 30, 2026',
     codename: 'Axis & Order',
     summary:
-      'Two fixes for the zone-distribution charts in the side pane. The numbers running down the left of the utilisation-over-time and area-vs-volume charts were getting clipped at the pane edge - they now have room to render in full. And the utilisation-over-time line was plotting its age cohorts in the wrong order (60 / 40 / 20 / ALL); it now reads ALL first, then the 20 / 40 / 60 windows ascending, so the trend flows left-to-right the way the caption promises.',
+      'Two fixes for the zone-distribution charts in the side pane. The numbers running down the left of the utilization-over-time and area-vs-volume charts were getting clipped at the pane edge - they now have room to render in full. And the utilization-over-time line was plotting its age cohorts in the wrong order (60 / 40 / 20 / ALL); it now reads ALL first, then the 20 / 40 / 60 windows ascending, so the trend flows left-to-right the way the caption promises.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: BarChart3,
-        text: 'Left Y-axis tick labels on the utilisation-over-time and area-vs-volume charts no longer get cut off at the pane edge - the axes are sized to fit the numbers.',
+        text: 'Left Y-axis tick labels on the utilization-over-time and area-vs-volume charts no longer get cut off at the pane edge - the axes are sized to fit the numbers.',
         prs: [19],
       },
       {
         kind: 'fixed' as ChangeKind,
         icon: Activity,
-        text: 'The utilisation-over-time line now orders its age cohorts as ALL → 20 → 40 → 60 instead of the scrambled 60 / 40 / 20 / ALL, so the densification trend reads correctly.',
+        text: 'The utilization-over-time line now orders its age cohorts as ALL → 20 → 40 → 60 instead of the scrambled 60 / 40 / 20 / ALL, so the densification trend reads correctly.',
         prs: [19],
       },
     ],
@@ -1566,19 +1582,19 @@ export const RELEASES: Release[] = [
     date: 'May 29, 2026',
     codename: 'Density Lens',
     summary:
-      'The map now actually answers the question room exists for - “how densely is this zone built, and where does my parcel sit?”. Clicking a parcel paints its whole zone as a density choropleth straight off the vector tiles (no waiting), colouring every parcel by where its volume utilisation falls in the zone, with the rest of the map dimmed so the zone reads as one block. A new legend decodes the ramp and drops a “You” marker at your parcel. Plus a real speed-up: the persistent cache that was silently broken now works, and the zone aggregate is warmed in parallel the instant you click.',
+      'The map now actually answers the question room exists for - “how densely is this zone built, and where does my parcel sit?”. Clicking a parcel paints its whole zone as a density choropleth straight off the vector tiles (no waiting), coloring every parcel by where its volume utilization falls in the zone, with the rest of the map dimmed so the zone reads as one block. A new legend decodes the ramp and drops a “You” marker at your parcel. Plus a real speed-up: the persistent cache that was silently broken now works, and the zone aggregate is warmed in parallel the instant you click.',
     highlight: true,
     items: [
       {
         kind: 'fixed' as ChangeKind,
         icon: Map,
-        text: 'Density choropleth now paints. It was keyed on a tile field that does not exist (`egrid`), so the map showed flat grey - it now keys on `parcel_id` and colours directly from each parcel’s `ratioV`.',
+        text: 'Density choropleth now paints. It was keyed on a tile field that does not exist (`egrid`), so the map showed flat gray - it now keys on `parcel_id` and colors directly from each parcel’s `ratioV`.',
         prs: [],
       },
       {
         kind: 'new' as ChangeKind,
         icon: Layers,
-        text: 'Click a parcel → its entire zoning zone lights up as a utilisation choropleth (cool = under-built, hot red = at/over the allowance), with out-of-zone parcels dimmed. Switching zones in the dropdown re-colours the map.',
+        text: 'Click a parcel → its entire zoning zone lights up as a utilization choropleth (cool = under-built, hot red = at/over the allowance), with out-of-zone parcels dimmed. Switching zones in the dropdown re-colors the map.',
         prs: [],
       },
       {
@@ -1857,7 +1873,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'new' as ChangeKind,
         icon: Map,
-        text: 'Map-first parcel selector with a choropleth fill: every parcel inside the selected zone is shaded by its utilisation percentile, so you see density at a glance and the selected parcel is outlined.',
+        text: 'Map-first parcel selector with a choropleth fill: every parcel inside the selected zone is shaded by its utilization percentile, so you see density at a glance and the selected parcel is outlined.',
         prs: [],
       },
       {
@@ -1875,13 +1891,13 @@ export const RELEASES: Release[] = [
       {
         kind: 'new' as ChangeKind,
         icon: Layers,
-        text: 'Boxplot + density curve for the primary utilisation metric, with min, max, median and main percentiles.',
+        text: 'Boxplot + density curve for the primary utilization metric, with min, max, median and main percentiles.',
         prs: [],
       },
       {
         kind: 'new' as ChangeKind,
         icon: Sparkles,
-        text: 'Percentile gauge: a 0–100 dial that shows where the selected parcel falls inside the zone distribution, with a human reading like "82% of comparable parcels are utilised more intensively."',
+        text: 'Percentile gauge: a 0–100 dial that shows where the selected parcel falls inside the zone distribution, with a human reading like "82% of comparable parcels are utilized more intensively."',
         prs: [],
       },
       {
@@ -1893,7 +1909,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'new' as ChangeKind,
         icon: BookOpen,
-        text: 'Utilisation-over-time line chart: mean ratioV across age cohorts (now, last 20 / 40 / 60 years) for the selected zone.',
+        text: 'Utilization-over-time line chart: mean ratioV across age cohorts (now, last 20 / 40 / 60 years) for the selected zone.',
         prs: [],
       },
       {
