@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.10.24',
+    date: 'June 30, 2026',
+    codename: 'Default zoom 17',
+    summary:
+      'The map now opens one step wider by default, starting at zoom level 17.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ZoomIn,
+        text: 'Opening the map without a ?zoom= value now starts at zoom level 17, via the shared @aireon/shared v1.69.0 default. Links with an explicit ?zoom= value keep that zoom.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.10.23',
     date: 'June 30, 2026',
     codename: 'Claire clears 3D controls',
