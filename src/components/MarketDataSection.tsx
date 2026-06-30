@@ -239,11 +239,11 @@ const MarketBody = ({
  * runs longer, exactly like the RealAdvisor screenshot. Pure flex/positioned
  * divs — no chart lib.
  *
- * Layout is columnar, two lines per room, under a one-time min/median/max
- * legend, so the min and max of each band are spelled out at the ends of the
- * bar and the median is both printed (centered, line A) and marked on the bar
- * (high-contrast tick, line B). This kills the old ambiguity where the lone
- * right-hand number read as the band's max instead of the median.
+ * Layout is one row per room, under a one-time min/median/max legend: the min
+ * and max of each band are spelled out at the ends of the bar and the median
+ * floats directly above its marker (a high-contrast tick on the bar). This
+ * kills the old ambiguity where the lone right-hand number read as the band's
+ * max instead of the median.
  */
 const RoomRangeBars = ({
   byRooms,
@@ -273,12 +273,13 @@ const RoomRangeBars = ({
     <div>
       {/* Column legend (once) — labels the three figures spelled out below. */}
       <div className="flex items-center gap-2 text-[9px] uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
+        <span className="w-12 flex-shrink-0" aria-hidden="true" />
         <span className="w-14 flex-shrink-0 text-right">{t('market.legend.min')}</span>
         <span className="flex-1 text-center">{t('market.legend.median')}</span>
         <span className="w-14 flex-shrink-0">{t('market.legend.max')}</span>
       </div>
 
-      <div className="space-y-2.5">
+      <div className="space-y-1">
         {rooms.map(({ key, value }) => {
           const low = value * 0.8;
           const high = value * 1.2;
@@ -286,19 +287,11 @@ const RoomRangeBars = ({
           const widthPct = Math.max(pct(high) - leftPct, 2); // keep a visible sliver
           const tickPct = pct(value);
           return (
-            <div key={key}>
-              {/* Line A — room label + centered median value. */}
-              <div className="flex items-baseline gap-2">
-                <span className="w-14 flex-shrink-0 text-[11px] font-medium text-gray-600 dark:text-gray-300">
+            <div key={key} className="pt-4">{/* reserve space above the bar for the floating median label */}
+              <div className="flex items-center gap-2">
+                <span className="w-12 flex-shrink-0 text-[11px] font-medium text-gray-600 dark:text-gray-300">
                   {t(`market.room.${key}`)}
                 </span>
-                <span className="flex-1 text-center text-[12px] font-semibold tabular-nums text-gray-900 dark:text-gray-100">
-                  {fmt(value)}
-                </span>
-                <span className="w-14 flex-shrink-0" aria-hidden="true" />
-              </div>
-              {/* Line B — min · bar+median marker · max. */}
-              <div className="mt-0.5 flex items-center gap-2">
                 <span className="w-14 flex-shrink-0 text-right text-[10px] tabular-nums text-gray-400 dark:text-gray-500">
                   {fmt(low)}
                 </span>
@@ -307,7 +300,14 @@ const RoomRangeBars = ({
                     className="absolute top-0 h-full rounded-full bg-indigo-500/80 dark:bg-indigo-400/80"
                     style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
                   />
-                  {/* High-contrast MEDIAN marker — taller than the band so it reads as a marker. */}
+                  {/* median value — floats directly above its marker */}
+                  <span
+                    className="absolute bottom-full mb-1 -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold tabular-nums text-gray-900 dark:text-gray-100"
+                    style={{ left: `${tickPct}%` }}
+                  >
+                    {fmt(value)}
+                  </span>
+                  {/* median marker */}
                   <div
                     className="absolute top-1/2 -translate-y-1/2 h-[15px] w-[2px] rounded-full bg-white shadow-[0_0_0_1px_rgba(30,27,75,0.55)] dark:shadow-[0_0_0_1px_rgba(0,0,0,0.5)]"
                     style={{ left: `calc(${tickPct}% - 1px)` }}
