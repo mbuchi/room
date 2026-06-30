@@ -13,6 +13,22 @@ export { KIND_META } from '@aireon/shared';
 export const RELEASES: Release[] = [
   {
     version: '0.10.23',
+    date: 'June 30, 2026',
+    codename: 'Claire clears 3D controls',
+    summary:
+      "Claire's floating launcher now stays clear of the 3D zoom button when a parcel panel is open.",
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Layers,
+        text:
+          "Updated @aireon/shared to v1.68.3 so Claire sits higher beside open parcel panels and no longer overlaps the 3D button in the zoom control.",
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.10.23',
     date: 'June 28, 2026',
     codename: 'Shared launch zoom',
     summary:
