@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.11.1',
+    date: 'June 30, 2026',
+    codename: 'Clear ranges',
+    summary:
+      'The per-room market bars now spell out the low, median and high of each range, so you can read the spread at a glance instead of one ambiguous number.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: TrendingUp,
+        text:
+          'Redesigned the per-room range bars in the Market section so each room now labels its min, median and max. The minimum and maximum sit at the ends of the bar, the median is printed above it and marked on the bar with a high-contrast tick, and a one-time min / median / max legend heads the column. Previously only the median was shown at the far right, where it read like the maximum.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.11.0',
     date: 'June 30, 2026',
     codename: 'Market intel',

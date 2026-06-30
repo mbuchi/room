@@ -26,7 +26,9 @@ import { useI18n } from '../contexts/I18nContext';
  * The headline reads median / 80% range (p10–p90) / price per m². Below it,
  * per-room range bars reproduce the RealAdvisor look: every shown room's
  * [avg×0.8, avg×1.2] band is laid on ONE shared horizontal scale, so pricier
- * rooms sit further right and read longer at a glance.
+ * rooms sit further right and read longer at a glance. Each band spells out its
+ * min and max at the ends and marks the median (under a one-time min/median/max
+ * legend) so the range — not just one figure — is unmistakable.
  */
 
 type Mode = 'rent' | 'buy';
@@ -231,11 +233,17 @@ const MarketBody = ({
 /**
  * Per-room ±20% range bars laid on ONE shared horizontal scale.
  *
- * For each non-null room average `v` the band spans [v*0.8, v*1.2] with a tick
+ * For each non-null room average `v` the band spans [v*0.8, v*1.2] with a marker
  * at the median `v`. scaleMin/scaleMax are taken across every shown room so the
  * bars are directly comparable: a pricier room's band starts further right and
  * runs longer, exactly like the RealAdvisor screenshot. Pure flex/positioned
  * divs — no chart lib.
+ *
+ * Layout is columnar, two lines per room, under a one-time min/median/max
+ * legend, so the min and max of each band are spelled out at the ends of the
+ * bar and the median is both printed (centered, line A) and marked on the bar
+ * (high-contrast tick, line B). This kills the old ambiguity where the lone
+ * right-hand number read as the band's max instead of the median.
  */
 const RoomRangeBars = ({
   byRooms,
@@ -262,37 +270,57 @@ const RoomRangeBars = ({
   const pct = (val: number) => ((val - scaleMin) / span) * 100;
 
   return (
-    <div className="space-y-2">
-      {rooms.map(({ key, value }) => {
-        const low = value * 0.8;
-        const high = value * 1.2;
-        const leftPct = pct(low);
-        const widthPct = Math.max(pct(high) - leftPct, 2); // keep a visible sliver
-        const tickPct = pct(value);
-        return (
-          <div key={key} className="flex items-center gap-2">
-            {/* Room label */}
-            <span className="w-12 flex-shrink-0 text-[11px] font-medium text-gray-600 dark:text-gray-300">
-              {t(`market.room.${key}`)}
-            </span>
-            {/* Track + filled band + median tick */}
-            <div className="relative h-3 flex-1 rounded-full bg-gray-200/70 dark:bg-gray-800/70">
-              <div
-                className="absolute top-0 h-full rounded-full bg-indigo-500/80 dark:bg-indigo-400/80"
-                style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-              />
-              <div
-                className="absolute top-[-1px] h-[14px] w-[2px] rounded-full bg-indigo-700 dark:bg-indigo-200"
-                style={{ left: `calc(${tickPct}% - 1px)` }}
-              />
+    <div>
+      {/* Column legend (once) — labels the three figures spelled out below. */}
+      <div className="flex items-center gap-2 text-[9px] uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
+        <span className="w-14 flex-shrink-0 text-right">{t('market.legend.min')}</span>
+        <span className="flex-1 text-center">{t('market.legend.median')}</span>
+        <span className="w-14 flex-shrink-0">{t('market.legend.max')}</span>
+      </div>
+
+      <div className="space-y-2.5">
+        {rooms.map(({ key, value }) => {
+          const low = value * 0.8;
+          const high = value * 1.2;
+          const leftPct = pct(low);
+          const widthPct = Math.max(pct(high) - leftPct, 2); // keep a visible sliver
+          const tickPct = pct(value);
+          return (
+            <div key={key}>
+              {/* Line A — room label + centered median value. */}
+              <div className="flex items-baseline gap-2">
+                <span className="w-14 flex-shrink-0 text-[11px] font-medium text-gray-600 dark:text-gray-300">
+                  {t(`market.room.${key}`)}
+                </span>
+                <span className="flex-1 text-center text-[12px] font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+                  {fmt(value)}
+                </span>
+                <span className="w-14 flex-shrink-0" aria-hidden="true" />
+              </div>
+              {/* Line B — min · bar+median marker · max. */}
+              <div className="mt-0.5 flex items-center gap-2">
+                <span className="w-14 flex-shrink-0 text-right text-[10px] tabular-nums text-gray-400 dark:text-gray-500">
+                  {fmt(low)}
+                </span>
+                <div className="relative h-3 flex-1 rounded-full bg-gray-200/70 dark:bg-gray-800/70">
+                  <div
+                    className="absolute top-0 h-full rounded-full bg-indigo-500/80 dark:bg-indigo-400/80"
+                    style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
+                  />
+                  {/* High-contrast MEDIAN marker — taller than the band so it reads as a marker. */}
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 h-[15px] w-[2px] rounded-full bg-white shadow-[0_0_0_1px_rgba(30,27,75,0.55)] dark:shadow-[0_0_0_1px_rgba(0,0,0,0.5)]"
+                    style={{ left: `calc(${tickPct}% - 1px)` }}
+                  />
+                </div>
+                <span className="w-14 flex-shrink-0 text-[10px] tabular-nums text-gray-400 dark:text-gray-500">
+                  {fmt(high)}
+                </span>
+              </div>
             </div>
-            {/* Median value for the room */}
-            <span className="w-14 flex-shrink-0 text-right text-[11px] tabular-nums text-gray-700 dark:text-gray-300">
-              {fmt(value)}
-            </span>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };
