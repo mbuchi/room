@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn,
+  ZoomIn, TrendingUp,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.11.0',
+    date: 'June 30, 2026',
+    codename: 'Market intel',
+    summary:
+      'The parcel panel now shows local market figures: RealAdvisor city-level rent and buy prices for apartments and houses, right where you read a parcel.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: TrendingUp,
+        text:
+          'Added a new "Market" section to the Parcel facts panel. It surfaces RealAdvisor city-level market data for the parcel\'s municipality - toggle between Rent and Buy, and Apartments and Houses, to see the median price, the 80% asking range (10th-90th percentile), the price per m², and per-room range bars (±20% around each room-count average) on one shared scale. A muted line shows how many listings are for rent or for sale. The section hides itself when no market data is available for the city.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.10.24',
     date: 'June 30, 2026',

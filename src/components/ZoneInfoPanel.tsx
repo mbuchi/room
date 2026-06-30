@@ -16,6 +16,7 @@ import {
   type Comparable,
 } from '@aireon/shared';
 import type { ParcelData } from '../services/parcelDataService';
+import MarketDataSection from './MarketDataSection';
 import { useI18n } from '../contexts/I18nContext';
 
 const COMPS_HEADING: Record<string, string> = {
@@ -206,6 +207,16 @@ const ZoneInfoPanel = ({
                 value={parcelData.bldg_constr_year != null ? String(parcelData.bldg_constr_year) : null}
               />
             </Section>
+
+            {/* City-level market figures (RealAdvisor rent + buy, apartments +
+                houses) for the municipality this parcel sits in. Self-fetches
+                from /api/city-market off the parcel's BFS + municipality name;
+                hides itself when there's no data. */}
+            <MarketDataSection
+              bfs={parcelData.fso}
+              cityName={parcelData.municipality_name}
+              darkMode={darkMode}
+            />
 
             {/* The two ratio fields are the headline — give them a prominent
                 bar each so the user can read "this parcel is X% utilised /

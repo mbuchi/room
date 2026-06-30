@@ -109,9 +109,9 @@ const memoryCache = new Map<string, ZoneStatsResponse>();
 const persistentCache = new IndexedDBCache<ZoneStatsResponse>(
   'room-cache',
   'zone-stats',
-  // List both sibling stores so whichever service opens the DB first creates
+  // List all sibling stores so whichever service opens the DB first creates
   // the complete schema — otherwise this store is silently never created.
-  { maxBytes: PERSISTENT_CACHE_MAX_BYTES, stores: ['parcel-data', 'zone-stats'] },
+  { maxBytes: PERSISTENT_CACHE_MAX_BYTES, stores: ['parcel-data', 'zone-stats', 'city-market'] },
 );
 
 function cacheKey(req: ZoneStatsRequest): string {
