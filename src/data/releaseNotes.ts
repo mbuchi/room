@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.11.2',
+    date: 'June 30, 2026',
+    codename: 'Median on the mark',
+    summary:
+      'The per-room median price now floats directly above its marker on each range bar, so the figure lines up with where it falls in the range.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: TrendingUp,
+        text:
+          'Each per-room median value now sits directly above its marker on the bar, instead of on a separate centered line, so you can see at a glance where the median falls between the minimum and maximum.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.11.1',
     date: 'June 30, 2026',
     codename: 'Clear ranges',
