@@ -1,16 +1,18 @@
 // Residential-type parcel filter for the on-map parcels.
 //
 // The parcel_2025_07 vector tiles carry `bldg_flats` (number of residential
-// dwellings) even though room's own panel/facts code does not currently read
-// it. This lets the map be narrowed to single-dwelling parcels (Houses) or
-// multi-dwelling parcels (Apartments). Ported from valoo/roofs, but with one
-// deliberate difference: room's "all" applies NO filter at all — room
-// intentionally shows every parcel (including agricultural / vacant ones), so
-// the default must not hide anything (valoo's "all" required flats > 0).
+// dwellings) and `bldg_count` (number of buildings) even though room's own
+// panel/facts code does not currently read them. This lets the map be narrowed
+// to parcels that carry buildings (All), single-dwelling parcels (Houses) or
+// multi-dwelling parcels (Apartments). Ported from roofs/roots, with room's own
+// extra "No filter" mode that shows literally every parcel (including
+// agricultural / vacant / building-less ones) — that is the escape hatch room
+// keeps so nothing is ever hidden by default when the user wants the raw map.
 
-export type ResidentialTypeFilter = 'all' | 'houses' | 'apartments';
+export type ResidentialTypeFilter = 'none' | 'all' | 'houses' | 'apartments';
 
 export const RESIDENTIAL_TYPE_FILTERS: ResidentialTypeFilter[] = [
+  'none',
   'all',
   'houses',
   'apartments',
@@ -37,15 +39,17 @@ export function loadResidentialTypeFilter(): ResidentialTypeFilter {
   }
 }
 
-// The MapLibre filter sub-expression for a given mode, or `null` for 'all'
-// (no filter — every parcel stays visible). Houses = exactly one dwelling;
-// Apartments = two or more. `['to-number', ..., 0]` defaults a missing/NaN
-// `bldg_flats` to 0, so unbuilt parcels never match houses/apartments.
+// The MapLibre filter sub-expression for a given mode, or `null` for 'none'
+// (no filter — every parcel stays visible, room's escape hatch). All = parcels
+// that carry at least one building (`bldg_count` > 0); Houses = exactly one
+// dwelling; Apartments = two or more. `['to-number', ..., 0]` defaults a
+// missing/NaN field to 0, so unbuilt parcels never match all/houses/apartments.
 export function residentialTypeCondition(
   filter: ResidentialTypeFilter,
 ): unknown[] | null {
   const flatsExpr = ['to-number', ['get', 'bldg_flats'], 0];
+  if (filter === 'all') return ['>', ['to-number', ['get', 'bldg_count'], 0], 0];
   if (filter === 'houses') return ['==', flatsExpr, 1];
   if (filter === 'apartments') return ['>=', flatsExpr, 2];
-  return null;
+  return null; // 'none' -> no filter
 }

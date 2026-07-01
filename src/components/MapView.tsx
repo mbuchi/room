@@ -48,6 +48,7 @@ import {
 
 // i18n keys for the Residential type segmented control labels, keyed by mode.
 const RESIDENTIAL_TYPE_LABEL_KEYS: Record<ResidentialTypeFilter, string> = {
+  none: 'panel.restype.none',
   all: 'panel.restype.all',
   houses: 'panel.restype.houses',
   apartments: 'panel.restype.apartments',
@@ -529,12 +530,19 @@ const MapView = () => {
     handleZoneStatsCleared();
   }, [handleZoneStatsCleared]);
 
-  // `true` when a parcel's `bldg_flats` satisfies the given residential filter.
-  // Mirrors residentialTypeCondition's expression semantics in plain JS so we
-  // can tell whether the currently-selected parcel survives a filter change.
+  // `true` when a parcel satisfies the given residential filter. Mirrors
+  // residentialTypeCondition's expression semantics in plain JS so we can tell
+  // whether the currently-selected parcel survives a filter change. 'none' is
+  // room's escape hatch (no filter — always true); 'all' means the parcel
+  // carries at least one building (bldg_count > 0); houses/apartments read
+  // bldg_flats (exactly one / two-or-more dwellings).
   const parcelMatchesResidentialFilter = useCallback(
     (props: Record<string, unknown>, filter: ResidentialTypeFilter): boolean => {
-      if (filter === 'all') return true;
+      if (filter === 'none') return true;
+      if (filter === 'all') {
+        const count = Number(props.bldg_count ?? 0);
+        return (Number.isFinite(count) ? count : 0) > 0;
+      }
       const flats = Number(props.bldg_flats ?? 0);
       const n = Number.isFinite(flats) ? flats : 0;
       return filter === 'houses' ? n === 1 : n >= 2;
@@ -805,7 +813,7 @@ const MapView = () => {
               <Building2 size={16} className="text-gray-500 dark:text-gray-400" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{t('panel.restype.title')}</span>
             </div>
-            <div className="flex gap-0.5 rounded-lg p-0.5 bg-gray-100 dark:bg-gray-700/60">
+            <div className="grid grid-cols-2 gap-1 rounded-lg p-0.5 bg-gray-100 dark:bg-gray-700/60">
               {RESIDENTIAL_TYPE_FILTERS.map((rt) => {
                 const active = residentialTypeFilter === rt;
                 return (
@@ -814,7 +822,7 @@ const MapView = () => {
                     type="button"
                     onClick={() => handleResidentialTypeChange(rt)}
                     aria-pressed={active}
-                    className={`flex-1 px-2 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                    className={`w-full px-2 py-1.5 rounded-md text-xs font-semibold transition-all ${
                       active
                         ? 'bg-white dark:bg-gray-900 text-red-600 dark:text-red-400 shadow-sm'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
