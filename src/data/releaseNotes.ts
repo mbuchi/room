@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.11.5',
+    date: 'July 1, 2026',
+    codename: 'Quiet the wallet',
+    summary:
+      'Stopped browser wallet extensions (MetaMask) from generating false error reports.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'Browser wallet extensions such as MetaMask no longer trigger false error reports in room. These pop-ups came from the extension itself, not the app, so they are now filtered out of our error monitoring.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.11.4',
     date: 'July 1, 2026',
     codename: 'One face everywhere',
