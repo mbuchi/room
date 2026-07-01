@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.11.7',
+    date: 'July 2, 2026',
+    codename: 'Filter for what is built',
+    summary:
+      'Added a No filter option, and All now shows only parcels with buildings.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Filter,
+        text:
+          'Refined the Residential type filter. The new No filter option shows every parcel on the map, including agricultural and vacant land. All now shows only parcels that have at least one building, while Houses and Apartments continue to show single-dwelling and multi-dwelling parcels. Your choice is still remembered the next time you open room.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.11.6',
     date: 'July 1, 2026',
     codename: 'Residential type filter',
