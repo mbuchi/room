@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.11.4',
+    date: 'July 1, 2026',
+    codename: 'One face everywhere',
+    summary:
+      'Your profile avatar now stays in sync across every Aireon app.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: BadgeCheck,
+        text:
+          'Your profile avatar now stays in sync across every Aireon app.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.11.3',
     date: 'July 1, 2026',
     codename: 'Spell it our way',
