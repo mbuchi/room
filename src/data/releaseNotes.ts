@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp,
+  ZoomIn, TrendingUp, Filter,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -11,6 +11,22 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.11.6',
+    date: 'July 1, 2026',
+    codename: 'Residential type filter',
+    summary:
+      'Filter the map to houses or apartments, and the choice is remembered.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Filter,
+        text:
+          'Added a Residential type filter to the map controls. Switch between All, Houses, and Apartments to narrow the parcels on the map: Houses shows single-dwelling parcels, Apartments shows multi-dwelling parcels, and All shows every parcel as before. Your choice is remembered the next time you open room.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.11.5',
     date: 'July 1, 2026',
