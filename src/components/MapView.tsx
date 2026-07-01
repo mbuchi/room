@@ -37,6 +37,43 @@ import {
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
+import { Building2 } from 'lucide-react';
+import {
+  RESIDENTIAL_TYPE_FILTERS,
+  RESIDENTIAL_TYPE_STORAGE_KEY,
+  loadResidentialTypeFilter,
+  residentialTypeCondition,
+  type ResidentialTypeFilter,
+} from '../lib/residentialTypeFilter';
+
+// i18n keys for the Residential type segmented control labels, keyed by mode.
+const RESIDENTIAL_TYPE_LABEL_KEYS: Record<ResidentialTypeFilter, string> = {
+  all: 'panel.restype.all',
+  houses: 'panel.restype.houses',
+  apartments: 'panel.restype.apartments',
+};
+
+// The parcel POLYGON display layers the residential-type filter narrows: the
+// density fill and its hairline outline — the two layers that paint EVERY
+// parcel. These carry no base `filter` today, so the residential condition is
+// applied to each directly, but applyResidentialTypeFilter still restores each
+// layer's captured original filter when switching back to 'all' so it stays
+// correct if a base filter is ever added.
+//
+// Deliberately EXCLUDED (room-specific, unlike roofs which uses feature-state
+// for these): `parcel-hover`, `parcel-selected` and `parcel-selected-casing`.
+// room drives those three via a dynamic `['==', ['get','parcel_id'], id]`
+// filter set on hover/click, so any residential clause we set on them would be
+// clobbered on the very next mousemove/click. It is also unnecessary: both the
+// hover and click hit-tests run against `parcel-fill` (see wireParcelHover and
+// the `click`/`queryRenderedFeatures` calls), so once `parcel-fill` is filtered
+// a hidden parcel can no longer be hovered or newly selected. A parcel that was
+// ALREADY selected when the filter changes is separately deselected in
+// handleResidentialTypeChange so no orphan highlight lingers.
+const RESIDENTIAL_FILTERED_LAYERS = [
+  'parcel-fill',
+  'parcel-outline',
+] as const;
 
 interface SelectedParcel {
   parcelId: string;
@@ -109,8 +146,13 @@ const MapView = () => {
   const [claireOpen, setClaireOpen] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
   // Mobile tools sheet: which control card is shown (avoids scrolling by tabbing).
-  const [dockTab, setDockTab] = useState<'parcel' | 'building' | '3d'>('parcel');
+  const [dockTab, setDockTab] = useState<'parcel' | 'building' | '3d' | 'restype'>('parcel');
   const [legendOpen, setLegendOpen] = useState(false);
+  // Residential-type parcel filter (All / Houses / Apartments), persisted to
+  // localStorage. 'all' applies no filter (room shows every parcel — its default).
+  const [residentialTypeFilter, setResidentialTypeFilter] = useState<ResidentialTypeFilter>(
+    () => loadResidentialTypeFilter(),
+  );
 
   const [selectedParcel, setSelectedParcel] = useState<SelectedParcel | null>(null);
   const [parcelData, setParcelData] = useState<ParcelData | null>(null);
@@ -149,6 +191,19 @@ const MapView = () => {
   const activeZoneRef = useRef<ActiveZone | null>(null);
   activeZoneRef.current = activeZone;
 
+  // Ref mirror of the residential-type filter so map callbacks (basemap re-add,
+  // initial load) read the freshest choice synchronously without re-binding.
+  const residentialTypeFilterRef = useRef(residentialTypeFilter);
+  residentialTypeFilterRef.current = residentialTypeFilter;
+
+  // Original (base) filter of each residential-filtered layer, captured once
+  // when the layers are created, so switching back to 'all' restores exactly
+  // what was there before instead of clobbering with null. Today every entry is
+  // null (neither parcel-fill nor parcel-outline has a base filter), but
+  // capturing keeps the combine/restore logic correct if a base filter is ever
+  // added upstream. Idempotent across basemap-swap re-adds via the has()-guard.
+  const originalLayerFiltersRef = useRef<Map<string, unknown>>(new Map());
+
   /**
    * Re-apply the density paint on the parcel-fill / parcel-outline layers from
    * the current `activeZoneRef` + opacity slider. Called on selection, zone
@@ -170,6 +225,36 @@ const MapView = () => {
   }, []);
   const applyParcelPaintRef = useRef(applyParcelPaint);
   applyParcelPaintRef.current = applyParcelPaint;
+
+  // Apply the residential-type condition to the base parcel display layers
+  // (parcel-fill / parcel-outline). For 'all' (cond === null) each layer is
+  // restored to its captured original filter (null today). When a layer already
+  // has an original base filter, the residential condition is COMBINED via
+  // ['all', <original>, cond] rather than replacing it. room has no on-map
+  // parcel-labels layer and no colour-metric label filter, so there is no label
+  // filter to fold in (unlike roofs) — the fill/outline layers are the whole
+  // story here. Every op is guarded by getLayer() so it is a no-op during the
+  // brief window between a basemap setStyle() and its layer re-add.
+  const applyResidentialTypeFilter = useCallback(
+    (map: maplibregl.Map, filter: ResidentialTypeFilter) => {
+      const cond = residentialTypeCondition(filter);
+      for (const id of RESIDENTIAL_FILTERED_LAYERS) {
+        if (!map.getLayer(id)) continue;
+        const original = originalLayerFiltersRef.current.get(id) ?? null;
+        if (!cond) {
+          map.setFilter(id, (original as maplibregl.FilterSpecification | null) ?? null);
+        } else if (original) {
+          const combined: unknown[] = ['all', original, cond];
+          map.setFilter(id, combined as unknown as maplibregl.FilterSpecification);
+        } else {
+          map.setFilter(id, cond as unknown as maplibregl.FilterSpecification);
+        }
+      }
+    },
+    [],
+  );
+  const applyResidentialTypeFilterRef = useRef(applyResidentialTypeFilter);
+  applyResidentialTypeFilterRef.current = applyResidentialTypeFilter;
 
   const selectParcelFromProps = useCallback((
     props: Record<string, unknown>,
@@ -305,6 +390,16 @@ const MapView = () => {
   const handleBasemapApplied = useCallback((map: maplibregl.Map) => {
     addParcelLayers(map, parcelOpacityRef.current, activeZoneRef.current);
     addBuildingLayers(map, buildingOpacityRef.current);
+    // Capture each residential-filtered layer's ORIGINAL base filter once (the
+    // has()-guard makes it idempotent across basemap swaps), then honour any
+    // persisted non-'all' residential choice so the freshly re-added parcel
+    // layers come back already narrowed.
+    for (const id of RESIDENTIAL_FILTERED_LAYERS) {
+      if (map.getLayer(id) && !originalLayerFiltersRef.current.has(id)) {
+        originalLayerFiltersRef.current.set(id, map.getFilter(id) ?? null);
+      }
+    }
+    applyResidentialTypeFilterRef.current(map, residentialTypeFilterRef.current);
     // Restore the selected-parcel highlight + density paint after the swap.
     const parcel = selectedParcelRef.current;
     if (parcel) {
@@ -434,6 +529,43 @@ const MapView = () => {
     handleZoneStatsCleared();
   }, [handleZoneStatsCleared]);
 
+  // `true` when a parcel's `bldg_flats` satisfies the given residential filter.
+  // Mirrors residentialTypeCondition's expression semantics in plain JS so we
+  // can tell whether the currently-selected parcel survives a filter change.
+  const parcelMatchesResidentialFilter = useCallback(
+    (props: Record<string, unknown>, filter: ResidentialTypeFilter): boolean => {
+      if (filter === 'all') return true;
+      const flats = Number(props.bldg_flats ?? 0);
+      const n = Number.isFinite(flats) ? flats : 0;
+      return filter === 'houses' ? n === 1 : n >= 2;
+    },
+    [],
+  );
+
+  // Segmented control: switch the residential-type filter. Guards against a
+  // no-op, updates state + ref, persists to localStorage, and applies the new
+  // condition to the parcel display layers. If the currently-selected parcel is
+  // now filtered out, close the info panel too so no orphan selection outline
+  // lingers over a hidden parcel (parcel-selected is not in the filtered set).
+  const handleResidentialTypeChange = useCallback(
+    (next: ResidentialTypeFilter) => {
+      if (next === residentialTypeFilterRef.current) return;
+      setResidentialTypeFilter(next);
+      residentialTypeFilterRef.current = next;
+      try {
+        window.localStorage.setItem(RESIDENTIAL_TYPE_STORAGE_KEY, next);
+      } catch {
+        // localStorage unavailable (private mode / quota) — non-critical.
+      }
+      if (mapRef.current) applyResidentialTypeFilterRef.current(mapRef.current, next);
+      const selected = selectedParcelRef.current;
+      if (selected && !parcelMatchesResidentialFilter(selected.props, next)) {
+        handleCloseInfoPanel();
+      }
+    },
+    [parcelMatchesResidentialFilter, handleCloseInfoPanel],
+  );
+
   const getCaptureMetadata = useCallback((): ScreenshotMetadata => {
     const map = mapRef.current;
     const parcel = selectedParcelRef.current;
@@ -493,6 +625,15 @@ const MapView = () => {
         map.on('load', () => {
           addParcelLayers(map, 0.6);
           addBuildingLayers(map, 0.85);
+          // Capture the parcel display layers' original (null) filters once, then
+          // apply any persisted residential-type choice so the map opens already
+          // narrowed to Houses/Apartments when that was the last selection.
+          for (const id of RESIDENTIAL_FILTERED_LAYERS) {
+            if (map.getLayer(id) && !originalLayerFiltersRef.current.has(id)) {
+              originalLayerFiltersRef.current.set(id, map.getFilter(id) ?? null);
+            }
+          }
+          applyResidentialTypeFilterRef.current(map, residentialTypeFilterRef.current);
           const c = map.getCenter();
           updateUrlParams(c.lat, c.lng, map.getZoom());
 
@@ -655,8 +796,41 @@ const MapView = () => {
           </div>
         );
 
+        // Residential-type filter card: All / Houses / Apartments, narrowing the
+        // on-map parcels by their `bldg_flats`. Segmented control styled to match
+        // room's control cards (red accent for the active segment, same surface).
+        const residentialTypeCard = (
+          <div className={`${cardSurface} rounded-lg p-4 min-w-[240px] transition-colors`} data-tour="residential-type">
+            <div className="flex items-center gap-2 mb-3">
+              <Building2 size={16} className="text-gray-500 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{t('panel.restype.title')}</span>
+            </div>
+            <div className="flex gap-0.5 rounded-lg p-0.5 bg-gray-100 dark:bg-gray-700/60">
+              {RESIDENTIAL_TYPE_FILTERS.map((rt) => {
+                const active = residentialTypeFilter === rt;
+                return (
+                  <button
+                    key={rt}
+                    type="button"
+                    onClick={() => handleResidentialTypeChange(rt)}
+                    aria-pressed={active}
+                    className={`flex-1 px-2 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                      active
+                        ? 'bg-white dark:bg-gray-900 text-red-600 dark:text-red-400 shadow-sm'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    {t(RESIDENTIAL_TYPE_LABEL_KEYS[rt])}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+
         const DOCK_TABS = [
           { id: 'parcel' as const, label: t('panel.layers.parcel'), card: parcelCard },
+          { id: 'restype' as const, label: t('panel.restype.title'), card: residentialTypeCard },
           { id: 'building' as const, label: t('panel.layers.building'), card: buildingCard },
           { id: '3d' as const, label: t('panel.layers.3d_view'), card: tdCard },
         ];
@@ -670,7 +844,7 @@ const MapView = () => {
           >
             {isMobile ? (
               <div className="min-w-[260px]">
-                <SegmentedTabs<'parcel' | 'building' | '3d'>
+                <SegmentedTabs<'parcel' | 'building' | '3d' | 'restype'>
                   tabs={DOCK_TABS.map(({ id, label }) => ({ id, label }))}
                   value={dockTab}
                   onChange={setDockTab}
@@ -685,6 +859,7 @@ const MapView = () => {
             ) : (
               <>
                 {parcelCard}
+                {residentialTypeCard}
                 {buildingCard}
                 {tdCard}
               </>

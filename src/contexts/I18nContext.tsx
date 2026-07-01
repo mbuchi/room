@@ -56,6 +56,12 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.layers.building': 'Building',
     'panel.layers.3d_view': '3D View',
 
+    // ---------- residential-type filter (MapControlDock) ----------
+    'panel.restype.title': 'Residential type',
+    'panel.restype.all': 'All',
+    'panel.restype.houses': 'Houses',
+    'panel.restype.apartments': 'Apartments',
+
     // ---------- ZoomControl ----------
     'panel.zoom.in': 'Zoom in',
     'panel.zoom.out': 'Zoom out',
@@ -334,6 +340,12 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.layers.building': 'Bâtiment',
     'panel.layers.3d_view': 'Vue 3D',
 
+    // ---------- filtre par type résidentiel (MapControlDock) ----------
+    'panel.restype.title': 'Type résidentiel',
+    'panel.restype.all': 'Toutes',
+    'panel.restype.houses': 'Maisons',
+    'panel.restype.apartments': 'Appartements',
+
     // ---------- zoom ----------
     'panel.zoom.in': 'Zoomer',
     'panel.zoom.out': 'Dézoomer',
@@ -611,6 +623,12 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.layers.building': 'Gebäude',
     'panel.layers.3d_view': '3D-Ansicht',
 
+    // ---------- Filter nach Wohnform (MapControlDock) ----------
+    'panel.restype.title': 'Wohnform',
+    'panel.restype.all': 'Alle',
+    'panel.restype.houses': 'Häuser',
+    'panel.restype.apartments': 'Wohnungen',
+
     // ---------- zoom ----------
     'panel.zoom.in': 'Vergrössern',
     'panel.zoom.out': 'Verkleinern',
@@ -887,6 +905,12 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.layers.parcel': 'Particella',
     'panel.layers.building': 'Edificio',
     'panel.layers.3d_view': 'Vista 3D',
+
+    // ---------- filtro per tipo residenziale (MapControlDock) ----------
+    'panel.restype.title': 'Tipo residenziale',
+    'panel.restype.all': 'Tutte',
+    'panel.restype.houses': 'Case',
+    'panel.restype.apartments': 'Appartamenti',
 
     // ---------- zoom ----------
     'panel.zoom.in': 'Ingrandisci',
