@@ -55,14 +55,21 @@ describe('densityFillColor', () => {
 });
 
 describe('density opacity / line expressions', () => {
-  it('opacity is a number with no zone, a case with a zone', () => {
-    expect(typeof densityFillOpacity(null, 0.6)).toBe('number');
-    expect((densityFillOpacity(ZONE, 0.6) as unknown[])[0]).toBe('case');
+  it('fill-opacity is a UNIFORM number — same value in-zone or out (no dimming)', () => {
+    // Opacity no longer gates on zone membership: the slider value drives every
+    // parcel equally, so out-of-zone parcels are NOT dimmed. The active zone is
+    // emphasised by colour instead (see densityFillColor).
+    expect(densityFillOpacity(null, 0.6)).toBe(0.6);
+    expect(densityFillOpacity(ZONE, 0.6)).toBe(0.6);
+    expect(densityFillOpacity(ZONE, 0.6)).toBe(densityFillOpacity(null, 0.6));
   });
-  it('line colour is a string with no zone, a case with a zone', () => {
+  it('line colour is still a string with no zone, a case with a zone (colour unchanged)', () => {
     expect(typeof densityLineColor(null)).toBe('string');
     expect((densityLineColor(ZONE) as unknown[])[0]).toBe('case');
-    expect(typeof densityLineOpacity(null, 0.6)).toBe('number');
+  });
+  it('line-opacity is a UNIFORM 1 for every parcel — no zone-based dimming', () => {
+    expect(densityLineOpacity(null, 0.6)).toBe(1);
+    expect(densityLineOpacity(ZONE, 0.6)).toBe(1);
   });
 });
 

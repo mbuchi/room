@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.11.8',
+    date: 'July 3, 2026',
+    codename: 'One opacity for every parcel',
+    summary:
+      'Parcels now render at a uniform opacity for a consistent look across the suite.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Layers,
+        text:
+          'Parcels now render at a uniform opacity across the map. When you select a zone, parcels outside it are no longer dimmed, so every parcel shows at the same opacity. This keeps room consistent with the rest of the suite, and the selected zone is still highlighted by its color.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.11.7',
     date: 'July 2, 2026',
     codename: 'Filter for what is built',

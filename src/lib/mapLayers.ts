@@ -77,11 +77,13 @@ export function densityFillColor(zone: ActiveZone | null): ExpressionSpecificati
   ];
 }
 
-/** fill-opacity expression: bright inside the active zone, near-invisible
- *  outside it. With no zone selected the whole layer is a faint wash. */
-export function densityFillOpacity(zone: ActiveZone | null, opacity: number): ExpressionSpecification {
-  if (!zone) return (opacity * 0.1) as unknown as ExpressionSpecification;
-  return ['case', inZone(zone), opacity * 0.82, opacity * 0.05];
+/** fill-opacity: a single UNIFORM value for every parcel, in-zone or out. The
+ *  opacity slider drives it directly (no zone-membership dimming) so room reads
+ *  the same as the rest of the suite (roofs/roots/etc.). The active zone is
+ *  still emphasised by COLOUR (see densityFillColor), never by opacity. The
+ *  `zone` arg is kept for a stable signature across all four paint helpers. */
+export function densityFillOpacity(_zone: ActiveZone | null, opacity: number): ExpressionSpecification {
+  return opacity as unknown as ExpressionSpecification;
 }
 
 /** line-color expression for the parcel hairline — neutral everywhere, a hair
@@ -91,11 +93,13 @@ export function densityLineColor(zone: ActiveZone | null): ExpressionSpecificati
   return ['case', inZone(zone), '#cbd5e1', '#475569'];
 }
 
-/** line-opacity expression — subtle, and almost gone for out-of-zone parcels
- *  so the active zone is unmistakable. Scales with the user's opacity slider. */
-export function densityLineOpacity(zone: ActiveZone | null, opacity: number): ExpressionSpecification {
-  if (!zone) return (opacity * 0.45) as unknown as ExpressionSpecification;
-  return ['case', inZone(zone), opacity * 0.7, opacity * 0.12];
+/** line-opacity: a single UNIFORM value for every parcel hairline, in-zone or
+ *  out. Fully opaque so every parcel is delineated the same way — no
+ *  zone-membership dimming — matching the rest of the suite. The active zone is
+ *  still distinguished by line COLOUR + WIDTH (see densityLineColor and the
+ *  outline paint), never by opacity. `zone` is kept for signature parity. */
+export function densityLineOpacity(_zone: ActiveZone | null, _opacity: number): ExpressionSpecification {
+  return 1 as unknown as ExpressionSpecification;
 }
 
 // Re-export the suite-wide parcel-interaction zoom gate (PARCEL_INTERACTION_MIN_ZOOM
