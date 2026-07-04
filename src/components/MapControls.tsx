@@ -42,7 +42,7 @@ const MapControls = ({
             : undefined)
         }
       >
-        <div className={`rounded-lg p-4 min-w-[240px] space-y-4 ${cardClass}`}>
+        <div className={`rounded-lg p-4 min-w-[240px] space-y-3 ${cardClass}`}>
           <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('panel.layers.parcel')}</span>
@@ -60,7 +60,7 @@ const MapControls = ({
             />
           </div>
 
-          <div className="border-t border-gray-200 dark:border-gray-700/40 pt-4">
+          <div className="border-t border-gray-200 dark:border-gray-700/40 pt-3">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('panel.layers.building')}</span>
               <span className="text-[10px] font-semibold text-red-500 dark:text-red-400 tabular-nums">{Math.round(buildingOpacity * 100)}%</span>
