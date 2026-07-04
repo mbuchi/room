@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter,
+  ZoomIn, TrendingUp, Filter, Search, MapPin,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -11,6 +11,29 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.12.0',
+    date: 'July 4, 2026',
+    codename: 'Search by EGRID',
+    summary:
+      'The address search now understands Swiss federal parcel numbers (EGRIDs), and the parcel panel shows a copyable EGRID.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Search,
+        text:
+          'You can now search by EGRID. Type a Swiss federal parcel number such as "CH8075" into the search box and matching parcels appear at the top of the results, alongside the usual address matches. Selecting one flies straight to that parcel.',
+        prs: [],
+      },
+      {
+        kind: 'new' as ChangeKind,
+        icon: MapPin,
+        text:
+          'The parcel panel now leads with a suite-standard identity header: the address as the title, the municipality below it, and the EGRID as a chip you can copy to the clipboard with one click.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.11.9',
     date: 'July 4, 2026',

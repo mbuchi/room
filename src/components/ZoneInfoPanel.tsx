@@ -11,6 +11,7 @@ import {
 import {
   Skeleton,
   ParcelAerialThumbnail,
+  ParcelIdentityHeader,
   ComparablesPanel,
   rankComparables,
   type Comparable,
@@ -109,42 +110,61 @@ const ZoneInfoPanel = ({
     return () => { cancelled = true; if (timer) clearTimeout(timer); };
   }, [lng, lat, parcelProps, queryNearbyParcels]);
 
+  // ── Suite-standard parcel identity ─────────────────────────────────────
+  // The address is the header title; the municipality is the muted subtitle
+  // (room's payload has no zip/postal, so the subtitle is the city fragment
+  // alone when available). The EGRID prefers the federal id, falling back to
+  // the parcel id, then the focused parcel's id — rendered as a copyable chip
+  // by the shared ParcelIdentityHeader. While the address is still loading we
+  // pass the click-derived lng/lat as the title so the header isn't empty.
+  const headerAddress = parcelData?.address
+    ? parcelData.address
+    : !isLoading && focusedParcel
+      ? formatLngLat(focusedParcel.lng, focusedParcel.lat)
+      : null;
+  const headerEgrid =
+    parcelData?.egrid ?? parcelData?.parcel_id ?? focusedParcel?.parcelId ?? null;
+  const showThumb =
+    !!focusedParcel &&
+    Number.isFinite(focusedParcel.lng) &&
+    Number.isFinite(focusedParcel.lat);
+
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full">
       {(parcelData?.address || isLoading || focusedParcel) && (
-        <div className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40 flex items-center gap-2">
-          <div className="min-w-0 flex-1">
-            {parcelData?.address ? (
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{parcelData.address}</p>
-            ) : isLoading ? (
-              <Skeleton dark={darkMode} width={180} height={10} radius={4} />
-            ) : (
-              <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
-                {focusedParcel
-                  ? formatLngLat(focusedParcel.lng, focusedParcel.lat)
-                  : ''}
-              </p>
-            )}
+        isLoading && !parcelData?.address ? (
+          <div className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
+            <Skeleton dark={darkMode} width={180} height={10} radius={4} />
           </div>
-          {focusedParcel &&
-            Number.isFinite(focusedParcel.lng) &&
-            Number.isFinite(focusedParcel.lat) && (
-              <div className="shrink-0">
-                <ParcelAerialThumbnail
-                  lng={focusedParcel.lng}
-                  lat={focusedParcel.lat}
-                  areaM2={Number(parcelData?.parcel_area) || null}
-                  dark={darkMode}
-                  labels={{
-                    imageAlt: t('panel.info.satellite_alt'),
-                    expand: t('panel.info.satellite_expand'),
-                    dialogAria: t('panel.info.satellite_aria'),
-                    close: t('panel.info.close'),
-                  }}
-                />
-              </div>
+        ) : (
+          <ParcelIdentityHeader
+            address={headerAddress}
+            subtitle={parcelData?.municipality_name ?? null}
+            egrid={headerEgrid}
+            dark={darkMode}
+            className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40"
+            labels={{
+              fallbackTitle: t('panel.info.header_fallback'),
+              copy: t('panel.info.egrid_copy'),
+              copied: t('panel.info.egrid_copied'),
+            }}
+          >
+            {showThumb && (
+              <ParcelAerialThumbnail
+                lng={focusedParcel!.lng}
+                lat={focusedParcel!.lat}
+                areaM2={Number(parcelData?.parcel_area) || null}
+                dark={darkMode}
+                labels={{
+                  imageAlt: t('panel.info.satellite_alt'),
+                  expand: t('panel.info.satellite_expand'),
+                  dialogAria: t('panel.info.satellite_aria'),
+                  close: t('panel.info.close'),
+                }}
+              />
             )}
-        </div>
+          </ParcelIdentityHeader>
+        )
       )}
 
       <div className="flex-1 overflow-y-auto">
@@ -169,7 +189,7 @@ const ZoneInfoPanel = ({
             <Section icon={<MapPin size={12} className="text-red-500/80 dark:text-red-400/80" />} title={t('panel.info.section.location')}>
               <Row label={t('panel.info.row.municipality')} value={parcelData.municipality_name} />
               <Row label={t('panel.info.row.fso')} value={parcelData.fso} mono />
-              {parcelData.egrid && <Row label={t('panel.info.row.egrid')} value={parcelData.egrid} mono />}
+              {/* EGRID now lives in the header as a copyable chip (ParcelIdentityHeader). */}
             </Section>
 
             <Section icon={<Layers size={12} className="text-amber-500/80 dark:text-amber-400/80" />} title={t('panel.info.section.zoning')}>
