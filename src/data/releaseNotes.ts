@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.11.9',
+    date: 'July 4, 2026',
+    codename: 'Tighter layer controls',
+    summary:
+      'Tightened the spacing in the map layer controls for a more compact panel.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Layers,
+        text:
+          'Tightened the spacing between the parcel, building, and 3D view controls so the layers panel reads as one compact group.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.11.8',
     date: 'July 3, 2026',
     codename: 'One opacity for every parcel',
