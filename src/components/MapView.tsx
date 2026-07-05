@@ -374,6 +374,19 @@ const MapView = () => {
     setTheme(isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
+  // Keep `isDarkMode` in lockstep with the `<html>.dark` class. The shared
+  // MapUserMenu hydrates the signed-in user's profile after mount and calls
+  // adoptStoredTheme(), which toggles the class directly — bypassing this
+  // state, so the prop-driven chrome goes stale until the next toggle.
+  useEffect(() => {
+    const html = document.documentElement;
+    const sync = () => setIsDarkMode(html.classList.contains('dark'));
+    sync(); // catch a class flip between the initial useState and this effect
+    const observer = new MutationObserver(sync);
+    observer.observe(html, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   // Stamp the glass level onto <html> — the SAME element that carries `.dark` —
   // so the compound `.dark[data-glass='N']` glass tokens resolve in both themes.
   // <html> (not a wrapper div) so panels that portal to <body> still resolve.
