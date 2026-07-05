@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.13.0',
+    date: 'July 5, 2026',
+    codename: 'Prune your recent searches',
+    summary:
+      'Recent search history rows now have a delete button so you can remove individual entries.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Search,
+        text:
+          'Each row in the Recent searches dropdown now has a delete (×) button. Hover a past search and click the × to remove just that one entry, without clearing your whole history.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.12.0',
     date: 'July 4, 2026',
     codename: 'Search by EGRID',
