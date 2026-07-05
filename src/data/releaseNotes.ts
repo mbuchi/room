@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.13.1',
+    date: 'July 5, 2026',
+    codename: 'Theme in sync',
+    summary:
+      'Fixed the navbar and user menu showing the wrong theme colors on startup until the theme was toggled.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Palette,
+        text:
+          'When your saved profile theme differed from the theme the app started with, the navbar wordmark and user menu could render in the wrong colors until you toggled the theme twice. The app now follows theme changes applied by your profile immediately.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.13.0',
     date: 'July 5, 2026',
     codename: 'Prune your recent searches',
