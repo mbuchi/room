@@ -12,7 +12,7 @@ import '@aireon/shared/glass.css';
 import './index.css';
 
 errorLogger.install({ captureConsoleErrors: true });
-initOpenReplay({ projectKey: import.meta.env.VITE_OPENREPLAY_PROJECT_KEY as string | undefined });
+initOpenReplay({ projectKey: import.meta.env.VITE_OPENREPLAY_PROJECT_KEY as string | undefined, trackerOptions: { canvas: { disableCanvas: true } } });
 
 // room keeps its signature dark look by default, but now ships a light/dark
 // toggle. initTheme resolves the cross-app `aireon_theme` cookie (shared by
