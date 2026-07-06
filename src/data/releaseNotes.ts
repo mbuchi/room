@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.14.1',
+    date: 'July 6, 2026',
+    codename: 'Claire, aligned',
+    summary:
+      'The Claire assistant launcher now sits neatly above the map controls, clear of the parcel panel.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: MessageSquare,
+        text: 'When the parcel panel is open, the Claire launcher now lines up above the zoom controls instead of tucking behind the panel edge, so the map corner reads as one tidy cluster.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.14.0',
     date: 'July 6, 2026',
     codename: '3D in the map controls',

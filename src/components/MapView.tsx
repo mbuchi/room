@@ -968,6 +968,7 @@ const MapView = () => {
           open={claireOpen}
           onOpenChange={setClaireOpen}
           panelOpen={!!selectedParcel}
+          zoomPanelOffsetPx={PANEL_OFFSET_PX}
           hideLauncherOnMobile
           darkMode={isDarkMode}
           properties={selectedParcel.props}
