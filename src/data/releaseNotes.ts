@@ -1,5 +1,5 @@
 import {
-  ShieldAlert, Palette, Info,
+  ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
   ZoomIn, TrendingUp, Filter, Search, MapPin,
 } from 'lucide-react';
@@ -11,6 +11,27 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.14.0',
+    date: 'July 6, 2026',
+    codename: '3D in the map controls',
+    summary:
+      'The 3D buildings toggle moved into the map control stack as a cube button, and the zoom control now uses the Aireon red accent like the rest of the suite.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Box,
+        text: 'The 3D buildings toggle is now a red cube button at the top of the zoom control, next to zoom and reset-bearing, instead of a separate card in the layers panel. The map controls are tidier and consistent with the other Aireon apps.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Palette,
+        text: 'The zoom control now uses the Aireon red accent for hover and focus, matching the rest of the suite.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.13.2',
     date: 'July 6, 2026',

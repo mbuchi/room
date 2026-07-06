@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { Plus, Minus, Compass } from 'lucide-react';
+import { Plus, Minus, Compass, Box } from 'lucide-react';
 import type { Map } from 'maplibre-gl';
 import { useGlass } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
@@ -12,9 +12,12 @@ interface ZoomControlProps {
   rightOffsetPx?: number | null;
   /** Which edge to pin the control to. Defaults to `'right'`. */
   align?: 'left' | 'right';
+  /** When set, render a 3D-mode toggle atop the stack (active = brand red). */
+  is3D?: boolean;
+  onToggle3D?: () => void;
 }
 
-const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null, align = 'right' }: ZoomControlProps) => {
+const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null, align = 'right', is3D, onToggle3D }: ZoomControlProps) => {
   const { t } = useI18n();
   const { level: glassLevel } = useGlass();
   const glassOn = glassLevel > 0;
@@ -30,8 +33,8 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null,
       ? 'bg-slate-900/95 border-slate-700/60 text-slate-200'
       : 'bg-white/95 border-slate-200/80 text-slate-700';
   const hover = isDarkMode
-    ? 'hover:bg-slate-800/70 hover:text-emerald-400 active:bg-slate-800'
-    : 'hover:bg-slate-50 hover:text-sky-600 active:bg-slate-100';
+    ? 'hover:bg-slate-800/70 hover:text-red-400 active:bg-slate-800'
+    : 'hover:bg-slate-50 hover:text-red-500 active:bg-slate-100';
   const divider = isDarkMode ? 'border-slate-700/60' : 'border-slate-200/80';
 
   // On md+ the room panel takes up the right edge, so we shift via the
@@ -57,15 +60,36 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null,
       style={offsetStyle}
     >
       <div className={`flex flex-col rounded-xl ${glassOn ? '' : 'shadow-xl backdrop-blur-sm'} border overflow-hidden ${panel}`}>
-        <button type="button" onClick={handleZoomIn} aria-label={t('panel.zoom.in')} title={t('panel.zoom.in')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 ${hover}`}>
+        {onToggle3D && (
+          <>
+            <button
+              type="button"
+              onClick={onToggle3D}
+              aria-label={t('panel.zoom.toggle_3d')}
+              aria-pressed={is3D}
+              title={t('panel.zoom.toggle_3d')}
+              className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${
+                is3D
+                  ? isDarkMode
+                    ? 'bg-red-500/20 text-red-400'
+                    : 'bg-red-500/15 text-red-500'
+                  : hover
+              }`}
+            >
+              <Box size={16} strokeWidth={2} />
+            </button>
+            <div className={`border-t ${divider}`} />
+          </>
+        )}
+        <button type="button" onClick={handleZoomIn} aria-label={t('panel.zoom.in')} title={t('panel.zoom.in')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${hover}`}>
           <Plus size={16} strokeWidth={2.25} />
         </button>
         <div className={`border-t ${divider}`} />
-        <button type="button" onClick={handleZoomOut} aria-label={t('panel.zoom.out')} title={t('panel.zoom.out')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 ${hover}`}>
+        <button type="button" onClick={handleZoomOut} aria-label={t('panel.zoom.out')} title={t('panel.zoom.out')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${hover}`}>
           <Minus size={16} strokeWidth={2.25} />
         </button>
         <div className={`border-t ${divider}`} />
-        <button type="button" onClick={handleResetNorth} aria-label={t('panel.zoom.reset_north')} title={t('panel.zoom.reset_north')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500 ${hover}`}>
+        <button type="button" onClick={handleResetNorth} aria-label={t('panel.zoom.reset_north')} title={t('panel.zoom.reset_north')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${hover}`}>
           <Compass size={16} strokeWidth={2} />
         </button>
       </div>

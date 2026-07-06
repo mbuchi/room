@@ -67,6 +67,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zoom.in': 'Zoom in',
     'panel.zoom.out': 'Zoom out',
     'panel.zoom.reset_north': 'Reset bearing to north',
+    'panel.zoom.toggle_3d': 'Toggle 3D buildings',
 
     // ---------- right-side info pane tabs ----------
     'panel.tabs.zone_distribution': 'Zone distribution',
@@ -355,6 +356,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zoom.in': 'Zoomer',
     'panel.zoom.out': 'Dézoomer',
     'panel.zoom.reset_north': 'Réinitialiser l’orientation au nord',
+    'panel.zoom.toggle_3d': 'Bâtiments 3D',
 
     // ---------- tabs ----------
     'panel.tabs.zone_distribution': 'Distribution de zone',
@@ -642,6 +644,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zoom.in': 'Vergrössern',
     'panel.zoom.out': 'Verkleinern',
     'panel.zoom.reset_north': 'Ausrichtung nach Norden zurücksetzen',
+    'panel.zoom.toggle_3d': '3D-Gebäude',
 
     // ---------- tabs ----------
     'panel.tabs.zone_distribution': 'Zonenverteilung',
@@ -929,6 +932,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zoom.in': 'Ingrandisci',
     'panel.zoom.out': 'Riduci',
     'panel.zoom.reset_north': 'Reimposta l’orientamento a nord',
+    'panel.zoom.toggle_3d': 'Edifici 3D',
 
     // ---------- tabs ----------
     'panel.tabs.zone_distribution': 'Distribuzione di zona',
