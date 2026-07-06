@@ -147,7 +147,7 @@ const MapView = () => {
   const [claireOpen, setClaireOpen] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
   // Mobile tools sheet: which control card is shown (avoids scrolling by tabbing).
-  const [dockTab, setDockTab] = useState<'parcel' | 'building' | '3d' | 'restype'>('parcel');
+  const [dockTab, setDockTab] = useState<'parcel' | 'building' | 'restype'>('parcel');
   const [legendOpen, setLegendOpen] = useState(false);
   // Residential-type parcel filter (All / Houses / Apartments), persisted to
   // localStorage. 'all' applies no filter (room shows every parcel — its default).
@@ -800,23 +800,6 @@ const MapView = () => {
           </div>
         );
 
-        const tdCard = (
-          <div className={`${cardSurface} rounded-lg p-4 min-w-[240px] transition-colors`}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{t('panel.layers.3d_view')}</span>
-              <button
-                onClick={handleToggle3D}
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 ${is3DMode ? 'bg-red-600' : 'bg-gray-300 dark:bg-gray-600'}`}
-                role="switch"
-                aria-checked={is3DMode}
-                aria-label={t('panel.layers.3d_view')}
-              >
-                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200 ${is3DMode ? 'translate-x-[18px]' : 'translate-x-[3px]'}`} />
-              </button>
-            </div>
-          </div>
-        );
-
         // Residential-type filter card: All / Houses / Apartments, narrowing the
         // on-map parcels by their `bldg_flats`. Segmented control styled to match
         // room's control cards (red accent for the active segment, same surface).
@@ -853,7 +836,6 @@ const MapView = () => {
           { id: 'parcel' as const, label: t('panel.layers.parcel'), card: parcelCard },
           { id: 'restype' as const, label: t('panel.restype.title'), card: residentialTypeCard },
           { id: 'building' as const, label: t('panel.layers.building'), card: buildingCard },
-          { id: '3d' as const, label: t('panel.layers.3d_view'), card: tdCard },
         ];
 
         return (
@@ -865,7 +847,7 @@ const MapView = () => {
           >
             {isMobile ? (
               <div className="min-w-[260px]">
-                <SegmentedTabs<'parcel' | 'building' | '3d' | 'restype'>
+                <SegmentedTabs<'parcel' | 'building' | 'restype'>
                   tabs={DOCK_TABS.map(({ id, label }) => ({ id, label }))}
                   value={dockTab}
                   onChange={setDockTab}
@@ -882,7 +864,6 @@ const MapView = () => {
                 {parcelCard}
                 {residentialTypeCard}
                 {buildingCard}
-                {tdCard}
               </>
             )}
           </MapControlDock>
@@ -895,6 +876,8 @@ const MapView = () => {
       <ZoomControl
         getMap={() => mapRef.current}
         isDarkMode={isDarkMode}
+        is3D={is3DMode}
+        onToggle3D={handleToggle3D}
         rightOffsetPx={selectedParcel ? PANEL_OFFSET_PX : null}
         className={`bottom-24 md:bottom-8 ${selectedParcel ? 'hidden md:block' : ''}`}
       />
