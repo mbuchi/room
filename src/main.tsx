@@ -11,7 +11,7 @@ import '@aireon/shared/basemap.css';
 import '@aireon/shared/glass.css';
 import './index.css';
 
-errorLogger.install();
+errorLogger.install({ captureConsoleErrors: true });
 initOpenReplay({ projectKey: import.meta.env.VITE_OPENREPLAY_PROJECT_KEY as string | undefined });
 
 // room keeps its signature dark look by default, but now ships a light/dark
