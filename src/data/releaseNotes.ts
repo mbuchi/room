@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.15.0',
+    date: 'July 6, 2026',
+    codename: 'Claire shows her work',
+    summary:
+      'Claire can now answer with rich inline cards: charts, key figures, comparison tables, scores, and mini-maps right in the chat.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: MessageSquare,
+        text: 'Claire now presents answers as rich inline cards when it helps: key figures, charts, comparison tables, property summaries, scores, and mini-maps appear directly in the conversation instead of plain text.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.14.1',
     date: 'July 6, 2026',
     codename: 'Claire, aligned',
