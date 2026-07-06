@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { GlassProvider, initTheme } from '@aireon/shared';
+import { GlassProvider, initTheme, initOpenReplay } from '@aireon/shared';
 import { I18nProvider } from './contexts/I18nContext';
 import App from './App.tsx';
 import { errorLogger } from './lib/errorLog';
@@ -12,6 +12,7 @@ import '@aireon/shared/glass.css';
 import './index.css';
 
 errorLogger.install();
+initOpenReplay({ projectKey: import.meta.env.VITE_OPENREPLAY_PROJECT_KEY as string | undefined });
 
 // room keeps its signature dark look by default, but now ships a light/dark
 // toggle. initTheme resolves the cross-app `aireon_theme` cookie (shared by
