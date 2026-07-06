@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.13.2',
+    date: 'July 6, 2026',
+    codename: 'Wider error net',
+    summary:
+      'Behind-the-scenes reliability upgrade: room now captures a broader set of errors automatically so we can spot and fix problems faster.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'Broader automatic error capture (failed requests, resource + CSP errors) via @aireon/shared v1.75.0.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.13.1',
     date: 'July 5, 2026',
     codename: 'Theme in sync',
