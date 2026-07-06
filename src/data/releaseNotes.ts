@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.15.1',
+    date: 'July 7, 2026',
+    codename: 'Quieter idle animations',
+    summary:
+      'Idle animations now settle down when nothing is happening, saving CPU and battery.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'The Claire launcher now rests while the assistant is closed, and the online dot in the account menu pings briefly instead of pulsing forever, lowering idle CPU and battery use (via @aireon/shared v1.80.0).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.15.0',
     date: 'July 6, 2026',
     codename: 'Claire shows her work',
