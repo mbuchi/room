@@ -12,6 +12,27 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.16.0',
+    date: 'July 7, 2026',
+    codename: 'Claire gets real market data',
+    summary:
+      'Claire now answers with real RealAdvisor market data for the parcel\'s municipality, and her inline charts are interactive: hover tooltips, keyboard access, and a table view.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: TrendingUp,
+        text: 'Claire now grounds her answers in real RealAdvisor market data for the parcel\'s municipality: live price levels plus 1, 5, 10, and 20-year trends and monthly series, instead of model estimates.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BarChart3,
+        text: 'Claire\'s inline charts were redesigned: hover for exact values with a crosshair, navigate points with the keyboard, flip any chart to a table view, and read accurate axes with refined dark-mode styling (via @aireon/shared v1.81.0).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.15.1',
     date: 'July 7, 2026',
     codename: 'Quieter idle animations',
