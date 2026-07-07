@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter, Search, MapPin,
+  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -12,16 +12,37 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.16.1',
+    date: 'July 7, 2026',
+    codename: 'A roomier Claire',
+    summary:
+      'Claire gets a desktop enlarge button for a full-size chat window, and cites market figures without naming outside data providers.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Maximize2,
+        text: 'On desktop, Claire\'s window now has an enlarge button in the header. It expands the compact corner dock into a wide, full-height panel so reading answers and typing longer questions feel like a real chat window; tap it again to shrink back (via @aireon/shared v1.82.0).',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Bot,
+        text: 'Claire now cites market figures generically and no longer names third-party data providers in her answers or chart titles.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.16.0',
     date: 'July 7, 2026',
     codename: 'Claire gets real market data',
     summary:
-      'Claire now answers with real RealAdvisor market data for the parcel\'s municipality, and her inline charts are interactive: hover tooltips, keyboard access, and a table view.',
+      'Claire now answers with real market data for the parcel\'s municipality, and her inline charts are interactive: hover tooltips, keyboard access, and a table view.',
     items: [
       {
         kind: 'new' as ChangeKind,
         icon: TrendingUp,
-        text: 'Claire now grounds her answers in real RealAdvisor market data for the parcel\'s municipality: live price levels plus 1, 5, 10, and 20-year trends and monthly series, instead of model estimates.',
+        text: 'Claire now grounds her answers in real market data for the parcel\'s municipality: live price levels plus 1, 5, 10, and 20-year trends and monthly series, instead of model estimates.',
         prs: [],
       },
       {
@@ -318,13 +339,13 @@ export const RELEASES: Release[] = [
     date: 'June 30, 2026',
     codename: 'Market intel',
     summary:
-      'The parcel panel now shows local market figures: RealAdvisor city-level rent and buy prices for apartments and houses, right where you read a parcel.',
+      'The parcel panel now shows local market figures: city-level rent and buy prices for apartments and houses, right where you read a parcel.',
     items: [
       {
         kind: 'new' as ChangeKind,
         icon: TrendingUp,
         text:
-          'Added a new "Market" section to the Parcel facts panel. It surfaces RealAdvisor city-level market data for the parcel\'s municipality - toggle between Rent and Buy, and Apartments and Houses, to see the median price, the 80% asking range (10th-90th percentile), the price per m², and per-room range bars (±20% around each room-count average) on one shared scale. A muted line shows how many listings are for rent or for sale. The section hides itself when no market data is available for the city.',
+          'Added a new "Market" section to the Parcel facts panel. It surfaces city-level market data for the parcel\'s municipality - toggle between Rent and Buy, and Apartments and Houses, to see the median price, the 80% asking range (10th-90th percentile), the price per m², and per-room range bars (±20% around each room-count average) on one shared scale. A muted line shows how many listings are for rent or for sale. The section hides itself when no market data is available for the city.',
         prs: [],
       },
     ],
