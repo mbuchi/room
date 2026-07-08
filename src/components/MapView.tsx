@@ -82,6 +82,9 @@ interface SelectedParcel {
   props: Record<string, unknown>;
   lng: number;
   lat: number;
+  /** The clicked parcel POLYGON geometry (vector-tile feature.geometry) —
+   *  the lite base fed to the shared BuildableMassingSection simulator. */
+  geometry: GeoJSON.Geometry | null;
 }
 
 // Polygon-centroid helpers for the "Nearby comparables" query.
@@ -261,6 +264,7 @@ const MapView = () => {
     props: Record<string, unknown>,
     lng: number,
     lat: number,
+    geometry: GeoJSON.Geometry | null = null,
   ) => {
     const map = mapRef.current;
     if (!map) return;
@@ -296,7 +300,7 @@ const MapView = () => {
       prefetchZoneStats({ fso: nextZone.fso, cz_local: nextZone.czLocal, lang: locale });
     }
 
-    setSelectedParcel({ parcelId, egrid, props, lng, lat });
+    setSelectedParcel({ parcelId, egrid, props, lng, lat, geometry });
     setParcelData(null);
     setParcelDataError(null);
     setParcelDataLoading(true);
@@ -327,7 +331,12 @@ const MapView = () => {
       const features = map.queryRenderedFeatures(point, { layers: ['parcel-fill'] });
 
       if (features.length && features[0].properties) {
-        selectParcelRef.current(features[0].properties, center[0], center[1]);
+        selectParcelRef.current(
+          features[0].properties,
+          center[0],
+          center[1],
+          (features[0].geometry as GeoJSON.Geometry) ?? null,
+        );
       }
     });
   }, []);
@@ -667,6 +676,7 @@ const MapView = () => {
                   features[0].properties,
                   initialState.center[0],
                   initialState.center[1],
+                  (features[0].geometry as GeoJSON.Geometry) ?? null,
                 );
               }
             });
@@ -689,9 +699,15 @@ const MapView = () => {
           // deep-links fly to z17 first, so those selection paths stay unaffected.
           if (!isParcelInteractive(map.getZoom())) return;
           if (!e.features?.length) return;
-          const props = e.features[0].properties;
+          const feature = e.features[0];
+          const props = feature.properties;
           if (!props) return;
-          selectParcelRef.current(props, e.lngLat.lng, e.lngLat.lat);
+          selectParcelRef.current(
+            props,
+            e.lngLat.lng,
+            e.lngLat.lat,
+            (feature.geometry as GeoJSON.Geometry) ?? null,
+          );
         });
 
         map.on('moveend', () => {
@@ -943,6 +959,7 @@ const MapView = () => {
               isLoading={parcelDataLoading}
               error={parcelDataError}
               focusedParcel={focusedHandle}
+              geometry={selectedParcel.geometry}
               queryNearbyParcels={queryParcelsAround}
               onJumpTo={handleFlyToParcel}
               darkMode={isDarkMode}
