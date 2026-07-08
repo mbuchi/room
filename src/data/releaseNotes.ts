@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.1',
+    date: 'July 8, 2026',
+    codename: 'Spring cleaning',
+    summary: 'Removed a dead, unused Mapbox access-token constant left over from the MapLibre migration.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Code2,
+        text: 'Removed a dead, unused Mapbox access-token constant left over from the MapLibre migration.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.17.0',
     date: 'July 8, 2026',
     codename: 'Buildable in 3D',
