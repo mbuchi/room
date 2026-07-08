@@ -13,6 +13,7 @@ import {
   ParcelAerialThumbnail,
   ParcelIdentityHeader,
   ComparablesPanel,
+  BuildableMassingSection,
   rankComparables,
   type Comparable,
 } from '@aireon/shared';
@@ -47,6 +48,9 @@ interface ZoneInfoPanelProps {
   /** The currently-selected parcel — used for the header address fallback.
    *  Saving is handled by the panel-footer SaveToPrmBar, not here. */
   focusedParcel?: FocusedParcelHandle | null;
+  /** The clicked parcel POLYGON geometry (vector-tile feature.geometry) — the
+   *  lite base fed to the shared 3D buildable-massing simulator. */
+  geometry?: GeoJSON.Geometry | null;
   /** Query rendered parcel features around a point — fed to the comparables ranking. */
   queryNearbyParcels?: (lng: number, lat: number, radiusDeg: number, limit?: number) => Array<{ properties: Record<string, unknown>; lng: number; lat: number }>;
   /** Fly the map to a comparable parcel when its card is clicked. */
@@ -71,6 +75,7 @@ const ZoneInfoPanel = ({
   isLoading,
   error,
   focusedParcel = null,
+  geometry = null,
   queryNearbyParcels,
   onJumpTo,
   darkMode = true,
@@ -256,6 +261,23 @@ const ZoneInfoPanel = ({
               ratio={parcelData.ratio_s}
             />
           </div>
+        )}
+
+        {/* 3D buildable-massing simulator. Self-contained: ships its own i18n,
+            fetches RES spare_space directly, and renders NOTHING when there is
+            no polygon geometry and no spare_space candidate — so it's safe to
+            always mount. Hybrid: real spare_space when matched, else a lite
+            volume estimated from the clicked parcel ring + area. */}
+        {(geometry || (lng != null && lat != null)) && (
+          <BuildableMassingSection
+            dark={darkMode}
+            locale={locale}
+            geometry={geometry}
+            areaM2={Number(parcelData?.parcel_area) || null}
+            egrid={headerEgrid ?? undefined}
+            lngLat={lng != null && lat != null ? [lng, lat] : undefined}
+            className="px-4 pb-4 border-t border-gray-200 dark:border-slate-700/60"
+          />
         )}
 
         {queryNearbyParcels && onJumpTo && (

@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.0',
+    date: 'July 8, 2026',
+    codename: 'Buildable in 3D',
+    summary:
+      'Click a parcel to open a 3D buildable-massing simulator with floors and coverage sliders.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Box,
+        text: 'Click a parcel to open a 3D buildable-massing simulator. An auto-orbiting massing model shows the buildable volume, with floors and coverage sliders plus quick presets so you can explore how densely the site could be built (via @aireon/shared v1.84.0).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.16.1',
     date: 'July 7, 2026',
     codename: 'A roomier Claire',
