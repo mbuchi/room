@@ -904,6 +904,10 @@ const MapView = () => {
           // the map in saved images. data-screenshot-deshadow blanks that shadow
           // only during capture (live UI unchanged) via suppressCaptureShadows().
           data-screenshot-deshadow=""
+          // Tour anchor for the "parcel-facts" step (tour.config.ts). Must be a
+          // SINGLE exact value: TourProvider matches [data-tour='...'] with
+          // querySelector, so space-separated multi-values never match.
+          data-tour="zone-info-panel"
           className={`z-30 flex flex-col ${glassOn ? 'glass-surface' : 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl shadow-2xl'}
             fixed inset-x-0 bottom-0 h-[var(--sheet-h)] max-h-[90dvh] rounded-t-2xl border-t border-gray-200 dark:border-gray-800/60 animate-slide-up
             md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right`}
@@ -925,7 +929,11 @@ const MapView = () => {
           </button>
 
           <div className="flex items-stretch border-b border-gray-200 dark:border-gray-800/60 flex-shrink-0 px-3 py-2 gap-2">
-            <div className="flex-1" data-tour="zone-charts zone-info-panel">
+            {/* Tour anchor for the "charts" step: the tab switcher that opens the
+                Zone distribution charts (the chart content itself mounts only on
+                its tab, so it can't carry a reliable anchor). Keep ONE value per
+                data-tour — the panel root carries "zone-info-panel". */}
+            <div className="flex-1" data-tour="zone-charts">
               <SegmentedTabs<'zone' | 'facts'>
                 tabs={[
                   { id: 'zone', label: t('panel.tabs.zone_distribution') },
