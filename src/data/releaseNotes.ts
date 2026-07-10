@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.3',
+    date: 'July 10, 2026',
+    codename: 'The tour keeps its promise',
+    summary: 'Replaying the guided tour with a parcel selected now walks through the parcel-facts and zone-distribution steps it used to skip.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: BookOpen,
+        text: 'The guided tour silently skipped its "Read the parcel\'s facts" and "Where this parcel ranks" steps even when a parcel was selected, because both steps were pinned to a single panel element the tour could never find. They now spotlight the parcel info panel and its tab switcher, so replaying the tour from the account menu covers the full walkthrough as intended.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.17.2',
     date: 'July 9, 2026',
     codename: 'A sharper account menu',
