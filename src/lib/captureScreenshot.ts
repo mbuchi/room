@@ -1,4 +1,3 @@
-import { toCanvas } from 'html-to-image';
 import { screenshotNodeFilter, suppressCaptureShadows } from '@aireon/shared';
 
 export interface CaptureOptions {
@@ -28,6 +27,11 @@ export async function captureBrowserScreenshot(
   options: CaptureOptions = {}
 ): Promise<Blob> {
   const { type = 'image/webp', quality = 0.85 } = options;
+  // Lazy: html-to-image is only needed the moment the user hits the capture
+  // button — a dynamic import keeps it out of the initial bundle. Loaded
+  // BEFORE the shadow/motion freeze below so a slow fetch never leaves the
+  // live UI in its frozen capture state.
+  const { toCanvas } = await import('html-to-image');
   const target = document.documentElement;
   // Blank the box-shadow of every [data-screenshot-deshadow] element for the
   // duration of the capture so the parcel panel's drop-shadow doesn't bleed a

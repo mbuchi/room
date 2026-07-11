@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.5',
+    date: 'July 11, 2026',
+    codename: 'Lighter on arrival',
+    summary: 'The initial download is ~22% smaller: charts, guided tour and screenshot encoder now load only when used.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'room now arrives ~160 KB (22%) lighter — a real win on mobile connections. The zone-distribution chart stack, the guided-tour engine and the screenshot encoder are split out of the initial bundle and load only when first needed. The chart code quietly pre-warms a moment after the map settles, so the first parcel tap still opens instantly.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Maximize2,
+        text: "The mobile bottom sheet's grab handle answers to a comfortably larger tap area (nothing moved visually), so expanding or collapsing the parcel panel with a thumb is less fiddly.",
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.17.4',
     date: 'July 11, 2026',
     codename: 'Ten times the type-checking',

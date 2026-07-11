@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, useCallback, lazy, Suspense, type CSSProperties } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import type * as GeoJSON from 'geojson';
 import {
@@ -25,7 +25,12 @@ import Navbar from './Navbar';
 import ZoomControl from './ZoomControl';
 import CoordinateDisplay from './CoordinateDisplay';
 import ZoneInfoPanel from './ZoneInfoPanel';
-import ZonePanel from './ZonePanel';
+// Lazy: ZonePanel pulls in the entire recharts/d3 charting stack (~120 KB gz),
+// which nothing on the initial map view needs. Splitting it means the chunk
+// only downloads when a parcel is first selected (the panel shows its own
+// loading skeletons while zone stats fetch, so the brief Suspense gap blends
+// into the existing loading state).
+const ZonePanel = lazy(() => import('./ZonePanel'));
 import SaveToPrmBar from './SaveToPrmBar';
 import { AboutModal, ClaireAssistant, CloseButton, MapControlDock, MapLegendChip, SegmentedTabs, useGlass, useIsMobile, getStoredTheme, setTheme } from '@aireon/shared';
 import {
@@ -403,6 +408,19 @@ const MapView = () => {
   useEffect(() => {
     document.documentElement.setAttribute('data-glass', String(glassLevel));
   }, [glassLevel]);
+
+  // Warm the lazy ZonePanel chunk (recharts stack) once the initial view has
+  // had a moment to settle, so the first parcel tap opens instantly even on a
+  // slow connection. Pure prefetch — nothing renders until a parcel is
+  // selected, and a failed fetch just falls back to loading on demand.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      import('./ZonePanel').catch(() => {
+        /* prefetch is best-effort; the lazy() in the render path still owns loading */
+      });
+    }, 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // Re-add room's own data layers after the shared <BasemapPicker> swaps the
   // style (setStyle wipes every source/layer the app added). This is exactly
@@ -919,13 +937,19 @@ const MapView = () => {
             } as CSSProperties & Record<string, string>
           }
         >
-          {/* Mobile grab handle — drag/tap to peek ↔ expand. Hidden at md+. */}
+          {/* Mobile grab handle — drag/tap to peek ↔ expand. Hidden at md+.
+              The visible handle row is only ~26px tall, so an invisible
+              absolutely-positioned overlay extends the tap target upward past
+              the sheet's rounded top edge (~40px total) without moving any
+              pixels. A tap that close to the sheet edge is aimed at the sheet,
+              not the map behind it. */}
           <button
             type="button"
             onClick={() => setSheetExpanded((v) => !v)}
             aria-label={sheetExpanded ? t('panel.sheet.collapse') : t('panel.sheet.expand')}
-            className="md:hidden flex-shrink-0 w-full flex items-center justify-center pt-2.5 pb-1.5 group"
+            className="md:hidden relative flex-shrink-0 w-full flex items-center justify-center pt-2.5 pb-1.5 group"
           >
+            <span aria-hidden="true" className="absolute inset-x-0 -top-3.5 bottom-0" />
             <span className="h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-700 group-hover:bg-gray-400 dark:group-hover:bg-gray-600 group-active:bg-gray-500 transition-colors" />
           </button>
 
@@ -956,12 +980,14 @@ const MapView = () => {
 
           {/* Scrollable tab content — flex-1 so the Save CTA footer stays pinned. */}
           {panelTab === 'zone' ? (
-            <ZonePanel
-              parcelData={parcelData}
-              onZoneStatsLoaded={handleZoneStatsLoaded}
-              onZoneStatsCleared={handleZoneStatsCleared}
-              darkMode={isDarkMode}
-            />
+            <Suspense fallback={<div className="flex-1 min-h-0" aria-hidden="true" />}>
+              <ZonePanel
+                parcelData={parcelData}
+                onZoneStatsLoaded={handleZoneStatsLoaded}
+                onZoneStatsCleared={handleZoneStatsCleared}
+                darkMode={isDarkMode}
+              />
+            </Suspense>
           ) : (
             <ZoneInfoPanel
               parcelData={parcelData}

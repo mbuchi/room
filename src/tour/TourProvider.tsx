@@ -1,5 +1,7 @@
 import {
   createContext,
+  lazy,
+  Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -8,11 +10,18 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import Joyride, {
-  type CallBackProps,
-  STATUS,
-  type Step,
-} from "react-joyride";
+import type { CallBackProps, Step } from "react-joyride";
+
+// Lazy: react-joyride drags in react-floater + popper (~90 KB min) that only
+// matter while a tour is actually running. The component mounts only when
+// `run` flips true (first visit auto-start or the Tour button), so the chunk
+// stays off the critical path. Type-only imports above are erased at build.
+const Joyride = lazy(() => import("react-joyride"));
+
+// react-joyride STATUS literals (STATUS.FINISHED / STATUS.SKIPPED). Inlined so
+// the eager module graph doesn't pull the whole library back in for two
+// string constants.
+const TOUR_DONE_STATUSES: string[] = ["finished", "skipped"];
 
 import { appTourConfig } from "./tour.config";
 import { TourTooltip } from "./TourTooltip";
@@ -174,8 +183,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
   }, [locale]);
 
   function handleCallback(data: CallBackProps) {
-    const finished: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
-    if (finished.includes(data.status)) {
+    if (TOUR_DONE_STATUSES.includes(data.status)) {
       markTourCompleted(
         appTourConfig.appId,
         appTourConfig.tourVersion,
@@ -198,25 +206,32 @@ export function TourProvider({ children }: { children: ReactNode }) {
           to   { opacity: 1; transform: translateY(0)   scale(1); }
         }
       `}</style>
-      <Joyride
-        steps={steps}
-        run={run}
-        continuous
-        disableScrolling={appTourConfig.behavior.disableScrolling ?? false}
-        showProgress={appTourConfig.behavior.showProgress}
-        showSkipButton={appTourConfig.behavior.showSkipButton}
-        scrollToFirstStep={appTourConfig.behavior.scrollToFirstStep}
-        callback={handleCallback}
-        tooltipComponent={TourTooltip}
-        locale={{
-          back: t('tour.back'),
-          close: t('tour.done'),
-          last: t('tour.done'),
-          next: t('tour.next'),
-          skip: t('tour.skip'),
-        }}
-        styles={joyrideStyles}
-      />
+      {/* Mount Joyride only while a tour runs — with run=false it renders
+          nothing anyway, and gating the mount keeps the lazy chunk (joyride +
+          floater + popper) off the initial load entirely. */}
+      {run && (
+        <Suspense fallback={null}>
+          <Joyride
+            steps={steps}
+            run={run}
+            continuous
+            disableScrolling={appTourConfig.behavior.disableScrolling ?? false}
+            showProgress={appTourConfig.behavior.showProgress}
+            showSkipButton={appTourConfig.behavior.showSkipButton}
+            scrollToFirstStep={appTourConfig.behavior.scrollToFirstStep}
+            callback={handleCallback}
+            tooltipComponent={TourTooltip}
+            locale={{
+              back: t('tour.back'),
+              close: t('tour.done'),
+              last: t('tour.done'),
+              next: t('tour.next'),
+              skip: t('tour.skip'),
+            }}
+            styles={joyrideStyles}
+          />
+        </Suspense>
+      )}
     </TourContext.Provider>
   );
 }
