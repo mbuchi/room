@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback, type CSSProperties } from 'react';
 import * as maplibregl from 'maplibre-gl';
+import type * as GeoJSON from 'geojson';
 import {
   getInitialMapState,
   updateUrlParams,

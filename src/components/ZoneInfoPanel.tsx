@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type * as GeoJSON from 'geojson';
 import {
   AlertCircle,
   MapPin,

@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.4',
+    date: 'July 11, 2026',
+    codename: 'Ten times the type-checking',
+    summary: 'Type-checking now runs on the TypeScript 7 native compiler (~10x faster).',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'Type-checking now runs on the TypeScript 7 native compiler (~10x faster). The classic TypeScript 5 toolchain stays in place for linting, so nothing changes in the app itself — checks just finish sooner.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.17.3',
     date: 'July 10, 2026',
     codename: 'The tour keeps its promise',
