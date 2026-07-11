@@ -1,7 +1,7 @@
 {
   "name": "room",
   "private": true,
-  "version": "0.17.3",
+  "version": "0.17.4",
   "type": "module",
   "description": "room - Swiss zoning density explorer: how densely built is this zone, and where does your parcel sit on the distribution?",
   "repository": {
@@ -13,7 +13,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "typecheck": "node node_modules/typescript7/bin/tsc --noEmit -p tsconfig.app.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run build",
@@ -49,6 +49,7 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",
+    "typescript7": "npm:typescript@^7.0.2",
     "vite": "^5.4.2",
     "vitest": "^2.1.9"
   }
