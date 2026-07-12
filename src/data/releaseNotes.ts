@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.7',
+    date: 'July 12, 2026',
+    codename: 'Cached where it counts',
+    summary: 'The MapLibre map engine and the React runtime now download once and stay cached across updates, so repeat visits fetch far less.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'room now keeps the MapLibre map engine and the React runtime in their own stable bundles instead of packing them into one large file that changed on every release. Your first-load size is unchanged, but because these big, rarely-changing pieces no longer get a fresh fingerprint on each deploy, your browser reuses the copies it already has. Return visits, and the very next load right after each update, fetch far less data.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.17.6',
     date: 'July 12, 2026',
     codename: 'Zoning actions at your fingertips',
