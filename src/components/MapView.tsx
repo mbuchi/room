@@ -32,7 +32,21 @@ import ZoneInfoPanel from './ZoneInfoPanel';
 // into the existing loading state).
 const ZonePanel = lazy(() => import('./ZonePanel'));
 import SaveToPrmBar from './SaveToPrmBar';
-import { AboutModal, ClaireAssistant, CloseButton, MapControlDock, MapLegendChip, SegmentedTabs, useGlass, useIsMobile, getStoredTheme, setTheme } from '@aireon/shared';
+import {
+  AboutModal,
+  ClaireAssistant,
+  CloseButton,
+  MapContextMenu,
+  MapControlDock,
+  MapLegendChip,
+  SegmentedTabs,
+  useGlass,
+  useIsMobile,
+  getStoredTheme,
+  setTheme,
+  type MapContextMenuPoint,
+  type MapContextParcel,
+} from '@aireon/shared';
 import {
   BasemapPicker,
   getBasemapStrings,
@@ -44,6 +58,7 @@ import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
 import { Building2 } from 'lucide-react';
+import { useAuth } from '../auth/AuthContext';
 import {
   RESIDENTIAL_TYPE_FILTERS,
   RESIDENTIAL_TYPE_STORAGE_KEY,
@@ -93,6 +108,37 @@ interface SelectedParcel {
   geometry: GeoJSON.Geometry | null;
 }
 
+interface MapContextState {
+  point: MapContextMenuPoint;
+  parcel: MapContextParcel | null;
+  properties: Record<string, unknown> | null;
+  geometry: GeoJSON.Geometry | null;
+}
+
+function contextString(properties: Record<string, unknown>, keys: string[]): string {
+  for (const key of keys) {
+    const value = properties[key];
+    if (value !== undefined && value !== null && value !== '') return String(value);
+  }
+  return '';
+}
+
+function toContextParcel(properties: Record<string, unknown>): MapContextParcel | null {
+  const parcelId = contextString(properties, ['parcel_id', 'egrid', 'id_parcel', 'id']);
+  if (!parcelId) return null;
+  const municipality = contextString(properties, [
+    'cityname', 'city', 'ort', 'gemeinde', 'municipality', 'fso_name_2021',
+  ]);
+  const address = contextString(properties, ['address', 'street', 'strasse', 'streetname']);
+  return {
+    parcelId,
+    label: address || `Parcel ${parcelId}`,
+    municipality,
+    area: Number(properties['area_m2'] ?? properties['parcel_area'] ?? properties['flaeche']) || 0,
+    subtitle: municipality,
+  };
+}
+
 // Polygon-centroid helpers for the "Nearby comparables" query.
 type LngLatRing = [number, number][];
 type ParcelFeatureGeometry = { type?: string; coordinates?: unknown };
@@ -125,6 +171,7 @@ const prefersDarkMode = (): boolean => getStoredTheme() !== 'light';
 
 const MapView = () => {
   const { t, locale } = useI18n();
+  const { isAuthenticated, getAccessToken, promptLogin } = useAuth();
   // Liquid Glass appearance level (0=Off, 1=Frosted, 2=Liquid). Drives the
   // translucent map chrome + the `data-glass` attribute on <html>.
   const { level: glassLevel } = useGlass();
@@ -165,6 +212,7 @@ const MapView = () => {
   );
 
   const [selectedParcel, setSelectedParcel] = useState<SelectedParcel | null>(null);
+  const [mapContext, setMapContext] = useState<MapContextState | null>(null);
   const [parcelData, setParcelData] = useState<ParcelData | null>(null);
   const [parcelDataLoading, setParcelDataLoading] = useState(false);
   const [parcelDataError, setParcelDataError] = useState<string | null>(null);
@@ -733,6 +781,28 @@ const MapView = () => {
           const c = map.getCenter();
           updateUrlParams(c.lat, c.lng, map.getZoom());
         });
+
+        map.on('contextmenu', (event) => {
+          event.originalEvent.preventDefault();
+          const feature = map.getLayer('parcel-fill')
+            ? map.queryRenderedFeatures(event.point, { layers: ['parcel-fill'] })[0]
+            : undefined;
+          const properties = feature?.properties as Record<string, unknown> | undefined;
+          const canvasRect = map.getCanvas().getBoundingClientRect();
+          const original = event.originalEvent as MouseEvent;
+          setMapContext({
+            point: {
+              x: Number.isFinite(original.clientX) ? original.clientX : canvasRect.left + event.point.x,
+              y: Number.isFinite(original.clientY) ? original.clientY : canvasRect.top + event.point.y,
+              lng: event.lngLat.lng,
+              lat: event.lngLat.lat,
+              zoom: map.getZoom(),
+            },
+            parcel: properties ? toContextParcel(properties) : null,
+            properties: properties ?? null,
+            geometry: (feature?.geometry as GeoJSON.Geometry | undefined) ?? null,
+          });
+        });
       })
       .catch((error) => {
         console.error('Unable to initialise the MapLibre map', error);
@@ -773,6 +843,41 @@ const MapView = () => {
         selectedParcel={selectedParcel}
       />
       <div ref={mapContainerRef} className="absolute inset-0 top-14" data-tour="map-view" />
+
+      <MapContextMenu
+        open={mapContext !== null}
+        point={mapContext?.point ?? null}
+        parcel={mapContext?.parcel ?? null}
+        currentAppId="room"
+        locale={locale}
+        darkMode={isDarkMode}
+        auth={{ isAuthenticated, getAccessToken, promptLogin }}
+        onClose={() => setMapContext(null)}
+        onLoadParcel={(point) => {
+          const map = mapRef.current;
+          if (!map) return;
+          if (mapContext?.properties) {
+            selectParcelRef.current(mapContext.properties, point.lng, point.lat, mapContext.geometry);
+            return;
+          }
+          map.flyTo({ center: [point.lng, point.lat], zoom: Math.max(point.zoom ?? 17, 17), duration: 900 });
+          map.once('idle', () => {
+            if (!map.getLayer('parcel-fill')) return;
+            const feature = map.queryRenderedFeatures(map.project([point.lng, point.lat]), { layers: ['parcel-fill'] })[0];
+            if (feature?.properties) {
+              selectParcelRef.current(
+                feature.properties,
+                point.lng,
+                point.lat,
+                (feature.geometry as GeoJSON.Geometry | undefined) ?? null,
+              );
+            }
+          });
+        }}
+        onCenterMap={(point) => {
+          mapRef.current?.easeTo({ center: [point.lng, point.lat], zoom: point.zoom, duration: 700 });
+        }}
+      />
 
       {/* Basemap selector — the shared @aireon/shared/basemap gallery picker
           (6 swisstopo basemaps). room keeps its floating wrapper + tour anchor;

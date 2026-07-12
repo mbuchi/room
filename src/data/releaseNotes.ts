@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.6',
+    date: 'July 12, 2026',
+    codename: 'Zoning actions at your fingertips',
+    summary: 'Right-click any map point to inspect its parcel, save it, share it, or continue in another Aireon app.',
+    items: [
+      {
+        kind: 'added' as ChangeKind,
+        icon: MapPin,
+        text: 'A new suite-standard map-actions menu turns the clicked point into a command surface: load the parcel through room’s existing facts and zone-analysis flow, save it to PRM, open the location in another Aireon map, center it, or copy a deep link or coordinates.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.17.5',
     date: 'July 11, 2026',
     codename: 'Lighter on arrival',
