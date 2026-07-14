@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.8',
+    date: 'July 14, 2026',
+    codename: 'Signed out, not blacked out',
+    summary: 'The account button no longer shows as a dark circle when you are signed out in light mode.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Palette,
+        text: 'When you opened the app signed out, the account button in the navbar rendered as a high-contrast dark circle that clashed with the light theme. It now uses the same neutral scheme as every other map control: light grey in light mode, slate in dark mode.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.17.7',
     date: 'July 12, 2026',
     codename: 'Cached where it counts',
