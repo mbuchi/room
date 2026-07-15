@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.10',
+    date: 'July 15, 2026',
+    codename: 'About, refined',
+    summary: 'A polished, readable About dialog now leads back to every Aireon application.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Info,
+        text: 'About room now uses the redesigned suite dialog with explicit high-contrast colors, stronger hierarchy, keyboard focus handling, safe mobile scrolling, localized data labels, and a prominent link to the Aireon Hub application catalog.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.17.9',
     date: 'July 15, 2026',
     codename: 'Smoother on the move',

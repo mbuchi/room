@@ -1200,6 +1200,9 @@ const MapView = () => {
             },
           ]}
           closeLabel={t('about.close')}
+          aboutLabel={t('about.label')}
+          creditsLabel={t('about.credits')}
+          hubLabel={t('about.hub')}
           glassLevel={glassLevel}
           dark={isDarkMode}
           onClose={() => setShowAboutModal(false)}
