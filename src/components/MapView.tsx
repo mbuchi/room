@@ -694,6 +694,11 @@ const MapView = () => {
 
     const initialState = getInitialMapState();
     let cancelled = false;
+    // Throttle native mousemove → coordinate state to one update per animation
+    // frame. mousemove can fire far faster than 60fps, and setLv95Coords re-renders
+    // the whole MapView tree (ZonePanel charts, Claire), so we coalesce to the
+    // display refresh rate. Cancelled on mouseout and effect cleanup.
+    let coordRafId: number | null = null;
 
     // Open on the swisstopo basemap that pairs with room's (always dark) theme.
     // resolveBasemapStyle returns a ready style spec (including any runtime
@@ -752,10 +757,18 @@ const MapView = () => {
 
         map.on('mousemove', (e) => {
           const { lng, lat } = e.lngLat;
-          setLv95Coords(wgs84ToLv95(lng, lat));
+          if (coordRafId != null) return;
+          coordRafId = requestAnimationFrame(() => {
+            setLv95Coords(wgs84ToLv95(lng, lat));
+            coordRafId = null;
+          });
         });
 
         map.on('mouseout', () => {
+          if (coordRafId != null) {
+            cancelAnimationFrame(coordRafId);
+            coordRafId = null;
+          }
           setLv95Coords(null);
         });
 
@@ -810,6 +823,10 @@ const MapView = () => {
 
     return () => {
       cancelled = true;
+      if (coordRafId != null) {
+        cancelAnimationFrame(coordRafId);
+        coordRafId = null;
+      }
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
