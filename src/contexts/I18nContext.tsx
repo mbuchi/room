@@ -315,6 +315,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'about.mapData': 'Map data',
     'about.renderer': 'Rendering',
     'about.close': 'Close',
+    'about.label': 'About',
+    'about.credits': 'Data & technology',
+    'about.hub': 'See all Aireon applications',
   },
   fr: {
     // ---------- navbar ----------
@@ -603,6 +606,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'about.mapData': 'Données cartographiques',
     'about.renderer': 'Rendu',
     'about.close': 'Fermer',
+    'about.label': 'À propos',
+    'about.credits': 'Données et technologie',
+    'about.hub': 'Voir toutes les applications Aireon',
   },
   de: {
     // ---------- navbar ----------
@@ -891,6 +897,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'about.mapData': 'Kartendaten',
     'about.renderer': 'Darstellung',
     'about.close': 'Schliessen',
+    'about.label': 'Über diese App',
+    'about.credits': 'Daten & Technologie',
+    'about.hub': 'Alle Aireon-Anwendungen ansehen',
   },
   it: {
     // ---------- navbar ----------
@@ -1179,6 +1188,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'about.mapData': 'Dati cartografici',
     'about.renderer': 'Rendering',
     'about.close': 'Chiudi',
+    'about.label': 'Informazioni',
+    'about.credits': 'Dati e tecnologia',
+    'about.hub': 'Vedi tutte le applicazioni Aireon',
   },
 };
 
