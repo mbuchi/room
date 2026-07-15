@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.9',
+    date: 'July 15, 2026',
+    codename: 'Smoother on the move',
+    summary: 'Moving the mouse across the map is lighter on your device, especially with a parcel open.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Timer,
+        text: 'The live coordinate readout now updates in step with your screen’s refresh rate instead of on every raw mouse movement. With a parcel selected, that means the map no longer re-renders the zone charts and assistant panel dozens of extra times a second while you glide the pointer around — smoother exploration with no change to how the coordinates look.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.17.8',
     date: 'July 14, 2026',
     codename: 'Signed out, not blacked out',
