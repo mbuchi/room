@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.17.12',
+    date: 'July 17, 2026',
+    codename: 'Selects that stick',
+    summary: 'Address searches and shared parcel links now select the parcel reliably, even on slow connections.',
+    items: [
+      {
+        kind: 'fixed',
+        icon: LocateFixed,
+        text: 'Picking an address, opening a shared parcel link, or using "Load parcel data" could silently fail to select the parcel when the map tiles finished loading a moment too late. The selection now retries as tiles arrive, so the zone panel opens dependably instead of appearing to do nothing.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.17.11',
     date: 'July 17, 2026',
     codename: 'Searches that follow you',
