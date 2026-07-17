@@ -1,5 +1,18 @@
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
-import { Tag, Footprints, Share2, Sun, Moon, History, Info, LocateFixed } from 'lucide-react';
+import {
+  Tag,
+  Footprints,
+  Share2,
+  Sun,
+  Moon,
+  History,
+  Info,
+  LocateFixed,
+  ExternalLink,
+  Camera,
+  Image as ImageIcon,
+  Languages,
+} from 'lucide-react';
 import type { ScreenshotMetadata } from '../services/imageService';
 import { type LocateErrorCode, requestGeolocation } from './LocateButton';
 import SavedImagesPanel from './SavedImagesPanel';
@@ -11,17 +24,44 @@ import {
   OpenWithMenu,
   ShareCopiedToast,
   SearchHistoryModal,
+  LAUNCH_APPS,
+  openInApp,
   getAuthToken,
   getReleaseNotesStrings,
   getShareStrings,
   getSearchHistoryStrings,
   useReleaseNotes,
   useGlass,
+  buildGlassMenuItem,
   buildGlassSettingsItem,
   type MapUserMenuAction,
   type AddressSearchResult,
 } from '@aireon/shared';
 import { CURRENT_VERSION } from '../data/releaseMeta';
+import { useCompactLayout } from '../hooks/useCompactLayout';
+
+// Compact (<1024px) account-menu sizing: the one merged menu holds every former
+// navbar action, so cap the dropdown to the viewport (minus navbar) and let it
+// scroll, and give every row/button the 44px touch floor. Applied as a wrapper
+// around UserMenu only at compact widths — desktop keeps the stock dropdown.
+const COMPACT_USER_MENU_CLASS_NAME = [
+  'contents room-compact-user-menu',
+  '[&_.map-shell-user-dropdown]:max-h-[calc(100dvh-3.5rem-env(safe-area-inset-bottom,0px)-1rem)]',
+  '[&_.map-shell-user-dropdown]:overflow-y-auto',
+  '[&_.map-shell-user-button]:min-h-11',
+  '[&_.map-shell-user-button]:min-w-11',
+  '[&_.map-shell-user-manage]:min-h-11',
+  '[&_.map-shell-user-manage]:min-w-11',
+  '[&_.map-shell-user-saved-refresh]:min-h-11',
+  '[&_.map-shell-user-saved-refresh]:min-w-11',
+  '[&_.map-shell-user-saved-action]:min-h-11',
+  '[&_.map-shell-user-saved-action]:min-w-11',
+  '[&_.map-shell-user-saved-total]:min-h-11',
+  '[&_.map-shell-user-saved-state]:min-h-11',
+  '[&_.map-shell-user-saved-attention]:min-h-11',
+  '[&_.map-shell-user-tool-item]:min-h-11',
+  '[&_.map-shell-user-menu-item]:min-h-11',
+].join(' ');
 
 // Code-split: the large RELEASES array + the changelog panel load only when the
 // user opens What's New, keeping the release-notes blob out of the entry bundle.
@@ -63,6 +103,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
   const { locale, setLocale, t } = useI18n();
   const { level: glassLevel, setLevel: setGlassLevel } = useGlass();
   const { email } = useAuth();
+  const isCompact = useCompactLayout();
   const [showImages, setShowImages] = useState(false);
   // Search history is now a one-tap navbar button (moved out of the account
   // menu's built-in row) — it opens the shared SearchHistoryModal.
@@ -183,11 +224,79 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
     },
   ];
 
+  // Compact (<1024px): the hamburger toolbar and the Open-with / history / info
+  // icon cluster disappear from the bar, so every one of those actions becomes
+  // a row in the single account menu instead. Prepended before toolbarItems so
+  // the highest-frequency actions (Open with, history, capture) come first.
+  const compactOnlyTools: MapUserMenuAction[] = [
+    ...(openWithLocation
+      ? [
+          {
+            key: 'open-with',
+            label: t('nav.open_with'),
+            icon: <ExternalLink size={16} aria-hidden="true" />,
+            signedOut: true,
+            children: LAUNCH_APPS.filter((app) => app.id !== 'room').map((app) => ({
+              key: `open-with-${app.id}`,
+              label: app.name,
+              onClick: () => {
+                openInApp(app.id, openWithLocation.lat, openWithLocation.lng);
+                void signal.send('Open address in app', {
+                  lat: openWithLocation.lat,
+                  lng: openWithLocation.lng,
+                  metaData: { app: app.id },
+                });
+              },
+            })),
+          } as MapUserMenuAction,
+        ]
+      : []),
+    {
+      key: 'history',
+      label: getSearchHistoryStrings(locale).menuRow,
+      icon: <History size={16} aria-hidden="true" />,
+      onClick: () => setShowHistory(true),
+      signedOut: true,
+    },
+    {
+      key: 'capture',
+      label: t('panel.screenshot.save_image'),
+      icon: <Camera size={16} aria-hidden="true" />,
+      onClick: () => void capture(),
+      disabled: isCapturing,
+      signedOut: true,
+    },
+    {
+      key: 'exports',
+      label: t('nav.my_exports'),
+      icon: <ImageIcon size={16} aria-hidden="true" />,
+      onClick: () => setShowImages(true),
+      signedOut: true,
+    },
+    {
+      key: 'language',
+      label: t('nav.select_language'),
+      icon: <Languages size={16} aria-hidden="true" />,
+      signedOut: true,
+      children: (['en', 'fr', 'de', 'it'] as const).map((language) => ({
+        key: `language-${language}`,
+        label: language.toUpperCase(),
+        badge: locale === language ? '✓' : undefined,
+        onClick: () => setLocale(language),
+        keepOpenOnClick: true,
+      })),
+    },
+    buildGlassMenuItem({ level: glassLevel, setLevel: setGlassLevel, locale }),
+  ];
+
+  const menuTools = isCompact ? [...compactOnlyTools, ...toolbarItems] : toolbarItems;
+
   return (
     <>
       <AppNavbar
         appName="room"
         dark={darkMode}
+        hideHubLink={isCompact}
         position="fixed top-0 left-0 right-0 z-50"
         brandTourId="app-title"
         searchTourId="address-search"
@@ -214,14 +323,15 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
             });
           },
         }}
-        actionsExtra={
+        actionsExtra={isCompact ? undefined : (
           /* "Open with" is first — opens the current parcel/location in another
              suite app. It uses the selected parcel's lngLat when available
              (map-click), falling back to the last address search result. Two
              navbar icon buttons follow: Search history (opens the shared
              SearchHistoryModal directly; its account-menu row is suppressed in
              UserMenu) and About (info icon, opens the shared AboutModal —
-             the suite-standard placement). */
+             the suite-standard placement). At compact widths the whole cluster
+             folds into the account menu. */
           <>
             {openWithLocation && (
               <OpenWithMenu
@@ -251,8 +361,8 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
               dark={darkMode}
             />
           </>
-        }
-        toolbar={{
+        )}
+        toolbar={isCompact ? undefined : {
           locale,
           onLocaleChange: setLocale,
           onCapture: capture,
@@ -276,15 +386,18 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
           },
         }}
         userMenu={
-          <UserMenu
-            darkMode={darkMode}
-            toolbarItems={toolbarItems}
-            toolbarLabel={t('menu.more_tools')}
-            // Search history is a navbar button now, so suppress the menu's
-            // built-in "My search history" row to avoid duplicating it.
-            showSearchHistory={false}
-            bugReport={{ logger: errorLogger, email, metaData: { rollout: 'bug-report-expanded' } }}
-          />
+          <div className={isCompact ? COMPACT_USER_MENU_CLASS_NAME : 'contents'}>
+            <UserMenu
+              darkMode={darkMode}
+              toolbarItems={menuTools}
+              toolbarLabel={t('menu.more_tools')}
+              // Search history is a navbar button (compact: a menu row we add
+              // ourselves), so suppress the menu's built-in "My search history"
+              // row to avoid duplicating it.
+              showSearchHistory={false}
+              bugReport={{ logger: errorLogger, email, metaData: { rollout: 'bug-report-expanded' } }}
+            />
+          </div>
         }
       />
 

@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2,
+  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -11,6 +11,43 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.18.0',
+    date: 'July 17, 2026',
+    codename: 'Made for your phone',
+    summary:
+      'room now follows the Aireon compact mobile standard: a cleaner top bar, a one-column basemap gallery, stacked map tools, and a parcel panel that can use the whole screen.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Smartphone,
+        text:
+          'On phones and small screens the top bar now keeps only the essentials: the room wordmark, the address search, and one account menu. Everything that used to sit in the bar, including Open with, search history, save image, my exports, language, appearance, locate me, share, the theme toggle, what is new, the tour, and about, now lives in that single menu, with larger touch targets and a scrollable dropdown that always fits the screen.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Maximize2,
+        text:
+          'The parcel panel on phones now expands to the full height of the screen, from just under the top bar to the bottom edge, so charts and parcel facts get all the room they need. The grab handle still lets you drop it back to a half-screen peek to see the map.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Layers,
+        text:
+          'The map tools sheet no longer hides controls behind tabs: the parcel opacity, residential type filter, and building opacity cards now stack full width and are all visible at once.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text:
+          'The basemap gallery opens as a slim single column on phones, capped to about half the screen with its own scrollbar, so it stays clear of the legend and map controls.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.17.12',
     date: 'July 17, 2026',
