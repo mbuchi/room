@@ -372,26 +372,56 @@ const MapView = () => {
   const selectParcelRef = useRef(selectParcelFromProps);
   selectParcelRef.current = selectParcelFromProps;
 
+  // Pending auto-select retry chain (search pick / deep-link / context-menu
+  // load). A new target cancels the previous chain so rapid picks don't stack
+  // stale selections.
+  const autoSelectCancelRef = useRef<(() => void) | null>(null);
+
+  // Hit-test the parcel under `center` and select it. Returns true on a hit so
+  // the retry chain below knows whether to keep waiting for tiles.
+  const trySelectParcelAt = useCallback((map: maplibregl.Map, center: [number, number]): boolean => {
+    // Querying a missing layer throws — a search select can race the style load.
+    if (!map.getLayer('parcel-fill')) return false;
+    const point = map.project(center);
+    const features = map.queryRenderedFeatures(point, { layers: ['parcel-fill'] });
+    if (features.length && features[0].properties) {
+      selectParcelRef.current(
+        features[0].properties,
+        center[0],
+        center[1],
+        (features[0].geometry as GeoJSON.Geometry) ?? null,
+      );
+      return true;
+    }
+    return false;
+  }, []);
+
+  // Runs the hit-test once the parcel tiles under the target are actually
+  // rendered. The vector tiles regularly finish AFTER the first 'idle' that
+  // follows a fly-to (slow network), and a single-shot hit-test silently
+  // missed in that window — the search then appeared to do nothing. Every
+  // later tile batch fires another 'idle', so retry on those, capped so an
+  // address with no parcel underneath (lake, foreign address) stops cleanly.
+  // Matches woom's selectParcelWhenReady (ported suite-wide with valoo/groove).
+  const selectParcelWhenReady = useCallback((map: maplibregl.Map, center: [number, number], maxAttempts = 6) => {
+    autoSelectCancelRef.current?.();
+    let attempts = 0;
+    const tryHit = () => {
+      if (trySelectParcelAt(map, center)) return;
+      attempts += 1;
+      if (attempts < maxAttempts) map.once('idle', tryHit);
+    };
+    autoSelectCancelRef.current = () => map.off('idle', tryHit);
+    map.once('idle', tryHit);
+  }, [trySelectParcelAt]);
+
   const handleLocationSelect = useCallback((center: [number, number], _placeName: string) => {
     const map = mapRef.current;
     if (!map) return;
 
     map.flyTo({ center, zoom: 17, duration: 2000 });
-
-    map.once('idle', () => {
-      const point = map.project(center);
-      const features = map.queryRenderedFeatures(point, { layers: ['parcel-fill'] });
-
-      if (features.length && features[0].properties) {
-        selectParcelRef.current(
-          features[0].properties,
-          center[0],
-          center[1],
-          (features[0].geometry as GeoJSON.Geometry) ?? null,
-        );
-      }
-    });
-  }, []);
+    selectParcelWhenReady(map, center);
+  }, [selectParcelWhenReady]);
 
   /**
    * Refine the choropleth once /zone_stats lands: pull the zone's real ratio_v
@@ -737,19 +767,10 @@ const MapView = () => {
           const c = map.getCenter();
           updateUrlParams(c.lat, c.lng, map.getZoom());
 
+          // Deep-link ?lat/?lng: retry the hit-test on each idle so parcel
+          // tiles that finish after the first idle still get auto-selected.
           if (initialState.hasUrlCoords) {
-            map.once('idle', () => {
-              const point = map.project(initialState.center);
-              const features = map.queryRenderedFeatures(point, { layers: ['parcel-fill'] });
-              if (features.length && features[0].properties) {
-                selectParcelRef.current(
-                  features[0].properties,
-                  initialState.center[0],
-                  initialState.center[1],
-                  (features[0].geometry as GeoJSON.Geometry) ?? null,
-                );
-              }
-            });
+            selectParcelWhenReady(map, initialState.center);
           }
         });
 
@@ -821,6 +842,8 @@ const MapView = () => {
 
     return () => {
       cancelled = true;
+      autoSelectCancelRef.current?.();
+      autoSelectCancelRef.current = null;
       if (coordRafId != null) {
         cancelAnimationFrame(coordRafId);
         coordRafId = null;
@@ -876,18 +899,7 @@ const MapView = () => {
             return;
           }
           map.flyTo({ center: [point.lng, point.lat], zoom: Math.max(point.zoom ?? 17, 17), duration: 900 });
-          map.once('idle', () => {
-            if (!map.getLayer('parcel-fill')) return;
-            const feature = map.queryRenderedFeatures(map.project([point.lng, point.lat]), { layers: ['parcel-fill'] })[0];
-            if (feature?.properties) {
-              selectParcelRef.current(
-                feature.properties,
-                point.lng,
-                point.lat,
-                (feature.geometry as GeoJSON.Geometry | undefined) ?? null,
-              );
-            }
-          });
+          selectParcelWhenReady(map, [point.lng, point.lat]);
         }}
         onCenterMap={(point) => {
           mapRef.current?.easeTo({ center: [point.lng, point.lat], zoom: point.zoom, duration: 700 });
