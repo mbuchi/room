@@ -202,8 +202,6 @@ const MapView = () => {
   // so users get both entry points; both drive this one piece of state.
   const [claireOpen, setClaireOpen] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
-  // Mobile tools sheet: which control card is shown (avoids scrolling by tabbing).
-  const [dockTab, setDockTab] = useState<'parcel' | 'building' | 'restype'>('parcel');
   const [legendOpen, setLegendOpen] = useState(false);
   // Residential-type parcel filter (All / Houses / Apartments), persisted to
   // localStorage. 'all' applies no filter (room shows every parcel — its default).
@@ -925,8 +923,11 @@ const MapView = () => {
           ? 'glass-control border'
           : 'shadow-lg bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700/50';
 
-        const parcelCard = (
-          <div className={`${cardSurface} rounded-lg p-4 min-w-[240px] transition-colors`}>
+        // fullWidth = embedded in the mobile Map-tools sheet, where every card
+        // stacks always-visible and full-width (suite mobile standard); false =
+        // the floating desktop card stack with its fixed min width.
+        const renderParcelCard = (fullWidth: boolean) => (
+          <div className={`${cardSurface} rounded-lg p-4 ${fullWidth ? 'w-full' : 'min-w-[240px]'} transition-colors`}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('panel.layers.parcel')}</span>
               <span className="text-[10px] font-semibold text-red-500 dark:text-red-400 tabular-nums">{Math.round(parcelOpacity * 100)}%</span>
@@ -941,8 +942,8 @@ const MapView = () => {
           </div>
         );
 
-        const buildingCard = (
-          <div className={`${cardSurface} rounded-lg p-4 min-w-[240px] transition-colors`}>
+        const renderBuildingCard = (fullWidth: boolean) => (
+          <div className={`${cardSurface} rounded-lg p-4 ${fullWidth ? 'w-full' : 'min-w-[240px]'} transition-colors`}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('panel.layers.building')}</span>
               <span className="text-[10px] font-semibold text-red-500 dark:text-red-400 tabular-nums">{Math.round(buildingOpacity * 100)}%</span>
@@ -960,8 +961,8 @@ const MapView = () => {
         // Residential-type filter card: All / Houses / Apartments, narrowing the
         // on-map parcels by their `bldg_flats`. Segmented control styled to match
         // room's control cards (red accent for the active segment, same surface).
-        const residentialTypeCard = (
-          <div className={`${cardSurface} rounded-lg p-4 min-w-[240px] transition-colors`} data-tour="residential-type">
+        const renderResidentialTypeCard = (fullWidth: boolean) => (
+          <div className={`${cardSurface} rounded-lg p-4 ${fullWidth ? 'w-full' : 'min-w-[240px]'} transition-colors`} data-tour="residential-type">
             <div className="flex items-center gap-2 mb-3">
               <Building2 size={16} className="text-gray-500 dark:text-gray-400" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{t('panel.restype.title')}</span>
@@ -989,12 +990,6 @@ const MapView = () => {
           </div>
         );
 
-        const DOCK_TABS = [
-          { id: 'parcel' as const, label: t('panel.layers.parcel'), card: parcelCard },
-          { id: 'restype' as const, label: t('panel.restype.title'), card: residentialTypeCard },
-          { id: 'building' as const, label: t('panel.layers.building'), card: buildingCard },
-        ];
-
         return (
           <MapControlDock
             dark={isDarkMode}
@@ -1003,24 +998,18 @@ const MapView = () => {
             desktopClassName={`transition-[right] duration-300 ${selectedParcel ? `!right-[${PANEL_OFFSET_PX}px]` : ''}`}
           >
             {isMobile ? (
-              <div className="min-w-[260px]">
-                <SegmentedTabs<'parcel' | 'building' | 'restype'>
-                  tabs={DOCK_TABS.map(({ id, label }) => ({ id, label }))}
-                  value={dockTab}
-                  onChange={setDockTab}
-                  ariaLabel={t('nav.map_settings')}
-                  dark={isDarkMode}
-                  size="md"
-                  activeTone="accent"
-                  className="mb-3"
-                />
-                {DOCK_TABS.find((tab) => tab.id === dockTab)?.card}
+              /* Suite mobile standard: no tabs — every control card stacks
+                 always-visible and full-width inside the one Map-tools sheet. */
+              <div className="flex flex-col gap-3">
+                {renderParcelCard(true)}
+                {renderResidentialTypeCard(true)}
+                {renderBuildingCard(true)}
               </div>
             ) : (
               <>
-                {parcelCard}
-                {residentialTypeCard}
-                {buildingCard}
+                {renderParcelCard(false)}
+                {renderResidentialTypeCard(false)}
+                {renderBuildingCard(false)}
               </>
             )}
           </MapControlDock>
@@ -1050,11 +1039,13 @@ const MapView = () => {
           // querySelector, so space-separated multi-values never match.
           data-tour="zone-info-panel"
           className={`z-30 flex flex-col ${glassOn ? 'glass-surface' : 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl shadow-2xl'}
-            fixed inset-x-0 bottom-0 h-[var(--sheet-h)] max-h-[90dvh] rounded-t-2xl border-t border-gray-200 dark:border-gray-800/60 animate-slide-up
+            fixed inset-x-0 bottom-0 h-[var(--sheet-h)] rounded-t-2xl border-t border-gray-200 dark:border-gray-800/60 animate-slide-up
             md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right`}
           style={
             {
-              '--sheet-h': sheetExpanded ? '90dvh' : '56dvh',
+              // Expanded = FULL HEIGHT (suite mobile standard): from just under
+              // the 3.5rem navbar to the bottom edge. Peek keeps the map visible.
+              '--sheet-h': sheetExpanded ? 'calc(100dvh - 3.5rem)' : '56dvh',
               '--panel-w': `${PANEL_WIDTH_PX}px`,
             } as CSSProperties & Record<string, string>
           }
