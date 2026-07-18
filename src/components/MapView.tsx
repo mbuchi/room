@@ -879,6 +879,12 @@ const MapView = () => {
         onToggleTheme={toggleDarkMode}
         onAbout={() => setShowAboutModal(true)}
         selectedParcel={selectedParcel}
+        activeAddress={
+          parcelData?.address ??
+          (typeof selectedParcel?.props.address === 'string'
+            ? selectedParcel.props.address
+            : null)
+        }
       />
       <div ref={mapContainerRef} className="absolute inset-0 top-14" data-tour="map-view" />
 
