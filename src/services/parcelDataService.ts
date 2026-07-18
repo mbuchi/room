@@ -21,6 +21,7 @@
  *   - 50 MB LRU budget, no TTL — parcel facts change at most monthly.
  */
 import { IndexedDBCache } from '../utils/cache';
+import { fullParcelAddress } from '../lib/parcelAddress';
 
 // Calls go through the Vercel Edge proxy in `api/parcel-data.ts`, which
 // injects the RES_API_TOKEN server-side so it never reaches the browser.
@@ -85,6 +86,10 @@ export interface ParcelData {
 
   /** Street address if RES could resolve one. Used for the ZoneInfoPanel header. */
   address?: string | null;
+  /** The same address with zip + city joined back on ("Nüschelerstrasse 46 8001
+   *  Zürich") — what the navbar search box shows after a map click, so it reads
+   *  identically to a search-dropdown pick. Null when the parcel has no address. */
+  address_full?: string | null;
   /** Selected parcel id (`<canton><parcel_no>` style) — for cross-app links. */
   parcel_id?: string | null;
   /** Federal parcel identifier. */
@@ -221,6 +226,9 @@ function normalize(props: Record<string, unknown>): ParcelData {
     bldg_height_m: numberOrNull(props.bldg_height_m),
     bldg_floors_n: numberOrNull(props.bldg_floors_n),
     address: stringOrNull(props.address),
+    // RES serves parcel_2025_07 straight off the same table the tiles are built
+    // from, so `zip` (a Number) and `cityname` ride along with `address` here.
+    address_full: fullParcelAddress(props),
     parcel_id: stringOrNull(props.parcel_id),
     egrid: stringOrNull(props.egrid ?? props.EGRID ?? props.egrid_str),
   };

@@ -48,6 +48,35 @@ describe('fetchParcelData — normalisation', () => {
     expect(d.address).toBe('Bahnhofstrasse 1');
   });
 
+  it('joins zip + city onto address_full, leaving address itself street-only', async () => {
+    // RES serves the same parcel_2025_07 row the tiles do, so zip (a Number)
+    // and cityname come back alongside address.
+    globalThis.fetch = mockJson({
+      properties: {
+        fso_num: 261,
+        address: 'Nüschelerstrasse 46',
+        zip: 8001,
+        cityname: 'Zürich',
+        EGRID: 'CH-unit-addr',
+      },
+    }) as unknown as typeof fetch;
+
+    const d = await fetchParcelData({ lat: 47.37, lng: 8.53, egrid: 'CH-unit-addr' });
+    expect(d.address).toBe('Nüschelerstrasse 46'); // panel header — unchanged
+    expect(d.address_full).toBe('Nüschelerstrasse 46 8001 Zürich'); // navbar search box
+  });
+
+  it('leaves address_full null for a parcel with no address', async () => {
+    // Courtyards/roads carry fso_name_2021 but no address, zip or cityname —
+    // the navbar input must stay empty rather than show a bare municipality.
+    globalThis.fetch = mockJson({
+      properties: { fso_num: 261, fso_name_2021: 'Zürich', EGRID: 'CH-unit-noaddr' },
+    }) as unknown as typeof fetch;
+
+    const d = await fetchParcelData({ lat: 47.37, lng: 8.53, egrid: 'CH-unit-noaddr' });
+    expect(d.address_full).toBeNull();
+  });
+
   it('throws ParcelDataError on a non-2xx response', async () => {
     globalThis.fetch = mockJson({}, false, 500) as unknown as typeof fetch;
     await expect(fetchParcelData({ lat: 1, lng: 2, egrid: 'CH-unit-err' })).rejects.toBeInstanceOf(ParcelDataError);
