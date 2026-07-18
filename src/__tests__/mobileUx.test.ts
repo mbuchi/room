@@ -43,6 +43,28 @@ describe('full-height parcel sheet contract', () => {
     expect(mapView).toContain("sheetExpanded ? 'calc(100dvh - 3.5rem)'");
     expect(mapView).not.toContain('max-h-[90dvh]');
   });
+
+  it('presents full-height by default and re-expands on every new selection', () => {
+    expect(mapView).toContain('const [sheetExpanded, setSheetExpanded] = useState(true)');
+    expect(mapView).toContain('setSheetExpanded(true)');
+  });
+
+  it('clears the home indicator with a safe-area bottom pad on phones only', () => {
+    expect(mapView).toContain('pb-[env(safe-area-inset-bottom)]');
+    expect(mapView).toContain('md:pb-0');
+  });
+
+  it('wires drag-down-to-dismiss on the grab handle (valoo pattern)', () => {
+    expect(mapView).toContain('onTouchStart={onSheetTouchStart}');
+    expect(mapView).toContain('onTouchMove={onSheetTouchMove}');
+    expect(mapView).toContain('onTouchEnd={onSheetTouchEnd}');
+    expect(mapView).toContain('onTouchCancel={onSheetTouchEnd}');
+    // Release past the threshold closes the panel; the live gesture translates
+    // the sheet with transitions off so it tracks the finger.
+    expect(mapView).toContain('handleCloseInfoPanel();');
+    expect(mapView).toContain('translateY(${sheetDragOffset}px)');
+    expect(mapView).toContain("transition: 'none'");
+  });
 });
 
 describe('map-tools sheet contract', () => {
