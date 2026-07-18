@@ -88,6 +88,8 @@ interface NavbarProps {
   /** Currently selected parcel — drives the "Open with" cross-app menu so the
    *  menu is enabled for map-click selections, not just address searches. */
   selectedParcel?: { lng: number; lat: number } | null;
+  /** Canonical address of the parcel currently open in the info workspace. */
+  activeAddress?: string | null;
 }
 
 /**
@@ -99,7 +101,7 @@ interface NavbarProps {
  * + Tour. The app wires its own handlers, labels, account menu and the side
  * panels (saved images, release notes, capture feedback).
  */
-const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata, darkMode, onToggleTheme, onAbout, selectedParcel }: NavbarProps) => {
+const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata, darkMode, onToggleTheme, onAbout, selectedParcel, activeAddress }: NavbarProps) => {
   const { locale, setLocale, t } = useI18n();
   const { level: glassLevel, setLevel: setGlassLevel } = useGlass();
   const { email } = useAuth();
@@ -302,6 +304,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
         searchTourId="address-search"
         userMenuTourId="help-button"
         search={{
+          activeAddress,
           locale,
           labels: {
             placeholder: t('nav.search_placeholder'),

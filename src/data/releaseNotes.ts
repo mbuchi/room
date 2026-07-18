@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.18.4',
+    date: 'July 18, 2026',
+    codename: 'Address stays put',
+    summary: 'The navbar search now names the parcel currently open in room.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: MapPin,
+        text:
+          'After an address or parcel is selected, its current address stays visible in the navbar search while the parcel facts and zone workspace are open. Changing parcels updates the field, and closing the active parcel clears it, so the search bar always identifies what you are viewing.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.18.3',
     date: 'July 18, 2026',
     codename: 'Readable on glass',
