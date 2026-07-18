@@ -91,7 +91,7 @@ const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null, inline = fa
       {/* Scale endpoints */}
       <div className="flex items-center justify-between text-[9px] text-gray-400 dark:text-gray-500 tabular-nums">
         <span>{fmtPct(lo)}</span>
-        <span className="text-gray-500 dark:text-gray-600">{t('legend.median')} {fmtPct(stops[2])}</span>
+        <span className="text-gray-500 dark:text-gray-400">{t('legend.median')} {fmtPct(stops[2])}</span>
         <span>{fmtPct(hi)}{youOver ? '+' : ''}</span>
       </div>
 
@@ -102,7 +102,7 @@ const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null, inline = fa
           {t('legend.you', { value: fmtPct(selectedRatioV) })}
         </p>
       )}
-      <p className="mt-1 text-[9px] text-gray-500 dark:text-gray-600 leading-snug">
+      <p className="mt-1 text-[9px] text-gray-500 dark:text-gray-400 leading-snug">
         {showAllowance && (
           <span className="inline-block h-2 w-px bg-gray-700/70 dark:bg-white/70 mr-1 align-middle" />
         )}

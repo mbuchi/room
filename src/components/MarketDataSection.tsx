@@ -367,7 +367,7 @@ const Section = ({
         </span>
       </div>
       {subtitle && (
-        <span className="text-[10px] text-gray-400 dark:text-gray-600 tabular-nums flex-shrink-0">
+        <span className="text-[10px] text-gray-400 dark:text-gray-400 tabular-nums flex-shrink-0">
           {subtitle}
         </span>
       )}
