@@ -58,10 +58,26 @@ describe('map-tools sheet contract', () => {
 
 describe('one-column basemap picker contract', () => {
   const css = read('index.css');
+  // @aireon/shared v1.103.0 moved the single-column ROW layout into the shared
+  // stylesheet at every width, so that half of the contract is now asserted
+  // against the package room actually imports (the `./basemap.css` export)
+  // rather than against a local override. room's own file only has to prove it
+  // no longer fights that layout.
+  const sharedCss = readFileSync(
+    new URL('../../node_modules/@aireon/shared/src/basemap/basemap.css', import.meta.url),
+    'utf8',
+  );
 
-  it('renders the shared basemap gallery as a single scrollable column on compact', () => {
-    expect(css).toContain('.aireon-bm__grid');
-    expect(css).toContain('grid-template-columns: minmax(0, 1fr)');
+  it('gets a single-column row gallery from the shared stylesheet', () => {
+    expect(sharedCss).toContain('grid-template-columns: minmax(0, 1fr)');
+    expect(sharedCss).toContain('width: 16rem');
+  });
+
+  it('no longer narrows the shared card, which clipped the row labels', () => {
+    expect(css).not.toContain('width: 9rem');
+  });
+
+  it('keeps the tighter menu cap so the open list cannot reach the legend chip', () => {
     expect(css).toContain('.aireon-bm__menu');
     expect(css).toContain('max-height: min(55dvh, 24rem)');
   });
