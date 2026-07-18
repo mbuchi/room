@@ -12,6 +12,28 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.18.7',
+    date: 'July 18, 2026',
+    codename: 'Small print, readable',
+    summary: 'The faintest labels on the density legend and the parcel panel are legible again in dark appearance.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Type,
+        text:
+          'In dark appearance, the smallest labels on the density legend — the "median" reading under the colour bar and the note explaining the 100% allowance marker — were printed so dark against the translucent legend that they were close to invisible, and they vanished altogether wherever a bright aerial basemap showed through. Both now use the same readable grey as the "you are here" line just above them.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Type,
+        text:
+          'Two faint labels in the parcel panel had the same problem: the "comparable parcels" heading above the nearby-parcels list, and the small date range printed beside each market-data card title. Both are now legible against the panel in dark appearance.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.18.6',
     date: 'July 18, 2026',
     codename: 'One address, both ways',

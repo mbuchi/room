@@ -283,7 +283,7 @@ const ZoneInfoPanel = ({
 
         {queryNearbyParcels && onJumpTo && (
           <section className="px-4 py-3 border-t border-gray-200 dark:border-slate-700/60">
-            <p className="mb-2 text-[10px] font-semibold uppercase text-gray-400 dark:text-slate-500">
+            <p className="mb-2 text-[10px] font-semibold uppercase text-gray-400 dark:text-gray-400">
               {COMPS_HEADING[locale] ?? COMPS_HEADING.en}
             </p>
             <ComparablesPanel
