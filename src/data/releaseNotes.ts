@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.18.2',
+    date: 'July 18, 2026',
+    codename: 'Basemap names in full',
+    summary: 'Basemap names no longer get cut off in the gallery on phones and tablets.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Map,
+        text:
+          'On phones and tablets the basemap gallery was still being squeezed to half width by an old rule left over from the previous two-column design, which left too little space beside each preview and cut off the basemap names. The gallery now uses its full width on every screen size, so every name is readable in one line.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.18.1',
     date: 'July 18, 2026',
     codename: 'One basemap column everywhere',

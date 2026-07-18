@@ -243,23 +243,23 @@ html.dark .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
 
 /* =============================================================
    Compact (<1024px) map chrome — suite mobile standard.
-   Basemap gallery: the shared BasemapPicker opens a 2-column, 18rem
-   gallery that covers half a phone. At compact widths render it as a
-   HALF-WIDTH single column (same thumb size as the desktop 2-col) and
-   cap the open menu to just over half the viewport with its own
-   scrollbar, so it can never reach the legend chip / controls parked
-   at the bottom of the map. Wins over the shared stylesheet by import
-   order (basemap.css loads before index.css in main.tsx).
+   Basemap gallery: the old width/column override here (a 9rem card +
+   a forced single column) was REMOVED in favour of @aireon/shared
+   v1.103.0. Shared now ships a 16rem card and a single column of
+   compact ROWS (fixed 3.5rem thumb + label beside it) at EVERY width,
+   so the column rule is pure duplication and the 9rem width actively
+   breaks the row layout: 144px minus the 56px thumb, the 0.625rem gap
+   and the padding leaves ~60px for the label, clipping every basemap
+   name on phones and tablets. Do not reintroduce either rule.
+   The menu height cap DOES stay. room parks the picker at the map's
+   top-LEFT, and on mobile the density legend chip sits bottom-LEFT
+   (MapView: `absolute bottom-6 left-4`) — the same column. Shared's
+   min(60dvh, 26rem) can still run the open list into that chip on
+   short landscape viewports, so room clamps a little tighter and
+   scrolls inside the menu instead. Wins over the shared stylesheet by
+   import order (basemap.css loads before index.css in main.tsx).
    ============================================================= */
 @media (max-width: 1023px) {
-  .aireon-bm {
-    width: 9rem;
-  }
-
-  .aireon-bm__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .aireon-bm__menu {
     max-height: min(55dvh, 24rem);
     overflow-y: auto;
