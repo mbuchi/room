@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.18.1',
+    date: 'July 18, 2026',
+    codename: 'One basemap column everywhere',
+    summary: 'The basemap gallery now opens as a single column of compact rows on every screen size, matching the rest of the Aireon suite.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text:
+          'The basemap gallery previously narrowed to one column only on phones, while desktop kept a two-column grid of large thumbnails. It is now a single column of compact rows everywhere, each with a small preview on the left and the basemap name beside it. The list is quicker to scan, the names are no longer clipped, and the panel covers far less of the map while you pick.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.18.0',
     date: 'July 17, 2026',
     codename: 'Made for your phone',
