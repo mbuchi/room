@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.18.6',
+    date: 'July 18, 2026',
+    codename: 'One address, both ways',
+    summary: 'Clicking a parcel now writes the same full address into the navbar search as picking that address from the dropdown.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: MapPin,
+        text:
+          'Choosing an address from the navbar search filled the box with the full address ("Nüschelerstrasse 30 8001 Zürich"), but clicking the very same parcel on the map wrote only the street and house number — so the two ways of reaching one parcel left two different strings in the same field. A map click now shows the complete address, postcode and town included, exactly as the search dropdown writes it. Parcels that genuinely have no address, such as courtyards, roads and unbuilt land, leave the field empty rather than showing a lone town name.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.18.5',
     date: 'July 18, 2026',
     codename: 'Controls stay clear',

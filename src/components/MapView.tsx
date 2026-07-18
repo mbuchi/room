@@ -17,6 +17,7 @@ import {
   type ActiveZone,
 } from '../lib/mapLayers';
 import { wgs84ToLv95 } from '../lib/coordTransform';
+import { fullParcelAddress } from '../lib/parcelAddress';
 import { fetchParcelData, ParcelDataError, type ParcelData } from '../services/parcelDataService';
 import { prefetchZoneStats, type ZoneStatsResponse } from '../services/zoneStatsService';
 import DensityLegend from './DensityLegend';
@@ -879,11 +880,14 @@ const MapView = () => {
         onToggleTheme={toggleDarkMode}
         onAbout={() => setShowAboutModal(true)}
         selectedParcel={selectedParcel}
+        /* Full "Street HouseNo Zip City", so a map click writes the same string
+           into the search box as picking that address from the dropdown. RES
+           first (it's the authoritative row), falling back to the clicked tile's
+           own properties — which carry address/zip/cityname at every zoom, and
+           still answer while /parcel_data is in flight or served from a cache
+           written before address_full existed. */
         activeAddress={
-          parcelData?.address ??
-          (typeof selectedParcel?.props.address === 'string'
-            ? selectedParcel.props.address
-            : null)
+          parcelData?.address_full ?? fullParcelAddress(selectedParcel?.props)
         }
       />
       <div ref={mapContainerRef} className="absolute inset-0 top-14" data-tour="map-view" />
