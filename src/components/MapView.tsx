@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, lazy, Suspense, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, useCallback, lazy, Suspense, type CSSProperties, type TouchEvent as ReactTouchEvent } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import type * as GeoJSON from 'geojson';
 import {
@@ -220,10 +220,16 @@ const MapView = () => {
   // 'facts' tab is the per-parcel reference. Resets to 'zone' on each
   // new parcel selection so the user always lands on the headline view.
   const [panelTab, setPanelTab] = useState<'zone' | 'facts'>('zone');
-  // Mobile only: the right pane becomes a bottom sheet with a peek height and
-  // an expanded height, toggled by the grab handle. Ignored at md+ where the
-  // pane is a full-height right rail.
-  const [sheetExpanded, setSheetExpanded] = useState(false);
+  // Mobile only: the right pane becomes a bottom sheet. Suite mobile standard:
+  // it OPENS full-height (just under the navbar); the grab handle can collapse
+  // it to a peek as a user-initiated snap point, and every new selection
+  // re-expands it. Ignored at md+ where the pane is a full-height right rail.
+  const [sheetExpanded, setSheetExpanded] = useState(true);
+  // Mobile drag-to-dismiss: track an active touch's start Y and the live
+  // delta so we can both translate the sheet and decide whether to close
+  // on release (threshold = 80px downward). Valoo pattern.
+  const [sheetDragOffset, setSheetDragOffset] = useState(0);
+  const sheetDragStartYRef = useRef<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
   const locateMarkerRef = useRef<maplibregl.Marker | null>(null);
   /**
@@ -358,6 +364,9 @@ const MapView = () => {
     setParcelDataError(null);
     setParcelDataLoading(true);
     setPanelTab('zone');
+    // Suite mobile standard: every new selection presents the bottom sheet at
+    // full height, even if the user collapsed the previous one to a peek.
+    setSheetExpanded(true);
 
     fetchParcelData({ lng, lat, egrid })
       .then((data) => setParcelData(data))
@@ -647,6 +656,34 @@ const MapView = () => {
       mapRef.current.setFilter('parcel-selected-casing', ['==', ['get', 'parcel_id'], '']);
     handleZoneStatsCleared();
   }, [handleZoneStatsCleared]);
+
+  // Touch handlers wire the mobile drag-down-to-dismiss gesture on the sheet's
+  // grab handle (valoo ParcelInfoPanel pattern). While dragging, the sheet
+  // follows the finger via translateY with transitions off; on release past
+  // the threshold the panel closes, otherwise it springs back.
+  const onSheetTouchStart = (e: ReactTouchEvent) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    sheetDragStartYRef.current = touch.clientY;
+    setSheetDragOffset(0);
+  };
+  const onSheetTouchMove = (e: ReactTouchEvent) => {
+    const start = sheetDragStartYRef.current;
+    if (start == null) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const delta = touch.clientY - start;
+    // Only follow downward drags; upward stays put (no rubber-banding).
+    setSheetDragOffset(delta > 0 ? delta : 0);
+  };
+  const onSheetTouchEnd = () => {
+    const offset = sheetDragOffset;
+    sheetDragStartYRef.current = null;
+    if (offset > 80) {
+      handleCloseInfoPanel();
+    }
+    setSheetDragOffset(0);
+  };
 
   // `true` when a parcel satisfies the given residential filter. Mirrors
   // residentialTypeCondition's expression semantics in plain JS so we can tell
@@ -1068,19 +1105,26 @@ const MapView = () => {
           // querySelector, so space-separated multi-values never match.
           data-tour="zone-info-panel"
           className={`z-30 flex flex-col ${glassOn ? 'glass-surface' : 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl shadow-2xl'}
-            fixed inset-x-0 bottom-0 h-[var(--sheet-h)] rounded-t-2xl border-t border-gray-200 dark:border-gray-800/60 animate-slide-up
-            md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right`}
+            fixed inset-x-0 bottom-0 h-[var(--sheet-h)] rounded-t-2xl border-t border-gray-200 dark:border-gray-800/60 animate-slide-up pb-[env(safe-area-inset-bottom)]
+            md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right md:pb-0`}
           style={
             {
               // Expanded = FULL HEIGHT (suite mobile standard): from just under
               // the 3.5rem navbar to the bottom edge. Peek keeps the map visible.
               '--sheet-h': sheetExpanded ? 'calc(100dvh - 3.5rem)' : '56dvh',
               '--panel-w': `${PANEL_WIDTH_PX}px`,
+              // Live drag offset only applies during the gesture; when the
+              // touch ends the transform clears in the same frame so the
+              // sheet springs back (or unmounts if past the close threshold).
+              ...(sheetDragOffset > 0
+                ? { transform: `translateY(${sheetDragOffset}px)`, transition: 'none' }
+                : {}),
             } as CSSProperties & Record<string, string>
           }
         >
-          {/* Mobile grab handle — drag/tap to peek ↔ expand. Hidden at md+.
-              The visible handle row is only ~26px tall, so an invisible
+          {/* Mobile grab handle — tap toggles peek ↔ expand, drag down past the
+              threshold dismisses the sheet (suite mobile standard). Hidden at
+              md+. The visible handle row is only ~26px tall, so an invisible
               absolutely-positioned overlay extends the tap target upward past
               the sheet's rounded top edge (~40px total) without moving any
               pixels. A tap that close to the sheet edge is aimed at the sheet,
@@ -1088,8 +1132,12 @@ const MapView = () => {
           <button
             type="button"
             onClick={() => setSheetExpanded((v) => !v)}
+            onTouchStart={onSheetTouchStart}
+            onTouchMove={onSheetTouchMove}
+            onTouchEnd={onSheetTouchEnd}
+            onTouchCancel={onSheetTouchEnd}
             aria-label={sheetExpanded ? t('panel.sheet.collapse') : t('panel.sheet.expand')}
-            className="md:hidden relative flex-shrink-0 w-full flex items-center justify-center pt-2.5 pb-1.5 group"
+            className="md:hidden relative flex-shrink-0 w-full flex items-center justify-center pt-2.5 pb-1.5 touch-none group"
           >
             <span aria-hidden="true" className="absolute inset-x-0 -top-3.5 bottom-0" />
             <span className="h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-700 group-hover:bg-gray-400 dark:group-hover:bg-gray-600 group-active:bg-gray-500 transition-colors" />

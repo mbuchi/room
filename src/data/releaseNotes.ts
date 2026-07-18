@@ -12,6 +12,28 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.2',
+    date: 'July 19, 2026',
+    codename: 'Sheet, full height',
+    summary: 'Parcel details now open full height on phones, with a drag-down gesture to dismiss.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Smartphone,
+        text:
+          'Parcel details now fill the screen below the top bar on phones, and the top bar stays visible and usable while the panel is open. The sheet used to open at half height, so the charts always needed an extra tap on the grab handle; it now opens fully expanded every time you pick a parcel. The handle still collapses it to a half-height peek when you want the map behind it.',
+        prs: [],
+      },
+      {
+        kind: 'added' as ChangeKind,
+        icon: Maximize2,
+        text:
+          'You can now dismiss the parcel sheet by dragging its grab handle downward, the same gesture the other Aireon apps use. The sheet follows your finger and closes once you pull it far enough; a short pull springs it back. On phones with a home indicator, the Save to PRM bar now sits clear of it.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.1',
     date: 'July 18, 2026',
     codename: 'A picker that fits',
