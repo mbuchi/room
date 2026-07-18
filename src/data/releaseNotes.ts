@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.0',
+    date: 'July 18, 2026',
+    codename: 'Claire speaks zoning',
+    summary: 'Claire now opens with starter questions written for room instead of the same generic set every Aireon app shared.',
+    items: [
+      {
+        kind: 'added' as ChangeKind,
+        icon: Bot,
+        text:
+          'Opening Claire used to greet you with seven all-purpose suggestions that were identical in every Aireon app, so none of them asked the questions room is actually built to answer. Her starter chips are now written for this app: "Utilization headroom" estimates how much of the volume your zone allows is already used and how much is left, "Decode this zone" translates the local zone code into the density and height limits it normally carries, and "Value of free volume" puts a rough CHF figure on the unused building volume. "Density metrics", "Densify this site" and "Already over-built" round out the set. Claire also carries a short briefing on what room measures, so her answers stay in the language of utilization ratios, free volume in m3, site coverage and GFZ rather than drifting into general property talk.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.18.6',
     date: 'July 18, 2026',
     codename: 'One address, both ways',
