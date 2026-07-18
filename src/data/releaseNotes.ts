@@ -12,6 +12,28 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.18.5',
+    date: 'July 18, 2026',
+    codename: 'Controls stay clear',
+    summary: 'The floating map controls no longer disappear behind the parcel panel, and the zone filter box shows its hint text again.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Layers,
+        text:
+          'On desktop screens, opening a parcel slid the parcel panel over the floating map control buttons on the right, leaving the layer and map-settings controls covered and unclickable until you closed the parcel. The control stack now steps aside to sit clear of the panel, so those buttons stay reachable while you inspect a parcel.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Filter,
+        text:
+          'In the zone picker, the "filter zones" hint inside the search box was so dim against the dark dropdown that the box looked simply empty, with no sign you could type in it. The hint is now legible in both dark and light appearance.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.18.4',
     date: 'July 18, 2026',
     codename: 'Address stays put',
