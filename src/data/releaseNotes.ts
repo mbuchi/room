@@ -12,6 +12,28 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.18.3',
+    date: 'July 18, 2026',
+    codename: 'Readable on glass',
+    summary: 'Secondary text is now properly readable on the frosted and liquid glass panels, and the Floor lines switch in the massing simulator draws correctly again.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Type,
+        text:
+          'With the Frosted or Liquid glass panel style, the quieter grey text such as labels, units, captions and hints was washed out and hard to read, because the panels are see-through and the map underneath bled into the letters. Those labels now get a stronger, higher-contrast shade on glass in both light and dark appearance. On a dark liquid-glass panel the contrast of this text nearly doubled, taking it from below the accessibility minimum to comfortably above it.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Box,
+        text:
+          'In the buildable massing simulator, switching Floor lines on made the toggle knob jump right outside the switch instead of sliding to its end, so the control looked broken and it was hard to tell whether floor lines were on or off. The knob now stays inside the switch and moves between its two positions as expected.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.18.2',
     date: 'July 18, 2026',
     codename: 'Basemap names in full',
