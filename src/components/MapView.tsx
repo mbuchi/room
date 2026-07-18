@@ -1013,7 +1013,14 @@ const MapView = () => {
             dark={isDarkMode}
             fabLabel={t('nav.map_settings_open')}
             sheetTitle={t('nav.map_settings')}
-            desktopClassName={`transition-[right] duration-300 ${selectedParcel ? `!right-[${PANEL_OFFSET_PX}px]` : ''}`}
+            /* The offset class must be a LITERAL: Tailwind's JIT only emits an
+               arbitrary value it can see as a literal token in the source, so an
+               interpolated `!right-[${PANEL_OFFSET_PX}px]` produced no CSS rule and
+               the dock stayed at its default 1rem inset, hidden under the panel.
+               476px = PANEL_OFFSET_PX (PANEL_WIDTH_PX 460 + 16) — keep in sync; the
+               same constant is hardcoded for the Claire launcher in src/index.css.
+               `!` beats .aireon-map-control-right{right:var(--aireon-map-control-inset)}. */
+            desktopClassName={`transition-[right] duration-300 ${selectedParcel ? '!right-[476px]' : ''}`}
           >
             {isMobile ? (
               /* Suite mobile standard: no tabs — every control card stacks
