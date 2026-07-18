@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.1',
+    date: 'July 18, 2026',
+    codename: 'A picker that fits',
+    summary: 'The map-style picker now follows the shared phone-width standard.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Smartphone,
+        text: 'Updated to @aireon/shared v1.110.1 so the basemap picker uses the shared compact phone-width rule.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.0',
     date: 'July 18, 2026',
     codename: 'Claire speaks zoning',
