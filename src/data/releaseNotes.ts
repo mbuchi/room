@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.3',
+    date: 'July 19, 2026',
+    codename: 'No more surprise zoom',
+    summary: 'Tapping the address search on a phone no longer zooms the page in and leaves it stuck wider than the screen.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Smartphone,
+        text:
+          'Stopped iOS Safari from auto-zooming the page when the address search is focused on phones, which left the page stuck wider than the screen. Search text is now 16px on phones and the page scale stays at 100%. The zone filter box in the parcel panel gets the same treatment.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.2',
     date: 'July 19, 2026',
     codename: 'Sheet, full height',
