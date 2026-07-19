@@ -78,6 +78,26 @@ describe('map-tools sheet contract', () => {
   });
 });
 
+describe('iOS focus auto-zoom contract', () => {
+  // iOS Safari auto-zooms the page when an input below 16px is focused and
+  // leaves the layout stuck wider than the screen (scoore-origin fix).
+  const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
+  const css = read('index.css');
+
+  it('caps the viewport scale so a focus zoom cannot stick', () => {
+    expect(html).toContain('width=device-width, initial-scale=1.0, maximum-scale=1.0');
+  });
+
+  it('keeps the shared address-search text at 16px on phones', () => {
+    expect(css).toMatch(/\.aireon-search-input\s*\{[^}]*font-size:\s*16px/s);
+  });
+
+  it('keeps the zone filter input at 16px below the desktop breakpoint', () => {
+    const zoneSelector = read('components/ZoneSelectorDropdown.tsx');
+    expect(zoneSelector).toContain('text-base lg:text-xs');
+  });
+});
+
 describe('one-column basemap picker contract', () => {
   const css = read('index.css');
   // @aireon/shared v1.103.0 moved the single-column ROW layout into the shared

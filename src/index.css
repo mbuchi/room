@@ -265,4 +265,11 @@ html.dark .maplibregl-ctrl-group button .maplibregl-ctrl-icon {
     overflow-y: auto;
     overscroll-behavior: contain;
   }
+
+  /* 16px stops iOS Safari from auto-zooming the page when the address
+     search is focused (it zooms any input below 16px and leaves the
+     layout stuck wider than the screen). */
+  .aireon-search-input {
+    font-size: 16px;
+  }
 }
