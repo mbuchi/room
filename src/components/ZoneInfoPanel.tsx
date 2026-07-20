@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type * as GeoJSON from 'geojson';
 import {
   AlertCircle,
+  Check,
+  Copy,
   MapPin,
   Building2,
   Calendar,
@@ -120,9 +122,10 @@ const ZoneInfoPanel = ({
   // The address is the header title; the municipality is the muted subtitle
   // (room's payload has no zip/postal, so the subtitle is the city fragment
   // alone when available). The EGRID prefers the federal id, falling back to
-  // the parcel id, then the focused parcel's id — rendered as a copyable chip
-  // by the shared ParcelIdentityHeader. While the address is still loading we
-  // pass the click-derived lng/lat as the title so the header isn't empty.
+  // the parcel id, then the focused parcel's id — rendered in the half/half
+  // identifier-pill row under the title (suite data-card standard) alongside
+  // a copyable Lat/Lng chip. While the address is still loading we pass the
+  // click-derived lng/lat as the title so the header isn't empty.
   const headerAddress = parcelData?.address
     ? parcelData.address
     : !isLoading && focusedParcel
@@ -143,33 +146,54 @@ const ZoneInfoPanel = ({
             <Skeleton dark={darkMode} width={180} height={10} radius={4} />
           </div>
         ) : (
-          <ParcelIdentityHeader
-            address={headerAddress}
-            subtitle={parcelData?.municipality_name ?? null}
-            egrid={headerEgrid}
-            dark={darkMode}
-            className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40"
-            labels={{
-              fallbackTitle: t('panel.info.header_fallback'),
-              copy: t('panel.info.egrid_copy'),
-              copied: t('panel.info.egrid_copied'),
-            }}
-          >
-            {showThumb && (
-              <ParcelAerialThumbnail
-                lng={focusedParcel!.lng}
-                lat={focusedParcel!.lat}
-                areaM2={Number(parcelData?.parcel_area) || null}
-                dark={darkMode}
-                labels={{
-                  imageAlt: t('panel.info.satellite_alt'),
-                  expand: t('panel.info.satellite_expand'),
-                  dialogAria: t('panel.info.satellite_aria'),
-                  close: t('panel.info.close'),
-                }}
-              />
+          <div className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
+            <ParcelIdentityHeader
+              address={headerAddress}
+              subtitle={parcelData?.municipality_name ?? null}
+              dark={darkMode}
+              labels={{ fallbackTitle: t('panel.info.header_fallback') }}
+            >
+              {showThumb && (
+                <ParcelAerialThumbnail
+                  lng={focusedParcel!.lng}
+                  lat={focusedParcel!.lat}
+                  areaM2={Number(parcelData?.parcel_area) || null}
+                  dark={darkMode}
+                  labels={{
+                    imageAlt: t('panel.info.satellite_alt'),
+                    expand: t('panel.info.satellite_expand'),
+                    dialogAria: t('panel.info.satellite_aria'),
+                    close: t('panel.info.close'),
+                  }}
+                />
+              )}
+            </ParcelIdentityHeader>
+            {/* Half/half copyable identifier chips (suite data-card standard):
+                EGRID left, click-derived WGS84 coordinates right. Either chip
+                spans the full row when its sibling value is missing. */}
+            {(headerEgrid || (lng != null && lat != null)) && (
+              <div className="mt-2.5 grid grid-cols-2 gap-2">
+                {headerEgrid && (
+                  <IdentifierChip
+                    label="EGRID"
+                    value={headerEgrid}
+                    copyLabel={t('panel.info.egrid_copy')}
+                    copiedLabel={t('panel.info.egrid_copied')}
+                    fullRow={!(lng != null && lat != null)}
+                  />
+                )}
+                {lng != null && lat != null && (
+                  <IdentifierChip
+                    label={t('panel.info.latlng_label')}
+                    value={`${lat.toFixed(6)}, ${lng.toFixed(6)}`}
+                    copyLabel={t('panel.info.latlng_copy')}
+                    copiedLabel={t('panel.info.egrid_copied')}
+                    fullRow={!headerEgrid}
+                  />
+                )}
+              </div>
             )}
-          </ParcelIdentityHeader>
+          </div>
         )
       )}
 
@@ -299,6 +323,78 @@ const ZoneInfoPanel = ({
 
         <ParcelFaq />
       </div>
+    </div>
+  );
+};
+
+/**
+ * One copyable identifier chip for the pill row under the header — label
+ * eyebrow, monospace value, and a click-to-copy button (suite data-card
+ * standard chip markup). `fullRow` makes a lone chip span both grid columns.
+ */
+const IdentifierChip = ({
+  label,
+  value,
+  copyLabel,
+  copiedLabel,
+  fullRow = false,
+}: {
+  label: string;
+  value: string;
+  copyLabel: string;
+  copiedLabel: string;
+  fullRow?: boolean;
+}) => {
+  const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    },
+    [],
+  );
+
+  const handleCopy = () => {
+    void navigator.clipboard
+      ?.writeText(value)
+      .then(() => {
+        setCopied(true);
+        if (timerRef.current) clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(() => setCopied(false), 1800);
+      })
+      .catch(() => {
+        /* clipboard blocked — no-op */
+      });
+  };
+
+  return (
+    <div
+      className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 bg-white text-slate-700 ring-1 ring-slate-200 dark:bg-black/25 dark:text-slate-300 dark:ring-0 ${
+        fullRow ? 'col-span-2' : ''
+      }`}
+    >
+      <span className="flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        {label}
+      </span>
+      <span className="min-w-0 flex-1 break-all font-mono text-[11px] font-semibold leading-tight">{value}</span>
+      <button
+        type="button"
+        onClick={handleCopy}
+        title={copied ? copiedLabel : copyLabel}
+        aria-label={copied ? copiedLabel : copyLabel}
+        className={`relative inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md transition-colors before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] ${
+          copied
+            ? 'text-emerald-600 dark:text-emerald-300'
+            : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-slate-200'
+        }`}
+      >
+        {copied ? <Check size={13} /> : <Copy size={13} />}
+        {/* A focused button changing its own accessible name is not re-announced,
+            so the confirmation goes through a dedicated live region. */}
+        <span className="sr-only" role="status" aria-live="polite">
+          {copied ? copiedLabel : ''}
+        </span>
+      </button>
     </div>
   );
 };

@@ -1227,12 +1227,15 @@ const MapView = () => {
 
           {/* Prominent, always-visible Save-to-PRM call to action. On phones it
               also carries the in-context "Ask Claire" CTA (the floating launcher
-              is hidden there); on desktop the launcher is the single entry point,
-              so onAskClaire is undefined and the panel button drops out. Both
-              paths open the same controlled Claire assistant. */}
+              is hidden there) in the suite-standard split footer row beside a
+              compact cross-app "Open in" drop-up; on desktop the launcher is the
+              single Claire entry point, so onAskClaire is undefined and the row
+              is the full-width "Open in" menu alone. Both Claire paths open the
+              same controlled assistant. */}
           <SaveToPrmBar
             focusedParcel={focusedHandle}
             parcelData={parcelData}
+            darkMode={isDarkMode}
             onAskClaire={isMobile ? () => setClaireOpen(true) : undefined}
           />
         </div>
