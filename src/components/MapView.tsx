@@ -58,7 +58,8 @@ import {
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
-import { Building2 } from 'lucide-react';
+import { Building2, Braces } from 'lucide-react';
+import RawJsonView from './RawJsonView';
 import { useAuth } from '../auth/AuthContext';
 import {
   RESIDENTIAL_TYPE_FILTERS,
@@ -220,6 +221,10 @@ const MapView = () => {
   // 'facts' tab is the per-parcel reference. Resets to 'zone' on each
   // new parcel selection so the user always lands on the headline view.
   const [panelTab, setPanelTab] = useState<'zone' | 'facts'>('zone');
+  // Developer "raw JSON" view: when on, the tab content is replaced by a
+  // scrollable dump of the clicked parcel's structured data (RES parcelData +
+  // the raw tile feature props). Reset whenever the panel closes.
+  const [showRaw, setShowRaw] = useState(false);
   // Mobile only: the right pane becomes a bottom sheet. Suite mobile standard:
   // it OPENS full-height (just under the navbar); the grab handle can collapse
   // it to a peek as a user-initiated snap point, and every new selection
@@ -650,6 +655,7 @@ const MapView = () => {
     setParcelData(null);
     setParcelDataError(null);
     setParcelDataLoading(false);
+    setShowRaw(false);
     if (mapRef.current?.getLayer('parcel-selected'))
       mapRef.current.setFilter('parcel-selected', ['==', ['get', 'parcel_id'], '']);
     if (mapRef.current?.getLayer('parcel-selected-casing'))
@@ -1162,14 +1168,42 @@ const MapView = () => {
                 activeTone="accent"
               />
             </div>
+            {(parcelData || selectedParcel) && (
+              <button
+                type="button"
+                onClick={() => setShowRaw((v) => !v)}
+                aria-pressed={showRaw}
+                title={t('panel.info.toggle_raw_json')}
+                aria-label={t('panel.info.toggle_raw_json')}
+                className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
+                  showRaw
+                    ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
+                }`}
+              >
+                <Braces size={16} />
+              </button>
+            )}
             <CloseButton
               onClick={handleCloseInfoPanel}
               label={t('panel.info.close')}
             />
           </div>
 
-          {/* Scrollable tab content — flex-1 so the Save CTA footer stays pinned. */}
-          {panelTab === 'zone' ? (
+          {/* Scrollable tab content — flex-1 so the Save CTA footer stays pinned.
+              When the raw-JSON developer view is on, it replaces the tab body
+              with a dump of the clicked parcel's richest structured data (the
+              RES parcelData response) plus the raw tile feature properties. */}
+          {showRaw ? (
+            <RawJsonView
+              value={{ res: parcelData, feature: selectedParcel.props }}
+              labels={{
+                title: t('panel.info.raw_json'),
+                copy: t('panel.info.copy'),
+                copied: t('panel.info.copied'),
+              }}
+            />
+          ) : panelTab === 'zone' ? (
             <Suspense fallback={<div className="flex-1 min-h-0" aria-hidden="true" />}>
               <ZonePanel
                 parcelData={parcelData}
