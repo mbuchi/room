@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.4',
+    date: 'July 20, 2026',
+    codename: 'Under the hood',
+    summary: 'The parcel panel now has a developer "raw JSON" toggle that shows the exact data behind a clicked parcel.',
+    items: [
+      {
+        kind: 'added' as ChangeKind,
+        icon: Code2,
+        text:
+          'A new "{}" button in the parcel panel header reveals the raw structured data behind the selected parcel: the full RES response that feeds the charts and facts, alongside the raw map-tile properties for that parcel. The JSON is syntax highlighted and has a one-click Copy button, so it is easy to inspect exactly what room knows about a parcel or grab it for a bug report. Toggle it off to return to the normal charts and facts view.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.3',
     date: 'July 19, 2026',
     codename: 'No more surprise zoom',
