@@ -4,6 +4,7 @@ import {
   createPrmRecord,
   deletePrmRecord,
   fetchPrmByParcel,
+  ParcelOpenInMenu,
   PROOM_APP_URL,
   PrmAuthRequiredError as AuthRequiredError,
   type PrmRecord,
@@ -21,8 +22,10 @@ interface SaveToPrmBarProps {
   focusedParcel: FocusedParcelHandle | null;
   /** Parcel facts (for label / area / municipality on the saved record). */
   parcelData: ParcelData | null;
-  /** Open the Claire assistant (owned by MapView). Renders the prominent
-   *  full-width "Ask Claire" call-to-action above the Track button. */
+  /** Active theme — drives the shared "Open in" drop-up chrome. */
+  darkMode?: boolean;
+  /** Open the Claire assistant (owned by MapView). Renders the "Ask Claire"
+   *  call-to-action in the split footer row below the Track button. */
   onAskClaire?: () => void;
 }
 
@@ -34,7 +37,7 @@ interface SaveToPrmBarProps {
  * the "is this already saved?" probe, mirroring the suite-wide PRM pattern
  * (valoo/SaveParcelButton, scoore LocationScore).
  */
-const SaveToPrmBar = ({ focusedParcel, parcelData, onAskClaire }: SaveToPrmBarProps) => {
+const SaveToPrmBar = ({ focusedParcel, parcelData, darkMode = true, onAskClaire }: SaveToPrmBarProps) => {
   const { t } = useI18n();
   const { accessToken, isAuthenticated, promptLogin } = useAuth();
   const [status, setStatus] = useState<SaveStatus>('idle');
@@ -67,19 +70,48 @@ const SaveToPrmBar = ({ focusedParcel, parcelData, onAskClaire }: SaveToPrmBarPr
 
   if (!focusedParcel?.parcelId) return null;
 
-  // Prominent full-width "Ask Claire" CTA. Rendered above the Track action in
-  // every state (saved / idle / signed-out) so the AI assistant is always one
-  // tap away. The floating launcher is kept too — this is the in-context entry.
-  const askClaireButton = onAskClaire ? (
-    <button
-      type="button"
-      onClick={onAskClaire}
-      className="w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold bg-gradient-to-br from-amber-400 to-orange-500 text-[#1a0f00] shadow-sm transition hover:brightness-105 active:scale-[0.99] mb-2"
-    >
-      <Sparkles size={16} aria-hidden="true" />
-      {t('panel.info.ask_claire')}
-    </button>
-  ) : null;
+  const openInLat = Number.isFinite(focusedParcel.lat) ? focusedParcel.lat : null;
+  const openInLng = Number.isFinite(focusedParcel.lng) ? focusedParcel.lng : null;
+
+  // Suite data-card standard footer row, rendered below the Track action in
+  // every state (saved / idle / signed-out). Phones (onAskClaire set): one
+  // split row — the "Ask Claire" CTA at ~85% plus a compact icon-only
+  // cross-app "Open in" drop-up at ~15% (the floating launcher is hidden
+  // there, so this is the in-context Claire entry). Desktop: Claire stays on
+  // the floating launcher, so the row is the full-width "Open in" menu alone.
+  const openInRow = onAskClaire ? (
+    <div className="mt-2 flex items-stretch gap-2">
+      <button
+        type="button"
+        onClick={onAskClaire}
+        className="min-w-0 flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold bg-gradient-to-br from-amber-400 to-orange-500 text-[#1a0f00] shadow-sm transition hover:brightness-105 active:scale-[0.99]"
+      >
+        <Sparkles size={16} aria-hidden="true" />
+        {t('panel.info.ask_claire')}
+      </button>
+      <div className="w-[15%] min-w-[52px] shrink-0">
+        <ParcelOpenInMenu
+          lat={openInLat}
+          lng={openInLng}
+          label={t('panel.info.open_in')}
+          darkMode={darkMode}
+          currentAppId="room"
+          compact
+        />
+      </div>
+    </div>
+  ) : (
+    <div className="mt-2">
+      <ParcelOpenInMenu
+        lat={openInLat}
+        lng={openInLng}
+        label={t('panel.info.open_in')}
+        darkMode={darkMode}
+        currentAppId="room"
+        fullWidth
+      />
+    </div>
+  );
 
   const handleSave = async () => {
     if (!isAuthenticated || !accessToken) {
@@ -157,7 +189,6 @@ const SaveToPrmBar = ({ focusedParcel, parcelData, onAskClaire }: SaveToPrmBarPr
         data-tour="track-parcel"
         className="flex-shrink-0 border-t border-gray-200 dark:border-gray-800/60 bg-white/95 dark:bg-gray-950/95 px-3 py-3 print:hidden"
       >
-        {askClaireButton}
         <div className="flex items-stretch gap-2">
           <button
             type="button"
@@ -193,6 +224,7 @@ const SaveToPrmBar = ({ focusedParcel, parcelData, onAskClaire }: SaveToPrmBarPr
             </a>
           )}
         </div>
+        {openInRow}
       </div>
     );
   }
@@ -215,7 +247,6 @@ const SaveToPrmBar = ({ focusedParcel, parcelData, onAskClaire }: SaveToPrmBarPr
       data-tour="track-parcel"
       className="flex-shrink-0 border-t border-gray-200 dark:border-gray-800/60 bg-white/95 dark:bg-gray-950/95 px-3 py-3 print:hidden"
     >
-      {askClaireButton}
       <button
         type="button"
         onClick={handleSave}
@@ -248,6 +279,7 @@ const SaveToPrmBar = ({ focusedParcel, parcelData, onAskClaire }: SaveToPrmBarPr
       {!signedOut && !error && (
         <p className="mt-1.5 text-center text-[10px] text-gray-400 dark:text-gray-500">{t('prm.bar_hint')}</p>
       )}
+      {openInRow}
     </div>
   );
 };

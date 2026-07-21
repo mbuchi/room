@@ -12,6 +12,28 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.5',
+    date: 'July 21, 2026',
+    codename: 'Card, standardized',
+    summary: 'The parcel panel adopts the suite mobile data-card standard: copyable EGRID and Lat/Lng chips plus a cross-app "Open in" menu in the footer.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BadgeCheck,
+        text:
+          'The parcel facts header now follows the suite data-card standard. The EGRID moved out of the title block into a pair of half-width copyable chips under the address: EGRID on the left and the parcel coordinates (Lat/Lng) on the right, each with a one-tap copy button.',
+        prs: [],
+      },
+      {
+        kind: 'added' as ChangeKind,
+        icon: MapPin,
+        text:
+          'A new "Open in" menu in the parcel panel footer hands the selected parcel off to another Aireon map app at the same spot. On phones it sits as a compact button beside the Ask Claire action in a single split row; on desktop it is a full-width row under the Track button.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.4',
     date: 'July 20, 2026',
     codename: 'Under the hood',
