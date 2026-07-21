@@ -22,12 +22,72 @@ interface SaveToPrmBarProps {
   focusedParcel: FocusedParcelHandle | null;
   /** Parcel facts (for label / area / municipality on the saved record). */
   parcelData: ParcelData | null;
+}
+
+/**
+ * Suite data-card standard primary-actions row. Phones (onAskClaire set): one
+ * split row — the "Ask Claire" CTA at ~85% plus a compact icon-only cross-app
+ * "Open in" drop-up at ~15% (the floating launcher is hidden there, so this is
+ * the in-context Claire entry). Desktop: Claire stays on the floating
+ * launcher, so the row is the full-width "Open in" menu alone.
+ *
+ * Per the revised standard it is NOT pinned below the scroll area any more:
+ * each tab renders it as the LAST section of its scrollable content (via the
+ * `actionsSlot` prop on ZonePanel / ZoneInfoPanel), so the user scrolls to the
+ * bottom to reach it. The raw-JSON view intentionally omits it.
+ */
+export const PrimaryActionsRow = ({
+  focusedParcel,
+  darkMode = true,
+  onAskClaire,
+}: {
+  /** The currently-focused parcel — the row hides without one. */
+  focusedParcel: FocusedParcelHandle | null;
   /** Active theme — drives the shared "Open in" drop-up chrome. */
   darkMode?: boolean;
-  /** Open the Claire assistant (owned by MapView). Renders the "Ask Claire"
-   *  call-to-action in the split footer row below the Track button. */
+  /** Open the Claire assistant (owned by MapView). Set on phones only. */
   onAskClaire?: () => void;
-}
+}) => {
+  const { t } = useI18n();
+  if (!focusedParcel?.parcelId) return null;
+  const openInLat = Number.isFinite(focusedParcel.lat) ? focusedParcel.lat : null;
+  const openInLng = Number.isFinite(focusedParcel.lng) ? focusedParcel.lng : null;
+  return (
+    <div className="border-t border-gray-200 dark:border-gray-800/60 bg-white/95 dark:bg-gray-950/95 px-3 py-3 print:hidden">
+      {onAskClaire ? (
+        <div className="flex items-stretch gap-2">
+          <button
+            type="button"
+            onClick={onAskClaire}
+            className="min-w-0 flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold bg-gradient-to-br from-amber-400 to-orange-500 text-[#1a0f00] shadow-sm transition hover:brightness-105 active:scale-[0.99]"
+          >
+            <Sparkles size={16} aria-hidden="true" />
+            {t('panel.info.ask_claire')}
+          </button>
+          <div className="w-[15%] min-w-[52px] shrink-0">
+            <ParcelOpenInMenu
+              lat={openInLat}
+              lng={openInLng}
+              label={t('panel.info.open_in')}
+              darkMode={darkMode}
+              currentAppId="room"
+              compact
+            />
+          </div>
+        </div>
+      ) : (
+        <ParcelOpenInMenu
+          lat={openInLat}
+          lng={openInLng}
+          label={t('panel.info.open_in')}
+          darkMode={darkMode}
+          currentAppId="room"
+          fullWidth
+        />
+      )}
+    </div>
+  );
+};
 
 /**
  * Prominent, full-width "Save to PRM" call-to-action pinned to the bottom of
@@ -37,7 +97,7 @@ interface SaveToPrmBarProps {
  * the "is this already saved?" probe, mirroring the suite-wide PRM pattern
  * (valoo/SaveParcelButton, scoore LocationScore).
  */
-const SaveToPrmBar = ({ focusedParcel, parcelData, darkMode = true, onAskClaire }: SaveToPrmBarProps) => {
+const SaveToPrmBar = ({ focusedParcel, parcelData }: SaveToPrmBarProps) => {
   const { t } = useI18n();
   const { accessToken, isAuthenticated, promptLogin } = useAuth();
   const [status, setStatus] = useState<SaveStatus>('idle');
@@ -69,49 +129,6 @@ const SaveToPrmBar = ({ focusedParcel, parcelData, darkMode = true, onAskClaire 
   }, [parcelId, isAuthenticated, accessToken]);
 
   if (!focusedParcel?.parcelId) return null;
-
-  const openInLat = Number.isFinite(focusedParcel.lat) ? focusedParcel.lat : null;
-  const openInLng = Number.isFinite(focusedParcel.lng) ? focusedParcel.lng : null;
-
-  // Suite data-card standard footer row, rendered below the Track action in
-  // every state (saved / idle / signed-out). Phones (onAskClaire set): one
-  // split row — the "Ask Claire" CTA at ~85% plus a compact icon-only
-  // cross-app "Open in" drop-up at ~15% (the floating launcher is hidden
-  // there, so this is the in-context Claire entry). Desktop: Claire stays on
-  // the floating launcher, so the row is the full-width "Open in" menu alone.
-  const openInRow = onAskClaire ? (
-    <div className="mt-2 flex items-stretch gap-2">
-      <button
-        type="button"
-        onClick={onAskClaire}
-        className="min-w-0 flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold bg-gradient-to-br from-amber-400 to-orange-500 text-[#1a0f00] shadow-sm transition hover:brightness-105 active:scale-[0.99]"
-      >
-        <Sparkles size={16} aria-hidden="true" />
-        {t('panel.info.ask_claire')}
-      </button>
-      <div className="w-[15%] min-w-[52px] shrink-0">
-        <ParcelOpenInMenu
-          lat={openInLat}
-          lng={openInLng}
-          label={t('panel.info.open_in')}
-          darkMode={darkMode}
-          currentAppId="room"
-          compact
-        />
-      </div>
-    </div>
-  ) : (
-    <div className="mt-2">
-      <ParcelOpenInMenu
-        lat={openInLat}
-        lng={openInLng}
-        label={t('panel.info.open_in')}
-        darkMode={darkMode}
-        currentAppId="room"
-        fullWidth
-      />
-    </div>
-  );
 
   const handleSave = async () => {
     if (!isAuthenticated || !accessToken) {
@@ -224,7 +241,6 @@ const SaveToPrmBar = ({ focusedParcel, parcelData, darkMode = true, onAskClaire 
             </a>
           )}
         </div>
-        {openInRow}
       </div>
     );
   }
@@ -279,7 +295,6 @@ const SaveToPrmBar = ({ focusedParcel, parcelData, darkMode = true, onAskClaire 
       {!signedOut && !error && (
         <p className="mt-1.5 text-center text-[10px] text-gray-400 dark:text-gray-500">{t('prm.bar_hint')}</p>
       )}
-      {openInRow}
     </div>
   );
 };

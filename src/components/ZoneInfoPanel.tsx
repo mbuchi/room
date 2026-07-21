@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type * as GeoJSON from 'geojson';
 import {
   AlertCircle,
@@ -60,6 +60,10 @@ interface ZoneInfoPanelProps {
   onJumpTo?: (lng: number, lat: number) => void;
   /** Active theme — drives the shared aerial thumbnail + comparables chrome. */
   darkMode?: boolean;
+  /** Suite data-card standard primary-actions row (Ask Claire + "Open in"),
+   *  rendered as the LAST section of the scrollable details so the user
+   *  scrolls to the bottom to reach it — not a bar pinned below the panel. */
+  actionsSlot?: ReactNode;
 }
 
 /**
@@ -82,6 +86,7 @@ const ZoneInfoPanel = ({
   queryNearbyParcels,
   onJumpTo,
   darkMode = true,
+  actionsSlot,
 }: ZoneInfoPanelProps) => {
   const { t, locale } = useI18n();
 
@@ -322,6 +327,12 @@ const ZoneInfoPanel = ({
         )}
 
         <ParcelFaq />
+
+        {/* Primary-actions row (Ask Claire + "Open in") — the LAST section of
+            the scroll flow per the revised data-card standard. The scroller has
+            no horizontal padding, so the slot's own border-t runs full-bleed;
+            mt-2 tops up ParcelFaq's pb-3 to the suite-standard breathing room. */}
+        {actionsSlot && <div className="mt-2">{actionsSlot}</div>}
       </div>
     </div>
   );
