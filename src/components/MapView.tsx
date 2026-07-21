@@ -40,6 +40,7 @@ import {
   MapContextMenu,
   MapControlDock,
   MapLegendChip,
+  PANEL_TOUCH_TARGET,
   SegmentedTabs,
   useGlass,
   useIsMobile,
@@ -1191,7 +1192,11 @@ const MapView = () => {
                 aria-pressed={showRaw}
                 title={t('panel.info.toggle_raw_json')}
                 aria-label={t('panel.info.toggle_raw_json')}
-                className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${
+                // 44x44 touch floor as HIT AREA, not box size (data-card header
+                // standard R1): the visible chip stays 32x32 and an invisible
+                // centred pseudo-element carries the target, so the header row
+                // never inflates and steals width from the tab switcher.
+                className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${PANEL_TOUCH_TARGET} ${
                   showRaw
                     ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
                     : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
@@ -1203,6 +1208,7 @@ const MapView = () => {
             <CloseButton
               onClick={handleCloseInfoPanel}
               label={t('panel.info.close')}
+              className={PANEL_TOUCH_TARGET}
             />
           </div>
 

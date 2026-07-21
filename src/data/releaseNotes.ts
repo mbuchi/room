@@ -12,6 +12,28 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.7',
+    date: 'July 22, 2026',
+    codename: 'One line, always',
+    summary: 'The parcel card header is tighter on phones, and the EGRID and coordinates now stay on a single line.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Smartphone,
+        text:
+          'The EGRID and Lat/Lng chips under the parcel address no longer split their values across several lines on a phone. Each chip now claims the width its value actually needs, so on a narrow screen they stack one above the other and both read on a single line, while wider panels keep them side by side as before. Coordinates still show and copy at full six-decimal precision.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text:
+          'The parcel panel header is more compact on phones. The "{}" raw-data and close buttons keep their comfortable tap area without the button boxes themselves growing, so the header reclaims the space it was wasting and the tab switcher beside them stays roomy.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.6',
     date: 'July 21, 2026',
     codename: 'Actions join the scroll',
