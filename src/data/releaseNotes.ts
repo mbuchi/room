@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.6',
+    date: 'July 21, 2026',
+    codename: 'Actions join the scroll',
+    summary: 'The Ask Claire and "Open in" actions now close out each panel tab as the last scrollable section instead of a bar pinned to the bottom edge.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Smartphone,
+        text:
+          'On phones, Ask Claire and the Open in launcher now sit at the end of the parcel details, reached by scrolling, instead of a bar fixed to the bottom edge. The same applies to the full-width Open in row on desktop, while the Track button keeps its always-visible spot below the panel.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.5',
     date: 'July 21, 2026',
     codename: 'Card, standardized',

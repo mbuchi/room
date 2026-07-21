@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Skeleton } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
@@ -33,6 +33,10 @@ interface ZonePanelProps {
   onZoneStatsCleared: () => void;
   /** Active theme — drives the loading-skeleton shimmer chrome. */
   darkMode?: boolean;
+  /** Suite data-card standard primary-actions row (Ask Claire + "Open in"),
+   *  rendered as the LAST section of the scrollable charts so the user
+   *  scrolls to the bottom to reach it — not a bar pinned below the panel. */
+  actionsSlot?: ReactNode;
 }
 
 interface MetricSpec {
@@ -60,7 +64,7 @@ type Tab = 'distributions' | 'scatter';
  * lifecycle and the dropdown that switches zones without re-fetching the
  * parcel itself — the map's feature-state repaints off the new payload.
  */
-const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode = true }: ZonePanelProps) => {
+const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode = true, actionsSlot }: ZonePanelProps) => {
   const { locale, t } = useI18n();
   const [activeCzLocal, setActiveCzLocal] = useState<string | null>(null);
   const [stats, setStats] = useState<ZoneStatsResponse | null>(null);
@@ -248,6 +252,13 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
             darkMode={darkMode}
           />
         )}
+
+        {/* Primary-actions row (Ask Claire + "Open in") — the LAST section of
+            the scroll flow per the revised data-card standard. The negative
+            margins bleed the slot's border-t across the scroller's p-3 padding
+            (the slot re-applies its own inner padding); space-y-3 supplies the
+            top gap. */}
+        {actionsSlot && <div className="-mx-3 -mb-3">{actionsSlot}</div>}
       </div>
     </div>
   );

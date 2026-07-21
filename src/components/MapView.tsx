@@ -32,7 +32,7 @@ import ZoneInfoPanel from './ZoneInfoPanel';
 // loading skeletons while zone stats fetch, so the brief Suspense gap blends
 // into the existing loading state).
 const ZonePanel = lazy(() => import('./ZonePanel'));
-import SaveToPrmBar from './SaveToPrmBar';
+import SaveToPrmBar, { PrimaryActionsRow } from './SaveToPrmBar';
 import {
   AboutModal,
   ClaireAssistant,
@@ -912,6 +912,22 @@ const MapView = () => {
       }
     : null;
 
+  /* Suite data-card standard primary-actions row. On phones it carries the
+     in-context "Ask Claire" CTA (the floating launcher is hidden there) in the
+     suite-standard split row beside a compact cross-app "Open in" drop-up; on
+     desktop the launcher is the single Claire entry point, so onAskClaire is
+     undefined and the row is the full-width "Open in" menu alone. Per the
+     revised standard the row is NOT pinned below the scroll area: both tabs
+     render it as the LAST section of their scrollable content (actionsSlot),
+     so the user scrolls to the bottom to reach it. The raw-JSON view omits it. */
+  const panelActionsRow = (
+    <PrimaryActionsRow
+      focusedParcel={focusedHandle}
+      darkMode={isDarkMode}
+      onAskClaire={isMobile ? () => setClaireOpen(true) : undefined}
+    />
+  );
+
   return (
     <div className="relative w-full h-dvh">
       <Navbar
@@ -1210,6 +1226,7 @@ const MapView = () => {
                 onZoneStatsLoaded={handleZoneStatsLoaded}
                 onZoneStatsCleared={handleZoneStatsCleared}
                 darkMode={isDarkMode}
+                actionsSlot={panelActionsRow}
               />
             </Suspense>
           ) : (
@@ -1222,21 +1239,18 @@ const MapView = () => {
               queryNearbyParcels={queryParcelsAround}
               onJumpTo={handleFlyToParcel}
               darkMode={isDarkMode}
+              actionsSlot={panelActionsRow}
             />
           )}
 
-          {/* Prominent, always-visible Save-to-PRM call to action. On phones it
-              also carries the in-context "Ask Claire" CTA (the floating launcher
-              is hidden there) in the suite-standard split footer row beside a
-              compact cross-app "Open in" drop-up; on desktop the launcher is the
-              single Claire entry point, so onAskClaire is undefined and the row
-              is the full-width "Open in" menu alone. Both Claire paths open the
-              same controlled assistant. */}
+          {/* Prominent, always-visible Save-to-PRM call to action, still pinned
+              below the scroll area. The Ask Claire / "Open in" primary-actions
+              row it used to carry now rides at the END of each tab's scrollable
+              content instead (panelActionsRow above), per the revised suite
+              data-card standard. */}
           <SaveToPrmBar
             focusedParcel={focusedHandle}
             parcelData={parcelData}
-            darkMode={isDarkMode}
-            onAskClaire={isMobile ? () => setClaireOpen(true) : undefined}
           />
         </div>
       )}
