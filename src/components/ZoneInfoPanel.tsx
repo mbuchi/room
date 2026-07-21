@@ -127,8 +127,8 @@ const ZoneInfoPanel = ({
   // The address is the header title; the municipality is the muted subtitle
   // (room's payload has no zip/postal, so the subtitle is the city fragment
   // alone when available). The EGRID prefers the federal id, falling back to
-  // the parcel id, then the focused parcel's id — rendered in the half/half
-  // identifier-pill row under the title (suite data-card standard) alongside
+  // the parcel id, then the focused parcel's id — rendered in the wrapping
+  // identifier-pill row under the title (suite data-card standard R2) alongside
   // a copyable Lat/Lng chip. While the address is still loading we pass the
   // click-derived lng/lat as the title so the header isn't empty.
   const headerAddress = parcelData?.address
@@ -173,18 +173,25 @@ const ZoneInfoPanel = ({
                 />
               )}
             </ParcelIdentityHeader>
-            {/* Half/half copyable identifier chips (suite data-card standard):
-                EGRID left, click-derived WGS84 coordinates right. Either chip
-                spans the full row when its sibling value is missing. */}
+            {/* Copyable identifier chips (suite data-card standard R2): EGRID
+                and the click-derived WGS84 coordinates. A content-sized flex
+                row, NOT a rigid 50/50 grid — a half-width chip on a phone left
+                ~65px for a 6-decimal coordinate that needs ~126px, so the value
+                shredded across three or four lines. Each chip now refuses to
+                shrink below its own content, so when the two cannot share a
+                line `flex-wrap` gives each its own full-width row and BOTH
+                values stay on exactly one line. Wide panels (>=480px) still put
+                them side by side, `flex-1 basis-0` sharing the slack, which
+                reproduces the old grid look. A lone chip fills the row on its
+                own (no col-span escape hatch needed). */}
             {(headerEgrid || (lng != null && lat != null)) && (
-              <div className="mt-2.5 grid grid-cols-2 gap-2">
+              <div className="mt-2.5 flex flex-wrap gap-2">
                 {headerEgrid && (
                   <IdentifierChip
                     label="EGRID"
                     value={headerEgrid}
                     copyLabel={t('panel.info.egrid_copy')}
                     copiedLabel={t('panel.info.egrid_copied')}
-                    fullRow={!(lng != null && lat != null)}
                   />
                 )}
                 {lng != null && lat != null && (
@@ -193,7 +200,6 @@ const ZoneInfoPanel = ({
                     value={`${lat.toFixed(6)}, ${lng.toFixed(6)}`}
                     copyLabel={t('panel.info.latlng_copy')}
                     copiedLabel={t('panel.info.egrid_copied')}
-                    fullRow={!headerEgrid}
                   />
                 )}
               </div>
@@ -341,20 +347,21 @@ const ZoneInfoPanel = ({
 /**
  * One copyable identifier chip for the pill row under the header — label
  * eyebrow, monospace value, and a click-to-copy button (suite data-card
- * standard chip markup). `fullRow` makes a lone chip span both grid columns.
+ * standard chip markup, R2/R4). The chip never shrinks below its own content
+ * (`min-w-[min(fit-content,100%)]`, capped so a pathological id ellipsizes
+ * instead of forcing horizontal overflow) and `flex-1 basis-0` shares the slack
+ * when both chips fit one line — a lone chip therefore fills the row by itself.
  */
 const IdentifierChip = ({
   label,
   value,
   copyLabel,
   copiedLabel,
-  fullRow = false,
 }: {
   label: string;
   value: string;
   copyLabel: string;
   copiedLabel: string;
-  fullRow?: boolean;
 }) => {
   const [copied, setCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -379,15 +386,11 @@ const IdentifierChip = ({
   };
 
   return (
-    <div
-      className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 bg-white text-slate-700 ring-1 ring-slate-200 dark:bg-black/25 dark:text-slate-300 dark:ring-0 ${
-        fullRow ? 'col-span-2' : ''
-      }`}
-    >
+    <div className="flex min-w-[min(fit-content,100%)] max-w-full flex-1 basis-0 items-center gap-2 rounded-md px-2.5 py-1.5 bg-white text-slate-700 ring-1 ring-slate-200 dark:bg-black/25 dark:text-slate-300 dark:ring-0">
       <span className="flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
         {label}
       </span>
-      <span className="min-w-0 flex-1 break-all font-mono text-[11px] font-semibold leading-tight">{value}</span>
+      <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[11px] font-semibold leading-tight">{value}</span>
       <button
         type="button"
         onClick={handleCopy}
