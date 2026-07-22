@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.11',
+    date: 'July 22, 2026',
+    codename: 'Softer landing',
+    summary: "Claire's AI assistant gains a lighter Gemini fallback tier for even faster responses under load.",
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          "Claire's AI assistant now has an additional fast fallback model (Gemini 3.5 Flash Lite) between its primary and lighter-weight models, for more resilient answers when demand is high.",
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.10',
     date: 'July 22, 2026',
     codename: 'Sharper Claire',
