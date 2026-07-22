@@ -12,6 +12,28 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.8',
+    date: 'July 22, 2026',
+    codename: 'Calm actions',
+    summary: 'Ask Claire and "Open in" now sit side by side as equal, quietly styled buttons at the end of the parcel card.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text:
+          'Ask Claire no longer shouts. The bright orange button at the end of the parcel card is now a calm neutral one, with only the sparkle icon keeping its amber tint, so it sits alongside the rest of the panel instead of pulling your eye away from the data.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text:
+          'The "Open in" launcher gets its label back and an equal half of the row. On phones, Ask Claire and Open in now split the width evenly as matching buttons, so you can read what the second one does instead of guessing at a small icon square, and both keep a comfortable tap area.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.7',
     date: 'July 22, 2026',
     codename: 'One line, always',

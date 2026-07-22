@@ -914,8 +914,8 @@ const MapView = () => {
     : null;
 
   /* Suite data-card standard primary-actions row. On phones it carries the
-     in-context "Ask Claire" CTA (the floating launcher is hidden there) in the
-     suite-standard split row beside a compact cross-app "Open in" drop-up; on
+     in-context "Ask Claire" action (the floating launcher is hidden there) as an
+     equal peer beside the cross-app "Open in" drop-up in an even 2-column row; on
      desktop the launcher is the single Claire entry point, so onAskClaire is
      undefined and the row is the full-width "Open in" menu alone. Per the
      revised standard the row is NOT pinned below the scroll area: both tabs

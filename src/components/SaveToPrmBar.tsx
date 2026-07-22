@@ -26,10 +26,11 @@ interface SaveToPrmBarProps {
 
 /**
  * Suite data-card standard primary-actions row. Phones (onAskClaire set): one
- * split row — the "Ask Claire" CTA at ~85% plus a compact icon-only cross-app
- * "Open in" drop-up at ~15% (the floating launcher is hidden there, so this is
- * the in-context Claire entry). Desktop: Claire stays on the floating
- * launcher, so the row is the full-width "Open in" menu alone.
+ * even two-column row — "Ask Claire" and the cross-app "Open in" drop-up are
+ * equal peers, both calm neutral controls on a 44px touch floor (the floating
+ * launcher is hidden there, so this is the in-context Claire entry). Desktop:
+ * Claire stays on the floating launcher, so the row is the full-width
+ * "Open in" menu alone.
  *
  * Per the revised standard it is NOT pinned below the scroll area any more:
  * each tab renders it as the LAST section of its scrollable content (via the
@@ -55,25 +56,23 @@ export const PrimaryActionsRow = ({
   return (
     <div className="border-t border-gray-200 dark:border-gray-800/60 bg-white/95 dark:bg-gray-950/95 px-3 py-3 print:hidden">
       {onAskClaire ? (
-        <div className="flex items-stretch gap-2">
+        <div className="grid grid-cols-2 gap-2 [&>div>button]:h-full [&>div>button]:min-h-11 [&>div>button]:rounded-xl [&>div>button]:text-sm">
           <button
             type="button"
             onClick={onAskClaire}
-            className="min-w-0 flex-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold bg-gradient-to-br from-amber-400 to-orange-500 text-[#1a0f00] shadow-sm transition hover:brightness-105 active:scale-[0.99]"
+            className="min-w-0 flex items-center justify-center gap-2 min-h-11 rounded-xl px-4 py-2.5 text-sm font-semibold bg-slate-100 text-slate-800 ring-1 ring-slate-200 hover:bg-slate-200/70 dark:bg-white/[0.05] dark:text-slate-200 dark:ring-white/[0.07] dark:hover:bg-white/[0.08] transition active:scale-[0.99]"
           >
-            <Sparkles size={16} aria-hidden="true" />
+            <Sparkles size={16} aria-hidden="true" className="shrink-0 text-amber-500" />
             {t('panel.info.ask_claire')}
           </button>
-          <div className="w-[15%] min-w-[52px] shrink-0">
-            <ParcelOpenInMenu
-              lat={openInLat}
-              lng={openInLng}
-              label={t('panel.info.open_in')}
-              darkMode={darkMode}
-              currentAppId="room"
-              compact
-            />
-          </div>
+          <ParcelOpenInMenu
+            lat={openInLat}
+            lng={openInLng}
+            label={t('panel.info.open_in')}
+            darkMode={darkMode}
+            currentAppId="room"
+            fullWidth
+          />
         </div>
       ) : (
         <ParcelOpenInMenu
