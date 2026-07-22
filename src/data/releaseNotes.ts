@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone,
+  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -11,6 +11,28 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.19.9',
+    date: 'July 22, 2026',
+    codename: 'Know before you leap',
+    summary: 'The "Open in" menu now says what each app actually does, in your language.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ExternalLink,
+        text:
+          'The "Open in" menu at the end of the parcel card no longer lists bare app names. Every target now carries a short line saying what it is for, such as "boom" with "Swiss Noise Map & Analysis", so you can pick the right tool for the parcel you are looking at without opening three of them to find out.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Languages,
+        text:
+          'Those descriptions follow the language you picked for room. Switch between German, English, French, and Italian and the "Open in" menu switches with it, instead of leaving you with English labels in an otherwise translated panel.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.19.8',
     date: 'July 22, 2026',

@@ -49,21 +49,21 @@ export const PrimaryActionsRow = ({
   /** Open the Claire assistant (owned by MapView). Set on phones only. */
   onAskClaire?: () => void;
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   if (!focusedParcel?.parcelId) return null;
   const openInLat = Number.isFinite(focusedParcel.lat) ? focusedParcel.lat : null;
   const openInLng = Number.isFinite(focusedParcel.lng) ? focusedParcel.lng : null;
   return (
     <div className="border-t border-gray-200 dark:border-gray-800/60 bg-white/95 dark:bg-gray-950/95 px-3 py-3 print:hidden">
       {onAskClaire ? (
-        <div className="grid grid-cols-2 gap-2 [&>div>button]:h-full [&>div>button]:min-h-11 [&>div>button]:rounded-xl [&>div>button]:text-sm">
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={onAskClaire}
             className="min-w-0 flex items-center justify-center gap-2 min-h-11 rounded-xl px-4 py-2.5 text-sm font-semibold bg-slate-100 text-slate-800 ring-1 ring-slate-200 hover:bg-slate-200/70 dark:bg-white/[0.05] dark:text-slate-200 dark:ring-white/[0.07] dark:hover:bg-white/[0.08] transition active:scale-[0.99]"
           >
             <Sparkles size={16} aria-hidden="true" className="shrink-0 text-amber-500" />
-            {t('panel.info.ask_claire')}
+            <span className="truncate">{t('panel.info.ask_claire')}</span>
           </button>
           <ParcelOpenInMenu
             lat={openInLat}
@@ -71,6 +71,7 @@ export const PrimaryActionsRow = ({
             label={t('panel.info.open_in')}
             darkMode={darkMode}
             currentAppId="room"
+            locale={locale}
             fullWidth
           />
         </div>
@@ -81,6 +82,7 @@ export const PrimaryActionsRow = ({
           label={t('panel.info.open_in')}
           darkMode={darkMode}
           currentAppId="room"
+          locale={locale}
           fullWidth
         />
       )}
