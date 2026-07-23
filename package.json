@@ -20,7 +20,7 @@
     "test:export-fonts": "node scripts/check-export-fonts.mjs"
   },
   "dependencies": {
-    "@aireon/shared": "github:mbuchi/aireon-shared#v1.116.0",
+    "@aireon/shared": "github:mbuchi/aireon-shared#v1.118.0",
     "@openreplay/tracker": "^18.1.0",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.344.0",
