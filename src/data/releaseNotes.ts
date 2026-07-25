@@ -12,6 +12,28 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.12',
+    date: 'July 26, 2026',
+    codename: 'Soft landing',
+    summary: 'Devices without WebGL now get a clear explanation instead of a blank map area.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'On a browser or device where WebGL is turned off or unavailable, the map engine cannot start at all. room used to leave a silent, empty dark area where the map should be, with nothing to explain it. It now checks for WebGL support before starting the map and shows a clear "Map unavailable on this device" notice explaining that the browser does not support WebGL, and suggesting a different browser or turning hardware acceleration back on.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Bug,
+        text:
+          'This browser limitation is no longer filed as an application error in our bug tracker, so genuine defects are easier to spot.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.11',
     date: 'July 22, 2026',
     codename: 'Softer landing',

@@ -40,6 +40,8 @@ import {
   MapContextMenu,
   MapControlDock,
   MapLegendChip,
+  MapUnavailable,
+  isWebGLAvailable,
   PANEL_TOUCH_TARGET,
   SegmentedTabs,
   useGlass,
@@ -69,6 +71,25 @@ import {
   residentialTypeCondition,
   type ResidentialTypeFilter,
 } from '../lib/residentialTypeFilter';
+
+/**
+ * Whether a map-init failure is "this client cannot do WebGL" rather than a
+ * code defect. MapLibre reports these either as an Error whose message mentions
+ * WebGL, or as the raw `webglcontextcreationerror` event object carrying a
+ * `statusMessage` ("Could not create a WebGL context, ... GL_VENDOR = Disabled").
+ * Deliberately narrow so a genuine init bug is never mistaken for one.
+ */
+function isWebGLContextError(error: unknown): boolean {
+  if (!error) return false;
+  const parts: string[] = [];
+  if (error instanceof Error) parts.push(error.message, error.name);
+  else if (typeof error === 'string') parts.push(error);
+  const bag = error as { message?: unknown; statusMessage?: unknown; type?: unknown };
+  if (typeof bag.message === 'string') parts.push(bag.message);
+  if (typeof bag.statusMessage === 'string') parts.push(bag.statusMessage);
+  if (typeof bag.type === 'string') parts.push(bag.type);
+  return /webgl|webglcontextcreationerror/i.test(parts.join(' '));
+}
 
 // i18n keys for the Residential type segmented control labels, keyed by mode.
 const RESIDENTIAL_TYPE_LABEL_KEYS: Record<ResidentialTypeFilter, string> = {
@@ -186,6 +207,17 @@ const MapView = () => {
   const isMobile = useIsMobile();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  // WebGL preflight, run once. On GPU-less / headless / driver-blocklisted
+  // clients (GL_VENDOR = Disabled) the MapLibre constructor fires
+  // `webglcontextcreationerror` and throws, which room only surfaced as a
+  // console.error out of the style-resolution chain — leaving a blank map area
+  // with no explanation and flooding the Bug Tracker with an unactionable
+  // `error` row (bug #900). Detect up front so we skip map construction
+  // entirely and render the shared graceful fallback instead.
+  const [webglOk] = useState(isWebGLAvailable);
+  // Set when the map still fails to construct after a passing preflight (e.g.
+  // the GL context is lost between detection and construction). Same fallback.
+  const [mapInitFailed, setMapInitFailed] = useState(false);
   // Light/dark theme. Drives the `dark` class on <html>, the BasemapPicker's
   // theme-paired basemap and every `dark:` chrome variant.
   const [isDarkMode, setIsDarkMode] = useState<boolean>(prefersDarkMode);
@@ -762,6 +794,9 @@ const MapView = () => {
   }, []);
 
   useEffect(() => {
+    // No usable WebGL context → nothing to draw into. Skip construction; the
+    // render path below shows <MapUnavailable/> in place of the map + chrome.
+    if (!webglOk) return;
     if (!mapContainerRef.current || mapRef.current) return;
     const container = mapContainerRef.current;
 
@@ -882,6 +917,17 @@ const MapView = () => {
         });
       })
       .catch((error) => {
+        // The isWebGLAvailable() preflight above already skips the common case.
+        // Reaching here means either (a) the GL context died between detection
+        // and construction, or (b) something else in the init chain broke.
+        // Case (a) is a client-environment condition, not a code defect — log it
+        // as a warning so the shared console.error mirror does NOT file it in
+        // the Bug Tracker as an `error` (bug #900); real failures still do.
+        if (!cancelled) setMapInitFailed(true);
+        if (isWebGLContextError(error)) {
+          console.warn('room: WebGL context unavailable, showing map fallback', error);
+          return;
+        }
         console.error('Unable to initialise the MapLibre map', error);
       });
 
@@ -898,7 +944,10 @@ const MapView = () => {
         mapRef.current = null;
       }
     };
-  }, []);
+    // webglOk is set once from a `useState` initializer and never changes, so
+    // this stays a mount-once effect in practice; it is listed so the guard
+    // above is honestly part of the dependency set.
+  }, [webglOk]);
 
   // Keep ZoneInfoPanel's address aware of the I18n locale by re-rendering
   // when locale changes — the parcel-data fetch itself isn't re-issued.
@@ -928,6 +977,61 @@ const MapView = () => {
       onAskClaire={isMobile ? () => setClaireOpen(true) : undefined}
     />
   );
+
+  /* ── WebGL-unavailable fallback ────────────────────────────────────────────
+     No GPU / headless / blocklisted driver / lost context: there is no canvas
+     to render into, so every map control below would be inert. Show the shared
+     notice (with the navbar kept for branding, theme and About) instead of the
+     silent blank area room used to leave behind (bug #900). */
+  if (!webglOk || mapInitFailed) {
+    return (
+      <div className="relative w-full h-dvh">
+        <Navbar
+          onLocationSelect={handleLocationSelect}
+          onLocate={handleLocate}
+          onLocateError={handleLocateError}
+          getCaptureMetadata={getCaptureMetadata}
+          darkMode={isDarkMode}
+          onToggleTheme={toggleDarkMode}
+          onAbout={() => setShowAboutModal(true)}
+          selectedParcel={null}
+          activeAddress={undefined}
+        />
+        <div className="absolute inset-0 top-14">
+          <MapUnavailable
+            message={t('panel.map.unavailable_title')}
+            description={t('panel.map.unavailable_body')}
+            dark={isDarkMode}
+          />
+        </div>
+        {showAboutModal && (
+          <AboutModal
+            wordmark={<>r<span className="text-red-600">oo</span>m</>}
+            description={t('about.description')}
+            credits={[
+              {
+                label: t('about.mapData'),
+                name: '© swisstopo',
+                href: 'https://www.swisstopo.admin.ch',
+              },
+              {
+                label: t('about.renderer'),
+                name: 'MapLibre GL',
+                href: 'https://maplibre.org',
+              },
+            ]}
+            closeLabel={t('about.close')}
+            aboutLabel={t('about.label')}
+            creditsLabel={t('about.credits')}
+            hubLabel={t('about.hub')}
+            glassLevel={glassLevel}
+            dark={isDarkMode}
+            onClose={() => setShowAboutModal(false)}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-dvh">
