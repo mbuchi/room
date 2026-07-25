@@ -247,6 +247,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'map.settings': 'Settings',
     'map.settings_coming_soon': 'Settings are coming soon',
 
+    // ---------- WebGL-unavailable fallback (MapUnavailable) ----------
+    'panel.map.unavailable_title': 'Map unavailable on this device',
+    'panel.map.unavailable_body':
+      'Your browser or device does not support WebGL, so the interactive map cannot start. Try a different browser or enable hardware acceleration, then reload.',
+
     // ---------- LocateButton + geolocation errors / toasts ----------
     'map.locate.button': 'Locate',
     'map.locate.moved': 'Moved to your current location.',
@@ -543,6 +548,11 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- map toolbar (settings placeholder) ----------
     'map.settings': 'Paramètres',
     'map.settings_coming_soon': 'Les paramètres arrivent bientôt',
+
+    // ---------- repli WebGL indisponible (MapUnavailable) ----------
+    'panel.map.unavailable_title': 'Carte indisponible sur cet appareil',
+    'panel.map.unavailable_body':
+      "Votre navigateur ou appareil ne prend pas en charge WebGL, la carte interactive ne peut donc pas démarrer. Essayez un autre navigateur ou activez l'accélération matérielle, puis rechargez la page.",
 
     // ---------- geolocation ----------
     'map.locate.button': 'Localiser',
@@ -841,6 +851,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'map.settings': 'Einstellungen',
     'map.settings_coming_soon': 'Einstellungen folgen bald',
 
+    // ---------- WebGL-Fallback (MapUnavailable) ----------
+    'panel.map.unavailable_title': 'Karte auf diesem Gerät nicht verfügbar',
+    'panel.map.unavailable_body':
+      'Ihr Browser oder Gerät unterstützt WebGL nicht, daher kann die interaktive Karte nicht gestartet werden. Verwenden Sie einen anderen Browser oder aktivieren Sie die Hardwarebeschleunigung und laden Sie die Seite neu.',
+
     // ---------- geolocation ----------
     'map.locate.button': 'Orten',
     'map.locate.moved': 'Zu Ihrem aktuellen Standort verschoben.',
@@ -1137,6 +1152,11 @@ const translations: Record<Locale, Record<string, string>> = {
     // ---------- map toolbar (settings placeholder) ----------
     'map.settings': 'Impostazioni',
     'map.settings_coming_soon': 'Le impostazioni arriveranno presto',
+
+    // ---------- fallback WebGL non disponibile (MapUnavailable) ----------
+    'panel.map.unavailable_title': 'Mappa non disponibile su questo dispositivo',
+    'panel.map.unavailable_body':
+      "Il tuo browser o dispositivo non supporta WebGL, quindi la mappa interattiva non puo avviarsi. Prova un browser diverso o attiva l'accelerazione hardware, poi ricarica la pagina.",
 
     // ---------- geolocation ----------
     'map.locate.button': 'Localizza',
