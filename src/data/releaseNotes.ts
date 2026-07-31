@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.13',
+    date: 'July 31, 2026',
+    codename: 'Tooltip manners',
+    summary: 'Toolbar tooltips now close when you click a button instead of staying pinned open.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bug,
+        text: 'Toolbar tooltips no longer stay open after clicking a button.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.12',
     date: 'July 26, 2026',
     codename: 'Soft landing',
