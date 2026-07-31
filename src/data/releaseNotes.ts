@@ -12,6 +12,22 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.15',
+    date: 'July 31, 2026',
+    codename: 'Solid volumes',
+    summary:
+      'The 3D buildings now start at the new suite-wide default of 75% opacity.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Box,
+        text:
+          'Every Aireon app that draws 3D buildings now starts them at the same 75% opacity, so the masses look identical whichever app you open. Here that is a change from 85%. The slider still adjusts it at any time.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.14',
     date: 'July 31, 2026',
     codename: 'Hub, new tab',

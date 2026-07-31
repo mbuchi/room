@@ -228,7 +228,7 @@ const MapView = () => {
     themeBasemapId(prefersDarkMode()),
   );
   const [parcelOpacity, setParcelOpacity] = useState(0.6);
-  const [buildingOpacity, setBuildingOpacity] = useState(0.85);
+  const [buildingOpacity, setBuildingOpacity] = useState(0.75);
   const [is3DMode, setIs3DMode] = useState(false);
   const [lv95Coords, setLv95Coords] = useState<[number, number] | null>(null);
 
