@@ -1,7 +1,8 @@
 import {
   ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink } from 'lucide-react';
+  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink,
+} from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
 export type { ChangeKind, ChangeItem, Release };
@@ -11,7 +12,7 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
-    version: '0.19.13',
+    version: '0.19.15',
     date: 'July 31, 2026',
     codename: 'Solid volumes',
     summary:
@@ -22,6 +23,35 @@ export const RELEASES: Release[] = [
         icon: Box,
         text:
           'Every Aireon app that draws 3D buildings now starts them at the same 75% opacity, so the masses look identical whichever app you open. Here that is a change from 85%. The slider still adjusts it at any time.',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.19.14',
+    date: 'July 31, 2026',
+    codename: 'Hub, new tab',
+    summary: 'Links to the Aireon hub now open in a new browser tab.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ExternalLink,
+        text:
+          'Links to the Aireon hub, including the See all Aireon applications button in the About dialog and the Aireon badge in the navbar, now open in a new browser tab so your work in room stays open.',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.19.13',
+    date: 'July 31, 2026',
+    codename: 'Tooltip manners',
+    summary: 'Toolbar tooltips now close when you click a button instead of staying pinned open.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bug,
+        text: 'Toolbar tooltips no longer stay open after clicking a button.',
         prs: [],
       },
     ],
