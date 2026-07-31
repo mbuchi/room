@@ -1,8 +1,7 @@
 import {
   ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink,
-} from 'lucide-react';
+  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
 export type { ChangeKind, ChangeItem, Release };
@@ -11,6 +10,22 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.19.13',
+    date: 'July 31, 2026',
+    codename: 'Solid volumes',
+    summary:
+      'The 3D buildings now start at the new suite-wide default of 75% opacity.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Box,
+        text:
+          'Every Aireon app that draws 3D buildings now starts them at the same 75% opacity, so the masses look identical whichever app you open. Here that is a change from 85%. The slider still adjusts it at any time.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.19.12',
     date: 'July 26, 2026',
