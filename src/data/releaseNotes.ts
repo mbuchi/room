@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.14',
+    date: 'July 31, 2026',
+    codename: 'Hub, new tab',
+    summary: 'Links to the Aireon hub now open in a new browser tab.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ExternalLink,
+        text:
+          'Links to the Aireon hub, including the See all Aireon applications button in the About dialog and the Aireon badge in the navbar, now open in a new browser tab so your work in room stays open.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.13',
     date: 'July 31, 2026',
     codename: 'Tooltip manners',
