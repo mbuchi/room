@@ -90,7 +90,9 @@ export const appTourConfig: AppTourConfig = {
         title: "Track this parcel",
         body: "Found a parcel worth watching? Track it to save it to your proom workspace, where it syncs across the whole Aireon suite. Open it later in proom in one click. (Sign in to enable.)",
         i18nKey: "tour.track_parcel",
-        placement: "top",
+        // The toggle sits on the panel's top action bar now, so the popover
+        // opens downward instead of covering the bar.
+        placement: "bottom",
       },
       {
         id: "layers",

@@ -12,6 +12,29 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.19.16',
+    date: 'August 2, 2026',
+    codename: 'Track up top',
+    summary:
+      'The Track button moved onto the panel action bar, and the in-panel Open in menu retired in favor of the navbar one.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Bookmark,
+        text:
+          'Track this parcel is now a compact bookmark toggle on the panel action bar, next to the raw-data and close buttons, matching the rest of the Aireon suite. It replaces the wide bar that sat under the panel, so the parcel facts get that space back.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ExternalLink,
+        text:
+          'The Open in menu inside the parcel panel is gone. To jump to another Aireon app at this parcel, use the Open with menu beside the address in the top bar, which does the same thing from anywhere.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.15',
     date: 'July 31, 2026',
     codename: 'Solid volumes',

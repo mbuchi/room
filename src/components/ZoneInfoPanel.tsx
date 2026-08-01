@@ -49,7 +49,7 @@ interface ZoneInfoPanelProps {
   isLoading: boolean;
   error: string | null;
   /** The currently-selected parcel — used for the header address fallback.
-   *  Saving is handled by the panel-footer SaveToPrmBar, not here. */
+   *  Tracking is handled by the action-bar TrackParcelButton, not here. */
   focusedParcel?: FocusedParcelHandle | null;
   /** The clicked parcel POLYGON geometry (vector-tile feature.geometry) — the
    *  lite base fed to the shared 3D buildable-massing simulator. */
