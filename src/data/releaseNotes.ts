@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.20.1',
+    date: 'August 2, 2026',
+    codename: 'Honest bookmark',
+    summary: 'Fixed the Track button showing a parcel as untracked after an untrack that did not go through.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bookmark,
+        text:
+          'If removing a tracked parcel failed, for example because the connection dropped, the Track button flipped to the untracked look even though the parcel was still saved in your proom workspace. Clicking it again then saved a second copy. The button now stays marked as tracked, shows the error, and retries the removal instead.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.20.0',
     date: 'August 2, 2026',
     codename: 'One level',
