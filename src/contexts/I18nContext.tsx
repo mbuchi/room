@@ -86,7 +86,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.egrid_copied': 'Copied',
     'panel.info.latlng_label': 'Lat/Lng',
     'panel.info.latlng_copy': 'Copy coordinates',
-    'panel.info.open_in': 'Open in',
     'panel.info.satellite_alt': 'Satellite view of the selected parcel',
     'panel.info.satellite_aria': 'Parcel satellite preview',
     'panel.info.satellite_expand': 'Enlarge aerial image',
@@ -236,7 +235,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.save': 'Track',
     'prm.saving': 'Saving…',
     'prm.saved': 'Tracked',
-    'prm.open_in_proom': 'Open in proom',
     'prm.signin_required': 'Sign in to save parcels',
     'prm.save_failed': 'Could not save - try again',
 
@@ -300,7 +298,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'legend.allowance_tooltip': '100% - built to the zone allowance',
 
     // ---------- PRM save bar + mobile sheet ----------
-    'prm.bar_hint': 'Track this parcel in your proom workspace',
     'panel.sheet.expand': 'Expand panel',
     'panel.sheet.collapse': 'Collapse panel',
 
@@ -389,7 +386,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.egrid_copied': 'Copié',
     'panel.info.latlng_label': 'Lat/Lng',
     'panel.info.latlng_copy': 'Copier les coordonnées',
-    'panel.info.open_in': 'Ouvrir dans',
     'panel.info.satellite_alt': 'Vue satellite de la parcelle sélectionnée',
     'panel.info.satellite_aria': 'Aperçu satellite de la parcelle',
     'panel.info.satellite_expand': 'Agrandir l’image aérienne',
@@ -539,7 +535,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.save': 'Suivre',
     'prm.saving': 'Enregistrement…',
     'prm.saved': 'Suivie',
-    'prm.open_in_proom': 'Ouvrir dans proom',
     'prm.signin_required': 'Connectez-vous pour enregistrer',
     'prm.save_failed': 'Échec - réessayez',
 
@@ -602,7 +597,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'legend.allowance_tooltip': '100 % - construit selon l’indice autorisé',
 
     // ---------- barre d’enregistrement PRM + panneau mobile ----------
-    'prm.bar_hint': 'Suivez cette parcelle dans votre espace proom',
     'panel.sheet.expand': 'Agrandir le panneau',
     'panel.sheet.collapse': 'Réduire le panneau',
 
@@ -691,7 +685,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.egrid_copied': 'Kopiert',
     'panel.info.latlng_label': 'Lat/Lng',
     'panel.info.latlng_copy': 'Koordinaten kopieren',
-    'panel.info.open_in': 'Öffnen in',
     'panel.info.satellite_alt': 'Satellitenansicht der ausgewählten Parzelle',
     'panel.info.satellite_aria': 'Parzellen-Satellitenvorschau',
     'panel.info.satellite_expand': 'Luftbild vergrössern',
@@ -841,7 +834,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.save': 'Verfolgen',
     'prm.saving': 'Speichern…',
     'prm.saved': 'Verfolgt',
-    'prm.open_in_proom': 'In proom öffnen',
     'prm.signin_required': 'Anmelden zum Speichern',
     'prm.save_failed': 'Speichern fehlgeschlagen',
 
@@ -904,7 +896,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'legend.allowance_tooltip': '100 % - gemäss zulässiger Ausnützung gebaut',
 
     // ---------- PRM-Speicherleiste + mobiles Panel ----------
-    'prm.bar_hint': 'Diese Parzelle in Ihrem proom-Arbeitsbereich verfolgen',
     'panel.sheet.expand': 'Panel vergrössern',
     'panel.sheet.collapse': 'Panel verkleinern',
 
@@ -993,7 +984,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.egrid_copied': 'Copiato',
     'panel.info.latlng_label': 'Lat/Lng',
     'panel.info.latlng_copy': 'Copia le coordinate',
-    'panel.info.open_in': 'Apri in',
     'panel.info.satellite_alt': 'Vista satellitare della parcella selezionata',
     'panel.info.satellite_aria': 'Anteprima satellitare della parcella',
     'panel.info.satellite_expand': 'Ingrandisci l’immagine aerea',
@@ -1143,7 +1133,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.save': 'Segui',
     'prm.saving': 'Salvataggio…',
     'prm.saved': 'Seguita',
-    'prm.open_in_proom': 'Apri in proom',
     'prm.signin_required': 'Accedi per salvare',
     'prm.save_failed': 'Salvataggio fallito',
 
@@ -1206,7 +1195,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'legend.allowance_tooltip': '100% - costruito secondo l’indice consentito',
 
     // ---------- barra di salvataggio PRM + pannello mobile ----------
-    'prm.bar_hint': 'Tieni traccia di questa particella nel tuo spazio proom',
     'panel.sheet.expand': 'Espandi il pannello',
     'panel.sheet.collapse': 'Riduci il pannello',
 
