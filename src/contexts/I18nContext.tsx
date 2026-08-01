@@ -14,7 +14,10 @@ import type { Locale } from '@aireon/shared';
  *   - panel.zone.*       zone distribution panel (ZonePanel + charts)
  *   - panel.images.*     "My Exports" gallery modal
  *   - panel.screenshot.* the capture button & overlay & toast
- *   - panel.tabs.*       right-side info pane tabs (Zone distribution / Parcel facts)
+ *   - panel.tabs.*       right-side info pane tabs (Zone / Parcel / Market /
+ *                        Massing / FAQ / Compare). One word each — the
+ *                        segmented control gives a tab ~73px on desktop and
+ *                        ~58px on a phone, so anything longer truncates.
  *   - menu.*             user menu (sign in / sign out / view profile / active)
  *   - map.locate.*       geolocation errors and toasts
  *   - prm.*              PRM save/track buttons
@@ -70,8 +73,19 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zoom.toggle_3d': 'Toggle 3D buildings',
 
     // ---------- right-side info pane tabs ----------
-    'panel.tabs.zone_distribution': 'Zone distribution',
-    'panel.tabs.parcel_facts': 'Parcel facts',
+    'panel.tabs.zone': 'Zone',
+    'panel.tabs.parcel': 'Parcel',
+    'panel.tabs.market': 'Market',
+    'panel.tabs.massing': 'Massing',
+    'panel.tabs.faq': 'FAQ',
+    'panel.tabs.compare': 'Compare',
+    'panel.tabs.aria': 'Parcel panel sections',
+    'panel.market.empty': 'No municipality for this parcel, so there are no market figures to show.',
+    'panel.massing.empty': 'No parcel outline for this selection, so the massing model cannot be built.',
+    'panel.compare.heading': 'Nearby comparables (for sale)',
+    'panel.compare.basis_note':
+      'Prices are per m² of living space, not of land. Use them to rank neighbours, not to value this parcel.',
+    'panel.faq.claire_hint': 'Not answered here? Ask Claire about this parcel.',
 
     // ---------- ZoneInfoPanel — sections & rows ----------
     'panel.info.title': 'Parcel Information',
@@ -144,8 +158,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.zoning_category': 'Zoning category',
     'panel.zone.filter_zones_placeholder': 'Filter zones…',
     'panel.zone.no_matching_zones': 'No matching zones.',
-    'panel.zone.tab.distributions': 'Distributions',
-    'panel.zone.tab.scatter': 'Area vs. volume',
     'panel.zone.error_title': 'Could not load zone statistics',
     'panel.zone.error_generic': 'Failed to load zone stats.',
     'panel.zone.metric.ratio_v.title': 'ratioV (volume use)',
@@ -275,9 +287,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.map.title': 'Click the map to read a parcel',
     'tour.map.body': 'Click anywhere on the map to pick a parcel. room instantly shades every parcel in that zone by its built-volume percentile - light = barely used, dark = near full - and opens a panel with that parcel’s facts and where it ranks.',
     'tour.parcel_facts.title': "Read the parcel's facts",
-    'tour.parcel_facts.body': 'The Parcel facts tab lists the municipality, zoning category, parcel area, existing building volume, year built and the utilization figures (ratioV, freeV) - the raw numbers behind the density score.',
+    'tour.parcel_facts.body': 'The Parcel tab lists the municipality, zoning category, parcel area, existing building volume, year built and the utilization figures (ratioV, freeV) - the raw numbers behind the density score. Market, Massing and FAQ sit beside it as their own tabs.',
     'tour.charts.title': 'Where this parcel ranks',
-    'tour.charts.body': 'The Zone distribution tab plots the whole zone: a boxplot, utilization histograms, a percentile gauge and a parcel-area-vs-volume scatter - each marked with your parcel, so you can see at a glance whether it’s under- or over-built versus its peers.',
+    'tour.charts.body': 'The Zone tab plots the whole zone in one scroll: a percentile gauge, a boxplot, utilization histograms, a utilization-over-time line and a parcel-area-vs-volume scatter - each marked with your parcel, so you can see at a glance whether it’s under- or over-built versus its peers.',
     'tour.track_parcel.title': 'Track this parcel',
     'tour.track_parcel.body': 'Found a parcel worth watching? Track it to save it to your proom workspace, where it syncs across the whole Aireon suite. Open it later in proom in one click. (Sign in to enable.)',
     'tour.layers.title': 'Tune the view',
@@ -370,8 +382,21 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zoom.toggle_3d': 'Bâtiments 3D',
 
     // ---------- tabs ----------
-    'panel.tabs.zone_distribution': 'Distribution de zone',
-    'panel.tabs.parcel_facts': 'Faits de la parcelle',
+    'panel.tabs.zone': 'Zone',
+    'panel.tabs.parcel': 'Parcelle',
+    'panel.tabs.market': 'Marché',
+    'panel.tabs.massing': 'Volume',
+    'panel.tabs.faq': 'FAQ',
+    'panel.tabs.compare': 'Comparer',
+    'panel.tabs.aria': 'Sections du panneau de parcelle',
+    'panel.market.empty':
+      'Aucune commune pour cette parcelle, aucun chiffre de marché à afficher.',
+    'panel.massing.empty':
+      'Aucun contour de parcelle pour cette sélection, le modèle de volume ne peut pas être construit.',
+    'panel.compare.heading': 'Parcelles à vendre à proximité',
+    'panel.compare.basis_note':
+      'Les prix sont au m² de surface habitable, pas de terrain. À utiliser pour classer les voisines, pas pour évaluer cette parcelle.',
+    'panel.faq.claire_hint': 'Pas de réponse ici ? Demandez à Claire à propos de cette parcelle.',
 
     // ---------- ZoneInfoPanel ----------
     'panel.info.title': 'Informations de la parcelle',
@@ -444,8 +469,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.zoning_category': 'Catégorie de zone',
     'panel.zone.filter_zones_placeholder': 'Filtrer les zones…',
     'panel.zone.no_matching_zones': 'Aucune zone correspondante.',
-    'panel.zone.tab.distributions': 'Distributions',
-    'panel.zone.tab.scatter': 'Surface vs. volume',
     'panel.zone.error_title': 'Impossible de charger les statistiques de zone',
     'panel.zone.error_generic': 'Échec du chargement des statistiques de zone.',
     'panel.zone.metric.ratio_v.title': 'ratioV (utilisation du volume)',
@@ -574,9 +597,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.map.title': 'Cliquez la carte pour lire une parcelle',
     'tour.map.body': 'Cliquez n’importe où sur la carte pour choisir une parcelle. room ombre aussitôt chaque parcelle de la zone selon son percentile de volume bâti - clair = peu utilisée, foncé = presque pleine - et ouvre un panneau avec ses données et son classement.',
     'tour.parcel_facts.title': 'Lire les données de la parcelle',
-    'tour.parcel_facts.body': 'L’onglet Données de la parcelle indique la commune, la catégorie de zone, la surface, le volume bâti existant, l’année de construction et les indices d’utilisation (ratioV, freeV) - les chiffres bruts derrière le score de densité.',
+    'tour.parcel_facts.body': 'L’onglet Parcelle indique la commune, la catégorie de zone, la surface, le volume bâti existant, l’année de construction et les indices d’utilisation (ratioV, freeV) - les chiffres bruts derrière le score de densité. Marché, Volume et FAQ sont des onglets voisins.',
     'tour.charts.title': 'Le classement de la parcelle',
-    'tour.charts.body': 'L’onglet Distribution de la zone trace toute la zone : boîte à moustaches, histogrammes d’utilisation, jauge de percentile et nuage de points surface-volume - chacun marquant votre parcelle, pour voir d’un coup d’œil si elle est sous- ou sur-bâtie par rapport à ses voisines.',
+    'tour.charts.body': 'L’onglet Zone trace toute la zone d’un seul tenant : jauge de percentile, boîte à moustaches, histogrammes d’utilisation, courbe d’utilisation dans le temps et nuage de points surface-volume - chacun marquant votre parcelle, pour voir d’un coup d’œil si elle est sous- ou sur-bâtie par rapport à ses voisines.',
     'tour.track_parcel.title': 'Suivre cette parcelle',
     'tour.track_parcel.body': 'Une parcelle à surveiller ? Suivez-la pour l’enregistrer dans votre espace proom, synchronisé dans toute la suite Aireon. Rouvrez-la ensuite dans proom en un clic. (Connectez-vous pour activer.)',
     'tour.layers.title': 'Ajuster la vue',
@@ -669,8 +692,21 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zoom.toggle_3d': '3D-Gebäude',
 
     // ---------- tabs ----------
-    'panel.tabs.zone_distribution': 'Zonenverteilung',
-    'panel.tabs.parcel_facts': 'Parzellen-Fakten',
+    'panel.tabs.zone': 'Zone',
+    'panel.tabs.parcel': 'Parzelle',
+    'panel.tabs.market': 'Markt',
+    'panel.tabs.massing': 'Volumen',
+    'panel.tabs.faq': 'FAQ',
+    'panel.tabs.compare': 'Vergleich',
+    'panel.tabs.aria': 'Abschnitte des Parzellen-Panels',
+    'panel.market.empty':
+      'Keine Gemeinde für diese Parzelle, daher gibt es keine Marktzahlen anzuzeigen.',
+    'panel.massing.empty':
+      'Kein Parzellenumriss für diese Auswahl, das Volumenmodell kann nicht erstellt werden.',
+    'panel.compare.heading': 'Vergleichbare Verkäufe in der Nähe',
+    'panel.compare.basis_note':
+      'Die Preise gelten pro m² Wohnfläche, nicht pro m² Land. Für die Reihenfolge der Nachbarn geeignet, nicht zur Bewertung dieser Parzelle.',
+    'panel.faq.claire_hint': 'Hier keine Antwort? Fragen Sie Claire zu dieser Parzelle.',
 
     // ---------- ZoneInfoPanel ----------
     'panel.info.title': 'Parzelleninformationen',
@@ -743,8 +779,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.zoning_category': 'Zonenkategorie',
     'panel.zone.filter_zones_placeholder': 'Zonen filtern…',
     'panel.zone.no_matching_zones': 'Keine passenden Zonen.',
-    'panel.zone.tab.distributions': 'Verteilungen',
-    'panel.zone.tab.scatter': 'Fläche vs. Volumen',
     'panel.zone.error_title': 'Zonen-Statistiken konnten nicht geladen werden',
     'panel.zone.error_generic': 'Laden der Zonen-Statistiken fehlgeschlagen.',
     'panel.zone.metric.ratio_v.title': 'ratioV (Volumenausnutzung)',
@@ -873,9 +907,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.map.title': 'Karte anklicken, um eine Parzelle zu lesen',
     'tour.map.body': 'Klicken Sie irgendwo auf die Karte, um eine Parzelle zu wählen. room schattiert sofort jede Parzelle der Zone nach ihrem Bauvolumen-Perzentil - hell = kaum genutzt, dunkel = fast voll - und öffnet ein Panel mit den Fakten und der Einordnung.',
     'tour.parcel_facts.title': 'Die Parzellen-Fakten lesen',
-    'tour.parcel_facts.body': 'Der Tab Parzellen-Fakten zeigt Gemeinde, Zonenkategorie, Parzellenfläche, bestehendes Gebäudevolumen, Baujahr und die Nutzungswerte (ratioV, freeV) - die Rohzahlen hinter dem Dichte-Wert.',
+    'tour.parcel_facts.body': 'Der Tab Parzelle zeigt Gemeinde, Zonenkategorie, Parzellenfläche, bestehendes Gebäudevolumen, Baujahr und die Nutzungswerte (ratioV, freeV) - die Rohzahlen hinter dem Dichte-Wert. Markt, Volumen und FAQ liegen als eigene Tabs daneben.',
     'tour.charts.title': 'Wo diese Parzelle steht',
-    'tour.charts.body': 'Der Tab Zonen-Verteilung zeigt die ganze Zone: Boxplot, Nutzungs-Histogramme, eine Perzentil-Anzeige und ein Streudiagramm Fläche-vs-Volumen - jedes mit Ihrer Parzelle markiert, sodass Sie sofort sehen, ob sie unter- oder überbebaut ist im Vergleich zu den Nachbarn.',
+    'tour.charts.body': 'Der Tab Zone zeigt die ganze Zone in einem Durchlauf: Perzentil-Anzeige, Boxplot, Nutzungs-Histogramme, Nutzung im Zeitverlauf und ein Streudiagramm Fläche-vs-Volumen - jedes mit Ihrer Parzelle markiert, sodass Sie sofort sehen, ob sie unter- oder überbebaut ist im Vergleich zu den Nachbarn.',
     'tour.track_parcel.title': 'Diese Parzelle verfolgen',
     'tour.track_parcel.body': 'Eine Parzelle, die Sie im Auge behalten wollen? Verfolgen Sie sie, um sie in Ihrem proom-Arbeitsbereich zu speichern, synchronisiert über die ganze Aireon-Suite. Öffnen Sie sie später in proom mit einem Klick. (Zum Aktivieren anmelden.)',
     'tour.layers.title': 'Ansicht anpassen',
@@ -968,8 +1002,21 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zoom.toggle_3d': 'Edifici 3D',
 
     // ---------- tabs ----------
-    'panel.tabs.zone_distribution': 'Distribuzione di zona',
-    'panel.tabs.parcel_facts': 'Dati particella',
+    'panel.tabs.zone': 'Zona',
+    'panel.tabs.parcel': 'Particella',
+    'panel.tabs.market': 'Mercato',
+    'panel.tabs.massing': 'Volume',
+    'panel.tabs.faq': 'FAQ',
+    'panel.tabs.compare': 'Confronta',
+    'panel.tabs.aria': 'Sezioni del pannello della particella',
+    'panel.market.empty':
+      'Nessun comune per questa particella, quindi non ci sono dati di mercato da mostrare.',
+    'panel.massing.empty':
+      'Nessun perimetro per questa selezione, il modello volumetrico non può essere costruito.',
+    'panel.compare.heading': 'Parcelle in vendita nelle vicinanze',
+    'panel.compare.basis_note':
+      'I prezzi sono al m² di superficie abitabile, non di terreno. Servono a ordinare le vicine, non a valutare questa particella.',
+    'panel.faq.claire_hint': 'Nessuna risposta qui? Chiedi a Claire di questa particella.',
 
     // ---------- ZoneInfoPanel ----------
     'panel.info.title': 'Informazioni sulla particella',
@@ -1042,8 +1089,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.zoning_category': 'Categoria di zona',
     'panel.zone.filter_zones_placeholder': 'Filtra zone…',
     'panel.zone.no_matching_zones': 'Nessuna zona corrispondente.',
-    'panel.zone.tab.distributions': 'Distribuzioni',
-    'panel.zone.tab.scatter': 'Superficie vs. volume',
     'panel.zone.error_title': 'Impossibile caricare le statistiche di zona',
     'panel.zone.error_generic': 'Caricamento delle statistiche di zona fallito.',
     'panel.zone.metric.ratio_v.title': 'ratioV (utilizzo del volume)',
@@ -1172,9 +1217,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'tour.map.title': 'Clicca la mappa per leggere una particella',
     'tour.map.body': 'Clicca ovunque sulla mappa per scegliere una particella. room sfuma subito ogni particella della zona in base al percentile di volume edificato - chiaro = poco usata, scuro = quasi piena - e apre un pannello con i dati e la sua posizione.',
     'tour.parcel_facts.title': 'Leggi i dati della particella',
-    'tour.parcel_facts.body': 'La scheda Dati della particella elenca comune, categoria di zona, superficie, volume edificato esistente, anno di costruzione e gli indici di utilizzo (ratioV, freeV) - i numeri grezzi dietro al punteggio di densità.',
+    'tour.parcel_facts.body': 'La scheda Particella elenca comune, categoria di zona, superficie, volume edificato esistente, anno di costruzione e gli indici di utilizzo (ratioV, freeV) - i numeri grezzi dietro al punteggio di densità. Mercato, Volume e FAQ sono schede a fianco.',
     'tour.charts.title': 'Dove si colloca questa particella',
-    'tour.charts.body': 'La scheda Distribuzione della zona traccia l’intera zona: boxplot, istogrammi di utilizzo, un indicatore di percentile e un grafico a dispersione superficie-volume - ognuno con la tua particella evidenziata, così vedi subito se è sotto- o sovra-edificata rispetto alle vicine.',
+    'tour.charts.body': 'La scheda Zona traccia l’intera zona in un solo scorrimento: indicatore di percentile, boxplot, istogrammi di utilizzo, utilizzo nel tempo e un grafico a dispersione superficie-volume - ognuno con la tua particella evidenziata, così vedi subito se è sotto- o sovra-edificata rispetto alle vicine.',
     'tour.track_parcel.title': 'Segui questa particella',
     'tour.track_parcel.body': 'Una particella da tenere d’occhio? Seguila per salvarla nel tuo spazio proom, sincronizzato in tutta la suite Aireon. Riaprila poi in proom con un clic. (Accedi per attivare.)',
     'tour.layers.title': 'Regola la vista',
