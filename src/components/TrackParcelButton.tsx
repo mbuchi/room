@@ -134,7 +134,13 @@ const TrackParcelButton = ({ focusedParcel, parcelData }: TrackParcelButtonProps
     }
   };
 
-  const tracked = status === 'saved' || status === 'unsaving';
+  // `savedRecord` survives a failed DELETE, so it, not the status alone, is
+  // what "tracked" means after an error: otherwise the chip would flip to the
+  // untracked outline while the record still exists on the backend, and the
+  // next click would route to handleSave and duplicate it. With the record
+  // still in hand the retry goes back through handleRemove.
+  const tracked =
+    status === 'saved' || status === 'unsaving' || (status === 'error' && savedRecord !== null);
   const busy = status === 'saving' || status === 'unsaving';
   const label = !isAuthenticated
     ? t('prm.signin_required')
@@ -156,10 +162,10 @@ const TrackParcelButton = ({ focusedParcel, parcelData }: TrackParcelButtonProps
       aria-label={label}
       aria-pressed={tracked}
       className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors disabled:cursor-default ${PANEL_TOUCH_TARGET} ${
-        tracked
-          ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 ring-1 ring-emerald-400/30 hover:bg-emerald-500/25'
-          : status === 'error'
-            ? 'text-red-500 hover:text-red-600 hover:bg-red-500/10'
+        status === 'error'
+          ? 'text-red-500 hover:text-red-600 hover:bg-red-500/10'
+          : tracked
+            ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 ring-1 ring-emerald-400/30 hover:bg-emerald-500/25'
             : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
       }`}
     >
