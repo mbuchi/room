@@ -1,46 +1,20 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import type * as GeoJSON from 'geojson';
-import {
-  AlertCircle,
-  Check,
-  Copy,
-  MapPin,
-  Building2,
-  Calendar,
-  Layers,
-  HelpCircle,
-  ChevronDown,
-} from 'lucide-react';
-import {
-  Skeleton,
-  ParcelAerialThumbnail,
-  ParcelIdentityHeader,
-  ComparablesPanel,
-  BuildableMassingSection,
-  rankComparables,
-  type Comparable,
-} from '@aireon/shared';
+import type { ReactNode } from 'react';
+import { MapPin, Building2, Calendar, Layers } from 'lucide-react';
+import { Skeleton } from '@aireon/shared';
 import type { ParcelData } from '../services/parcelDataService';
-import MarketDataSection from './MarketDataSection';
+import { PanelError, PanelScroll, Section } from './PanelKit';
 import { useI18n } from '../contexts/I18nContext';
-
-const COMPS_HEADING: Record<string, string> = {
-  en: 'Nearby comparables (for sale)',
-  fr: 'Parcelles à vendre à proximité',
-  de: 'Vergleichbare Verkäufe in der Nähe',
-  it: 'Parcelle in vendita nelle vicinanze',
-};
 
 /**
  * Identity of the parcel the user has currently focused. Mirrors MapView's
- * `SelectedParcel` minus the bag of mapbox feature properties — only the bits
- * the PRM save endpoint needs.
+ * `SelectedParcel` minus the bag of maplibre feature properties — only the bits
+ * the PRM save endpoint and the panel chrome need.
  */
 export interface FocusedParcelHandle {
   parcelId: string;
   lng: number;
   lat: number;
-  /** Optional raw mapbox properties, used to recover area/municipality fallbacks. */
+  /** Optional raw tile properties, used to recover area/municipality fallbacks. */
   props?: Record<string, unknown>;
 }
 
@@ -48,420 +22,120 @@ interface ZoneInfoPanelProps {
   parcelData: ParcelData | null;
   isLoading: boolean;
   error: string | null;
-  /** The currently-selected parcel — used for the header address fallback.
-   *  Tracking is handled by the action-bar TrackParcelButton, not here. */
-  focusedParcel?: FocusedParcelHandle | null;
-  /** The clicked parcel POLYGON geometry (vector-tile feature.geometry) — the
-   *  lite base fed to the shared 3D buildable-massing simulator. */
-  geometry?: GeoJSON.Geometry | null;
-  /** Query rendered parcel features around a point — fed to the comparables ranking. */
-  queryNearbyParcels?: (lng: number, lat: number, radiusDeg: number, limit?: number) => Array<{ properties: Record<string, unknown>; lng: number; lat: number }>;
-  /** Fly the map to a comparable parcel when its card is clicked. */
-  onJumpTo?: (lng: number, lat: number) => void;
-  /** Active theme — drives the shared aerial thumbnail + comparables chrome. */
-  darkMode?: boolean;
-  /** Suite data-card standard primary-actions row (Ask Claire + "Open in"),
-   *  rendered as the LAST section of the scrollable details so the user
-   *  scrolls to the bottom to reach it — not a bar pinned below the panel. */
+  /** Suite data-card standard primary-actions row, rendered as the LAST
+   *  section of the scrollable details. */
   actionsSlot?: ReactNode;
+  /** Active theme — drives the loading-skeleton shimmer chrome. */
+  darkMode?: boolean;
 }
 
 /**
- * Parcel-facts header for room. Replaces groove's GWR-shaped `InfoPanel`.
- * Renders a compact summary of the selected parcel — address, municipality,
- * zoning codes, area, built volume, construction year — plus the two
- * utilisation-balance fields (`ratio_v` and `free_v`) that immediately tell
- * the user "this parcel is over- / under- / fully built relative to its
- * allowed zoning utilisation".
+ * "Parcel" tab — the plain facts for the selected parcel: where it is, how it
+ * is zoned, what is already built on it, how old that is, and the two
+ * utilisation-balance figures (`ratio_v`, `free_v`) that answer "is this parcel
+ * over-, under- or fully built relative to its allowed zoning utilisation?".
  *
- * While `parcelDataService` is in flight we render a Skeleton stand-in so
- * the panel slot doesn't collapse and the layout stays stable.
+ * Deliberately nothing else. The identity block (address, municipality, EGRID,
+ * Lat/Lng, aerial thumbnail) is now the panel-level `ParcelPanelHeader` shared
+ * by every tab, and the three heavyweights this file used to carry — city
+ * market figures, the 3D massing simulator and the for-sale comparables — are
+ * their own level-1 tabs. What is left is a short, scannable column instead of
+ * a 600-line scroll that buried its own headline numbers.
  */
 const ZoneInfoPanel = ({
   parcelData,
   isLoading,
   error,
-  focusedParcel = null,
-  geometry = null,
-  queryNearbyParcels,
-  onJumpTo,
-  darkMode = true,
   actionsSlot,
+  darkMode = true,
 }: ZoneInfoPanelProps) => {
-  const { t, locale } = useI18n();
-
-  // ── Nearby comparables ──────────────────────────────────────────────────
-  const [comparables, setComparables] = useState<Comparable[]>([]);
-  const [compsLoading, setCompsLoading] = useState(false);
-
-  // The selected parcel's raw tile props carry is_sell / estimated_price_m2 /
-  // parcel_area / cz_local; lng/lat are the click-derived centroid coords.
-  const parcelProps = focusedParcel?.props ?? null;
-  const lng = focusedParcel?.lng ?? null;
-  const lat = focusedParcel?.lat ?? null;
-  const refPriceM2 = (() => {
-    const v = (parcelProps?.estimated_price_m2 ?? parcelProps?.price_m2);
-    if (v == null) return null;
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
-  })();
-
-  useEffect(() => {
-    if (!queryNearbyParcels || lat == null || lng == null || !Number.isFinite(lat) || !Number.isFinite(lng)) { setComparables([]); setCompsLoading(false); return; }
-    let cancelled = false; let timer: ReturnType<typeof setTimeout> | null = null;
-    setCompsLoading(true); setComparables([]);
-    const refProps = { ...(parcelProps ?? {}) };
-    const tryQuery = (attempt = 0): void => {
-      if (cancelled) return;
-      const radii = [0.006, 0.012, 0.025];
-      const pool = queryNearbyParcels(lng, lat, radii[Math.min(attempt, radii.length - 1)], 80);
-      const ranked = rankComparables({ ref: { lng, lat, properties: refProps }, pool, limit: 5, onlyForSale: true });
-      if (ranked.length > 0 || attempt >= 4) { setComparables(ranked); setCompsLoading(false); }
-      else { timer = setTimeout(() => tryQuery(attempt + 1), 400); }
-    };
-    tryQuery();
-    return () => { cancelled = true; if (timer) clearTimeout(timer); };
-  }, [lng, lat, parcelProps, queryNearbyParcels]);
-
-  // ── Suite-standard parcel identity ─────────────────────────────────────
-  // The address is the header title; the municipality is the muted subtitle
-  // (room's payload has no zip/postal, so the subtitle is the city fragment
-  // alone when available). The EGRID prefers the federal id, falling back to
-  // the parcel id, then the focused parcel's id — rendered in the wrapping
-  // identifier-pill row under the title (suite data-card standard R2) alongside
-  // a copyable Lat/Lng chip. While the address is still loading we pass the
-  // click-derived lng/lat as the title so the header isn't empty.
-  const headerAddress = parcelData?.address
-    ? parcelData.address
-    : !isLoading && focusedParcel
-      ? formatLngLat(focusedParcel.lng, focusedParcel.lat)
-      : null;
-  const headerEgrid =
-    parcelData?.egrid ?? parcelData?.parcel_id ?? focusedParcel?.parcelId ?? null;
-  const showThumb =
-    !!focusedParcel &&
-    Number.isFinite(focusedParcel.lng) &&
-    Number.isFinite(focusedParcel.lat);
+  const { t } = useI18n();
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col w-full">
-      {(parcelData?.address || isLoading || focusedParcel) && (
-        isLoading && !parcelData?.address ? (
-          <div className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
-            <Skeleton dark={darkMode} width={180} height={10} radius={4} />
-          </div>
-        ) : (
-          <div className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
-            <ParcelIdentityHeader
-              address={headerAddress}
-              subtitle={parcelData?.municipality_name ?? null}
-              dark={darkMode}
-              labels={{ fallbackTitle: t('panel.info.header_fallback') }}
-            >
-              {showThumb && (
-                <ParcelAerialThumbnail
-                  lng={focusedParcel!.lng}
-                  lat={focusedParcel!.lat}
-                  areaM2={Number(parcelData?.parcel_area) || null}
-                  dark={darkMode}
-                  labels={{
-                    imageAlt: t('panel.info.satellite_alt'),
-                    expand: t('panel.info.satellite_expand'),
-                    dialogAria: t('panel.info.satellite_aria'),
-                    close: t('panel.info.close'),
-                  }}
-                />
-              )}
-            </ParcelIdentityHeader>
-            {/* Copyable identifier chips (suite data-card standard R2): EGRID
-                and the click-derived WGS84 coordinates. A content-sized flex
-                row, NOT a rigid 50/50 grid — a half-width chip on a phone left
-                ~65px for a 6-decimal coordinate that needs ~126px, so the value
-                shredded across three or four lines. Each chip now refuses to
-                shrink below its own content, so when the two cannot share a
-                line `flex-wrap` gives each its own full-width row and BOTH
-                values stay on exactly one line. Wide panels (>=480px) still put
-                them side by side, `flex-1 basis-0` sharing the slack, which
-                reproduces the old grid look. A lone chip fills the row on its
-                own (no col-span escape hatch needed). */}
-            {(headerEgrid || (lng != null && lat != null)) && (
-              <div className="mt-2.5 flex flex-wrap gap-2">
-                {headerEgrid && (
-                  <IdentifierChip
-                    label="EGRID"
-                    value={headerEgrid}
-                    copyLabel={t('panel.info.egrid_copy')}
-                    copiedLabel={t('panel.info.egrid_copied')}
-                  />
-                )}
-                {lng != null && lat != null && (
-                  <IdentifierChip
-                    label={t('panel.info.latlng_label')}
-                    value={`${lat.toFixed(6)}, ${lng.toFixed(6)}`}
-                    copyLabel={t('panel.info.latlng_copy')}
-                    copiedLabel={t('panel.info.egrid_copied')}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-        )
-      )}
+    <PanelScroll actionsSlot={!isLoading && !error && parcelData ? actionsSlot : undefined}>
+      {isLoading && <ZoneInfoSkeleton darkMode={darkMode} />}
 
-      <div className="flex-1 overflow-y-auto">
-        {isLoading && <ZoneInfoSkeleton darkMode={darkMode} />}
+      {!isLoading && error && <PanelError title={t('panel.info.failed_to_load')} detail={error} />}
 
-        {!isLoading && error && (
-          <div className="m-4 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-            <div className="flex items-start gap-2.5">
-              <AlertCircle size={14} className="text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-xs font-medium text-red-500 dark:text-red-400">
-                  {t('panel.info.failed_to_load')}
-                </p>
-                <p className="text-[11px] text-red-500/70 dark:text-red-400/60 mt-1 leading-relaxed">{error}</p>
-              </div>
-            </div>
-          </div>
-        )}
+      {!isLoading && !error && parcelData && (
+        <>
+          <Section
+            icon={<MapPin size={12} className="text-red-500/80 dark:text-red-400/80" />}
+            title={t('panel.info.section.location')}
+          >
+            <Row label={t('panel.info.row.municipality')} value={parcelData.municipality_name} />
+            <Row label={t('panel.info.row.fso')} value={parcelData.fso} mono />
+            {/* EGRID + Lat/Lng live in the panel header as copyable chips. */}
+          </Section>
 
-        {!isLoading && !error && parcelData && (
-          <div className="p-4 space-y-4">
-            <Section icon={<MapPin size={12} className="text-red-500/80 dark:text-red-400/80" />} title={t('panel.info.section.location')}>
-              <Row label={t('panel.info.row.municipality')} value={parcelData.municipality_name} />
-              <Row label={t('panel.info.row.fso')} value={parcelData.fso} mono />
-              {/* EGRID now lives in the header as a copyable chip (ParcelIdentityHeader). */}
-            </Section>
-
-            <Section icon={<Layers size={12} className="text-amber-500/80 dark:text-amber-400/80" />} title={t('panel.info.section.zoning')}>
-              <Row label={t('panel.info.row.cz_local')} value={parcelData.cz_local} mono />
-              <Row label={t('panel.info.row.cz_canton')} value={parcelData.cz_canton} mono />
-              <Row
-                label={t('panel.info.row.allowed_util')}
-                value={parcelData.cz_util_now != null ? `${fmt(parcelData.cz_util_now)} m³` : null}
-              />
-            </Section>
-
-            <Section icon={<Building2 size={12} className="text-teal-500/80 dark:text-teal-400/80" />} title={t('panel.info.section.built')}>
-              <Row
-                label={t('panel.info.row.parcel_area')}
-                value={parcelData.parcel_area != null ? `${fmt(parcelData.parcel_area)} m²` : null}
-              />
-              <Row
-                label={t('panel.info.row.built_volume')}
-                value={parcelData.built_volume != null ? `${fmt(parcelData.built_volume)} m³` : null}
-              />
-              <Row label={t('panel.info.row.gfz')} value={parcelData.gfz != null ? parcelData.gfz.toFixed(2) : null} />
-              <Row
-                label={t('panel.info.row.height')}
-                value={parcelData.bldg_height_m != null ? `${parcelData.bldg_height_m.toFixed(1)} m` : null}
-              />
-              <Row
-                label={t('panel.info.row.floors')}
-                value={parcelData.bldg_floors_n != null ? String(parcelData.bldg_floors_n) : null}
-              />
-            </Section>
-
-            <Section icon={<Calendar size={12} className="text-sky-500/80 dark:text-sky-400/80" />} title={t('panel.info.section.age')}>
-              <Row
-                label={t('panel.info.row.year_built')}
-                value={parcelData.bldg_constr_year != null ? String(parcelData.bldg_constr_year) : null}
-              />
-            </Section>
-
-            {/* City-level market figures (RealAdvisor rent + buy, apartments +
-                houses) for the municipality this parcel sits in. Self-fetches
-                from /api/city-market off the parcel's BFS + municipality name;
-                hides itself when there's no data. */}
-            <MarketDataSection
-              bfs={parcelData.fso}
-              cityName={parcelData.municipality_name}
-              darkMode={darkMode}
+          <Section
+            icon={<Layers size={12} className="text-amber-500/80 dark:text-amber-400/80" />}
+            title={t('panel.info.section.zoning')}
+          >
+            <Row label={t('panel.info.row.cz_local')} value={parcelData.cz_local} mono />
+            <Row label={t('panel.info.row.cz_canton')} value={parcelData.cz_canton} mono />
+            <Row
+              label={t('panel.info.row.allowed_util')}
+              value={parcelData.cz_util_now != null ? `${fmt(parcelData.cz_util_now)} m³` : null}
             />
+          </Section>
 
-            {/* The two ratio fields are the headline — give them a prominent
-                bar each so the user can read "this parcel is X% utilised /
-                Y m³ headroom" without parsing a table. */}
-            <RatioCard
-              label={t('panel.info.ratio_v.label')}
-              ratio={parcelData.ratio_v}
-              hint={
-                parcelData.ratio_v == null
-                  ? t('panel.info.ratio_v.no_reference')
-                  : undefined
+          <Section
+            icon={<Building2 size={12} className="text-teal-500/80 dark:text-teal-400/80" />}
+            title={t('panel.info.section.built')}
+          >
+            <Row
+              label={t('panel.info.row.parcel_area')}
+              value={parcelData.parcel_area != null ? `${fmt(parcelData.parcel_area)} m²` : null}
+            />
+            <Row
+              label={t('panel.info.row.built_volume')}
+              value={parcelData.built_volume != null ? `${fmt(parcelData.built_volume)} m³` : null}
+            />
+            <Row
+              label={t('panel.info.row.gfz')}
+              value={parcelData.gfz != null ? parcelData.gfz.toFixed(2) : null}
+            />
+            <Row
+              label={t('panel.info.row.height')}
+              value={
+                parcelData.bldg_height_m != null ? `${parcelData.bldg_height_m.toFixed(1)} m` : null
               }
             />
-            <FreeVolumeCard freeV={parcelData.free_v} />
-            <RatioCard
-              label={t('panel.info.ratio_s.label')}
-              ratio={parcelData.ratio_s}
+            <Row
+              label={t('panel.info.row.floors')}
+              value={parcelData.bldg_floors_n != null ? String(parcelData.bldg_floors_n) : null}
             />
-          </div>
-        )}
+          </Section>
 
-        {/* 3D buildable-massing simulator. Self-contained: ships its own i18n,
-            fetches RES spare_space directly, and renders NOTHING when there is
-            no polygon geometry and no spare_space candidate — so it's safe to
-            always mount. Hybrid: real spare_space when matched, else a lite
-            volume estimated from the clicked parcel ring + area. */}
-        {(geometry || (lng != null && lat != null)) && (
-          <BuildableMassingSection
-            dark={darkMode}
-            locale={locale}
-            geometry={geometry}
-            areaM2={Number(parcelData?.parcel_area) || null}
-            egrid={headerEgrid ?? undefined}
-            lngLat={lng != null && lat != null ? [lng, lat] : undefined}
-            className="px-4 pb-4 border-t border-gray-200 dark:border-slate-700/60"
-          />
-        )}
-
-        {queryNearbyParcels && onJumpTo && (
-          <section className="px-4 py-3 border-t border-gray-200 dark:border-slate-700/60">
-            <p className="mb-2 text-[10px] font-semibold uppercase text-gray-400 dark:text-gray-400">
-              {COMPS_HEADING[locale] ?? COMPS_HEADING.en}
-            </p>
-            <ComparablesPanel
-              refPriceM2={refPriceM2}
-              comparables={comparables}
-              loading={compsLoading}
-              darkMode={darkMode}
-              onJumpTo={onJumpTo}
-              locale={locale}
-            />
-          </section>
-        )}
-
-        <ParcelFaq />
-
-        {/* Primary-actions row (Ask Claire + "Open in") — the LAST section of
-            the scroll flow per the revised data-card standard. The scroller has
-            no horizontal padding, so the slot's own border-t runs full-bleed;
-            mt-2 tops up ParcelFaq's pb-3 to the suite-standard breathing room. */}
-        {actionsSlot && <div className="mt-2">{actionsSlot}</div>}
-      </div>
-    </div>
-  );
-};
-
-/**
- * One copyable identifier chip for the pill row under the header — label
- * eyebrow, monospace value, and a click-to-copy button (suite data-card
- * standard chip markup, R2/R4). The chip never shrinks below its own content
- * (`min-w-[min(fit-content,100%)]`, capped so a pathological id ellipsizes
- * instead of forcing horizontal overflow) and `flex-1 basis-0` shares the slack
- * when both chips fit one line — a lone chip therefore fills the row by itself.
- */
-const IdentifierChip = ({
-  label,
-  value,
-  copyLabel,
-  copiedLabel,
-}: {
-  label: string;
-  value: string;
-  copyLabel: string;
-  copiedLabel: string;
-}) => {
-  const [copied, setCopied] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(
-    () => () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    },
-    [],
-  );
-
-  const handleCopy = () => {
-    void navigator.clipboard
-      ?.writeText(value)
-      .then(() => {
-        setCopied(true);
-        if (timerRef.current) clearTimeout(timerRef.current);
-        timerRef.current = setTimeout(() => setCopied(false), 1800);
-      })
-      .catch(() => {
-        /* clipboard blocked — no-op */
-      });
-  };
-
-  return (
-    <div className="flex min-w-[min(fit-content,100%)] max-w-full flex-1 basis-0 items-center gap-2 rounded-md px-2.5 py-1.5 bg-white text-slate-700 ring-1 ring-slate-200 dark:bg-black/25 dark:text-slate-300 dark:ring-0">
-      <span className="flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-        {label}
-      </span>
-      <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[11px] font-semibold leading-tight">{value}</span>
-      <button
-        type="button"
-        onClick={handleCopy}
-        title={copied ? copiedLabel : copyLabel}
-        aria-label={copied ? copiedLabel : copyLabel}
-        className={`relative inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md transition-colors before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] ${
-          copied
-            ? 'text-emerald-600 dark:text-emerald-300'
-            : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-slate-200'
-        }`}
-      >
-        {copied ? <Check size={13} /> : <Copy size={13} />}
-        {/* A focused button changing its own accessible name is not re-announced,
-            so the confirmation goes through a dedicated live region. */}
-        <span className="sr-only" role="status" aria-live="polite">
-          {copied ? copiedLabel : ''}
-        </span>
-      </button>
-    </div>
-  );
-};
-
-/**
- * Compact "Frequently asked questions" disclosure pinned to the bottom of the
- * parcel-facts pane. Native <details>/<summary> — keyboard- and screenreader-
- * accessible with zero deps — styled to match the panel's Section cards. The
- * Q&A text is mirrored byte-for-byte (EN) into the FAQPage JSON-LD in
- * index.html so the visible content backs the structured data. The third
- * question is the binding-utilisation disclaimer, surfaced exactly where the
- * user reads the ratioV / freeV figures.
- */
-const ParcelFaq = () => {
-  const { t } = useI18n();
-  const qas: Array<{ q: string; a: string }> = [
-    { q: t('faq.q1'), a: t('faq.a1') },
-    { q: t('faq.q2'), a: t('faq.a2') },
-    { q: t('faq.q3'), a: t('faq.a3') },
-  ];
-  return (
-    <section className="px-4 py-3 border-t border-gray-200 dark:border-gray-800/50">
-      <div className="flex items-center gap-1.5 mb-2">
-        <HelpCircle size={12} className="text-gray-400 dark:text-gray-500" />
-        <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-          {t('faq.title')}
-        </span>
-      </div>
-      <div className="space-y-1.5">
-        {qas.map(({ q, a }) => (
-          <details
-            key={q}
-            className="group bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg overflow-hidden"
+          <Section
+            icon={<Calendar size={12} className="text-sky-500/80 dark:text-sky-400/80" />}
+            title={t('panel.info.section.age')}
           >
-            <summary className="flex items-center justify-between gap-2 cursor-pointer list-none px-3 py-2 text-[11px] font-medium text-gray-700 dark:text-gray-200 select-none hover:bg-gray-200/50 dark:hover:bg-gray-800/40 transition-colors">
-              <span>{q}</span>
-              <ChevronDown
-                size={13}
-                className="flex-shrink-0 text-gray-400 dark:text-gray-500 transition-transform group-open:rotate-180"
-              />
-            </summary>
-            <p className="px-3 pb-2.5 pt-0.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
-              {a}
-            </p>
-          </details>
-        ))}
-      </div>
-    </section>
+            <Row
+              label={t('panel.info.row.year_built')}
+              value={parcelData.bldg_constr_year != null ? String(parcelData.bldg_constr_year) : null}
+            />
+          </Section>
+
+          {/* The two ratio fields are the headline — give them a prominent bar
+              each so the user can read "this parcel is X% utilised / Y m³
+              headroom" without parsing a table. */}
+          <RatioCard
+            label={t('panel.info.ratio_v.label')}
+            ratio={parcelData.ratio_v}
+            hint={parcelData.ratio_v == null ? t('panel.info.ratio_v.no_reference') : undefined}
+          />
+          <FreeVolumeCard freeV={parcelData.free_v} />
+          <RatioCard label={t('panel.info.ratio_s.label')} ratio={parcelData.ratio_s} />
+        </>
+      )}
+    </PanelScroll>
   );
 };
 
 const ZoneInfoSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
-  <div className="p-4 space-y-4">
+  <>
     {[0, 1, 2, 3].map((i) => (
       <div
         key={i}
@@ -476,27 +150,7 @@ const ZoneInfoSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
         ))}
       </div>
     ))}
-  </div>
-);
-
-const Section = ({
-  icon,
-  title,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-}) => (
-  <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
-    <div className="flex items-center gap-1.5 mb-2">
-      {icon}
-      <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-        {title}
-      </span>
-    </div>
-    <div className="space-y-1.5">{children}</div>
-  </div>
+  </>
 );
 
 const Row = ({
@@ -546,7 +200,9 @@ const RatioCard = ({
         <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
           {label}
         </p>
-        <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">{hint ?? t('panel.info.no_data_for_parcel')}</p>
+        <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+          {hint ?? t('panel.info.no_data_for_parcel')}
+        </p>
       </div>
     );
   }
@@ -565,8 +221,7 @@ const RatioCard = ({
             over ? 'text-red-500 dark:text-red-400' : 'text-gray-800 dark:text-gray-200'
           }`}
         >
-          {Math.round(ratio)}%
-          {over && ' ↑'}
+          {Math.round(ratio)}%{over && ' ↑'}
         </p>
       </div>
       <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
@@ -587,7 +242,9 @@ const FreeVolumeCard = ({ freeV }: { freeV: number | null }) => {
         <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
           {t('panel.info.free_v.label')}
         </p>
-        <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">{t('panel.info.no_data_for_parcel')}</p>
+        <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+          {t('panel.info.no_data_for_parcel')}
+        </p>
       </div>
     );
   }
@@ -616,11 +273,6 @@ const FreeVolumeCard = ({ freeV }: { freeV: number | null }) => {
 
 function fmt(n: number): string {
   return Math.abs(n) >= 1000 ? n.toLocaleString('en-CH', { maximumFractionDigits: 0 }) : n.toFixed(1);
-}
-
-/** Fallback header label when RES hasn't returned an address yet. */
-function formatLngLat(lng: number, lat: number): string {
-  return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 }
 
 export default ZoneInfoPanel;

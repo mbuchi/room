@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { AlertCircle } from 'lucide-react';
 import { Skeleton } from '@aireon/shared';
+import { PanelError } from './PanelKit';
 import { useI18n } from '../contexts/I18nContext';
 import {
   fetchZoneStats,
@@ -55,14 +55,20 @@ const METRICS: MetricSpec[] = [
   { key: 'bldg_floors_n', titleKey: 'panel.zone.metric.bldg_floors.title' },
 ];
 
-type Tab = 'distributions' | 'scatter';
-
 /**
- * Scrollable host that composes every zone-distribution chart room ships
- * (gauge, boxplot+density, six histograms, time-cohort line) plus the
- * area-vs-volume scatter in a separate tab. It owns the zone-stats fetch
- * lifecycle and the dropdown that switches zones without re-fetching the
- * parcel itself — the map's feature-state repaints off the new payload.
+ * "Zone" tab — every zone-distribution chart room ships, in ONE scroll:
+ * percentile gauge, boxplot + density, six metric histograms, the utilisation
+ * time-cohort line, and the parcel-area-vs-built-volume scatter.
+ *
+ * The scatter used to hide behind a second layer of tabs ("Distributions" /
+ * "Area vs. volume") nested inside what was already a tab. Two levels of tabs
+ * in a 460px rail meant the scatter was effectively undiscoverable, and the
+ * inner tab state reset on every zone switch. It is now simply the last chart
+ * in the flow: same charts, one scrollbar, no hidden state.
+ *
+ * This component also owns the zone-stats fetch lifecycle and the dropdown that
+ * switches zones without re-fetching the parcel itself — the map's
+ * feature-state repaints off the new payload.
  */
 const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode = true, actionsSlot }: ZonePanelProps) => {
   const { locale, t } = useI18n();
@@ -70,7 +76,6 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
   const [stats, setStats] = useState<ZoneStatsResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>('distributions');
 
   // Reset state when the selected parcel changes (or unmounts).
   useEffect(() => {
@@ -169,57 +174,26 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
 
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40 space-y-2.5">
-        {stats?.zone.municipality_name && (
-          <p className="text-[11px] text-gray-400 dark:text-gray-500">
-            {stats.zone.municipality_name} · {t('panel.zone.parcels_suffix', { count: stats.zone.parcel_count })}
-          </p>
-        )}
-        {(stats || activeCzLocal) && (
+      {/* Zone picker sub-header — the dropdown alone. The municipality moved to
+          the panel header's subtitle and the parcel count is already printed
+          inside the dropdown itself, so neither is repeated here. */}
+      {(stats || activeCzLocal) && (
+        <div className="flex-shrink-0 px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
           <ZoneSelectorDropdown
             currentCzLocal={activeCzLocal ?? ''}
             otherZones={dropdownZones}
             onChange={handleZoneChange}
             isLoading={loading}
           />
-        )}
-        {stats && (
-          <div className="flex items-center gap-1 rounded-md bg-gray-100/80 dark:bg-gray-900/80 border border-gray-200 dark:border-gray-800/60 p-0.5">
-            {(['distributions', 'scatter'] as Tab[]).map((tabId) => (
-              <button
-                key={tabId}
-                onClick={() => setTab(tabId)}
-                className={`flex-1 px-3 py-1 text-[11px] font-medium rounded transition-colors ${
-                  tab === tabId
-                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm'
-                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
-                }`}
-              >
-                {tabId === 'distributions' ? t('panel.zone.tab.distributions') : t('panel.zone.tab.scatter')}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
         {loading && !stats && <ChartsSkeleton darkMode={darkMode} />}
 
-        {error && !loading && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-            <div className="flex items-start gap-2.5">
-              <AlertCircle size={14} className="text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-xs font-medium text-red-500 dark:text-red-400">
-                  {t('panel.zone.error_title')}
-                </p>
-                <p className="text-[11px] text-red-500/70 dark:text-red-400/60 mt-1 leading-relaxed">{error}</p>
-              </div>
-            </div>
-          </div>
-        )}
+        {error && !loading && <PanelError title={t('panel.zone.error_title')} detail={error} />}
 
-        {stats && tab === 'distributions' && (
+        {stats && (
           <>
             <PercentileGauge percentile={percentile} darkMode={darkMode} />
             <BoxplotDensity
@@ -242,22 +216,20 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
               ))}
             </div>
             <UtilizationOverTime ageCohorts={stats.age_cohorts} darkMode={darkMode} />
+            {/* Formerly the "Area vs. volume" inner tab — now just the last
+                chart in the same scroll. */}
+            <VolumeVsAreaScatter
+              parcels={stats.parcels}
+              selectedEgrid={parcelData?.egrid ?? null}
+              darkMode={darkMode}
+            />
           </>
         )}
 
-        {stats && tab === 'scatter' && (
-          <VolumeVsAreaScatter
-            parcels={stats.parcels}
-            selectedEgrid={parcelData?.egrid ?? null}
-            darkMode={darkMode}
-          />
-        )}
-
-        {/* Primary-actions row (Ask Claire + "Open in") — the LAST section of
-            the scroll flow per the revised data-card standard. The negative
-            margins bleed the slot's border-t across the scroller's p-3 padding
-            (the slot re-applies its own inner padding); space-y-3 supplies the
-            top gap. */}
+        {/* Primary-actions row — the LAST section of the scroll flow per the
+            suite data-card standard. The negative margins bleed the slot's
+            border-t across the scroller's p-3 padding (the slot re-applies its
+            own inner padding); space-y-3 supplies the top gap. */}
         {actionsSlot && <div className="-mx-3 -mb-3">{actionsSlot}</div>}
       </div>
     </div>

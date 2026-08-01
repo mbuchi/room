@@ -32,6 +32,18 @@ import ZoneInfoPanel from './ZoneInfoPanel';
 // loading skeletons while zone stats fetch, so the brief Suspense gap blends
 // into the existing loading state).
 const ZonePanel = lazy(() => import('./ZonePanel'));
+// Lazy for a different reason than ZonePanel: `BuildableMassingSection` itself
+// rides in the shared barrel chunk that MapView already loads, so this split
+// saves no bytes. What it defers is the WORK — mounting the massing section
+// spins up a second MapLibre instance and issues its own RES spare_space
+// lookup, and until now that happened on every single parcel selection because
+// the section sat at the bottom of the parcel-facts scroll. Now it happens only
+// when someone opens the tab.
+const MassingPanel = lazy(() => import('./MassingPanel'));
+import ParcelPanelHeader from './ParcelPanelHeader';
+import MarketPanel from './MarketPanel';
+import ComparePanel from './ComparePanel';
+import FaqPanel from './FaqPanel';
 import PrimaryActionsRow from './PrimaryActionsRow';
 import TrackParcelButton from './TrackParcelButton';
 import {
@@ -42,6 +54,7 @@ import {
   MapControlDock,
   MapLegendChip,
   MapUnavailable,
+  fetchIsAdmin,
   isWebGLAvailable,
   PANEL_TOUCH_TARGET,
   SegmentedTabs,
@@ -179,13 +192,42 @@ function firstRingFromGeometry(geometry: ParcelFeatureGeometry): LngLatRing | nu
   return null;
 }
 
-// Combined panel width — ZoneInfoPanel + ZonePanel stack vertically inside
-// a single right-side column. Tuned to fit the 2-column histogram grid
-// comfortably without dominating the map. The controls offset themselves by
-// PANEL_OFFSET_PX whenever a parcel is selected so the panel never covers
+// Width of the right-side parcel pane. Tuned to fit the 2-column histogram
+// grid comfortably without dominating the map. The controls offset themselves
+// by PANEL_OFFSET_PX whenever a parcel is selected so the panel never covers
 // the layer/zoom buttons on md+ screens.
 const PANEL_WIDTH_PX = 460;
 const PANEL_OFFSET_PX = PANEL_WIDTH_PX + 16;
+
+/**
+ * The right pane's tab set — deliberately ONE flat level.
+ *
+ * room used to ship two tabs ("Zone distribution" / "Parcel facts") with a
+ * second layer of tabs nested inside the first, while the parcel tab also
+ * carried the market figures, the 3D massing simulator and the for-sale
+ * comparables stacked below its own content. Everything past the ratio cards
+ * was, in practice, invisible.
+ *
+ * Now each subject is one top-level tab with a one-word label, in reading
+ * order: where the parcel sits in its zone, what the parcel is, what the local
+ * market looks like, what could still be built, and what the app can answer.
+ * 'compare' is appended only for admins (see ComparePanel).
+ *
+ * Labels are single words on purpose: at 460px the segmented control gives each
+ * tab ~73px, and on a phone ~58px. Anything longer truncates.
+ */
+const PANEL_TAB_IDS = ['zone', 'parcel', 'market', 'massing', 'faq', 'compare'] as const;
+type PanelTab = (typeof PANEL_TAB_IDS)[number];
+
+/** i18n key per tab — kept beside the ids so a new tab can't ship unlabelled. */
+const PANEL_TAB_LABEL_KEYS: Record<PanelTab, string> = {
+  zone: 'panel.tabs.zone',
+  parcel: 'panel.tabs.parcel',
+  market: 'panel.tabs.market',
+  massing: 'panel.tabs.massing',
+  faq: 'panel.tabs.faq',
+  compare: 'panel.tabs.compare',
+};
 
 // Initial theme: room keeps its signature dark look by default and only flips
 // to light when the user has stored that choice. getStoredTheme reads the
@@ -250,11 +292,14 @@ const MapView = () => {
   const [parcelData, setParcelData] = useState<ParcelData | null>(null);
   const [parcelDataLoading, setParcelDataLoading] = useState(false);
   const [parcelDataError, setParcelDataError] = useState<string | null>(null);
-  // Which tab is visible in the right-side info pane. Charts ('zone') are
-  // the default since they're the main thing users come to room for; the
-  // 'facts' tab is the per-parcel reference. Resets to 'zone' on each
-  // new parcel selection so the user always lands on the headline view.
-  const [panelTab, setPanelTab] = useState<'zone' | 'facts'>('zone');
+  // Which tab is visible in the right-side info pane. 'zone' is the default
+  // since the distribution charts are the main thing users come to room for;
+  // resets to 'zone' on each new parcel selection so the user always lands on
+  // the headline view. See PANEL_TABS below for the full flat set.
+  const [panelTab, setPanelTab] = useState<PanelTab>('zone');
+  // 'compare' is admin-only — see ComparePanel for why. Resolved once per
+  // session; a signed-out or non-admin user simply never sees the tab.
+  const [isAdmin, setIsAdmin] = useState(false);
   // Developer "raw JSON" view: when on, the tab content is replaced by a
   // scrollable dump of the clicked parcel's structured data (RES parcelData +
   // the raw tile feature props). Reset whenever the panel closes.
@@ -279,6 +324,34 @@ const MapView = () => {
    * percentile breakpoints once /zone_stats lands. `null` = nothing selected.
    */
   const [activeZone, setActiveZone] = useState<ActiveZone | null>(null);
+
+  // Resolve the admin flag once per sign-in state. It only gates the optional
+  // 'compare' tab, so a failed probe simply means "not an admin" — never a
+  // blocked render, never a retry loop. Signed-out users skip the call.
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setIsAdmin(false);
+      return;
+    }
+    let cancelled = false;
+    fetchIsAdmin()
+      .then((admin) => {
+        if (!cancelled) setIsAdmin(admin);
+      })
+      .catch(() => {
+        if (!cancelled) setIsAdmin(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
+  // If the admin flag flips off (sign-out) while the admin-only tab is open,
+  // fall back to the default tab rather than rendering a tab that no longer
+  // has a switcher entry.
+  useEffect(() => {
+    if (!isAdmin) setPanelTab((tab) => (tab === 'compare' ? 'zone' : tab));
+  }, [isAdmin]);
 
   const selectedParcelRef = useRef<SelectedParcel | null>(null);
   selectedParcelRef.current = selectedParcel;
@@ -969,13 +1042,22 @@ const MapView = () => {
      point, so onAskClaire is undefined and the row renders nothing. The
      cross-app "Open in" drop-up was removed suite-wide — the navbar "Open
      with" menu is the single launch point. Per the suite standard the row is
-     NOT pinned below the scroll area: both tabs render it as the LAST section
-     of their scrollable content (actionsSlot). The raw-JSON view omits it. */
+     NOT pinned below the scroll area: every tab renders it as the LAST section
+     of its scrollable content (actionsSlot). The raw-JSON view omits it.
+
+     The FAQ tab is the one exception: it leads with its own Ask Claire card, so
+     it passes no actions slot at all rather than repeat the same button one
+     scroll below. */
   const panelActionsRow = (
     <PrimaryActionsRow
       focusedParcel={focusedHandle}
       onAskClaire={isMobile ? () => setClaireOpen(true) : undefined}
     />
+  );
+
+  /* Tab switcher entries — 'compare' only exists for admins. */
+  const visibleTabIds: PanelTab[] = PANEL_TAB_IDS.filter(
+    (id) => id !== 'compare' || isAdmin,
   );
 
   /* ── WebGL-unavailable fallback ────────────────────────────────────────────
@@ -1270,53 +1352,83 @@ const MapView = () => {
             <span className="h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-700 group-hover:bg-gray-400 dark:group-hover:bg-gray-600 group-active:bg-gray-500 transition-colors" />
           </button>
 
-          <div className="flex items-stretch border-b border-gray-200 dark:border-gray-800/60 flex-shrink-0 px-3 py-2 gap-2">
-            {/* Tour anchor for the "charts" step: the tab switcher that opens the
-                Zone distribution charts (the chart content itself mounts only on
-                its tab, so it can't carry a reliable anchor). Keep ONE value per
-                data-tour — the panel root carries "zone-info-panel". */}
-            <div className="flex-1" data-tour="zone-charts">
-              <SegmentedTabs<'zone' | 'facts'>
-                tabs={[
-                  { id: 'zone', label: t('panel.tabs.zone_distribution') },
-                  { id: 'facts', label: t('panel.tabs.parcel_facts') },
-                ]}
-                value={panelTab}
-                onChange={setPanelTab}
-                ariaLabel={t('panel.tabs.zone_distribution')}
-                dark={isDarkMode}
-                size="sm"
-                activeTone="accent"
-              />
-            </div>
-            {(parcelData || selectedParcel) && (
-              <button
-                type="button"
-                onClick={() => setShowRaw((v) => !v)}
-                aria-pressed={showRaw}
-                title={t('panel.info.toggle_raw_json')}
-                aria-label={t('panel.info.toggle_raw_json')}
-                // 44x44 touch floor as HIT AREA, not box size (data-card header
-                // standard R1): the visible chip stays 32x32 and an invisible
-                // centred pseudo-element carries the target, so the header row
-                // never inflates and steals width from the tab switcher.
-                className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${PANEL_TOUCH_TARGET} ${
-                  showRaw
-                    ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
-                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Braces size={16} />
-              </button>
-            )}
-            <TrackParcelButton
-              focusedParcel={focusedHandle}
-              parcelData={parcelData}
-            />
-            <CloseButton
-              onClick={handleCloseInfoPanel}
-              label={t('panel.info.close')}
-              className={PANEL_TOUCH_TARGET}
+          {/* ── Panel header ──────────────────────────────────────────────
+              ONE identity block for every tab: address, municipality, aerial
+              thumbnail and the two copyable identifier chips (EGRID, Lat/Lng),
+              with the raw-JSON toggle, the Track toggle and the close button on
+              its trailing edge. It used to live inside the parcel-facts tab,
+              which meant the other tabs lost the "which parcel is this?"
+              context and the tab strip had to share a row with the close
+              button. Two icon actions beside close — exactly the ceiling
+              data-card header standard R3 sets below ~480px, so nothing else
+              may be added to this row without removing something first. */}
+          <ParcelPanelHeader
+            parcelData={parcelData}
+            isLoading={parcelDataLoading}
+            focusedParcel={focusedHandle}
+            darkMode={isDarkMode}
+            actions={
+              <>
+                {(parcelData || selectedParcel) && (
+                  <button
+                    type="button"
+                    onClick={() => setShowRaw((v) => !v)}
+                    aria-pressed={showRaw}
+                    title={t('panel.info.toggle_raw_json')}
+                    aria-label={t('panel.info.toggle_raw_json')}
+                    // 44x44 touch floor as HIT AREA, not box size (data-card
+                    // header standard R1): the visible chip stays 32x32 and an
+                    // invisible centred pseudo-element carries the target, so
+                    // the header row never inflates.
+                    className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${PANEL_TOUCH_TARGET} ${
+                      showRaw
+                        ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
+                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <Braces size={16} />
+                  </button>
+                )}
+                <TrackParcelButton focusedParcel={focusedHandle} parcelData={parcelData} />
+                <CloseButton
+                  onClick={handleCloseInfoPanel}
+                  label={t('panel.info.close')}
+                  className={PANEL_TOUCH_TARGET}
+                />
+              </>
+            }
+          />
+
+          {/* ── Tab strip ─────────────────────────────────────────────────
+              Its own full-width row now that the close/raw-JSON buttons moved
+              into the header, which is what makes five (six for admins)
+              one-word tabs fit without truncating.
+              Tour anchor for the "charts" step — the chart content itself only
+              mounts on its own tab, so it can't carry a reliable anchor. Keep
+              ONE value per data-tour; the panel root carries "zone-info-panel". */}
+          <div
+            // `overflow-x-auto` is the locale safety net, not decoration.
+            // Measured at a 375px sheet: the five default tabs fit in every
+            // locale, but the admin sixth ("Compare") pushes the French and
+            // Italian rows past the container (IT 353px into 339px). Without a
+            // scroller that becomes horizontal page scroll, which is a standing
+            // suite defect. `min-w-full w-max` keeps the desktop look identical
+            // — the row still stretches to fill 460px and the segments still
+            // divide it evenly — and only grows past the container when the
+            // labels genuinely cannot fit. Scrollbar hidden so the pane never
+            // shows two.
+            className="flex-shrink-0 border-b border-gray-200 dark:border-gray-800/60 px-3 py-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            data-tour="zone-charts"
+          >
+            <SegmentedTabs<PanelTab>
+              tabs={visibleTabIds.map((id) => ({ id, label: t(PANEL_TAB_LABEL_KEYS[id]) }))}
+              value={panelTab}
+              onChange={setPanelTab}
+              ariaLabel={t('panel.tabs.aria')}
+              dark={isDarkMode}
+              size="sm"
+              activeTone="accent"
+              className="min-w-full w-max"
             />
           </div>
 
@@ -1343,18 +1455,43 @@ const MapView = () => {
                 actionsSlot={panelActionsRow}
               />
             </Suspense>
-          ) : (
+          ) : panelTab === 'parcel' ? (
             <ZoneInfoPanel
               parcelData={parcelData}
               isLoading={parcelDataLoading}
               error={parcelDataError}
+              darkMode={isDarkMode}
+              actionsSlot={panelActionsRow}
+            />
+          ) : panelTab === 'market' ? (
+            <MarketPanel
+              parcelData={parcelData}
+              darkMode={isDarkMode}
+              actionsSlot={panelActionsRow}
+            />
+          ) : panelTab === 'massing' ? (
+            <Suspense fallback={<div className="flex-1 min-h-0" aria-hidden="true" />}>
+              <MassingPanel
+                parcelData={parcelData}
+                focusedParcel={focusedHandle}
+                geometry={selectedParcel.geometry}
+                darkMode={isDarkMode}
+                actionsSlot={panelActionsRow}
+              />
+            </Suspense>
+          ) : panelTab === 'compare' ? (
+            <ComparePanel
               focusedParcel={focusedHandle}
-              geometry={selectedParcel.geometry}
               queryNearbyParcels={queryParcelsAround}
               onJumpTo={handleFlyToParcel}
               darkMode={isDarkMode}
               actionsSlot={panelActionsRow}
             />
+          ) : (
+            /* No actionsSlot: the FAQ tab's own Ask Claire card IS the row's
+               only remaining content now that "Open in" has retired, and
+               showing it twice one scroll apart reads as a bug. */
+            <FaqPanel onAskClaire={() => setClaireOpen(true)} />
           )}
 
         </div>

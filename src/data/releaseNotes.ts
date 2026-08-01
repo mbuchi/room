@@ -12,6 +12,50 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.20.0',
+    date: 'August 2, 2026',
+    codename: 'One level',
+    summary:
+      'The parcel panel is now five plain tabs instead of two tabs with more tabs inside them, and the address block carries the parcel identity for every one of them.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: PanelsTopLeft,
+        text:
+          'The panel tabs are now Zone, Parcel, Market, Massing and FAQ. Everything is one click from the top instead of buried under two levels of tabs or stacked below the parcel facts where most people never scrolled.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ScatterChart,
+        text:
+          'The Zone tab shows every chart in one scroll. The parcel-area-vs-built-volume scatter used to hide behind a second row of tabs; it is now simply the last chart, after the percentile gauge, the boxplot, the histograms and the utilization-over-time line.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text:
+          'The address, municipality, EGRID and Lat/Lng now sit in one compact block at the top of the panel and stay there whichever tab you are on, so you never lose track of which parcel you are reading.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: TrendingUp,
+        text:
+          'City market figures moved out of the parcel facts into their own Market tab, and the 3D buildable massing simulator into its own Massing tab. Massing now loads only when you open it, so selecting a parcel is lighter.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: MessageSquare,
+        text:
+          'The new FAQ tab answers what room calculates, where the zoning data comes from and whether the utilization figure is binding, and offers Ask Claire right there for anything it does not cover.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.19.16',
     date: 'August 2, 2026',
     codename: 'Track up top',
