@@ -124,3 +124,25 @@ describe('one-column basemap picker contract', () => {
     expect(css).toContain('max-height: min(55dvh, 24rem)');
   });
 });
+
+// Suite panel-actions standard R2 (aireon-shared docs/PANEL_ACTIONS_STANDARD.md):
+// the cross-app launcher lives ONLY in the navbar "Open with" menu. The panel
+// must never grow one back. Guarding by reading the source is the point — the
+// shared `openIn` prop and ParcelOpenInMenu still exist (deprecated) for apps on
+// older pins, so nothing in the type system stops a re-add.
+describe('no in-panel Open-in launcher', () => {
+  const mapView = read('components/MapView.tsx');
+  const actionsRow = read('components/PrimaryActionsRow.tsx');
+  const zonePanel = read('components/ZoneInfoPanel.tsx');
+
+  it('mounts no ParcelOpenInMenu and passes no openIn prop', () => {
+    for (const src of [mapView, actionsRow, zonePanel]) {
+      expect(src).not.toContain('ParcelOpenInMenu');
+      expect(src).not.toContain('openIn={');
+    }
+  });
+
+  it('keeps the navbar Open-with menu, which is the only launcher', () => {
+    expect(read('components/Navbar.tsx')).toContain('OpenWithMenu');
+  });
+});
