@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink,
+  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink, Share2,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -11,6 +11,21 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.20.2',
+    date: 'August 3, 2026',
+    codename: 'Clear confirmation',
+    summary: 'The confirmation that appears after you copy a share link now lets the map show through.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Share2,
+        text:
+          'Using Share this view in the account menu used to drop a solid green bar over the map. That confirmation is now translucent frosted glass, so the zone map behind it stays visible, and its wording sits in a darker, sharper tone that is easier to read at a glance.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.20.1',
     date: 'August 2, 2026',
