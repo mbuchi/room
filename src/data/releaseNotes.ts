@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.20.5',
+    date: 'August 5, 2026',
+    codename: 'Trimmed instructions',
+    summary: 'Claire runs on a revised set of internal instructions, and room moves onto the current shared Aireon libraries.',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Bot,
+        text:
+          'Claire, the assistant built into room, works from a set of internal instructions that shape how it answers questions about a parcel. Those instructions have been rewritten and trimmed so that only what Claire actually needs in your browser is sent there, and the rest stays on the server. What Claire says and how it behaves are unchanged. The same update moves room onto the current shared Aireon libraries, which carry the latest refinements to the navigation bar and the parcel panel.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.20.4',
     date: 'August 4, 2026',
     codename: 'Tools for the toolmakers',
