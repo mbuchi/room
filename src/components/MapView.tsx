@@ -1356,7 +1356,9 @@ const MapView = () => {
               ONE identity block for every tab: address, municipality, aerial
               thumbnail and the two copyable identifier chips (EGRID, Lat/Lng),
               with the raw-JSON toggle, the Track toggle and the close button on
-              its trailing edge. It used to live inside the parcel-facts tab,
+              a slim row of their own above it (panel-actions standard R4: the
+              header renders these `actions` right-aligned on row 1 so the
+              address owns row 2 at full width). It used to live inside the parcel-facts tab,
               which meant the other tabs lost the "which parcel is this?"
               context and the tab strip had to share a row with the close
               button. Two icon actions beside close — exactly the ceiling
