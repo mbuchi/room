@@ -11,7 +11,7 @@ interface ParcelPanelHeaderProps {
   /** The clicked parcel — supplies the aerial thumbnail and the lng/lat chip. */
   focusedParcel: FocusedParcelHandle | null;
   darkMode?: boolean;
-  /** Icon actions rendered on the header's trailing edge (raw-JSON, close). */
+  /** Icon actions for the header's own top row (raw-JSON, Track, close). */
   actions?: ReactNode;
 }
 
@@ -27,6 +27,10 @@ interface ParcelPanelHeaderProps {
  *     with the close/raw-JSON buttons, and
  *   - the address, the municipality and the two copyable identifiers (EGRID,
  *     Lat/Lng) read as a single block rather than two stacked ones.
+ *
+ * The block is laid out on TWO rows (panel-actions standard R4): a slim
+ * right-aligned row carrying only the action icons, then the identity block
+ * (address, municipality, aerial thumbnail) at full width, then the chips.
  *
  * The chip row keeps the suite data-card header standard verbatim (R2: a
  * content-sized `flex flex-wrap` row, never a rigid grid, so a 6-decimal
@@ -64,14 +68,27 @@ const ParcelPanelHeader = ({
 
   return (
     <div className="flex-shrink-0 px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
+      {/* Row 1 - the action cluster and nothing else, right-aligned
+          (panel-actions standard R4, shared v1.124.0). These icons used to be
+          passed into `ParcelIdentityHeader` as children, which dropped them
+          into the shared `.aireon-pih-actions` slot BESIDE the title: an
+          invisible deviation at the call site, since MapView just hands over an
+          `actions` fragment. On the narrow right-hand pane that cost the
+          address most of its width. On its own row the cluster costs the title
+          nothing, and both the loaded and the loading state now render it in
+          the same place so the header does not jump when RES resolves. */}
+      {actions && <div className="flex items-center justify-end gap-1">{actions}</div>}
       {isLoading && !parcelData?.address ? (
-        <div className="flex items-start justify-between gap-2">
+        <div className="mt-1 flex items-start gap-3">
           <Skeleton dark={darkMode} width={180} height={10} radius={4} />
-          {actions && <div className="flex items-center gap-1">{actions}</div>}
         </div>
       ) : (
         <>
+          {/* Row 2 - the identity block at full width. `.aireon-pih` is itself
+              `flex items-start gap-3`, so the only thing this adds is the row
+              gap; the aerial thumbnail stays in the shared trailing slot. */}
           <ParcelIdentityHeader
+            className="mt-1"
             address={headerAddress}
             subtitle={parcelData?.municipality_name ?? null}
             dark={darkMode}
@@ -91,7 +108,6 @@ const ParcelPanelHeader = ({
                 }}
               />
             )}
-            {actions && <div className="flex items-center gap-1">{actions}</div>}
           </ParcelIdentityHeader>
 
           {(headerEgrid || (lng != null && lat != null)) && (

@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.20.3',
+    date: 'August 4, 2026',
+    codename: 'Room for the address',
+    summary: 'The parcel panel now gives the address a full line of its own.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text:
+          'The buttons at the top of the parcel panel (raw data, Track and close) have moved up onto their own row. Before, they sat next to the address and squeezed it into a narrow column, so a longer street name broke apart across several lines. The address now has the full width of the panel and stays readable. The panel also stops shifting those buttons around while the address is still loading.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.20.2',
     date: 'August 3, 2026',
     codename: 'Clear confirmation',

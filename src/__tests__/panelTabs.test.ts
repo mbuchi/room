@@ -139,6 +139,34 @@ describe('panel header keeps the data-card header standard', () => {
     expect(header).toContain('lng.toFixed(6)');
   });
 
+  // Panel-actions standard R4 (shared v1.124.0): the action icons ride on
+  // their OWN right-aligned row ABOVE the identity block. room's deviation was
+  // invisible from the call site - MapView hands `ParcelPanelHeader` an
+  // `actions` fragment, and the header used to pass it through as children of
+  // `ParcelIdentityHeader`, where the shared `.aireon-pih-actions` slot puts it
+  // beside the title. On this narrow pane that ate the address's width.
+  it('puts the action cluster on its own row above the identity block', () => {
+    expect(header).toContain('flex items-center justify-end gap-1');
+    // Row 1 must come BEFORE the identity block in source order.
+    expect(header.indexOf('flex items-center justify-end gap-1')).toBeLessThan(
+      header.indexOf('<ParcelIdentityHeader'),
+    );
+    // ...and must NOT be nested back inside it: anything in the children slot
+    // lands beside the title again, which is exactly the regression.
+    const identityBlock = header.slice(
+      header.indexOf('<ParcelIdentityHeader'),
+      header.indexOf('</ParcelIdentityHeader>'),
+    );
+    expect(identityBlock).not.toContain('{actions}');
+  });
+
+  it('renders the loading skeleton on the same two rows', () => {
+    // The skeleton branch used to be its own one-row `justify-between` flex
+    // with the actions inside, so the icons jumped once RES resolved.
+    expect(header).not.toContain('flex items-start justify-between gap-2');
+    expect(header).toContain('mt-1 flex items-start gap-3');
+  });
+
   it('carries at most two icon actions beside close (R3)', () => {
     const actionsBlock = mapView.slice(
       mapView.indexOf('<ParcelPanelHeader'),
