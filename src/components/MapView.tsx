@@ -297,12 +297,19 @@ const MapView = () => {
   // resets to 'zone' on each new parcel selection so the user always lands on
   // the headline view. See PANEL_TABS below for the full flat set.
   const [panelTab, setPanelTab] = useState<PanelTab>('zone');
-  // 'compare' is admin-only — see ComparePanel for why. Resolved once per
-  // session; a signed-out or non-admin user simply never sees the tab.
+  // 'compare' is admin-only — see ComparePanel for why. The same flag also
+  // gates the raw-JSON view below. Resolved once per session; a signed-out or
+  // non-admin user simply never sees either surface. Starts `false` so the
+  // window while the probe is in flight is treated as "not an admin" —
+  // admin-only surfaces must default to hidden, never to visible.
   const [isAdmin, setIsAdmin] = useState(false);
   // Developer "raw JSON" view: when on, the tab content is replaced by a
   // scrollable dump of the clicked parcel's structured data (RES parcelData +
-  // the raw tile feature props). Reset whenever the panel closes.
+  // the raw tile feature props). ADMIN ONLY — that dump carries the same
+  // valuation and market-signal fields the compare tab is gated for, so the
+  // gate has to cover both. Deliberately NOT persisted (no localStorage, no
+  // URL param): plain component state, reset whenever the panel closes, so
+  // there is nothing that could resurrect the view for a later visitor.
   const [showRaw, setShowRaw] = useState(false);
   // Mobile only: the right pane becomes a bottom sheet. Suite mobile standard:
   // it OPENS full-height (just under the navbar); the grab handle can collapse
@@ -325,9 +332,10 @@ const MapView = () => {
    */
   const [activeZone, setActiveZone] = useState<ActiveZone | null>(null);
 
-  // Resolve the admin flag once per sign-in state. It only gates the optional
-  // 'compare' tab, so a failed probe simply means "not an admin" — never a
-  // blocked render, never a retry loop. Signed-out users skip the call.
+  // Resolve the admin flag once per sign-in state. It gates the optional
+  // 'compare' tab and the raw-JSON view, so a failed probe simply means "not an
+  // admin" — never a blocked render, never a retry loop. Signed-out users skip
+  // the call entirely and stay non-admin.
   useEffect(() => {
     if (!isAuthenticated) {
       setIsAdmin(false);
@@ -346,11 +354,17 @@ const MapView = () => {
     };
   }, [isAuthenticated]);
 
-  // If the admin flag flips off (sign-out) while the admin-only tab is open,
-  // fall back to the default tab rather than rendering a tab that no longer
-  // has a switcher entry.
+  // If the admin flag flips off (sign-out) while an admin-only surface is open,
+  // fall back: the compare tab returns to the default tab rather than rendering
+  // a tab that no longer has a switcher entry, and the raw-JSON view closes so
+  // the latent flag cannot re-open it later in the session. This effect is the
+  // cleanup, NOT the gate — both surfaces are also gated in the same render
+  // pass below, because an effect always runs one paint too late.
   useEffect(() => {
-    if (!isAdmin) setPanelTab((tab) => (tab === 'compare' ? 'zone' : tab));
+    if (!isAdmin) {
+      setPanelTab((tab) => (tab === 'compare' ? 'zone' : tab));
+      setShowRaw(false);
+    }
   }, [isAdmin]);
 
   const selectedParcelRef = useRef<SelectedParcel | null>(null);
@@ -1060,6 +1074,15 @@ const MapView = () => {
     (id) => id !== 'compare' || isAdmin,
   );
 
+  /* Is the raw-JSON developer view actually on screen? DERIVED from the admin
+     flag, not merely reset by the effect above: the dump must never render for
+     a non-admin, and `showRaw && isAdmin` settles that in the SAME render pass
+     — while the admin probe is still in flight, while it is failing, and in the
+     frame after the flag drops, all of which an effect-only reset would leave
+     visible for one paint. Hiding the toggle button is not a gate either; this
+     is. Same idiom as the 'compare' tab. */
+  const rawJsonOpen = showRaw && isAdmin;
+
   /* ── WebGL-unavailable fallback ────────────────────────────────────────────
      No GPU / headless / blocklisted driver / lost context: there is no canvas
      to render into, so every map control below would be inert. Show the shared
@@ -1371,11 +1394,16 @@ const MapView = () => {
             darkMode={isDarkMode}
             actions={
               <>
-                {(parcelData || selectedParcel) && (
+                {/* Raw-JSON toggle: admins only. The dump behind it carries the
+                    parcel's valuation and market-signal fields verbatim, so it
+                    rides on the same gate as the compare tab. Non-admins (and
+                    everyone while the admin probe is still resolving) get no
+                    button — and, more to the point, no view: see rawJsonOpen. */}
+                {isAdmin && (parcelData || selectedParcel) && (
                   <button
                     type="button"
                     onClick={() => setShowRaw((v) => !v)}
-                    aria-pressed={showRaw}
+                    aria-pressed={rawJsonOpen}
                     title={t('panel.info.toggle_raw_json')}
                     aria-label={t('panel.info.toggle_raw_json')}
                     // 44x44 touch floor as HIT AREA, not box size (data-card
@@ -1383,7 +1411,7 @@ const MapView = () => {
                     // invisible centred pseudo-element carries the target, so
                     // the header row never inflates.
                     className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${PANEL_TOUCH_TARGET} ${
-                      showRaw
+                      rawJsonOpen
                         ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
                         : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
                     }`}
@@ -1437,8 +1465,9 @@ const MapView = () => {
           {/* Scrollable tab content — flex-1 so the Save CTA footer stays pinned.
               When the raw-JSON developer view is on, it replaces the tab body
               with a dump of the clicked parcel's richest structured data (the
-              RES parcelData response) plus the raw tile feature properties. */}
-          {showRaw ? (
+              RES parcelData response) plus the raw tile feature properties.
+              `rawJsonOpen` — not `showRaw` — is the gate: admins only. */}
+          {rawJsonOpen ? (
             <RawJsonView
               value={{ res: parcelData, feature: selectedParcel.props }}
               labels={{

@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.20.4',
+    date: 'August 4, 2026',
+    codename: 'Tools for the toolmakers',
+    summary: 'The raw data view in the parcel panel is now reserved for administrator accounts.',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'The braces button in the parcel panel header opens a raw data view built for developers, listing the parcel record exactly as room receives it. It now appears only for administrator accounts, alongside the Compare tab it belongs with. Everyone else sees the same parcel through the regular tabs, where each figure is labeled and explained. If an administrator signs out with the view open, room closes it right away.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.20.3',
     date: 'August 4, 2026',
     codename: 'Room for the address',
