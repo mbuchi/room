@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.20.9',
+    date: 'August 6, 2026',
+    codename: 'Actions in suite order',
+    summary: 'The parcel panel header actions now follow the suite-wide order: Track first, then raw data.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Bookmark,
+      text: 'The icon actions beneath the parcel address now match the rest of the Aireon suite: the Track bookmark comes first, followed by the raw-data toggle for admins, and close stays beside the heading. Nothing else about the panel changed.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.20.8',
     date: 'August 5, 2026',
     codename: 'Sign in, stay put',

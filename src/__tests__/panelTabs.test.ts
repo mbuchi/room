@@ -217,4 +217,16 @@ describe('panel header keeps the data-card header standard', () => {
     expect(actionsBlock).toContain('onClose={handleCloseInfoPanel}');
     expect(actionsBlock).not.toContain('<CloseButton');
   });
+
+  it('orders the action cluster Track first, then raw-JSON (panel actions standard)', () => {
+    const actionsBlock = mapView.slice(
+      mapView.indexOf('<ParcelPanelHeader'),
+      mapView.indexOf('data-tour="zone-charts"'),
+    );
+    const track = actionsBlock.indexOf('<TrackParcelButton');
+    const braces = actionsBlock.indexOf('<Braces');
+    expect(track, 'Track button missing from the header actions').toBeGreaterThan(-1);
+    expect(braces, 'raw-JSON toggle missing from the header actions').toBeGreaterThan(-1);
+    expect(track).toBeLessThan(braces);
+  });
 });
