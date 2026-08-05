@@ -1,13 +1,13 @@
 // Residential-type parcel filter for the on-map parcels.
 //
 // The parcel_2025_07 vector tiles carry `bldg_flats` (number of residential
-// dwellings). The filter is an exhaustive two-way partition: two or more
-// dwellings are multi-unit, while every other value (including
-// missing/invalid/zero/one) is single-unit.
+// dwellings). Single-unit and Multi-unit form an exhaustive partition, while
+// All removes the residential condition and combines both groups.
 
-export type ResidentialTypeFilter = 'single-unit' | 'multi-unit';
+export type ResidentialTypeFilter = 'all' | 'single-unit' | 'multi-unit';
 
 export const RESIDENTIAL_TYPE_FILTERS: ResidentialTypeFilter[] = [
+  'all',
   'single-unit',
   'multi-unit',
 ];
@@ -21,9 +21,9 @@ export function isResidentialTypeFilter(
   return RESIDENTIAL_TYPE_FILTERS.includes(value as ResidentialTypeFilter);
 }
 
-// SSR-safe read with migration from the former four-option model. Apartments
-// retain the multi-unit meaning; every other old or unknown value becomes the
-// exhaustive single-unit fallback.
+// SSR-safe read with migration from the former four-option model. The three
+// current values are preserved; Apartments retains the multi-unit meaning;
+// other old or unknown values become the single-unit fallback.
 export function loadResidentialTypeFilter(): ResidentialTypeFilter {
   if (typeof window === 'undefined') return DEFAULT_RESIDENTIAL_TYPE_FILTER;
   try {
@@ -46,11 +46,13 @@ export function loadResidentialTypeFilter(): ResidentialTypeFilter {
   }
 }
 
-// MapLibre expression for the exhaustive two-way split. `to-number(..., 0)`
-// keeps missing and invalid values in single-unit instead of dropping them.
+// MapLibre expression for the three-way control. All returns null so callers
+// restore the complete base layer; `to-number(..., 0)` keeps missing and invalid
+// values in single-unit instead of dropping them.
 export function residentialTypeCondition(
   filter: ResidentialTypeFilter,
-): unknown[] {
+): unknown[] | null {
+  if (filter === 'all') return null;
   const flatsExpr = ['to-number', ['get', 'bldg_flats'], 0];
   return filter === 'multi-unit'
     ? ['>=', flatsExpr, 2]

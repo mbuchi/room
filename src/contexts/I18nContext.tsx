@@ -61,6 +61,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- residential-type filter (MapControlDock) ----------
     'panel.restype.title': 'Residential type',
+    'panel.restype.all': 'All',
     'panel.restype.single_unit': 'Single-unit',
     'panel.restype.multi_unit': 'Multi-unit',
 
@@ -368,6 +369,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- filtre par type résidentiel (MapControlDock) ----------
     'panel.restype.title': 'Type résidentiel',
+    'panel.restype.all': 'Toutes',
     'panel.restype.single_unit': 'Un logement',
     'panel.restype.multi_unit': 'Plusieurs logements',
 
@@ -676,6 +678,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- Filter nach Wohnform (MapControlDock) ----------
     'panel.restype.title': 'Wohnform',
+    'panel.restype.all': 'Alle',
     'panel.restype.single_unit': 'Eine Einheit',
     'panel.restype.multi_unit': 'Mehrere Einheiten',
 
@@ -984,6 +987,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- filtro per tipo residenziale (MapControlDock) ----------
     'panel.restype.title': 'Tipo residenziale',
+    'panel.restype.all': 'Tutte',
     'panel.restype.single_unit': 'Unità singola',
     'panel.restype.multi_unit': 'Più unità',
 

@@ -24,7 +24,7 @@ export const RELEASES: Release[] = [
     }, {
       kind: 'improved' as ChangeKind,
       icon: Filter,
-      text: 'Residential type is now a clear two-way choice: Multi-unit contains only parcels with two or more dwellings, while every other parcel is grouped under Single-unit. Existing saved choices are migrated automatically.',
+      text: 'Residential type now offers three focused choices: All combines both unit groups without a dwelling-count filter, Multi-unit contains only parcels with two or more dwellings, and every other parcel is grouped under Single-unit. Existing saved choices remain intact.',
       prs: [],
     }],
   },

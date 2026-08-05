@@ -9,6 +9,10 @@ import {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('residentialTypeCondition', () => {
+  it('returns no residential condition for all', () => {
+    expect(residentialTypeCondition('all')).toBeNull();
+  });
+
   it('partitions values below two into single-unit', () => {
     expect(residentialTypeCondition('single-unit')).toEqual([
       '<',
@@ -25,8 +29,8 @@ describe('residentialTypeCondition', () => {
     ]);
   });
 
-  it('exposes only the two canonical modes', () => {
-    expect(RESIDENTIAL_TYPE_FILTERS).toEqual(['single-unit', 'multi-unit']);
+  it('exposes the three canonical modes in UI order', () => {
+    expect(RESIDENTIAL_TYPE_FILTERS).toEqual(['all', 'single-unit', 'multi-unit']);
   });
 });
 
@@ -39,7 +43,7 @@ describe('loadResidentialTypeFilter', () => {
   it.each([
     ['apartments', 'multi-unit'],
     ['none', 'single-unit'],
-    ['all', 'single-unit'],
+    ['all', 'all'],
     ['houses', 'single-unit'],
     ['unexpected', 'single-unit'],
   ])('migrates %s to %s', (legacy, expected) => {
