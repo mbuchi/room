@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.20.7',
+    date: 'August 5, 2026',
+    codename: 'Maps at a glance',
+    summary: 'The basemap chooser now opens with its map previews ready immediately.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Image,
+        text:
+          'The six built-in basemap previews are now compact images prepared in advance instead of six miniature maps generated each time you open the chooser. The gallery appears immediately, uses no extra map connections or graphics contexts, and still shows the same Zurich comparison for every style.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.20.6',
     date: 'August 5, 2026',
     codename: 'One parcel card across Aireon',
