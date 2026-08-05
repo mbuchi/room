@@ -21,6 +21,11 @@ export const RELEASES: Release[] = [
       icon: Bookmark,
       text: 'The icon actions beneath the parcel address now match the rest of the Aireon suite: the Track bookmark comes first, followed by the raw-data toggle for admins, and close stays beside the heading. Nothing else about the panel changed.',
       prs: [],
+    }, {
+      kind: 'improved' as ChangeKind,
+      icon: Filter,
+      text: 'Residential type is now a clear two-way choice: Multi-unit contains only parcels with two or more dwellings, while every other parcel is grouped under Single-unit. Existing saved choices are migrated automatically.',
+      prs: [],
     }],
   },
   {
