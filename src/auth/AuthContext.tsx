@@ -9,6 +9,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <SharedAuthProvider
       appName="room"
+      silentSso={false}
+      loginPromptOnFirstVisit={false}
       loginDescription="Create a free account or sign in to save zone comparisons and unlock the full experience."
       loginFeatures={[
         { label: 'Zoning density distributions across every Swiss municipality' },

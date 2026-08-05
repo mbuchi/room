@@ -24,6 +24,13 @@ export const RELEASES: Release[] = [
           'Claire, the assistant built into room, works from a set of internal instructions that shape how it answers questions about a parcel. Those instructions have been rewritten and trimmed so that only what Claire actually needs in your browser is sent there, and the rest stays on the server. What Claire says and how it behaves are unchanged. The same update moves room onto the current shared Aireon libraries, which carry the latest refinements to the navigation bar and the parcel panel.',
         prs: [],
       },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ShieldAlert,
+        text:
+          'Opening room now stays signed out by default even when the browser carries an Aireon SSO hint: it does not redirect to Zitadel or open a sign-in prompt automatically. The public app remains available without an account, while Sign in in the account menu still starts the normal interactive login when requested.',
+        prs: [],
+      },
     ],
   },
   {
