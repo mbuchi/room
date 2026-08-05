@@ -49,7 +49,6 @@ import TrackParcelButton from './TrackParcelButton';
 import {
   AboutModal,
   ClaireAssistant,
-  CloseButton,
   MapContextMenu,
   MapControlDock,
   MapLegendChip,
@@ -57,6 +56,7 @@ import {
   fetchIsAdmin,
   isWebGLAvailable,
   PANEL_TOUCH_TARGET,
+  PanelActionButton,
   SegmentedTabs,
   useGlass,
   useIsMobile,
@@ -1377,21 +1377,19 @@ const MapView = () => {
 
           {/* ── Panel header ──────────────────────────────────────────────
               ONE identity block for every tab: address, municipality, aerial
-              thumbnail and the two copyable identifier chips (EGRID, Lat/Lng),
-              with the raw-JSON toggle, the Track toggle and the close button on
-              a slim row of their own above it (panel-actions standard R4: the
-              header renders these `actions` right-aligned on row 1 so the
-              address owns row 2 at full width). It used to live inside the parcel-facts tab,
+              thumbnail and the two copyable identifier chips (EGRID, Lat/Lng).
+              Close stays beside the address while the raw-JSON and Track
+              actions sit directly below the subtitle, matching roofs. It used
+              to live inside the parcel-facts tab,
               which meant the other tabs lost the "which parcel is this?"
               context and the tab strip had to share a row with the close
-              button. Two icon actions beside close — exactly the ceiling
-              data-card header standard R3 sets below ~480px, so nothing else
-              may be added to this row without removing something first. */}
+              button. */}
           <ParcelPanelHeader
             parcelData={parcelData}
             isLoading={parcelDataLoading}
             focusedParcel={focusedHandle}
             darkMode={isDarkMode}
+            onClose={handleCloseInfoPanel}
             actions={
               <>
                 {/* Raw-JSON toggle: admins only. The dump behind it carries the
@@ -1400,31 +1398,17 @@ const MapView = () => {
                     everyone while the admin probe is still resolving) get no
                     button — and, more to the point, no view: see rawJsonOpen. */}
                 {isAdmin && (parcelData || selectedParcel) && (
-                  <button
-                    type="button"
-                    onClick={() => setShowRaw((v) => !v)}
-                    aria-pressed={rawJsonOpen}
-                    title={t('panel.info.toggle_raw_json')}
-                    aria-label={t('panel.info.toggle_raw_json')}
-                    // 44x44 touch floor as HIT AREA, not box size (data-card
-                    // header standard R1): the visible chip stays 32x32 and an
-                    // invisible centred pseudo-element carries the target, so
-                    // the header row never inflates.
-                    className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors ${PANEL_TOUCH_TARGET} ${
-                      rawJsonOpen
-                        ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400'
-                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <Braces size={16} />
-                  </button>
+                  <PanelActionButton
+                    icon={<Braces size={16} />}
+                    label={t('panel.info.toggle_raw_json')}
+                    onClick={() => setShowRaw((value) => !value)}
+                    ariaPressed={rawJsonOpen}
+                    dark={isDarkMode}
+                    tone={rawJsonOpen ? 'active' : 'ghost'}
+                    className={PANEL_TOUCH_TARGET}
+                  />
                 )}
-                <TrackParcelButton focusedParcel={focusedHandle} parcelData={parcelData} />
-                <CloseButton
-                  onClick={handleCloseInfoPanel}
-                  label={t('panel.info.close')}
-                  className={PANEL_TOUCH_TARGET}
-                />
+                <TrackParcelButton focusedParcel={focusedHandle} parcelData={parcelData} darkMode={isDarkMode} />
               </>
             }
           />
