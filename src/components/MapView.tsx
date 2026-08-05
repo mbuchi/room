@@ -1378,7 +1378,7 @@ const MapView = () => {
           {/* ── Panel header ──────────────────────────────────────────────
               ONE identity block for every tab: address, municipality, aerial
               thumbnail and the two copyable identifier chips (EGRID, Lat/Lng).
-              Close stays beside the address while the raw-JSON and Track
+              Close stays beside the address while the Track and raw-JSON
               actions sit directly below the subtitle, matching roofs. It used
               to live inside the parcel-facts tab,
               which meant the other tabs lost the "which parcel is this?"
@@ -1392,6 +1392,9 @@ const MapView = () => {
             onClose={handleCloseInfoPanel}
             actions={
               <>
+                {/* Suite action order (PANEL_ACTIONS_STANDARD): Track first,
+                    then the raw-JSON toggle; close stays beside the title. */}
+                <TrackParcelButton focusedParcel={focusedHandle} parcelData={parcelData} darkMode={isDarkMode} />
                 {/* Raw-JSON toggle: admins only. The dump behind it carries the
                     parcel's valuation and market-signal fields verbatim, so it
                     rides on the same gate as the compare tab. Non-admins (and
@@ -1408,7 +1411,6 @@ const MapView = () => {
                     className={PANEL_TOUCH_TARGET}
                   />
                 )}
-                <TrackParcelButton focusedParcel={focusedHandle} parcelData={parcelData} darkMode={isDarkMode} />
               </>
             }
           />
