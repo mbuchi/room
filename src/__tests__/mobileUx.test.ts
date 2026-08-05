@@ -76,6 +76,13 @@ describe('map-tools sheet contract', () => {
     expect(mapView).toContain('renderBuildingCard(true)');
     expect(mapView).not.toContain('dockTab');
   });
+
+  it('keeps all three residential labels on one compact row', () => {
+    expect(mapView).toContain('grid grid-cols-3 gap-1');
+    expect(mapView).toContain("fullWidth ? 'w-full' : 'min-w-[276px]'");
+    expect(mapView).toContain('whitespace-nowrap');
+    expect(mapView).toContain('text-[11px]');
+  });
 });
 
 describe('iOS focus auto-zoom contract', () => {
