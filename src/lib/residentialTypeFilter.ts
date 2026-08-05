@@ -1,24 +1,18 @@
 // Residential-type parcel filter for the on-map parcels.
 //
 // The parcel_2025_07 vector tiles carry `bldg_flats` (number of residential
-// dwellings) and `bldg_count` (number of buildings) even though room's own
-// panel/facts code does not currently read them. This lets the map be narrowed
-// to parcels that carry buildings (All), single-dwelling parcels (Houses) or
-// multi-dwelling parcels (Apartments). Ported from roofs/roots, with room's own
-// extra "No filter" mode that shows literally every parcel (including
-// agricultural / vacant / building-less ones) — that is the escape hatch room
-// keeps so nothing is ever hidden by default when the user wants the raw map.
+// dwellings). The filter is an exhaustive two-way partition: two or more
+// dwellings are multi-unit, while every other value (including
+// missing/invalid/zero/one) is single-unit.
 
-export type ResidentialTypeFilter = 'none' | 'all' | 'houses' | 'apartments';
+export type ResidentialTypeFilter = 'single-unit' | 'multi-unit';
 
 export const RESIDENTIAL_TYPE_FILTERS: ResidentialTypeFilter[] = [
-  'none',
-  'all',
-  'houses',
-  'apartments',
+  'single-unit',
+  'multi-unit',
 ];
 
-export const DEFAULT_RESIDENTIAL_TYPE_FILTER: ResidentialTypeFilter = 'all';
+export const DEFAULT_RESIDENTIAL_TYPE_FILTER: ResidentialTypeFilter = 'single-unit';
 export const RESIDENTIAL_TYPE_STORAGE_KEY = 'room:residentialTypeFilter';
 
 export function isResidentialTypeFilter(
@@ -27,29 +21,38 @@ export function isResidentialTypeFilter(
   return RESIDENTIAL_TYPE_FILTERS.includes(value as ResidentialTypeFilter);
 }
 
-// SSR-safe read of the persisted choice; validates the stored value and falls
-// back to 'all' on anything unexpected (missing key, corrupt value, no window).
+// SSR-safe read with migration from the former four-option model. Apartments
+// retain the multi-unit meaning; every other old or unknown value becomes the
+// exhaustive single-unit fallback.
 export function loadResidentialTypeFilter(): ResidentialTypeFilter {
   if (typeof window === 'undefined') return DEFAULT_RESIDENTIAL_TYPE_FILTER;
   try {
     const raw = window.localStorage.getItem(RESIDENTIAL_TYPE_STORAGE_KEY);
-    return isResidentialTypeFilter(raw) ? raw : DEFAULT_RESIDENTIAL_TYPE_FILTER;
+    const next = isResidentialTypeFilter(raw)
+      ? raw
+      : raw === 'apartments'
+        ? 'multi-unit'
+        : DEFAULT_RESIDENTIAL_TYPE_FILTER;
+    if (raw && raw !== next) {
+      try {
+        window.localStorage.setItem(RESIDENTIAL_TYPE_STORAGE_KEY, next);
+      } catch {
+        // Keep the correctly migrated in-memory choice when storage is read-only.
+      }
+    }
+    return next;
   } catch {
     return DEFAULT_RESIDENTIAL_TYPE_FILTER;
   }
 }
 
-// The MapLibre filter sub-expression for a given mode, or `null` for 'none'
-// (no filter — every parcel stays visible, room's escape hatch). All = parcels
-// that carry at least one building (`bldg_count` > 0); Houses = exactly one
-// dwelling; Apartments = two or more. `['to-number', ..., 0]` defaults a
-// missing/NaN field to 0, so unbuilt parcels never match all/houses/apartments.
+// MapLibre expression for the exhaustive two-way split. `to-number(..., 0)`
+// keeps missing and invalid values in single-unit instead of dropping them.
 export function residentialTypeCondition(
   filter: ResidentialTypeFilter,
-): unknown[] | null {
+): unknown[] {
   const flatsExpr = ['to-number', ['get', 'bldg_flats'], 0];
-  if (filter === 'all') return ['>', ['to-number', ['get', 'bldg_count'], 0], 0];
-  if (filter === 'houses') return ['==', flatsExpr, 1];
-  if (filter === 'apartments') return ['>=', flatsExpr, 2];
-  return null; // 'none' -> no filter
+  return filter === 'multi-unit'
+    ? ['>=', flatsExpr, 2]
+    : ['<', flatsExpr, 2];
 }
