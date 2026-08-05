@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.20.8',
+    date: 'August 5, 2026',
+    codename: 'Sign in, stay put',
+    summary: 'Signing in now keeps the current view and parcel analysis intact.',
+    items: [{
+      kind: 'fixed' as ChangeKind,
+      icon: ShieldAlert,
+      text: 'Sign in and Create account now complete in a separate secure window while room stays mounted. The map position, zoom, selected parcel, active panel tab, filters and other in-progress state remain exactly where the user left them.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.20.7',
     date: 'August 5, 2026',
     codename: 'Maps at a glance',
