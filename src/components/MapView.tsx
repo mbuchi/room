@@ -107,6 +107,7 @@ function isWebGLContextError(error: unknown): boolean {
 
 // i18n keys for the Residential type segmented control labels, keyed by mode.
 const RESIDENTIAL_TYPE_LABEL_KEYS: Record<ResidentialTypeFilter, string> = {
+  all: 'panel.restype.all',
   'single-unit': 'panel.restype.single_unit',
   'multi-unit': 'panel.restype.multi_unit',
 };
@@ -114,9 +115,8 @@ const RESIDENTIAL_TYPE_LABEL_KEYS: Record<ResidentialTypeFilter, string> = {
 // The parcel POLYGON display layers the residential-type filter narrows: the
 // density fill and its hairline outline — the two layers that paint EVERY
 // parcel. These carry no base `filter` today, so the residential condition is
-// applied to each directly, but applyResidentialTypeFilter still restores each
-// layer's captured original filter with the selected unit condition so it stays
-// correct if a base filter is ever added.
+// applied to each directly. All restores each captured original layer filter;
+// the two unit modes combine their condition with that base filter.
 //
 // Deliberately EXCLUDED (room-specific, unlike roofs which uses feature-state
 // for these): `parcel-hover`, `parcel-selected` and `parcel-selected-casing`.
@@ -279,7 +279,7 @@ const MapView = () => {
   const [claireOpen, setClaireOpen] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
-  // Residential-type parcel filter (Single-unit / Multi-unit), persisted to
+  // Residential-type parcel filter (All / Single-unit / Multi-unit), persisted to
   // localStorage with migration from the former four-option values.
   const [residentialTypeFilter, setResidentialTypeFilter] = useState<ResidentialTypeFilter>(
     () => loadResidentialTypeFilter(),
@@ -412,8 +412,8 @@ const MapView = () => {
   applyParcelPaintRef.current = applyParcelPaint;
 
   // Apply the residential-type condition to the base parcel display layers
-  // (parcel-fill / parcel-outline). When a layer already has an original base
-  // filter, the residential condition is COMBINED via
+  // (parcel-fill / parcel-outline). All restores the original base filter;
+  // otherwise the residential condition is COMBINED via
   // ['all', <original>, cond] rather than replacing it. room has no on-map
   // parcel-labels layer and no colour-metric label filter, so there is no label
   // filter to fold in (unlike roofs) — the fill/outline layers are the whole
@@ -425,7 +425,9 @@ const MapView = () => {
       for (const id of RESIDENTIAL_FILTERED_LAYERS) {
         if (!map.getLayer(id)) continue;
         const original = originalLayerFiltersRef.current.get(id) ?? null;
-        if (original) {
+        if (!cond) {
+          map.setFilter(id, (original as maplibregl.FilterSpecification | null) ?? null);
+        } else if (original) {
           const combined: unknown[] = ['all', original, cond];
           map.setFilter(id, combined as unknown as maplibregl.FilterSpecification);
         } else {
@@ -807,10 +809,12 @@ const MapView = () => {
 
   // `true` when a parcel satisfies the given residential filter. Mirrors
   // residentialTypeCondition's expression semantics in plain JS so we can tell
-  // whether the currently-selected parcel survives a filter change. Only
-  // bldg_flats >= 2 is multi-unit; every other value is single-unit.
+  // whether the currently-selected parcel survives a filter change. All always
+  // matches; otherwise only bldg_flats >= 2 is multi-unit and every other value
+  // is single-unit.
   const parcelMatchesResidentialFilter = useCallback(
     (props: Record<string, unknown>, filter: ResidentialTypeFilter): boolean => {
+      if (filter === 'all') return true;
       const flats = Number(props.bldg_flats ?? 0);
       const n = Number.isFinite(flats) ? flats : 0;
       return filter === 'multi-unit' ? n >= 2 : n < 2;
@@ -1235,8 +1239,8 @@ const MapView = () => {
           </div>
         );
 
-        // Residential-type filter card: Single-unit / Multi-unit, partitioning
-        // on-map parcels by `bldg_flats`. Segmented control styled to match
+        // Residential-type filter card: All / Single-unit / Multi-unit. All
+        // combines both `bldg_flats` groups. Segmented control styled to match
         // room's control cards (red accent for the active segment, same surface).
         const renderResidentialTypeCard = (fullWidth: boolean) => (
           <div className={`${cardSurface} rounded-lg p-4 ${fullWidth ? 'w-full' : 'min-w-[240px]'} transition-colors`} data-tour="residential-type">
@@ -1244,7 +1248,7 @@ const MapView = () => {
               <Building2 size={16} className="text-gray-500 dark:text-gray-400" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{t('panel.restype.title')}</span>
             </div>
-            <div className="grid grid-cols-2 gap-1 rounded-lg p-0.5 bg-gray-100 dark:bg-gray-700/60">
+            <div className="grid grid-cols-3 gap-1 rounded-lg p-0.5 bg-gray-100 dark:bg-gray-700/60">
               {RESIDENTIAL_TYPE_FILTERS.map((rt) => {
                 const active = residentialTypeFilter === rt;
                 return (
