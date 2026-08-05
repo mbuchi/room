@@ -175,7 +175,7 @@ describe('panel header keeps the data-card header standard', () => {
   const header = read('components/ParcelPanelHeader.tsx');
 
   it('uses the content-sized flex chip row, never a rigid grid (R2)', () => {
-    expect(header).toContain('flex flex-wrap gap-2');
+    expect(header).toContain('flex flex-wrap gap-1.5');
     expect(header).toContain('min-w-[min(fit-content,100%)]');
     expect(header).toContain('max-w-full');
     expect(header).not.toContain('grid-cols-2');
@@ -186,32 +186,19 @@ describe('panel header keeps the data-card header standard', () => {
     expect(header).toContain('lng.toFixed(6)');
   });
 
-  // Panel-actions standard R4 (shared v1.124.0): the action icons ride on
-  // their OWN right-aligned row ABOVE the identity block. room's deviation was
-  // invisible from the call site - MapView hands `ParcelPanelHeader` an
-  // `actions` fragment, and the header used to pass it through as children of
-  // `ParcelIdentityHeader`, where the shared `.aireon-pih-actions` slot puts it
-  // beside the title. On this narrow pane that ate the address's width.
-  it('puts the action cluster on its own row above the identity block', () => {
-    expect(header).toContain('flex items-center justify-end gap-1');
-    // Row 1 must come BEFORE the identity block in source order.
-    expect(header.indexOf('flex items-center justify-end gap-1')).toBeLessThan(
-      header.indexOf('<ParcelIdentityHeader'),
-    );
-    // ...and must NOT be nested back inside it: anything in the children slot
-    // lands beside the title again, which is exactly the regression.
-    const identityBlock = header.slice(
-      header.indexOf('<ParcelIdentityHeader'),
-      header.indexOf('</ParcelIdentityHeader>'),
-    );
-    expect(identityBlock).not.toContain('{actions}');
+  it('matches roofs: aerial and address first, close beside the title, actions underneath', () => {
+    expect(header).toContain('flex items-start gap-3');
+    expect(header).toContain('<ParcelAerialThumbnail');
+    expect(header).toContain('<h2');
+    expect(header).toContain('<CloseButton onClick={onClose}');
+    expect(header).toContain('mt-2 flex items-center gap-2');
+    expect(header.indexOf('<h2')).toBeLessThan(header.lastIndexOf('{actions}'));
   });
 
-  it('renders the loading skeleton on the same two rows', () => {
-    // The skeleton branch used to be its own one-row `justify-between` flex
-    // with the actions inside, so the icons jumped once RES resolved.
+  it('renders the loading skeleton in the same satellite-first identity row', () => {
     expect(header).not.toContain('flex items-start justify-between gap-2');
-    expect(header).toContain('mt-1 flex items-start gap-3');
+    expect(header).toContain('width={88} height={88}');
+    expect(header).toContain('flex items-start gap-3');
   });
 
   it('carries at most two icon actions beside close (R3)', () => {
@@ -227,6 +214,7 @@ describe('panel header keeps the data-card header standard', () => {
       ...(actionsBlock.match(/<TrackParcelButton/g) ?? []),
     ];
     expect(iconActions.length).toBeLessThanOrEqual(2);
-    expect(actionsBlock.match(/<CloseButton/g) ?? []).toHaveLength(1);
+    expect(actionsBlock).toContain('onClose={handleCloseInfoPanel}');
+    expect(actionsBlock).not.toContain('<CloseButton');
   });
 });

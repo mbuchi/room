@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.20.6',
+    date: 'August 5, 2026',
+    codename: 'One parcel card across Aireon',
+    summary: 'The map-click panel now follows the same satellite-first parcel-card composition as roofs.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text:
+          'The selected parcel now opens with the satellite image and address as one compact identity row, including the close button beside the heading. Raw data and Track remain directly underneath as icon actions, followed by a single copyable EGRID and Lat/Lng row. The zoning, parcel, market, massing, compare and help tabs are unchanged.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.20.5',
     date: 'August 5, 2026',
     codename: 'Trimmed instructions',

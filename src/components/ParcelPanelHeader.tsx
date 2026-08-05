@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Check, Copy } from 'lucide-react';
-import { Skeleton, ParcelAerialThumbnail, ParcelIdentityHeader } from '@aireon/shared';
+import { Check, Copy, MapPin } from 'lucide-react';
+import { CloseButton, PANEL_TOUCH_TARGET, ParcelAerialThumbnail, Skeleton } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
 import type { ParcelData } from '../services/parcelDataService';
 import type { FocusedParcelHandle } from './ZoneInfoPanel';
@@ -11,8 +11,9 @@ interface ParcelPanelHeaderProps {
   /** The clicked parcel — supplies the aerial thumbnail and the lng/lat chip. */
   focusedParcel: FocusedParcelHandle | null;
   darkMode?: boolean;
-  /** Icon actions for the header's own top row (raw-JSON, Track, close). */
+  /** App-specific icon actions shown below the address. */
   actions?: ReactNode;
+  onClose: () => void;
 }
 
 /**
@@ -28,9 +29,9 @@ interface ParcelPanelHeaderProps {
  *   - the address, the municipality and the two copyable identifiers (EGRID,
  *     Lat/Lng) read as a single block rather than two stacked ones.
  *
- * The block is laid out on TWO rows (panel-actions standard R4): a slim
- * right-aligned row carrying only the action icons, then the identity block
- * (address, municipality, aerial thumbnail) at full width, then the chips.
+ * The block follows the roofs composition: satellite and address form the
+ * identity row, close sits beside the heading, app actions sit below the
+ * subtitle, and the two identifier chips finish the fixed header.
  *
  * The chip row keeps the suite data-card header standard verbatim (R2: a
  * content-sized `flex flex-wrap` row, never a rigid grid, so a 6-decimal
@@ -45,6 +46,7 @@ const ParcelPanelHeader = ({
   focusedParcel,
   darkMode = true,
   actions,
+  onClose,
 }: ParcelPanelHeaderProps) => {
   const { t } = useI18n();
 
@@ -67,33 +69,20 @@ const ParcelPanelHeader = ({
     Number.isFinite(focusedParcel.lat);
 
   return (
-    <div className="flex-shrink-0 px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
-      {/* Row 1 - the action cluster and nothing else, right-aligned
-          (panel-actions standard R4, shared v1.124.0). These icons used to be
-          passed into `ParcelIdentityHeader` as children, which dropped them
-          into the shared `.aireon-pih-actions` slot BESIDE the title: an
-          invisible deviation at the call site, since MapView just hands over an
-          `actions` fragment. On the narrow right-hand pane that cost the
-          address most of its width. On its own row the cluster costs the title
-          nothing, and both the loaded and the loading state now render it in
-          the same place so the header does not jump when RES resolves. */}
-      {actions && <div className="flex items-center justify-end gap-1">{actions}</div>}
+    <div className="flex-shrink-0 border-b border-gray-200 px-5 pb-4 pt-3.5 dark:border-gray-800/40">
       {isLoading && !parcelData?.address ? (
-        <div className="mt-1 flex items-start gap-3">
-          <Skeleton dark={darkMode} width={180} height={10} radius={4} />
+        <div className="flex items-start gap-3">
+          <Skeleton dark={darkMode} width={88} height={88} radius={12} />
+          <div className="min-w-0 flex-1 space-y-3 pt-1">
+            <Skeleton dark={darkMode} width={180} height={14} radius={4} />
+            <Skeleton dark={darkMode} width={120} height={10} radius={4} />
+            {actions && <div className="flex items-center gap-2">{actions}</div>}
+          </div>
+          <CloseButton onClick={onClose} label={t('panel.info.close')} className={PANEL_TOUCH_TARGET} />
         </div>
       ) : (
         <>
-          {/* Row 2 - the identity block at full width. `.aireon-pih` is itself
-              `flex items-start gap-3`, so the only thing this adds is the row
-              gap; the aerial thumbnail stays in the shared trailing slot. */}
-          <ParcelIdentityHeader
-            className="mt-1"
-            address={headerAddress}
-            subtitle={parcelData?.municipality_name ?? null}
-            dark={darkMode}
-            labels={{ fallbackTitle: t('panel.info.header_fallback') }}
-          >
+          <div className="flex items-start gap-3">
             {showThumb && (
               <ParcelAerialThumbnail
                 lng={focusedParcel!.lng}
@@ -108,10 +97,28 @@ const ParcelPanelHeader = ({
                 }}
               />
             )}
-          </ParcelIdentityHeader>
+            <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 items-start gap-2">
+                <h2
+                  className="min-w-0 flex-1 truncate text-lg font-bold tracking-tight text-slate-950 dark:text-white"
+                  title={headerAddress || t('panel.info.header_fallback')}
+                >
+                  {headerAddress || t('panel.info.header_fallback')}
+                </h2>
+                <CloseButton onClick={onClose} label={t('panel.info.close')} className={PANEL_TOUCH_TARGET} />
+              </div>
+              {parcelData?.municipality_name && (
+                <p className="mt-0.5 flex min-w-0 items-center gap-1 text-[12.5px] text-slate-500 dark:text-slate-400">
+                  <MapPin className="h-[11px] w-[11px] shrink-0" aria-hidden="true" />
+                  <span className="truncate">{parcelData.municipality_name}</span>
+                </p>
+              )}
+              {actions && <div className="mt-2 flex items-center gap-2">{actions}</div>}
+            </div>
+          </div>
 
           {(headerEgrid || (lng != null && lat != null)) && (
-            <div className="mt-2.5 flex flex-wrap gap-2">
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
               {headerEgrid && (
                 <IdentifierChip
                   label="EGRID"

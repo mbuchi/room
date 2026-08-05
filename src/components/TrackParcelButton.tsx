@@ -4,6 +4,7 @@ import {
   createPrmRecord,
   deletePrmRecord,
   fetchPrmByParcel,
+  PanelActionButton,
   PANEL_TOUCH_TARGET,
   PrmAuthRequiredError as AuthRequiredError,
   type PrmRecord,
@@ -21,6 +22,7 @@ interface TrackParcelButtonProps {
   focusedParcel: FocusedParcelHandle | null;
   /** Parcel facts (for label / area / municipality on the saved record). */
   parcelData: ParcelData | null;
+  darkMode: boolean;
 }
 
 /**
@@ -33,7 +35,7 @@ interface TrackParcelButtonProps {
  * sign-in CTA. Visible chip stays 32x32; PANEL_TOUCH_TARGET carries the 44px
  * hit area (data-card header standard R1).
  */
-const TrackParcelButton = ({ focusedParcel, parcelData }: TrackParcelButtonProps) => {
+const TrackParcelButton = ({ focusedParcel, parcelData, darkMode }: TrackParcelButtonProps) => {
   const { t } = useI18n();
   const { accessToken, isAuthenticated, promptLogin } = useAuth();
   const [status, setStatus] = useState<SaveStatus>('idle');
@@ -153,34 +155,19 @@ const TrackParcelButton = ({ focusedParcel, parcelData }: TrackParcelButtonProps
           : t('prm.save');
 
   return (
-    <button
-      type="button"
-      data-tour="track-parcel"
-      onClick={tracked ? handleRemove : handleSave}
-      disabled={busy}
-      title={label}
-      aria-label={label}
-      aria-pressed={tracked}
-      className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-colors disabled:cursor-default ${PANEL_TOUCH_TARGET} ${
-        status === 'error'
-          ? 'text-red-500 hover:text-red-600 hover:bg-red-500/10'
-          : tracked
-            ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 ring-1 ring-emerald-400/30 hover:bg-emerald-500/25'
-            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800'
-      }`}
-    >
-      {busy ? (
-        <span className="inline-flex items-center gap-0.5" aria-hidden="true">
-          <span className="h-1 w-1 rounded-full bg-current animate-pulse" />
-          <span className="h-1 w-1 rounded-full bg-current animate-pulse [animation-delay:150ms]" />
-          <span className="h-1 w-1 rounded-full bg-current animate-pulse [animation-delay:300ms]" />
-        </span>
-      ) : tracked ? (
-        <BookmarkCheck size={16} aria-hidden />
-      ) : (
-        <Bookmark size={16} aria-hidden />
-      )}
-    </button>
+    <span data-tour="track-parcel">
+      <PanelActionButton
+        icon={tracked ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+        label={label}
+        onClick={tracked ? handleRemove : handleSave}
+        disabled={busy}
+        busy={busy}
+        ariaPressed={tracked}
+        dark={darkMode}
+        tone={status === 'error' ? 'danger' : tracked ? 'success' : 'ghost'}
+        className={PANEL_TOUCH_TARGET}
+      />
+    </span>
   );
 };
 
