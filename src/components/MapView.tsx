@@ -1243,7 +1243,7 @@ const MapView = () => {
         // combines both `bldg_flats` groups. Segmented control styled to match
         // room's control cards (red accent for the active segment, same surface).
         const renderResidentialTypeCard = (fullWidth: boolean) => (
-          <div className={`${cardSurface} rounded-lg p-4 ${fullWidth ? 'w-full' : 'min-w-[240px]'} transition-colors`} data-tour="residential-type">
+          <div className={`${cardSurface} rounded-lg p-4 ${fullWidth ? 'w-full' : 'min-w-[276px]'} transition-colors`} data-tour="residential-type">
             <div className="flex items-center gap-2 mb-3">
               <Building2 size={16} className="text-gray-500 dark:text-gray-400" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{t('panel.restype.title')}</span>
@@ -1257,7 +1257,7 @@ const MapView = () => {
                     type="button"
                     onClick={() => handleResidentialTypeChange(rt)}
                     aria-pressed={active}
-                    className={`w-full px-2 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                    className={`w-full whitespace-nowrap px-1.5 py-1.5 rounded-md text-[11px] font-semibold transition-all ${
                       active
                         ? 'bg-white dark:bg-gray-900 text-red-600 dark:text-red-400 shadow-sm'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'

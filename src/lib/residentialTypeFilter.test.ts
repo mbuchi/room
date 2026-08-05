@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   DEFAULT_RESIDENTIAL_TYPE_FILTER,
   RESIDENTIAL_TYPE_FILTERS,
+  RESIDENTIAL_TYPE_STORAGE_KEY,
   loadResidentialTypeFilter,
   residentialTypeCondition,
 } from './residentialTypeFilter';
@@ -35,27 +36,47 @@ describe('residentialTypeCondition', () => {
 });
 
 describe('loadResidentialTypeFilter', () => {
-  it('defaults to single-unit without a browser', () => {
+  it('defaults to All without a browser', () => {
     expect(loadResidentialTypeFilter()).toBe(DEFAULT_RESIDENTIAL_TYPE_FILTER);
-    expect(loadResidentialTypeFilter()).toBe('single-unit');
+    expect(loadResidentialTypeFilter()).toBe('all');
   });
+
+  it.each(['all', 'single-unit', 'multi-unit'] as const)(
+    'restores persisted %s without rewriting it',
+    (stored) => {
+      const setItem = vi.fn();
+      vi.stubGlobal('window', {
+        localStorage: { getItem: () => stored, setItem },
+      } as unknown as Window & typeof globalThis);
+      expect(loadResidentialTypeFilter()).toBe(stored);
+      expect(setItem).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([
     ['apartments', 'multi-unit'],
-    ['none', 'single-unit'],
-    ['all', 'all'],
     ['houses', 'single-unit'],
-    ['unexpected', 'single-unit'],
-  ])('migrates %s to %s', (legacy, expected) => {
-    let stored = legacy;
+    ['none', 'all'],
+    ['unexpected', 'all'],
+  ] as const)('migrates %s to %s', (legacy, expected) => {
+    const setItem = vi.fn();
     vi.stubGlobal('window', {
       localStorage: {
-        getItem: () => stored,
-        setItem: (_key: string, value: string) => { stored = value; },
+        getItem: () => legacy,
+        setItem,
       },
     } as unknown as Window & typeof globalThis);
     expect(loadResidentialTypeFilter()).toBe(expected);
-    expect(stored).toBe(expected);
+    expect(setItem).toHaveBeenCalledWith(RESIDENTIAL_TYPE_STORAGE_KEY, expected);
+  });
+
+  it('uses All for missing storage without creating a saved preference', () => {
+    const setItem = vi.fn();
+    vi.stubGlobal('window', {
+      localStorage: { getItem: () => null, setItem },
+    } as unknown as Window & typeof globalThis);
+    expect(loadResidentialTypeFilter()).toBe('all');
+    expect(setItem).not.toHaveBeenCalled();
   });
 
   it('keeps the migrated choice when canonical storage is read-only', () => {
@@ -66,5 +87,14 @@ describe('loadResidentialTypeFilter', () => {
       },
     } as unknown as Window & typeof globalThis);
     expect(loadResidentialTypeFilter()).toBe('multi-unit');
+  });
+
+  it('falls back to All when reading storage throws', () => {
+    vi.stubGlobal('window', {
+      localStorage: {
+        getItem: () => { throw new Error('blocked'); },
+      },
+    } as unknown as Window & typeof globalThis);
+    expect(loadResidentialTypeFilter()).toBe('all');
   });
 });

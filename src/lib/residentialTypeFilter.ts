@@ -12,7 +12,7 @@ export const RESIDENTIAL_TYPE_FILTERS: ResidentialTypeFilter[] = [
   'multi-unit',
 ];
 
-export const DEFAULT_RESIDENTIAL_TYPE_FILTER: ResidentialTypeFilter = 'single-unit';
+export const DEFAULT_RESIDENTIAL_TYPE_FILTER: ResidentialTypeFilter = 'all';
 export const RESIDENTIAL_TYPE_STORAGE_KEY = 'room:residentialTypeFilter';
 
 export function isResidentialTypeFilter(
@@ -22,8 +22,8 @@ export function isResidentialTypeFilter(
 }
 
 // SSR-safe read with migration from the former four-option model. The three
-// current values are preserved; Apartments retains the multi-unit meaning;
-// other old or unknown values become the single-unit fallback.
+// current values are preserved; Apartments and Houses retain their unit-group
+// meanings, None maps to All, and missing/corrupt values use the All default.
 export function loadResidentialTypeFilter(): ResidentialTypeFilter {
   if (typeof window === 'undefined') return DEFAULT_RESIDENTIAL_TYPE_FILTER;
   try {
@@ -32,7 +32,11 @@ export function loadResidentialTypeFilter(): ResidentialTypeFilter {
       ? raw
       : raw === 'apartments'
         ? 'multi-unit'
-        : DEFAULT_RESIDENTIAL_TYPE_FILTER;
+        : raw === 'houses'
+          ? 'single-unit'
+          : raw === 'none'
+            ? 'all'
+            : DEFAULT_RESIDENTIAL_TYPE_FILTER;
     if (raw && raw !== next) {
       try {
         window.localStorage.setItem(RESIDENTIAL_TYPE_STORAGE_KEY, next);
