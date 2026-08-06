@@ -24,3 +24,15 @@ export function fullParcelAddress(
   if (!street && !zip) return null;
   return formatParcelAddress(properties);
 }
+
+/**
+ * Postal code alone ("8001") from the same wire props — the shared parts
+ * reader handles the Number-typed `zip` the tiles carry plus the alternate
+ * spellings (`plz`, `dplz4`, `postcode`). Feeds the panel header's locality
+ * subtitle next to the municipality name.
+ */
+export function parcelZip(
+  properties: Record<string, unknown> | null | undefined,
+): string | null {
+  return parcelAddressParts(properties).zip;
+}

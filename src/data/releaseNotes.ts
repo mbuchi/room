@@ -12,6 +12,28 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.20.10',
+    date: 'August 6, 2026',
+    codename: 'One-row identity',
+    summary: 'The parcel identifiers share one row, the subtitle names the locality, and the Claire launcher keeps its standard clearance.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Type,
+      text: 'The EGRID and coordinate chips under the parcel address now use the suite-shared identifier row. The chip type scales fluidly with the panel width, so both chips share a single line instead of stacking, and the copy buttons still carry the full values.',
+      prs: [],
+    }, {
+      kind: 'improved' as ChangeKind,
+      icon: MapPin,
+      text: 'The line under the parcel address now shows the postal code next to the municipality name, matching the locality subtitle used across the Aireon suite.',
+      prs: [],
+    }, {
+      kind: 'fixed' as ChangeKind,
+      icon: Bot,
+      text: 'When a parcel panel is open on desktop, the Claire launcher now keeps the suite standard clearance from the panel and the zoom controls instead of sitting flush with the zoom column.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.20.9',
     date: 'August 6, 2026',
     codename: 'Actions in suite order',

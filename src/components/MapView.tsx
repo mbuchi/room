@@ -1281,7 +1281,9 @@ const MapView = () => {
                interpolated `!right-[${PANEL_OFFSET_PX}px]` produced no CSS rule and
                the dock stayed at its default 1rem inset, hidden under the panel.
                476px = PANEL_OFFSET_PX (PANEL_WIDTH_PX 460 + 16) — keep in sync; the
-               same constant is hardcoded for the Claire launcher in src/index.css.
+               ZoomControl and ClaireAssistant take the same constant as props below
+               (the shared launcher adds 20px on top: right = 496px, clear of both
+               the pane and the zoom stack).
                `!` beats .aireon-map-control-right{right:var(--aireon-map-control-inset)}. */
             desktopClassName={`transition-[right] duration-300 ${selectedParcel ? '!right-[476px]' : ''}`}
           >
