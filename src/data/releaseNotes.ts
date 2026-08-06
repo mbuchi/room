@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.21.0',
+    date: 'August 7, 2026',
+    codename: 'Compact pills',
+    summary: 'The parcel tab now reads as compact data pills instead of stacked label/value rows.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: LayoutPanelTop,
+      text: 'Parcel panel data now reads as compact pills, tightly stacked and always in the same order, so the zoning, location and building facts scan faster than the old four-card layout. The utilization and headroom bars underneath are unchanged.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.20.10',
     date: 'August 6, 2026',
     codename: 'One-row identity',

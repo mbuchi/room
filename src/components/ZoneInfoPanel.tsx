@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { MapPin, Building2, Calendar, Layers } from 'lucide-react';
-import { Skeleton } from '@aireon/shared';
+import { MapPin, Building2 } from 'lucide-react';
+import { DataPillGroup, Skeleton, type DataPillItem } from '@aireon/shared';
 import type { ParcelData } from '../services/parcelDataService';
 import { PanelError, PanelScroll, Section } from './PanelKit';
 import { useI18n } from '../contexts/I18nContext';
@@ -51,6 +51,82 @@ const ZoneInfoPanel = ({
 }: ZoneInfoPanelProps) => {
   const { t } = useI18n();
 
+  // ── Data pills (DATA_PILLS_STANDARD.md) ─────────────────────────────────
+  // The four former Row sections (Location / Zoning / Built / Age) collapse
+  // into two DataPillGroup sections, each still wrapped in the card's own
+  // Section chrome (icon + eyebrow title), so `heading` is omitted on the
+  // group itself — the Section title already labels the row. EGRID and
+  // Lat/Lng stay out of both groups; they live in the panel header's
+  // copyable chips (ParcelPanelHeader), and no zone badge exists here to
+  // duplicate either.
+  //
+  // fso is the section's official identifier, so it gets `mono` + `copyable`
+  // and a visible `label` (a bare digit string means nothing on its own).
+  // cz_local/cz_canton are short zone codes — `mono` for the same reason the
+  // old Row rendered them in a monospace font, `title` tooltip because the
+  // code alone doesn't say "this is the zone". municipality_name is a bare
+  // place name, so it also gets a `title` tooltip rather than a label.
+  const zoningLocationPills: DataPillItem[] = parcelData
+    ? [
+        { key: 'municipality', value: parcelData.municipality_name, title: t('panel.info.row.municipality') },
+        {
+          key: 'fso',
+          label: t('panel.info.row.fso'),
+          value: parcelData.fso,
+          mono: true,
+          copyable: true,
+        },
+        { key: 'cz-local', value: parcelData.cz_local, mono: true, title: t('panel.info.row.cz_local') },
+        { key: 'cz-canton', value: parcelData.cz_canton, mono: true, title: t('panel.info.row.cz_canton') },
+        {
+          key: 'allowed-util',
+          value: parcelData.cz_util_now != null ? `${fmt(parcelData.cz_util_now)} m³` : null,
+          title: t('panel.info.row.allowed_util'),
+        },
+      ]
+    : [];
+
+  // parcel_area/built_volume/bldg_height_m carry their unit inside the value
+  // (m², m³, m), so a `title` tooltip is enough (DATA_PILLS_STANDARD R4).
+  // gfz (a bare ratio), bldg_floors_n (a bare count) and bldg_constr_year (a
+  // bare year) look identical to each other out of context, so those three
+  // get a visible `label` prefix instead — same treatment bloom gives its
+  // floors/GFA pills.
+  const buildingPills: DataPillItem[] = parcelData
+    ? [
+        {
+          key: 'parcel-area',
+          value: parcelData.parcel_area != null ? `${fmt(parcelData.parcel_area)} m²` : null,
+          title: t('panel.info.row.parcel_area'),
+        },
+        {
+          key: 'built-volume',
+          value: parcelData.built_volume != null ? `${fmt(parcelData.built_volume)} m³` : null,
+          title: t('panel.info.row.built_volume'),
+        },
+        {
+          key: 'gfz',
+          label: t('panel.info.row.gfz'),
+          value: parcelData.gfz != null ? parcelData.gfz.toFixed(2) : null,
+        },
+        {
+          key: 'height',
+          value: parcelData.bldg_height_m != null ? `${parcelData.bldg_height_m.toFixed(1)} m` : null,
+          title: t('panel.info.row.height'),
+        },
+        {
+          key: 'floors',
+          label: t('panel.info.row.floors'),
+          value: parcelData.bldg_floors_n != null ? String(parcelData.bldg_floors_n) : null,
+        },
+        {
+          key: 'year-built',
+          label: t('panel.info.row.year_built'),
+          value: parcelData.bldg_constr_year != null ? String(parcelData.bldg_constr_year) : null,
+        },
+      ]
+    : [];
+
   return (
     <PanelScroll actionsSlot={!isLoading && !error && parcelData ? actionsSlot : undefined}>
       {isLoading && <ZoneInfoSkeleton darkMode={darkMode} />}
@@ -61,61 +137,16 @@ const ZoneInfoPanel = ({
         <>
           <Section
             icon={<MapPin size={12} className="text-red-500/80 dark:text-red-400/80" />}
-            title={t('panel.info.section.location')}
+            title={t('panel.info.section.zoning_location')}
           >
-            <Row label={t('panel.info.row.municipality')} value={parcelData.municipality_name} />
-            <Row label={t('panel.info.row.fso')} value={parcelData.fso} mono />
-            {/* EGRID + Lat/Lng live in the panel header as copyable chips. */}
-          </Section>
-
-          <Section
-            icon={<Layers size={12} className="text-amber-500/80 dark:text-amber-400/80" />}
-            title={t('panel.info.section.zoning')}
-          >
-            <Row label={t('panel.info.row.cz_local')} value={parcelData.cz_local} mono />
-            <Row label={t('panel.info.row.cz_canton')} value={parcelData.cz_canton} mono />
-            <Row
-              label={t('panel.info.row.allowed_util')}
-              value={parcelData.cz_util_now != null ? `${fmt(parcelData.cz_util_now)} m³` : null}
-            />
+            <DataPillGroup items={zoningLocationPills} dark={darkMode} />
           </Section>
 
           <Section
             icon={<Building2 size={12} className="text-teal-500/80 dark:text-teal-400/80" />}
-            title={t('panel.info.section.built')}
+            title={t('panel.info.section.building')}
           >
-            <Row
-              label={t('panel.info.row.parcel_area')}
-              value={parcelData.parcel_area != null ? `${fmt(parcelData.parcel_area)} m²` : null}
-            />
-            <Row
-              label={t('panel.info.row.built_volume')}
-              value={parcelData.built_volume != null ? `${fmt(parcelData.built_volume)} m³` : null}
-            />
-            <Row
-              label={t('panel.info.row.gfz')}
-              value={parcelData.gfz != null ? parcelData.gfz.toFixed(2) : null}
-            />
-            <Row
-              label={t('panel.info.row.height')}
-              value={
-                parcelData.bldg_height_m != null ? `${parcelData.bldg_height_m.toFixed(1)} m` : null
-              }
-            />
-            <Row
-              label={t('panel.info.row.floors')}
-              value={parcelData.bldg_floors_n != null ? String(parcelData.bldg_floors_n) : null}
-            />
-          </Section>
-
-          <Section
-            icon={<Calendar size={12} className="text-sky-500/80 dark:text-sky-400/80" />}
-            title={t('panel.info.section.age')}
-          >
-            <Row
-              label={t('panel.info.row.year_built')}
-              value={parcelData.bldg_constr_year != null ? String(parcelData.bldg_constr_year) : null}
-            />
+            <DataPillGroup items={buildingPills} dark={darkMode} />
           </Section>
 
           {/* The two ratio fields are the headline — give them a prominent bar
@@ -152,30 +183,6 @@ const ZoneInfoSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
     ))}
   </>
 );
-
-const Row = ({
-  label,
-  value,
-  mono = false,
-}: {
-  label: string;
-  value: string | number | null | undefined;
-  mono?: boolean;
-}) => {
-  if (value === null || value === undefined || value === '') return null;
-  return (
-    <div className="flex items-baseline justify-between gap-3">
-      <span className="text-[11px] text-gray-400 dark:text-gray-500">{label}</span>
-      <span
-        className={`text-[11px] text-gray-800 dark:text-gray-200 text-right truncate ${
-          mono ? 'font-mono' : 'font-medium'
-        }`}
-      >
-        {value}
-      </span>
-    </div>
-  );
-};
 
 /**
  * A horizontal fill-bar for the headline ratio fields. `ratio_v`/`ratio_s`
