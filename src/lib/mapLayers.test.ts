@@ -97,7 +97,7 @@ function makeFakeMap(initialZoom: number) {
     },
     // test helpers (not part of the Map API)
     setZoom(z: number) { zoom = z; (mapHandlers['zoomend'] ?? []).forEach((h) => h()); },
-    parcelFillListeners: () => delegated.filter((d) => d.layer === 'parcel-fill'),
+    parcelHitListeners: () => delegated.filter((d) => d.layer === 'parcel-hit'),
     filters,
     canvas,
   };
@@ -121,23 +121,23 @@ describe('wireParcelHover — zoom-gated hover (low-spec perf)', () => {
   it('does NOT bind hover listeners when the map loads zoomed out', () => {
     const map = makeFakeMap(PARCEL_INTERACTION_MIN_ZOOM - 1);
     wireParcelHover(map as unknown as Map);
-    expect(map.parcelFillListeners()).toHaveLength(0);
+    expect(map.parcelHitListeners()).toHaveLength(0);
   });
 
   it('binds mousemove + mouseleave when at/above block level', () => {
     const map = makeFakeMap(PARCEL_INTERACTION_MIN_ZOOM);
     wireParcelHover(map as unknown as Map);
-    const types = map.parcelFillListeners().map((d) => d.type).sort();
+    const types = map.parcelHitListeners().map((d) => d.type).sort();
     expect(types).toEqual(['mouseleave', 'mousemove']);
   });
 
   it('detaches the listeners and clears the highlight when zooming back out', () => {
     const map = makeFakeMap(PARCEL_INTERACTION_MIN_ZOOM + 1);
     wireParcelHover(map as unknown as Map);
-    expect(map.parcelFillListeners()).toHaveLength(2);
+    expect(map.parcelHitListeners()).toHaveLength(2);
 
     map.setZoom(PARCEL_INTERACTION_MIN_ZOOM - 1); // fires zoomend
-    expect(map.parcelFillListeners()).toHaveLength(0);
+    expect(map.parcelHitListeners()).toHaveLength(0);
     // hover layer filter reset so nothing stays lit
     expect(JSON.stringify(map.filters['parcel-hover'])).toContain('parcel_id');
     expect(map.canvas.style.cursor).toBe('');
@@ -147,15 +147,15 @@ describe('wireParcelHover — zoom-gated hover (low-spec perf)', () => {
     const map = makeFakeMap(PARCEL_INTERACTION_MIN_ZOOM - 1);
     wireParcelHover(map as unknown as Map);
     map.setZoom(PARCEL_INTERACTION_MIN_ZOOM + 1);
-    expect(map.parcelFillListeners()).toHaveLength(2);
+    expect(map.parcelHitListeners()).toHaveLength(2);
     map.setZoom(PARCEL_INTERACTION_MIN_ZOOM + 2); // still above → must not re-bind
-    expect(map.parcelFillListeners()).toHaveLength(2);
+    expect(map.parcelHitListeners()).toHaveLength(2);
   });
 
   it('is idempotent per map (basemap swaps re-run addParcelLayers)', () => {
     const map = makeFakeMap(PARCEL_INTERACTION_MIN_ZOOM + 1);
     wireParcelHover(map as unknown as Map);
     wireParcelHover(map as unknown as Map); // second call must be a no-op
-    expect(map.parcelFillListeners()).toHaveLength(2);
+    expect(map.parcelHitListeners()).toHaveLength(2);
   });
 });

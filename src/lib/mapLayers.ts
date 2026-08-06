@@ -149,11 +149,11 @@ export function wireParcelHover(map: Map) {
     if (want === bound) return;
     bound = want;
     if (want) {
-      map.on('mousemove', 'parcel-fill', onMove);
-      map.on('mouseleave', 'parcel-fill', clearHover);
+      map.on('mousemove', 'parcel-hit', onMove);
+      map.on('mouseleave', 'parcel-hit', clearHover);
     } else {
-      map.off('mousemove', 'parcel-fill', onMove);
-      map.off('mouseleave', 'parcel-fill', clearHover);
+      map.off('mousemove', 'parcel-hit', onMove);
+      map.off('mouseleave', 'parcel-hit', clearHover);
       clearHover(); // drop any lingering highlight + pointer cursor
     }
   };
@@ -172,6 +172,21 @@ export function addParcelLayers(map: Map, opacity: number, zone: ActiveZone | nu
       // promote it into Mapbox's feature `id` slot so the selected-parcel and
       // hover filters key correctly.
       promoteId: 'parcel_id',
+    });
+  }
+
+  // Transparent and intentionally never residential-filtered: it keeps every
+  // parcel hit-testable while parcel-fill/outline provide the filtered visual.
+  if (!map.getLayer('parcel-hit')) {
+    map.addLayer({
+      id: 'parcel-hit',
+      type: 'fill',
+      source: 'parcel-tiles',
+      'source-layer': 'parcel_2025_07',
+      paint: {
+        'fill-color': '#000000',
+        'fill-opacity': 0,
+      },
     });
   }
 

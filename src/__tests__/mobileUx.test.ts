@@ -85,6 +85,19 @@ describe('map-tools sheet contract', () => {
   });
 });
 
+describe('residential filter interaction contract', () => {
+  const mapView = read('components/MapView.tsx');
+  const mapLayers = read('lib/mapLayers.ts');
+
+  it('keeps an unfiltered parcel hit layer behind the filtered visual layers', () => {
+    expect(mapView).toContain("map.on('click', 'parcel-hit'");
+    expect(mapView).toContain("layers: ['parcel-hit']");
+    expect(mapView).not.toContain('parcelMatchesResidentialFilter');
+    expect(mapLayers).toContain("id: 'parcel-hit'");
+    expect(mapLayers).toContain("map.on('mousemove', 'parcel-hit'");
+  });
+});
+
 describe('iOS focus auto-zoom contract', () => {
   // iOS Safari auto-zooms the page when an input below 16px is focused and
   // leaves the layout stuck wider than the screen (scoore-origin fix).

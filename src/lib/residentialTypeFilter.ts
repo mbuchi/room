@@ -13,7 +13,11 @@ export const RESIDENTIAL_TYPE_FILTERS: ResidentialTypeFilter[] = [
 ];
 
 export const DEFAULT_RESIDENTIAL_TYPE_FILTER: ResidentialTypeFilter = 'all';
-export const RESIDENTIAL_TYPE_STORAGE_KEY = 'room:residentialTypeFilter';
+// v2 intentionally starts with a clean preference namespace. The former key
+// could contain single-unit from the old default era, which cannot be told
+// apart from an explicit choice. Ignoring it once guarantees All on upgrade;
+// choices made from this release onward still persist normally.
+export const RESIDENTIAL_TYPE_STORAGE_KEY = 'room:residentialTypeFilter:v2';
 
 export function isResidentialTypeFilter(
   value: unknown,
@@ -21,9 +25,8 @@ export function isResidentialTypeFilter(
   return RESIDENTIAL_TYPE_FILTERS.includes(value as ResidentialTypeFilter);
 }
 
-// SSR-safe read with migration from the former four-option model. The three
-// current values are preserved; Apartments and Houses retain their unit-group
-// meanings, None maps to All, and missing/corrupt values use the All default.
+// SSR-safe read of the current-schema preference. Values accidentally written
+// in the former four-option vocabulary are still normalized best-effort.
 export function loadResidentialTypeFilter(): ResidentialTypeFilter {
   if (typeof window === 'undefined') return DEFAULT_RESIDENTIAL_TYPE_FILTER;
   try {
