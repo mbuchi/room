@@ -33,12 +33,15 @@ interface ParcelPanelHeaderProps {
  * identity row, close sits beside the heading, app actions sit below the
  * subtitle, and the two identifier chips finish the fixed header.
  *
- * The chip row keeps the suite data-card header standard verbatim (R2: a
- * content-sized `flex flex-wrap` row, never a rigid grid, so a 6-decimal
- * coordinate always renders on ONE line at every panel width; R4: the
- * identifier tier's px-2.5/py-1.5 + text-[10px]/font-mono text-[11px] scale).
- * Those numbers are load-bearing for the one-line guarantee — do not shrink
- * them to buy space.
+ * The chip row rides the shared `.aireon-idchips` system from
+ * `@aireon/shared/map-ui.css` (data-card header standard R2b): the row is an
+ * inline-size container and the chip type is fluid, shrinking from 11px down
+ * to an 8.5px floor until BOTH chips fit one row. Room's 460px panel leaves a
+ * ~420px header column — under the old fixed 10/11px scale the EGRID +
+ * Lat/Lng pair needed ~440px and always wrapped onto two rows; the fluid tier
+ * fits them on one row at ~11px type. Below the 345px container tier each
+ * chip takes a full-width row of its own at full size (the phone behavior).
+ * Never reimplement the sizing locally — the container query owns it.
  */
 const ParcelPanelHeader = ({
   parcelData,
@@ -63,6 +66,13 @@ const ParcelPanelHeader = ({
       : null;
   const headerEgrid =
     parcelData?.egrid ?? parcelData?.parcel_id ?? focusedParcel?.parcelId ?? null;
+  // Locality subtitle under the title — "8001 · Zürich" (suite standard:
+  // title = street address, subtitle = locality). RES /parcel_data carries no
+  // canton abbreviation, so the line is zip + municipality only; a missing
+  // zip degrades to the bare municipality name.
+  const locality = [parcelData?.zip, parcelData?.municipality_name]
+    .filter(Boolean)
+    .join(' · ');
   const showThumb =
     !!focusedParcel &&
     Number.isFinite(focusedParcel.lng) &&
@@ -107,10 +117,10 @@ const ParcelPanelHeader = ({
                 </h2>
                 <CloseButton onClick={onClose} label={t('panel.info.close')} className={PANEL_TOUCH_TARGET} />
               </div>
-              {parcelData?.municipality_name && (
+              {locality && (
                 <p className="mt-0.5 flex min-w-0 items-center gap-1 text-[12.5px] text-slate-500 dark:text-slate-400">
                   <MapPin className="h-[11px] w-[11px] shrink-0" aria-hidden="true" />
-                  <span className="truncate">{parcelData.municipality_name}</span>
+                  <span className="truncate">{locality}</span>
                 </p>
               )}
               {actions && <div className="mt-2 flex items-center gap-2">{actions}</div>}
@@ -118,7 +128,7 @@ const ParcelPanelHeader = ({
           </div>
 
           {(headerEgrid || (lng != null && lat != null)) && (
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
+            <div className="aireon-idchips mt-2.5">
               {headerEgrid && (
                 <IdentifierChip
                   label="EGRID"
@@ -145,11 +155,11 @@ const ParcelPanelHeader = ({
 
 /**
  * One copyable identifier chip — label eyebrow, monospace value, and a
- * click-to-copy button (suite data-card standard chip markup, R2/R4). The chip
- * never shrinks below its own content (`min-w-[min(fit-content,100%)]`, capped
- * so a pathological id ellipsizes instead of forcing horizontal overflow) and
- * `flex-1 basis-0` shares the slack when both chips fit one line — a lone chip
- * therefore fills the row by itself.
+ * click-to-copy button. Layout and type come from the shared `.aireon-idchip`
+ * classes (data-card header standard R2b): the chip flexes to share the row,
+ * never shrinks below its own content, and its font size is fluid against the
+ * `.aireon-idchips` container so both chips fit ONE row down to the 345px
+ * tier. Room only supplies the surface tones and the copy affordance.
  */
 export const IdentifierChip = ({
   label,
@@ -185,11 +195,11 @@ export const IdentifierChip = ({
   };
 
   return (
-    <div className="flex min-w-[min(fit-content,100%)] max-w-full flex-1 basis-0 items-center gap-2 rounded-md px-2.5 py-1.5 bg-white text-slate-700 ring-1 ring-slate-200 dark:bg-black/25 dark:text-slate-300 dark:ring-0">
-      <span className="flex-shrink-0 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+    <div className="aireon-idchip rounded-md bg-white text-slate-700 ring-1 ring-slate-200 dark:bg-black/25 dark:text-slate-300 dark:ring-0">
+      <span className="aireon-idchip-label text-slate-500 dark:text-slate-400">
         {label}
       </span>
-      <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[11px] font-semibold leading-tight">
+      <span className="aireon-idchip-value">
         {value}
       </span>
       <button

@@ -174,16 +174,36 @@ describe('faq tab is the in-panel Claire entry point', () => {
 describe('panel header keeps the data-card header standard', () => {
   const header = read('components/ParcelPanelHeader.tsx');
 
-  it('uses the content-sized flex chip row, never a rigid grid (R2)', () => {
-    expect(header).toContain('flex flex-wrap gap-1.5');
-    expect(header).toContain('min-w-[min(fit-content,100%)]');
-    expect(header).toContain('max-w-full');
+  it('uses the shared one-row identifier chip system, never a rigid grid (R2b)', () => {
+    // Row + chip tiers come from @aireon/shared/map-ui.css: the container
+    // query there is what fits EGRID + Lat/Lng on ONE row at room's ~420px
+    // header column. The old hand-rolled row (fixed 10/11px type, per-chip
+    // width clamps) needed ~440px and always wrapped onto two rows.
+    expect(header).toContain('aireon-idchips');
+    expect(header).toContain('aireon-idchip rounded-md');
+    expect(header).toContain('aireon-idchip-label');
+    expect(header).toContain('aireon-idchip-value');
     expect(header).not.toContain('grid-cols-2');
+    // The retired local markup must not come back — a fixed chip type or a
+    // per-chip min-width clamp would silently re-break the one-row fit.
+    expect(header).not.toContain('flex flex-wrap gap-1.5');
+    expect(header).not.toContain('min-w-[min(fit-content,100%)]');
+    expect(header).not.toContain('text-[10px]');
+    expect(header).not.toContain('text-[11px]');
   });
 
   it('keeps six decimals of coordinate precision in display and copy payload', () => {
     expect(header).toContain('lat.toFixed(6)');
     expect(header).toContain('lng.toFixed(6)');
+  });
+
+  it('subtitles the locality as zip plus municipality', () => {
+    // RES /parcel_data carries no canton abbreviation, so the locality line is
+    // "zip · municipality"; filter(Boolean) degrades a missing zip to the bare
+    // municipality name rather than a stray separator.
+    expect(header).toContain('[parcelData?.zip, parcelData?.municipality_name]');
+    expect(header).toContain(".join(' · ')");
+    expect(header).toContain('.filter(Boolean)');
   });
 
   it('matches roofs: aerial and address first, close beside the title, actions underneath', () => {
@@ -228,5 +248,21 @@ describe('panel header keeps the data-card header standard', () => {
     expect(track, 'Track button missing from the header actions').toBeGreaterThan(-1);
     expect(braces, 'raw-JSON toggle missing from the header actions').toBeGreaterThan(-1);
     expect(track).toBeLessThan(braces);
+  });
+});
+
+describe('Claire launcher clears the panel via the shared offset prop', () => {
+  it('feeds the panel offset to ClaireAssistant (launcher = offset + 20)', () => {
+    expect(mapView).toContain('zoomPanelOffsetPx={PANEL_OFFSET_PX}');
+  });
+
+  it('never out-specifies the shared launcher position from index.css', () => {
+    // A hard `right: 476px` on the launcher wrapper used to live in index.css
+    // (pre-var shared launcher); it beat the prop-driven --claire-launcher-r
+    // (496px) and pinned the smiley 20px under the pane edge. The offset must
+    // stay prop-driven — no local CSS override, whatever the pixel value.
+    const css = read('index.css');
+    expect(css).not.toContain("data-screenshot-ignore='true']");
+    expect(css).not.toContain('--claire-launcher-r:');
   });
 });

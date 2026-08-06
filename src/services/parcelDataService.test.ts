@@ -64,6 +64,7 @@ describe('fetchParcelData — normalisation', () => {
     const d = await fetchParcelData({ lat: 47.37, lng: 8.53, egrid: 'CH-unit-addr' });
     expect(d.address).toBe('Nüschelerstrasse 46'); // panel header — unchanged
     expect(d.address_full).toBe('Nüschelerstrasse 46 8001 Zürich'); // navbar search box
+    expect(d.zip).toBe('8001'); // locality subtitle — Number on the wire, string out
   });
 
   it('leaves address_full null for a parcel with no address', async () => {
@@ -75,6 +76,7 @@ describe('fetchParcelData — normalisation', () => {
 
     const d = await fetchParcelData({ lat: 47.37, lng: 8.53, egrid: 'CH-unit-noaddr' });
     expect(d.address_full).toBeNull();
+    expect(d.zip).toBeNull(); // subtitle degrades to the bare municipality
   });
 
   it('throws ParcelDataError on a non-2xx response', async () => {
