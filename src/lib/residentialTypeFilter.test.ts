@@ -53,6 +53,21 @@ describe('loadResidentialTypeFilter', () => {
     },
   );
 
+  it('ignores the pre-All preference namespace so returning users reset to All once', () => {
+    const getItem = vi.fn((key: string) =>
+      key === 'room:residentialTypeFilter' ? 'single-unit' : null,
+    );
+    const setItem = vi.fn();
+    vi.stubGlobal('window', {
+      localStorage: { getItem, setItem },
+    } as unknown as Window & typeof globalThis);
+
+    expect(loadResidentialTypeFilter()).toBe('all');
+    expect(RESIDENTIAL_TYPE_STORAGE_KEY).toBe('room:residentialTypeFilter:v2');
+    expect(getItem).toHaveBeenCalledWith(RESIDENTIAL_TYPE_STORAGE_KEY);
+    expect(getItem).not.toHaveBeenCalledWith('room:residentialTypeFilter');
+  });
+
   it.each([
     ['apartments', 'multi-unit'],
     ['houses', 'single-unit'],

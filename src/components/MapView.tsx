@@ -118,16 +118,11 @@ const RESIDENTIAL_TYPE_LABEL_KEYS: Record<ResidentialTypeFilter, string> = {
 // applied to each directly. All restores each captured original layer filter;
 // the two unit modes combine their condition with that base filter.
 //
-// Deliberately EXCLUDED (room-specific, unlike roofs which uses feature-state
-// for these): `parcel-hover`, `parcel-selected` and `parcel-selected-casing`.
-// room drives those three via a dynamic `['==', ['get','parcel_id'], id]`
-// filter set on hover/click, so any residential clause we set on them would be
-// clobbered on the very next mousemove/click. It is also unnecessary: both the
-// hover and click hit-tests run against `parcel-fill` (see wireParcelHover and
-// the `click`/`queryRenderedFeatures` calls), so once `parcel-fill` is filtered
-// a hidden parcel can no longer be hovered or newly selected. A parcel that was
-// ALREADY selected when the filter changes is separately deselected in
-// handleResidentialTypeChange so no orphan highlight lingers.
+// parcel-hit is deliberately excluded too: it is the transparent, unfiltered
+// interaction surface used by hover, click, search/deep-link and context-menu
+// hit-tests. Residential type therefore controls the visual choropleth without
+// making parcels outside that group unselectable. Hover and selected highlights
+// keep their independent parcel-id filters.
 const RESIDENTIAL_FILTERED_LAYERS = [
   'parcel-fill',
   'parcel-outline',
@@ -512,9 +507,9 @@ const MapView = () => {
   // the retry chain below knows whether to keep waiting for tiles.
   const trySelectParcelAt = useCallback((map: maplibregl.Map, center: [number, number]): boolean => {
     // Querying a missing layer throws — a search select can race the style load.
-    if (!map.getLayer('parcel-fill')) return false;
+    if (!map.getLayer('parcel-hit')) return false;
     const point = map.project(center);
-    const features = map.queryRenderedFeatures(point, { layers: ['parcel-fill'] });
+    const features = map.queryRenderedFeatures(point, { layers: ['parcel-hit'] });
     if (features.length && features[0].properties) {
       selectParcelRef.current(
         features[0].properties,
@@ -744,7 +739,7 @@ const MapView = () => {
     const sw = map.project([lng - radiusDeg, lat - radiusDeg]);
     const ne = map.project([lng + radiusDeg, lat + radiusDeg]);
     const bbox: [maplibregl.PointLike, maplibregl.PointLike] = [[Math.min(sw.x, ne.x), Math.min(sw.y, ne.y)], [Math.max(sw.x, ne.x), Math.max(sw.y, ne.y)]];
-    const layers = ['parcel-fill', 'parcel-hover', 'parcel-3d'].filter((id) => map.getLayer(id));
+    const layers = ['parcel-hit'].filter((id) => map.getLayer(id));
     if (!layers.length) return [];
     const features = map.queryRenderedFeatures(bbox, { layers });
     const seen = new Set<string | number>();
@@ -807,26 +802,10 @@ const MapView = () => {
     setSheetDragOffset(0);
   };
 
-  // `true` when a parcel satisfies the given residential filter. Mirrors
-  // residentialTypeCondition's expression semantics in plain JS so we can tell
-  // whether the currently-selected parcel survives a filter change. All always
-  // matches; otherwise only bldg_flats >= 2 is multi-unit and every other value
-  // is single-unit.
-  const parcelMatchesResidentialFilter = useCallback(
-    (props: Record<string, unknown>, filter: ResidentialTypeFilter): boolean => {
-      if (filter === 'all') return true;
-      const flats = Number(props.bldg_flats ?? 0);
-      const n = Number.isFinite(flats) ? flats : 0;
-      return filter === 'multi-unit' ? n >= 2 : n < 2;
-    },
-    [],
-  );
-
   // Segmented control: switch the residential-type filter. Guards against a
   // no-op, updates state + ref, persists to localStorage, and applies the new
-  // condition to the parcel display layers. If the currently-selected parcel is
-  // now filtered out, close the info panel too so no orphan selection outline
-  // lingers over a hidden parcel (parcel-selected is not in the filtered set).
+  // condition to the parcel display layers. The selected parcel remains open
+  // even when it is outside the visual group.
   const handleResidentialTypeChange = useCallback(
     (next: ResidentialTypeFilter) => {
       if (next === residentialTypeFilterRef.current) return;
@@ -838,12 +817,8 @@ const MapView = () => {
         // localStorage unavailable (private mode / quota) — non-critical.
       }
       if (mapRef.current) applyResidentialTypeFilterRef.current(mapRef.current, next);
-      const selected = selectedParcelRef.current;
-      if (selected && !parcelMatchesResidentialFilter(selected.props, next)) {
-        handleCloseInfoPanel();
-      }
     },
-    [parcelMatchesResidentialFilter, handleCloseInfoPanel],
+    [],
   );
 
   const getCaptureMetadata = useCallback((): ScreenshotMetadata => {
@@ -915,7 +890,7 @@ const MapView = () => {
           addBuildingLayers(map, 0.85);
           // Capture the parcel display layers' original (null) filters once, then
           // apply any persisted residential-type choice so the map opens already
-          // narrowed to Houses/Apartments when that was the last selection.
+          // narrowed to the saved unit group when that was the last selection.
           for (const id of RESIDENTIAL_FILTERED_LAYERS) {
             if (map.getLayer(id) && !originalLayerFiltersRef.current.has(id)) {
               originalLayerFiltersRef.current.set(id, map.getFilter(id) ?? null);
@@ -949,7 +924,7 @@ const MapView = () => {
           setLv95Coords(null);
         });
 
-        map.on('click', 'parcel-fill', (e) => {
+        map.on('click', 'parcel-hit', (e) => {
           // Mirror the hover gate: parcels are only selectable once zoomed to block
           // level. Below that the map is an overview — clicks would land on the
           // wrong tiny parcel — so we ignore them. Address-search and ?lat/?lng
@@ -974,8 +949,8 @@ const MapView = () => {
 
         map.on('contextmenu', (event) => {
           event.originalEvent.preventDefault();
-          const feature = map.getLayer('parcel-fill')
-            ? map.queryRenderedFeatures(event.point, { layers: ['parcel-fill'] })[0]
+          const feature = map.getLayer('parcel-hit')
+            ? map.queryRenderedFeatures(event.point, { layers: ['parcel-hit'] })[0]
             : undefined;
           const properties = feature?.properties as Record<string, unknown> | undefined;
           const canvasRect = map.getCanvas().getBoundingClientRect();

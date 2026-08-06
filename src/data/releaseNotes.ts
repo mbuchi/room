@@ -15,11 +15,16 @@ export const RELEASES: Release[] = [
     version: '0.20.10',
     date: 'August 6, 2026',
     codename: 'One-row identity',
-    summary: 'The parcel identifiers share one row, the subtitle names the locality, and the Claire launcher keeps its standard clearance.',
+    summary: 'Parcel identity stays compact, Claire keeps its clearance, and Residential type keeps every parcel selectable.',
     items: [{
       kind: 'improved' as ChangeKind,
       icon: Type,
       text: 'The EGRID and coordinate chips under the parcel address now use the suite-shared identifier row. The chip type scales fluidly with the panel width, so both chips share a single line instead of stacking, and the copy buttons still carry the full values.',
+      prs: [],
+    }, {
+      kind: 'fixed' as ChangeKind,
+      icon: Filter,
+      text: 'Residential type now opens on All for every user after the upgrade, including browsers that had retained Single-unit from the former default; choices made from now on remain saved. The unit filter only changes the visible parcel styling, so every parcel stays hoverable and selectable even when it falls outside the active group.',
       prs: [],
     }, {
       kind: 'improved' as ChangeKind,
