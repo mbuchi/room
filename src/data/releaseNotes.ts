@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink, Share2,
+  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink, Share2, Copy,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -11,6 +11,18 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.22.1',
+    date: 'August 8, 2026',
+    codename: 'EGRID copy',
+    summary: 'The right-click map menu can now copy the federal parcel identifier (EGRID) straight to your clipboard.',
+    items: [{
+      kind: 'new' as ChangeKind,
+      icon: Copy,
+      text: 'Right-click map menu: Copy parcel ID (EGRID) copies the federal parcel identifier (CH...) to the clipboard, ready to paste into any app or search that speaks EGRID.',
+      prs: [],
+    }],
+  },
   {
     version: '0.22.0',
     date: 'August 8, 2026',
