@@ -12,6 +12,23 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.22.0',
+    date: 'August 8, 2026',
+    codename: 'Address-first context menu',
+    summary: 'The right-click menu now leads with the street address and its primary action is named for what room does: Check zoning here.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: MapPin,
+      text: 'The right-click menu now leads with the street address and identifies the parcel below it, so you see where you are before what the parcel is called.',
+      prs: [],
+    }, {
+      kind: 'changed' as ChangeKind,
+      icon: Type,
+      text: 'The menu\'s primary action is now labeled "Check zoning here", telling you what room will show for the spot instead of the generic load wording.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.21.1',
     date: 'August 8, 2026',
     codename: 'No forced sign-in',

@@ -268,6 +268,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'map.locate.timeout': 'Location request timed out. Please try again.',
     'map.locate.unknown': 'An unexpected error occurred while retrieving your location.',
 
+    // ---------- map right-click context menu ----------
+    'map.context.load_label': 'Check zoning here',
+    'map.context.load_hint': 'Zoning and density for this parcel',
+
     // ---------- onboarding tour ----------
     'tour.help_button': 'Help',
     'tour.short_label': 'Quick tour',
@@ -574,6 +578,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'map.locate.unavailable': 'Votre position n’a pas pu être déterminée. Veuillez réessayer.',
     'map.locate.timeout': 'La demande de position a expiré. Veuillez réessayer.',
     'map.locate.unknown': 'Une erreur inattendue est survenue lors de la récupération de votre position.',
+
+    // ---------- map right-click context menu ----------
+    'map.context.load_label': 'Vérifier le zonage ici',
+    'map.context.load_hint': 'Zone et densité pour cette parcelle',
 
     // ---------- tour ----------
     'tour.help_button': 'Aide',
@@ -882,6 +890,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'map.locate.timeout': 'Die Standortanfrage ist abgelaufen. Bitte versuchen Sie es erneut.',
     'map.locate.unknown': 'Beim Abrufen Ihres Standorts ist ein unerwarteter Fehler aufgetreten.',
 
+    // ---------- map right-click context menu ----------
+    'map.context.load_label': 'Zonierung hier prüfen',
+    'map.context.load_hint': 'Zone und Dichte für diese Parzelle',
+
     // ---------- tour ----------
     'tour.help_button': 'Hilfe',
     'tour.short_label': 'Kurztour',
@@ -1188,6 +1200,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'map.locate.unavailable': 'Impossibile determinare la tua posizione. Riprova.',
     'map.locate.timeout': 'La richiesta di posizione è scaduta. Riprova.',
     'map.locate.unknown': 'Si è verificato un errore imprevisto durante il recupero della posizione.',
+
+    // ---------- map right-click context menu ----------
+    'map.context.load_label': 'Verifica la zonizzazione qui',
+    'map.context.load_hint': 'Zona e densità per questa particella',
 
     // ---------- tour ----------
     'tour.help_button': 'Aiuto',
