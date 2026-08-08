@@ -72,7 +72,9 @@ import {
   resolveBasemapStyle,
   getBasemapOption,
   themeBasemapId,
+  BASEMAP_OPTIONS,
 } from '@aireon/shared/basemap';
+import { getThemeOverride, getBasemapOverride } from '@aireon/shared/url-params';
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
@@ -229,7 +231,23 @@ const PANEL_TAB_LABEL_KEYS: Record<PanelTab, string> = {
 // cross-app `aireon_theme` cookie (cookie wins over the localStorage mirror);
 // null → room's dark default. The toggle then drives both the `dark` class and
 // the BasemapPicker's theme-paired basemap via the shared setTheme.
-const prefersDarkMode = (): boolean => getStoredTheme() !== 'light';
+//
+// `?theme=dark|light` (URL_PARAMS_STANDARD.md) wins first when present — the
+// <html>.dark class itself was already flipped synchronously in main.tsx
+// (before this component, or even the RoomAccessGate loading skeleton, ever
+// mounted), so this just has to seed React state to match. The override is
+// never persisted here; only setTheme() (the in-app toggle) writes storage,
+// and the mount-time sync effect below skips its very first write when an
+// override is active so it can't echo the override back into the cookie.
+const prefersDarkMode = (): boolean => {
+  const override = getThemeOverride();
+  if (override) return override === 'dark';
+  return getStoredTheme() !== 'light';
+};
+
+// room's actual basemap id list, for validating ?basemap=<id> against — an
+// unknown id in the URL must never reach the map (URL_PARAMS_STANDARD.md).
+const BASEMAP_IDS = BASEMAP_OPTIONS.map((b) => b.id);
 
 const MapView = () => {
   const { t, locale } = useI18n();
@@ -262,12 +280,15 @@ const MapView = () => {
   // The basemap pairs with the active theme. The shared <BasemapPicker> owns the
   // open/close state, the live-thumbnail gallery, the style swap and the
   // theme pairing (pairWithTheme default-on) — room just mirrors the current id.
-  const [selectedBasemap, setSelectedBasemap] = useState<string>(() =>
-    themeBasemapId(prefersDarkMode()),
+  // `?basemap=<id>` (URL_PARAMS_STANDARD.md) wins over the theme-derived
+  // default for this page load only; invalid/unknown ids are ignored.
+  const [selectedBasemap, setSelectedBasemap] = useState<string>(
+    () => getBasemapOverride(BASEMAP_IDS) ?? themeBasemapId(prefersDarkMode()),
   );
   const [parcelOpacity, setParcelOpacity] = useState(0.6);
   const [buildingOpacity, setBuildingOpacity] = useState(0.75);
-  const [is3DMode, setIs3DMode] = useState(false);
+  // `?view=3d` (URL_PARAMS_STANDARD.md) opens straight into 3D for this load.
+  const [is3DMode, setIs3DMode] = useState(() => getInitialMapState().view === '3d');
   const [lv95Coords, setLv95Coords] = useState<[number, number] | null>(null);
 
   // Controlled open-state for the Claire assistant so the in-panel "Ask Claire"
@@ -586,10 +607,23 @@ const MapView = () => {
   // and swaps the basemap light↔dark itself (until the user pins one).
   const toggleDarkMode = useCallback(() => setIsDarkMode((prev) => !prev), []);
 
+  // Guards the theme-persist effect below so it skips exactly one write: the
+  // mount-time run when a `?theme=` override is active (never persist it).
+  const themeEffectRanRef = useRef(false);
+
   useEffect(() => {
     // setTheme writes the cross-app `aireon_theme` cookie + localStorage mirror
     // + the `.dark` class on <html>, and (when signed in) syncs the choice to
     // the member profile so it follows the user across devices.
+    //
+    // `?theme=dark|light` (URL_PARAMS_STANDARD.md) must never persist.
+    // `isDarkMode`'s initial state already reflects it (see prefersDarkMode
+    // above), so skip only the very first (mount) write when an override is
+    // active — any later change (the toggle button, or the cross-app
+    // mutation sync below) persists exactly as before.
+    const isFirstRun = !themeEffectRanRef.current;
+    themeEffectRanRef.current = true;
+    if (isFirstRun && getThemeOverride()) return;
     setTheme(isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
@@ -876,7 +910,18 @@ const MapView = () => {
           container,
           style,
           center: initialState.center,
-          zoom: initialState.hasUrlCoords ? Math.max(initialState.zoom, 17) : initialState.zoom,
+          // Deep-links (?lat/?lng) open at zoom ≥17 so the parcel under the
+          // coordinates is rendered in the vector tiles and the auto-select
+          // hit-test below reliably finds it. The floor itself now lives in
+          // @aireon/shared/url-params (deepLinkZoom).
+          zoom: initialState.hasUrlCoords ? initialState.deepLinkZoom : initialState.zoom,
+          // `?view=3d` (URL_PARAMS_STANDARD.md) tilts the initial camera too —
+          // extrusion layers alone at pitch 0 would look like a no-op. Falls
+          // back to room's own 3D-toggle defaults (handleToggle3D below) when
+          // the URL didn't also specify ?pitch/?bearing.
+          ...(initialState.view === '3d'
+            ? { pitch: initialState.pitch ?? 60, bearing: initialState.bearing ?? 0 }
+            : {}),
           // Keep the WebGL backbuffer readable so screenshot/export captures
           // the map instead of a blank canvas (MapLibre v5 location).
           canvasContextAttributes: { preserveDrawingBuffer: true },
@@ -890,6 +935,16 @@ const MapView = () => {
         map.on('load', () => {
           addParcelLayers(map, 0.6);
           addBuildingLayers(map, 0.85);
+          // `?view=3d` (URL_PARAMS_STANDARD.md) opened is3DMode true — swap
+          // straight to the extrusion instead of waiting for a manual 3D
+          // toggle click. Mirrors handleBasemapApplied's own 3D branch below.
+          if (is3DModeRef.current) {
+            if (map.getLayer('building-fill'))
+              map.setLayoutProperty('building-fill', 'visibility', 'none');
+            if (map.getLayer('building-outline'))
+              map.setLayoutProperty('building-outline', 'visibility', 'none');
+            addBuildingExtrusion(map, buildingOpacityRef.current);
+          }
           // Capture the parcel display layers' original (null) filters once, then
           // apply any persisted residential-type choice so the map opens already
           // narrowed to the saved unit group when that was the last selection.

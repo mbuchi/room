@@ -28,6 +28,7 @@ import { TourTooltip } from "./TourTooltip";
 import type { TourVariant } from "./tour.types";
 import { hasCompletedTour, markTourCompleted } from "./tourStorage";
 import { useI18n } from "../contexts/I18nContext";
+import { isTourForceStarted, shouldAutoStartTour } from "@aireon/shared/url-params";
 
 type TourContextValue = {
   startTour: (variant: TourVariant) => void;
@@ -156,16 +157,24 @@ export function TourProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    const auto = pickAutoStartVariant();
+    // `?tour=silent` (URL_PARAMS_STANDARD.md) suppresses autostart without
+    // touching the completion cookie; `?tour=start` force-starts even if the
+    // tour was already completed. markTourCompleted (below) is untouched —
+    // tour=silent must never mark the tour as completed.
+    const force = isTourForceStarted();
+    const auto = pickAutoStartVariant() ?? (force ? "long" : null);
     if (!auto) return;
-    if (
-      hasCompletedTour(
-        appTourConfig.appId,
-        appTourConfig.tourVersion,
-        auto,
-      )
-    ) {
-      return;
+    if (!force) {
+      if (!shouldAutoStartTour()) return;
+      if (
+        hasCompletedTour(
+          appTourConfig.appId,
+          appTourConfig.tourVersion,
+          auto,
+        )
+      ) {
+        return;
+      }
     }
 
     const timer = window.setTimeout(() => {
