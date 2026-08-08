@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.22.2',
+    date: 'August 8, 2026',
+    codename: 'Every search counts',
+    summary: 'Right-click map searches now show up under Recent searches, just like address-bar searches.',
+    items: [{
+      kind: 'fixed' as ChangeKind,
+      icon: Search,
+      text: 'Right-click map searches now appear in Recent searches, matching the address bar and synced across Aireon apps.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.22.1',
     date: 'August 8, 2026',
     codename: 'EGRID copy',
