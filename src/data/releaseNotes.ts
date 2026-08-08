@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink, Share2, Copy,
+  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink, Share2, Copy, Link2,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -11,6 +11,18 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.23.0',
+    date: 'August 9, 2026',
+    codename: 'Deep-link URL parameters',
+    summary: 'room now supports the suite-wide deep-link URL contract: mode=screenshot/embed/kiosk, tour=silent/start, theme, lang, basemap and 3D view all work from the address bar.',
+    items: [{
+      kind: 'new' as ChangeKind,
+      icon: Link2,
+      text: 'Adopted the suite-standard deep-link URL parameters: mode=screenshot|embed|kiosk hides chrome for clean captures and embeds, tour=silent|start controls the onboarding tour, and theme=dark|light, lang=en|fr|de|it, basemap=<id> and view=3d let a shared link open room in a specific appearance. Every override is ephemeral - it never overwrites your saved preferences.',
+      prs: [],
+    }],
+  },
   {
     version: '0.22.2',
     date: 'August 8, 2026',

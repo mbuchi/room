@@ -1,5 +1,7 @@
+import { useEffect, useRef, type ReactNode } from 'react';
 import { createI18n } from '@aireon/shared';
 import type { Locale } from '@aireon/shared';
+import { getLocaleOverride } from '@aireon/shared/url-params';
 
 /**
  * Translation table for the room UI. Each key resolves to the matching
@@ -1279,10 +1281,55 @@ const translations: Record<Locale, Record<string, string>> = {
 // (memoized t/value, English fallback, localStorage-persisted detect). The
 // translations table above is passed eagerly; the public API (I18nProvider,
 // useI18n) is unchanged so every consumer keeps working as-is.
-const { I18nProvider, useI18n } = createI18n<Locale>({
+const I18N_STORAGE_KEY = 'room:locale';
+
+const { I18nProvider: SharedI18nProvider, useI18n } = createI18n<Locale>({
   locales: translations,
   fallbackLocale: 'en',
-  storageKey: 'room:locale',
+  storageKey: I18N_STORAGE_KEY,
 });
 
-export { I18nProvider, useI18n };
+// `?lang=de` (URL_PARAMS_STANDARD.md, appearance) must win as the INITIAL
+// locale for this page load but must never land in `room:locale` storage —
+// a reload without the param has to restore the visitor's real preference.
+// createI18n's own persist effect writes `storageKey` on every locale change,
+// including the very first one, so feeding the override straight through
+// `initialLocale` would let that effect silently stamp it over the stored
+// value on mount. This wrapper snapshots whatever was stored *before* mount
+// and, only when an override is active, restores it right after mount —
+// after createI18n's persist effect has already fired (child effects run
+// before parent effects), undoing that single write. The persist-on-change
+// path itself is untouched: any later, user-driven language switch persists
+// exactly as before.
+export function I18nProvider({ children }: { children: ReactNode }) {
+  const override = getLocaleOverride();
+  const preOverrideStoredRef = useRef<string | null>();
+  if (override && preOverrideStoredRef.current === undefined) {
+    try {
+      preOverrideStoredRef.current = localStorage.getItem(I18N_STORAGE_KEY);
+    } catch {
+      preOverrideStoredRef.current = null;
+    }
+  }
+
+  useEffect(() => {
+    if (!override) return;
+    try {
+      if (preOverrideStoredRef.current === null) {
+        localStorage.removeItem(I18N_STORAGE_KEY);
+      } else {
+        localStorage.setItem(I18N_STORAGE_KEY, preOverrideStoredRef.current as string);
+      }
+    } catch {
+      // best-effort restore — persistence itself is already best-effort.
+    }
+    // Deliberately once: only the initial-mount write (carrying the override)
+    // needs undoing; `override` is a static read of the page's URL for the
+    // whole session (getUrlState() parses location.search once and caches it).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <SharedI18nProvider initialLocale={override ?? undefined}>{children}</SharedI18nProvider>;
+}
+
+export { useI18n };

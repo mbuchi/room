@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { GlassProvider, initTheme, initOpenReplay } from '@aireon/shared';
+import { GlassProvider, initTheme, applyTheme, initOpenReplay } from '@aireon/shared';
+import { getThemeOverride } from '@aireon/shared/url-params';
 import { I18nProvider } from './contexts/I18nContext';
 import App from './App.tsx';
 import { errorLogger } from './lib/errorLog';
@@ -21,6 +22,15 @@ initOpenReplay({ projectKey: import.meta.env.VITE_OPENREPLAY_PROJECT_KEY as stri
 // paint (so Tailwind `dark:` variants and the tour's dark detection resolve
 // with no flash). MapView owns the toggle and calls setTheme thereafter.
 initTheme('dark');
+
+// `?theme=dark|light` (URL_PARAMS_STANDARD.md) wins for this page load only.
+// Applied here — before ANY component (including the RoomAccessGate loading
+// skeleton, which reads the class synchronously on its own first paint) ever
+// mounts — so there is no flash of the stored/default theme. Ephemeral: this
+// never touches the cookie/localStorage; only setTheme() (MapView's in-app
+// toggle) persists.
+const themeOverride = getThemeOverride();
+if (themeOverride) applyTheme(themeOverride);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -1,4 +1,9 @@
 import { DEFAULT_MAP_ZOOM } from '@aireon/shared/map-defaults';
+import {
+  getInitialMapState as sharedInitialMapState,
+  updateMapUrl,
+  type AireonInitialMapState,
+} from '@aireon/shared/url-params';
 
 export const DEFAULT_CENTER: [number, number] = [8.894175, 47.556806];
 export const DEFAULT_ZOOM = DEFAULT_MAP_ZOOM;
@@ -36,24 +41,17 @@ export const PARCEL_RATIO_COLORS: [number, string][] = [
   [87.5, '#1a9850'],
 ];
 
-export function getInitialMapState() {
-  const params = new URLSearchParams(window.location.search);
-  const lat = parseFloat(params.get('lat') || '');
-  const lng = parseFloat(params.get('lng') || '');
-  const zoom = parseFloat(params.get('zoom') || '');
+export type InitialMapState = AireonInitialMapState;
 
-  return {
-    center: (!isNaN(lat) && !isNaN(lng) ? [lng, lat] : DEFAULT_CENTER) as [number, number],
-    zoom: !isNaN(zoom) ? zoom : DEFAULT_ZOOM,
-    hasUrlCoords: !isNaN(lat) && !isNaN(lng),
-  };
+// Thin shim over @aireon/shared/url-params (URL_PARAMS_STANDARD.md). Keeps
+// the local filename + these exact exported names so every call site keeps
+// compiling untouched, while gaining deepLinkZoom/pitch/bearing/view for
+// free — callers that only destructure center/zoom/hasUrlCoords are
+// unaffected by the extra fields.
+export function getInitialMapState(): InitialMapState {
+  return sharedInitialMapState({ defaultCenter: DEFAULT_CENTER, defaultZoom: DEFAULT_ZOOM });
 }
 
-export function updateUrlParams(lat: number, lng: number, zoom: number) {
-  const params = new URLSearchParams(window.location.search);
-  params.set('lat', lat.toFixed(6));
-  params.set('lng', lng.toFixed(6));
-  params.set('zoom', zoom.toFixed(2));
-  const newUrl = `${window.location.pathname}?${params.toString()}`;
-  window.history.replaceState(null, '', newUrl);
+export function updateUrlParams(lat: number, lng: number, zoom: number): void {
+  updateMapUrl({ lat, lng, zoom });
 }
