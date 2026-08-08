@@ -54,6 +54,7 @@ import {
   MapLegendChip,
   MapUnavailable,
   fetchIsAdmin,
+  formatParcelAddress,
   isWebGLAvailable,
   PANEL_TOUCH_TARGET,
   PanelActionButton,
@@ -167,6 +168,7 @@ function toContextParcel(properties: Record<string, unknown>): MapContextParcel 
     municipality,
     area: Number(properties['area_m2'] ?? properties['parcel_area'] ?? properties['flaeche']) || 0,
     subtitle: municipality,
+    address: formatParcelAddress(properties) || undefined,
   };
 }
 
@@ -1133,6 +1135,8 @@ const MapView = () => {
         currentAppId="room"
         locale={locale}
         darkMode={isDarkMode}
+        loadLabel={t('map.context.load_label')}
+        loadHint={t('map.context.load_hint')}
         auth={{ isAuthenticated, getAccessToken, promptLogin }}
         onClose={() => setMapContext(null)}
         onLoadParcel={(point) => {
