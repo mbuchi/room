@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.21.1',
+    date: 'August 8, 2026',
+    codename: 'No forced sign-in',
+    summary: 'Signed-out visitors are never redirected to the sign-in page anymore: the app always opens directly, and signing in stays your choice.',
+    items: [{
+      kind: 'changed' as ChangeKind,
+      icon: Sparkles,
+      text: 'Opening room while signed out used to bounce some visitors through the account service, and could even strand you on its sign-in page when an old session had expired. That automatic redirect is gone across the whole Aireon suite: room now always loads anonymously, and you only ever see the sign-in screen after choosing Sign in yourself.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.21.0',
     date: 'August 7, 2026',
     codename: 'Compact pills',
