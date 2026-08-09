@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.3',
+    date: 'August 9, 2026',
+    codename: 'One quiet chip',
+    summary: 'Panel action buttons now share one subtle chip background instead of a mix of filled and floating icons.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Palette,
+      text: 'The Track, Export and raw-JSON buttons in the parcel panel header now rest on the suite-standard translucent chip surface, so the action row reads as one calm group in both themes. Stateful accents (tracked, active, error) keep their tinted chips.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.2',
     date: 'August 9, 2026',
     codename: 'Parcel data, downloadable',
