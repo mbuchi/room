@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.5',
+    date: 'August 9, 2026',
+    codename: 'Unified WGS84 pills',
+    summary: 'Coordinate pill wording is standardized to WGS84 with equal flex width sizing.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Code2,
+      text: 'Standardized coordinate identifier pill wording to WGS84 and equalized pill widths side-by-side.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.4',
     date: 'August 9, 2026',
     codename: 'The link remembers the view',
