@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.7',
+    date: 'August 9, 2026',
+    codename: 'A faster workshop',
+    summary: 'room is built with a new, much faster engine, and it now arrives as smaller cached pieces.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Zap,
+      text: 'room is now assembled with Vite 8, a single much faster build engine. Preparing a new version of room dropped from 4.5 seconds to 1.5 seconds, the stylesheet got a little smaller, and room is delivered as more but smaller pieces at the same total size. That last part is the one you may notice: when we ship an update, your browser only re-downloads the pieces that actually changed instead of the big ones it already had. Nothing about how room looks or works has changed.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.5',
     date: 'August 9, 2026',
     codename: 'Unified WGS84 pills',
