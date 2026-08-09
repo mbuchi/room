@@ -38,7 +38,10 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null,
   const divider = isDarkMode ? 'border-slate-700/60' : 'border-slate-200/80';
 
   // On md+ the room panel takes up the right edge, so we shift via the
-  // `--md-right` CSS var (consumed by the wrapper's md:[right:var(...)] class).
+  // `--md-right` CSS var, which the wrapper's md-breakpoint arbitrary `right`
+  // class reads (see `edgeClass` below). That class is spelled out only there:
+  // Tailwind scans raw file text, so repeating it here would emit a real rule
+  // for the placeholder and produce invalid CSS that lightningcss rejects.
   // Below md the wrapper's `right-4` keeps controls usable on phones. We set
   // ONLY the var here — an inline `right` would beat the md: class and pin the
   // control in place even when the panel opens.

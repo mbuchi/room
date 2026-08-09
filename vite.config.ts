@@ -1,12 +1,16 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
+import babel from '@rolldown/plugin-babel';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    // plugin-react 6 compiles JSX with Oxc and has dropped its `babel` option
+    // entirely, so React Compiler now runs as its own Babel pass below.
+    react(),
     // target "18" is required because this app runs React 18 (the compiler
     // emits react-compiler-runtime calls that React 18 lacks natively).
-    react({ babel: { plugins: [['babel-plugin-react-compiler', { target: '18' }]] } }),
+    babel({ presets: [reactCompilerPreset({ target: '18' })] }),
   ],
   optimizeDeps: {
     exclude: ['lucide-react'],
