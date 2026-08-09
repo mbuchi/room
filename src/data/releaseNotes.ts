@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.7',
+    date: 'August 9, 2026',
+    codename: 'Vite 8.1 suite upgrade',
+    summary: 'Upgraded build pipeline to Vite 8.1 with Rolldown bundler and Lightning CSS for faster HMR and builds.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Zap,
+      text: 'Standardized build pipeline on Vite 8.1 and @vitejs/plugin-react v6.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.6',
     date: 'August 9, 2026',
     codename: 'Open here keeps your view',
