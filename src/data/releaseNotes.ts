@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.1',
+    date: 'August 9, 2026',
+    codename: 'Address in the link',
+    summary: 'Confirmed address and right-click selections now keep the map URL synchronized with the exact location and address, ready to reload or share.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Link2,
+      text: 'Selecting an address or loading a location from the right-click menu now writes canonical lat, lng, zoom, and q parameters into the current URL.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.0',
     date: 'August 9, 2026',
     codename: 'Deep-link URL parameters',
