@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.8',
+    date: 'August 9, 2026',
+    codename: 'Open here forgets the old parcel',
+    summary: 'Opening a saved parcel no longer leaves the previous parcel named in the link.',
+    items: [{
+      kind: 'fixed' as ChangeKind,
+      icon: Link2,
+      text: 'Jumping to a saved parcel already kept your language, theme and basemap, but the address and parcel identifiers of the parcel you came from stayed in the link. That made a shared link name one parcel in its text and another in its coordinates. Those identifiers are now cleared on the way.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.7',
     date: 'August 9, 2026',
     codename: 'A faster workshop',
