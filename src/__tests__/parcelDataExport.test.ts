@@ -12,7 +12,8 @@ describe('parcel data export', () => {
     expect(mapView).toContain('additionalData={{ res: parcelData, feature: selectedParcel.props }}');
     expect(mapView).toContain('geometry={selectedParcel.geometry}');
     expect(mapView).toContain('parcelData?.egrid ?? selectedParcel.egrid ?? selectedParcel.parcelId');
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('809701d37812ebc15faa31cbfb4f4a656db72e9f');
+    // v1.146.0 — ghost/danger PanelActionButton tones carry the chip surface.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('c7bb500205e141bad6b1a3a0e357f496aaa9f6bc');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
