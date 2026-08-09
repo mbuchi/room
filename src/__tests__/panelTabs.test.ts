@@ -211,7 +211,7 @@ describe('panel header keeps the data-card header standard', () => {
     expect(header).toContain('<ParcelAerialThumbnail');
     expect(header).toContain('<h2');
     expect(header).toContain('<CloseButton onClick={onClose}');
-    expect(header).toContain('mt-2 flex items-center gap-2');
+    expect(header).toContain('mt-2 flex flex-wrap items-center gap-2');
     expect(header.indexOf('<h2')).toBeLessThan(header.lastIndexOf('{actions}'));
   });
 

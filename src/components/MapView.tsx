@@ -58,6 +58,7 @@ import {
   isWebGLAvailable,
   PANEL_TOUCH_TARGET,
   PanelActionButton,
+  ParcelDataExportButton,
   SegmentedTabs,
   useGlass,
   useIsMobile,
@@ -1419,8 +1420,20 @@ const MapView = () => {
             actions={
               <>
                 {/* Suite action order (PANEL_ACTIONS_STANDARD): Track first,
-                    then the raw-JSON toggle; close stays beside the title. */}
+                    then export and the raw-JSON toggle; close stays beside the title. */}
                 <TrackParcelButton focusedParcel={focusedHandle} parcelData={parcelData} darkMode={isDarkMode} />
+                <ParcelDataExportButton
+                  appId="room"
+                  data={{ ...selectedParcel.props, ...(parcelData ?? {}) }}
+                  additionalData={{ res: parcelData, feature: selectedParcel.props }}
+                  coordinates={{ lng: selectedParcel.lng, lat: selectedParcel.lat }}
+                  parcelId={parcelData?.egrid ?? selectedParcel.egrid ?? selectedParcel.parcelId}
+                  address={parcelData?.address_full ?? fullParcelAddress(selectedParcel.props)}
+                  geometry={selectedParcel.geometry}
+                  dark={isDarkMode}
+                  printLocale={locale}
+                  className={PANEL_TOUCH_TARGET}
+                />
                 {/* Raw-JSON toggle: admins only. The dump behind it carries the
                     parcel's valuation and market-signal fields verbatim, so it
                     rides on the same gate as the compare tab. Non-admins (and
