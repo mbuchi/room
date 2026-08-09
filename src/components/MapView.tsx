@@ -75,7 +75,12 @@ import {
   themeBasemapId,
   BASEMAP_OPTIONS,
 } from '@aireon/shared/basemap';
-import { getThemeOverride, getBasemapOverride } from '@aireon/shared/url-params';
+import {
+  getThemeOverride,
+  getBasemapOverride,
+  registerUrlSyncProviders,
+  syncMapUrl,
+} from '@aireon/shared/url-params';
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
@@ -396,6 +401,39 @@ const MapView = () => {
   buildingOpacityRef.current = buildingOpacity;
   const activeZoneRef = useRef<ActiveZone | null>(null);
   activeZoneRef.current = activeZone;
+
+  // State→URL write-back (URL_PARAMS_STANDARD.md). Every updateUrlParams call
+  // (map load + moveend) stamps these getters' current values, so a copied URL
+  // reproduces the whole view — locale, theme, basemap and the 3D camera — not
+  // just the position. The getters read refs because the providers are
+  // registered once on mount and must never see a stale closure (the theme in
+  // particular can change without a click, via the <html>.dark MutationObserver
+  // below). pitch/bearing are read live off the map and only while 3D is on, so
+  // they disappear from the URL in 2D. This is read-only with respect to app
+  // state: nothing here persists anything.
+  const localeRef = useRef(locale);
+  localeRef.current = locale;
+  const isDarkModeRef = useRef(isDarkMode);
+  isDarkModeRef.current = isDarkMode;
+  useEffect(() => {
+    registerUrlSyncProviders({
+      lang: () => localeRef.current,
+      theme: () => (isDarkModeRef.current ? 'dark' : 'light'),
+      basemap: () => selectedBasemapRef.current,
+      view: () => (is3DModeRef.current ? '3d' : null),
+      pitch: () => (is3DModeRef.current ? (mapRef.current?.getPitch() ?? null) : null),
+      bearing: () => (is3DModeRef.current ? (mapRef.current?.getBearing() ?? null) : null),
+    });
+  }, []);
+  // Re-stamp on state changes that do not move the map (language switch, theme
+  // toggle, basemap pick, 3D toggle) — moveend covers everything else. Kept as
+  // its own effect so it never disturbs the theme-persist effect's skip-once
+  // accounting. Right after a 3D toggle the pitch easeTo is still running, so
+  // the URL briefly reads the pre-ease pitch; the moveend writer corrects it
+  // when the animation lands.
+  useEffect(() => {
+    syncMapUrl();
+  }, [locale, isDarkMode, selectedBasemap, is3DMode]);
 
   // Ref mirror of the residential-type filter so map callbacks (basemap re-add,
   // initial load) read the freshest choice synchronously without re-binding.
