@@ -11,6 +11,7 @@ import '@aireon/shared/scrollbars.css';
 import '@aireon/shared/basemap.css';
 import '@aireon/shared/glass.css';
 import './index.css';
+import { CompareProvider } from './contexts/CompareContext';
 
 errorLogger.install({ captureConsoleErrors: true });
 initOpenReplay({ projectKey: import.meta.env.VITE_OPENREPLAY_PROJECT_KEY as string | undefined, trackerOptions: { canvas: { disableCanvas: true } } });
@@ -36,7 +37,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <GlassProvider>
       <I18nProvider>
-        <App />
+        <CompareProvider>
+          <App />
+        </CompareProvider>
       </I18nProvider>
     </GlassProvider>
   </StrictMode>
