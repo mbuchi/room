@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.2',
+    date: 'August 9, 2026',
+    codename: 'Parcel data, downloadable',
+    summary: 'The selected parcel’s planning evidence can now be downloaded from the panel header.',
+    items: [{
+      kind: 'new' as ChangeKind,
+      icon: Package,
+      text: 'Added responsive PDF, JSON, CSV and GeoJSON exports containing room’s RES enrichment and raw parcel feature, plus the canonical identifier, full address, clicked coordinates and parcel polygon.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.1',
     date: 'August 9, 2026',
     codename: 'Address in the link',

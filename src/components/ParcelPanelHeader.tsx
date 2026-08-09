@@ -123,7 +123,7 @@ const ParcelPanelHeader = ({
                   <span className="truncate">{locality}</span>
                 </p>
               )}
-              {actions && <div className="mt-2 flex items-center gap-2">{actions}</div>}
+              {actions && <div className="mt-2 flex flex-wrap items-center gap-2">{actions}</div>}
             </div>
           </div>
 
