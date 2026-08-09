@@ -17,6 +17,11 @@ export const RELEASES: Release[] = [
     codename: 'Open here forgets the old parcel',
     summary: 'Opening a saved parcel no longer leaves the previous parcel named in the link.',
     items: [{
+      kind: 'feature' as ChangeKind,
+      icon: Bookmark,
+      text: 'Added parcel compare button to panel header action bar per PANEL_ACTIONS_STANDARD.',
+      prs: [],
+    }, {
       kind: 'fixed' as ChangeKind,
       icon: Link2,
       text: 'Jumping to a saved parcel already kept your language, theme and basemap, but the address and parcel identifiers of the parcel you came from stayed in the link. That made a shared link name one parcel in its text and another in its coordinates. Those identifiers are now cleared on the way.',

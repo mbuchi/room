@@ -46,6 +46,8 @@ import ComparePanel from './ComparePanel';
 import FaqPanel from './FaqPanel';
 import PrimaryActionsRow from './PrimaryActionsRow';
 import TrackParcelButton from './TrackParcelButton';
+import CompareToggleButton from './CompareToggleButton';
+import type { CompareParcel } from '../contexts/CompareContext';
 import {
   AboutModal,
   ClaireAssistant,
@@ -1199,6 +1201,19 @@ const MapView = () => {
     );
   }
 
+  const compareParcel: CompareParcel | null =
+    selectedParcel && selectedParcel.lat != null && selectedParcel.lng != null
+      ? {
+          id: parcelData?.egrid ?? selectedParcel.egrid ?? selectedParcel.parcelId ?? `${selectedParcel.lat.toFixed(6)},${selectedParcel.lng.toFixed(6)}`,
+          label: parcelData?.address_full || fullParcelAddress(selectedParcel.props) || selectedParcel.egrid || 'Selected Parcel',
+          lng: selectedParcel.lng,
+          lat: selectedParcel.lat,
+          properties: { ...selectedParcel.props, ...(parcelData ?? {}) },
+          enrichment: null,
+          addedAt: new Date().toISOString(),
+        }
+      : null;
+
   return (
     <div className="relative w-full h-dvh">
       <Navbar
@@ -1439,16 +1454,11 @@ const MapView = () => {
             <span aria-hidden="true" className="absolute inset-x-0 -top-3.5 bottom-0" />
             <span className="h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-700 group-hover:bg-gray-400 dark:group-hover:bg-gray-600 group-active:bg-gray-500 transition-colors" />
           </button>
-
           {/* ── Panel header ──────────────────────────────────────────────
               ONE identity block for every tab: address, municipality, aerial
               thumbnail and the two copyable identifier chips (EGRID, Lat/Lng).
-              Close stays beside the address while the Track and raw-JSON
-              actions sit directly below the subtitle, matching roofs. It used
-              to live inside the parcel-facts tab,
-              which meant the other tabs lost the "which parcel is this?"
-              context and the tab strip had to share a row with the close
-              button. */}
+              Close stays beside the address while the Track, Compare, and raw-JSON
+              actions sit directly below the subtitle, matching roofs. */}
           <ParcelPanelHeader
             parcelData={parcelData}
             isLoading={parcelDataLoading}
@@ -1458,20 +1468,11 @@ const MapView = () => {
             actions={
               <>
                 {/* Suite action order (PANEL_ACTIONS_STANDARD): Track first,
-                    then export and the raw-JSON toggle; close stays beside the title. */}
+                    Compare second, raw-JSON third, export fourth; close stays beside the title. */}
                 <TrackParcelButton focusedParcel={focusedHandle} parcelData={parcelData} darkMode={isDarkMode} />
-                <ParcelDataExportButton
-                  appId="room"
-                  data={{ ...selectedParcel.props, ...(parcelData ?? {}) }}
-                  additionalData={{ res: parcelData, feature: selectedParcel.props }}
-                  coordinates={{ lng: selectedParcel.lng, lat: selectedParcel.lat }}
-                  parcelId={parcelData?.egrid ?? selectedParcel.egrid ?? selectedParcel.parcelId}
-                  address={parcelData?.address_full ?? fullParcelAddress(selectedParcel.props)}
-                  geometry={selectedParcel.geometry}
-                  dark={isDarkMode}
-                  printLocale={locale}
-                  className={PANEL_TOUCH_TARGET}
-                />
+                {compareParcel && (
+                  <CompareToggleButton parcel={compareParcel} darkMode={isDarkMode} />
+                )}
                 {/* Raw-JSON toggle: admins only. The dump behind it carries the
                     parcel's valuation and market-signal fields verbatim, so it
                     rides on the same gate as the compare tab. Non-admins (and
@@ -1488,6 +1489,18 @@ const MapView = () => {
                     className={PANEL_TOUCH_TARGET}
                   />
                 )}
+                <ParcelDataExportButton
+                  appId="room"
+                  data={{ ...selectedParcel.props, ...(parcelData ?? {}) }}
+                  additionalData={{ res: parcelData, feature: selectedParcel.props }}
+                  coordinates={{ lng: selectedParcel.lng, lat: selectedParcel.lat }}
+                  parcelId={parcelData?.egrid ?? selectedParcel.egrid ?? selectedParcel.parcelId}
+                  address={parcelData?.address_full ?? fullParcelAddress(selectedParcel.props)}
+                  geometry={selectedParcel.geometry}
+                  dark={isDarkMode}
+                  printLocale={locale}
+                  className={PANEL_TOUCH_TARGET}
+                />
               </>
             }
           />

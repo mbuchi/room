@@ -248,6 +248,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.saved': 'Tracked',
     'prm.signin_required': 'Sign in to save parcels',
     'prm.save_failed': 'Could not save - try again',
+    'compare.pin': 'Add to comparison',
+    'compare.unpin': 'Remove from comparison',
+    'compare.tray_full': 'Comparison tray is full (max {max}).',
 
     // ---------- SavedParcelsModal "open here" action ----------
     'modal.parcels.open_here': 'Open here',
@@ -558,8 +561,14 @@ const translations: Record<Locale, Record<string, string>> = {
     'prm.save': 'Suivre',
     'prm.saving': 'Enregistrement…',
     'prm.saved': 'Suivie',
+    'compare.pin': 'Add to comparison',
+    'compare.unpin': 'Remove from comparison',
+    'compare.tray_full': 'Comparison tray is full (max {max}).',
     'prm.signin_required': 'Connectez-vous pour enregistrer',
     'prm.save_failed': 'Échec - réessayez',
+    'compare.pin': 'Zum Vergleich hinzufügen',
+    'compare.unpin': 'Aus Vergleich entfernen',
+    'compare.tray_full': 'Vergleichsleiste ist voll (max {max}).',
 
     'modal.parcels.open_here': 'Ouvrir ici',
 
@@ -867,10 +876,22 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- PRM ----------
     'prm.save': 'Verfolgen',
+    'compare.pin': 'Add to comparison',
+    'compare.unpin': 'Remove from comparison',
+    'compare.tray_full': 'Comparison tray is full (max {max}).',
     'prm.saving': 'Speichern…',
+    'compare.pin': 'Add to comparison',
+    'compare.unpin': 'Remove from comparison',
+    'compare.tray_full': 'Comparison tray is full (max {max}).',
     'prm.saved': 'Verfolgt',
+    'compare.pin': 'Zum Vergleich hinzufügen',
+    'compare.unpin': 'Aus Vergleich entfernen',
+    'compare.tray_full': 'Vergleichsleiste ist voll (max {max}).',
     'prm.signin_required': 'Anmelden zum Speichern',
     'prm.save_failed': 'Speichern fehlgeschlagen',
+    'compare.pin': 'Ajouter à la comparaison',
+    'compare.unpin': 'Retirer de la comparaison',
+    'compare.tray_full': 'La barre de comparaison est pleine (max {max}).',
 
     'modal.parcels.open_here': 'Hier öffnen',
 
@@ -1178,10 +1199,22 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- PRM ----------
     'prm.save': 'Segui',
+    'compare.pin': 'Zum Vergleich hinzufügen',
+    'compare.unpin': 'Aus Vergleich entfernen',
+    'compare.tray_full': 'Vergleichsleiste ist voll (max {max}).',
     'prm.saving': 'Salvataggio…',
+    'compare.pin': 'Zum Vergleich hinzufügen',
+    'compare.unpin': 'Aus Vergleich entfernen',
+    'compare.tray_full': 'Vergleichsleiste ist voll (max {max}).',
     'prm.saved': 'Seguita',
+    'compare.pin': 'Ajouter à la comparaison',
+    'compare.unpin': 'Retirer de la comparaison',
+    'compare.tray_full': 'La barre de comparaison est pleine (max {max}).',
     'prm.signin_required': 'Accedi per salvare',
     'prm.save_failed': 'Salvataggio fallito',
+    'compare.pin': 'Aggiungi al confronto',
+    'compare.unpin': 'Rimuovi dal confronto',
+    'compare.tray_full': 'La barra di confronto è piena (max {max}).',
 
     'modal.parcels.open_here': 'Apri qui',
 
