@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.6',
+    date: 'August 9, 2026',
+    codename: 'Open here keeps your view',
+    summary: 'Opening a saved parcel no longer leaves the previous address and parcel identifiers in the link.',
+    items: [{
+      kind: 'fixed' as ChangeKind,
+      icon: Bookmark,
+      text: 'Open here in My saved parcels now clears the address and parcel identifiers left over from the previous selection, so the link in the address bar and every copy of it describes the parcel you just opened. Your language, theme, basemap and 3D camera keep carrying over as before.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.5',
     date: 'August 9, 2026',
     codename: 'Unified WGS84 pills',
