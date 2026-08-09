@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.4',
+    date: 'August 9, 2026',
+    codename: 'The link remembers the view',
+    summary: 'The address bar now mirrors your language, theme, basemap and 3D camera, so a copied link reopens the exact view.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Link2,
+      text: 'Switching language, flipping the theme, picking a basemap or turning on 3D now updates the current URL alongside the map position, and so does every map move. Copying the link from the address bar or from Share this view reproduces the whole view for whoever opens it. The parameters stay ephemeral, so they never overwrite the saved preferences of the person opening the link.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.3',
     date: 'August 9, 2026',
     codename: 'One quiet chip',
