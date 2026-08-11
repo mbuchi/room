@@ -1,3 +1,4 @@
+import { LoadingFeedback } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
 import type { ScreenshotToast } from '../hooks/useScreenshot';
 
@@ -5,6 +6,29 @@ interface ScreenshotFeedbackProps {
   isCapturing: boolean;
   toast: ScreenshotToast | null;
   onDismiss: () => void;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function createScreenshotLoadingFeedback(label: string) {
+  return (
+    <div data-screenshot-ignore="true" className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center">
+      <LoadingFeedback
+        label={label}
+        skeleton={
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto flex items-center justify-center" role="status" aria-live="polite">
+            <div className="flex flex-col items-center gap-3 px-6 py-5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 shadow-2xl">
+              <div className="w-28 space-y-2" aria-hidden="true">
+                <div className="h-16 w-full rounded-lg bg-slate-200/80 dark:bg-[#161922] animate-pulse" />
+                <div className="h-2.5 w-3/4 rounded bg-slate-200/80 dark:bg-[#161922] animate-pulse [animation-delay:150ms]" />
+                <div className="h-2.5 w-1/2 rounded bg-slate-200/80 dark:bg-[#161922] animate-pulse [animation-delay:300ms]" />
+              </div>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</span>
+            </div>
+          </div>
+        }
+      />
+    </div>
+  );
 }
 
 /**
@@ -17,24 +41,7 @@ export default function ScreenshotFeedback({ isCapturing, toast, onDismiss }: Sc
   return (
     <>
       {isCapturing && (
-        <div
-          data-screenshot-ignore="true"
-          className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center"
-          role="status"
-          aria-live="polite"
-        >
-          <div className="flex flex-col items-center gap-3 px-6 py-5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 shadow-2xl">
-            {/* Skeleton placeholder shaped like the image being captured */}
-            <div className="w-28 space-y-2" aria-hidden="true">
-              <div className="h-16 w-full rounded-lg bg-slate-200/80 dark:bg-[#161922] animate-pulse" />
-              <div className="h-2.5 w-3/4 rounded bg-slate-200/80 dark:bg-[#161922] animate-pulse [animation-delay:150ms]" />
-              <div className="h-2.5 w-1/2 rounded bg-slate-200/80 dark:bg-[#161922] animate-pulse [animation-delay:300ms]" />
-            </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-              {t('panel.screenshot.creating_image')}
-            </span>
-          </div>
-        </div>
+        createScreenshotLoadingFeedback(t('panel.screenshot.creating_image'))
       )}
 
       {toast && (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { TrendingUp } from 'lucide-react';
-import { Skeleton, SegmentedTabs } from '@aireon/shared';
+import { LoadingFeedback, Skeleton, SegmentedTabs } from '@aireon/shared';
 import {
   fetchCityMarket,
   type CityMarket,
@@ -131,7 +131,7 @@ const MarketDataSection = ({
       </div>
 
       {loading ? (
-        <MarketSkeleton darkMode={darkMode} />
+        <MarketDataLoadingFeedback darkMode={darkMode} />
       ) : !data || !figures ? (
         <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
           {t('market.no_data', { city: label })}
@@ -325,7 +325,7 @@ const RoomRangeBars = ({
   );
 };
 
-const MarketSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
+export const MarketSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
   <div className="mt-3 space-y-3">
     <Skeleton dark={darkMode} width={120} height={20} radius={6} />
     <Skeleton dark={darkMode} width={160} height={10} radius={4} delay="60ms" />
@@ -342,6 +342,15 @@ const MarketSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
     </div>
   </div>
 );
+
+export function MarketDataLoadingFeedback({ darkMode }: { darkMode: boolean }) {
+  return (
+    <LoadingFeedback
+      label="Loading market data…"
+      skeleton={<MarketSkeleton darkMode={darkMode} />}
+    />
+  );
+}
 
 /**
  * Section card — mirrors ZoneInfoPanel's local `Section` (same surface tokens)
