@@ -80,9 +80,14 @@ import {
 import {
   getThemeOverride,
   getBasemapOverride,
+  getOverlayOpacityOverride,
   registerUrlSyncProviders,
   syncMapUrl,
 } from '@aireon/shared/url-params';
+import {
+  createOverlayOpacityController,
+  OVERLAY_OPACITY_DEFAULT,
+} from '@aireon/shared/map-overlay-opacity';
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
@@ -295,6 +300,33 @@ const MapView = () => {
   );
   const [parcelOpacity, setParcelOpacity] = useState(0.6);
   const [buildingOpacity, setBuildingOpacity] = useState(0.75);
+  // `?opacity=0..100` (URL_PARAMS_STANDARD.md): one factor over room's OWN data
+  // layers, multiplying whatever the parcel and building sliders authored. The
+  // swisstopo basemap underneath is never touched.
+  const [overlayPct, setOverlayPct] = useState<number>(
+    () => getOverlayOpacityOverride() ?? OVERLAY_OPACITY_DEFAULT,
+  );
+  const overlayPctRef = useRef(overlayPct);
+  overlayPctRef.current = overlayPct;
+  // Reads mapRef rather than capturing an instance: the map is constructed
+  // asynchronously after the container mounts.
+  const overlayRef = useRef(
+    createOverlayOpacityController(() => mapRef.current, overlayPct),
+  );
+  // Deliberately EXCLUDES parcel-hit (the transparent fill-opacity:0 hit-test
+  // layer that carries every mousemove/click), parcel-hover, parcel-selected
+  // and parcel-selected-casing: those are interaction affordances, and fading
+  // them would make hovering and the open parcel invisible. Ids that do not
+  // exist in the current state (building-extrusion in 2D) are skipped silently.
+  const registerOverlayLayers = useCallback(() => {
+    overlayRef.current.register([
+      'parcel-fill',
+      'parcel-outline',
+      'building-fill',
+      'building-outline',
+      'building-extrusion',
+    ]);
+  }, []);
   // `?view=3d` (URL_PARAMS_STANDARD.md) opens straight into 3D for this load.
   const [is3DMode, setIs3DMode] = useState(() => getInitialMapState().view === '3d');
   const [lv95Coords, setLv95Coords] = useState<[number, number] | null>(null);
@@ -425,6 +457,9 @@ const MapView = () => {
       view: () => (is3DModeRef.current ? '3d' : null),
       pitch: () => (is3DModeRef.current ? (mapRef.current?.getPitch() ?? null) : null),
       bearing: () => (is3DModeRef.current ? (mapRef.current?.getBearing() ?? null) : null),
+      // null at the default so an ordinary view never carries ?opacity=100.
+      opacity: () =>
+        overlayPctRef.current === OVERLAY_OPACITY_DEFAULT ? null : overlayPctRef.current,
     });
   }, []);
   // Re-stamp on state changes that do not move the map (language switch, theme
@@ -435,7 +470,7 @@ const MapView = () => {
   // when the animation lands.
   useEffect(() => {
     syncMapUrl();
-  }, [locale, isDarkMode, selectedBasemap, is3DMode]);
+  }, [locale, isDarkMode, selectedBasemap, is3DMode, overlayPct]);
 
   // Ref mirror of the residential-type filter so map callbacks (basemap re-add,
   // initial load) read the freshest choice synchronously without re-binding.
@@ -466,6 +501,10 @@ const MapView = () => {
       map.setPaintProperty('parcel-outline', 'line-color', densityLineColor(zone));
       map.setPaintProperty('parcel-outline', 'line-opacity', densityLineOpacity(zone, op));
     }
+    // These raw writes re-author the base opacity (this runs on selection, zone
+    // switch and after every basemap swap, not just from the slider), so
+    // re-register to re-capture the baseline and re-apply the ?opacity factor.
+    overlayRef.current.register(['parcel-fill', 'parcel-outline']);
   }, []);
   const applyParcelPaintRef = useRef(applyParcelPaint);
   applyParcelPaintRef.current = applyParcelPaint;
@@ -738,7 +777,12 @@ const MapView = () => {
         map.setLayoutProperty('building-outline', 'visibility', 'none');
       addBuildingExtrusion(map, buildingOpacityRef.current);
     }
-  }, []);
+    // LAST, once every layer above exists: the style swap destroyed them all
+    // and they came back at their authored paint values, so the overlay factor
+    // has to be re-captured and re-applied here or a basemap pick would reset
+    // it to 100%.
+    registerOverlayLayers();
+  }, [registerOverlayLayers]);
 
   const handleParcelOpacityChange = useCallback((value: number) => {
     setParcelOpacity(value);
@@ -753,6 +797,9 @@ const MapView = () => {
         mapRef.current.setPaintProperty('building-fill', 'fill-opacity', value);
       if (mapRef.current.getLayer('building-extrusion'))
         mapRef.current.setPaintProperty('building-extrusion', 'fill-extrusion-opacity', value);
+      // Raw paint writes re-author the base opacity — re-register so the
+      // ?opacity factor lands on the new slider value instead of being wiped.
+      overlayRef.current.register(['building-fill', 'building-extrusion']);
     }
   }, []);
 
@@ -771,6 +818,9 @@ const MapView = () => {
       addBuildingExtrusion(map, buildingOpacity);
       if (map.getLayer('building-extrusion'))
         map.setLayoutProperty('building-extrusion', 'visibility', 'visible');
+      // The extrusion was just created at its authored opacity — pick it up so
+      // the 3D masses fade with the rest of the overlay.
+      registerOverlayLayers();
 
       map.easeTo({ pitch: 60, duration: 500 });
     } else {
@@ -783,7 +833,7 @@ const MapView = () => {
 
       map.easeTo({ pitch: 0, duration: 500 });
     }
-  }, [is3DMode, buildingOpacity]);
+  }, [is3DMode, buildingOpacity, registerOverlayLayers]);
 
   const handleLocate = useCallback((coords: [number, number]) => {
     const map = mapRef.current;
@@ -995,6 +1045,10 @@ const MapView = () => {
             }
           }
           applyResidentialTypeFilterRef.current(map, residentialTypeFilterRef.current);
+          // LAST, after the parcel + building layers (and the ?view=3d
+          // extrusion) exist, so a `?opacity=` in the opening URL is honored
+          // on every one of them.
+          registerOverlayLayers();
           const c = map.getCenter();
           updateUrlParams(c.lat, c.lng, map.getZoom());
 
@@ -1278,6 +1332,12 @@ const MapView = () => {
           labels={{
             control: t('panel.basemap.fallback'),
             options: getBasemapStrings(locale).options,
+            overlayOpacity: getBasemapStrings(locale).overlayOpacity,
+          }}
+          opacity={overlayPct}
+          onOpacityChange={(pct) => {
+            setOverlayPct(pct);
+            overlayRef.current.set(pct);
           }}
           onBasemapApplied={handleBasemapApplied}
         />

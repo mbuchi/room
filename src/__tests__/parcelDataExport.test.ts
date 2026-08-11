@@ -12,9 +12,10 @@ describe('parcel data export', () => {
     expect(mapView).toContain('additionalData={{ res: parcelData, feature: selectedParcel.props }}');
     expect(mapView).toContain('geometry={selectedParcel.geometry}');
     expect(mapView).toContain('parcelData?.egrid ?? selectedParcel.egrid ?? selectedParcel.parcelId');
-    // v1.153.0 — PMTiles/Martin tile helpers and the DuckDB-Wasm OLAP engine
-    // (committed dist), on top of v1.147.0's registerUrlSyncProviders/syncMapUrl.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('3083eb1c7a2fd7bfa386f4ab12bbe992906b9981');
+    // v1.154.0 — the ?opacity= overlay-opacity controller
+    // (@aireon/shared/map-overlay-opacity) plus the BasemapPicker slider, on
+    // top of v1.147.0's registerUrlSyncProviders/syncMapUrl.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('7cb7d88d942e3c2394ea7829204a35dbe3cf01eb');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
