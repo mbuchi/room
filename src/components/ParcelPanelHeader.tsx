@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Check, Copy, MapPin } from 'lucide-react';
-import { CloseButton, PANEL_TOUCH_TARGET, ParcelAerialThumbnail, Skeleton } from '@aireon/shared';
+import { CloseButton, LoadingFeedback, PANEL_TOUCH_TARGET, ParcelAerialThumbnail, Skeleton } from '@aireon/shared';
 import { useI18n } from '../contexts/I18nContext';
 import type { ParcelData } from '../services/parcelDataService';
 import type { FocusedParcelHandle } from './ZoneInfoPanel';
@@ -81,15 +81,20 @@ const ParcelPanelHeader = ({
   return (
     <div className="flex-shrink-0 border-b border-gray-200 px-5 pb-4 pt-3.5 dark:border-gray-800/40">
       {isLoading && !parcelData?.address ? (
-        <div className="flex items-start gap-3">
-          <Skeleton dark={darkMode} width={88} height={88} radius={12} />
-          <div className="min-w-0 flex-1 space-y-3 pt-1">
-            <Skeleton dark={darkMode} width={180} height={14} radius={4} />
-            <Skeleton dark={darkMode} width={120} height={10} radius={4} />
-            {actions && <div className="flex items-center gap-2">{actions}</div>}
-          </div>
-          <CloseButton onClick={onClose} label={t('panel.info.close')} className={PANEL_TOUCH_TARGET} />
-        </div>
+        <LoadingFeedback
+          label="Loading parcel details…"
+          skeleton={
+            <div className="flex items-start gap-3">
+              <Skeleton dark={darkMode} width={88} height={88} radius={12} />
+              <div className="min-w-0 flex-1 space-y-3 pt-1">
+                <Skeleton dark={darkMode} width={180} height={14} radius={4} />
+                <Skeleton dark={darkMode} width={120} height={10} radius={4} />
+                {actions && <div className="flex items-center gap-2">{actions}</div>}
+              </div>
+              <CloseButton onClick={onClose} label={t('panel.info.close')} className={PANEL_TOUCH_TARGET} />
+            </div>
+          }
+        />
       ) : (
         <>
           <div className="flex items-start gap-3">

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Skeleton } from '@aireon/shared';
+import { LoadingFeedback, Skeleton } from '@aireon/shared';
 import { PanelError } from './PanelKit';
 import { useI18n } from '../contexts/I18nContext';
 import {
@@ -189,7 +189,12 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
       )}
 
       <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
-        {loading && !stats && <ChartsSkeleton darkMode={darkMode} />}
+        {loading && !stats && (
+          <LoadingFeedback
+            label="Loading zone statistics…"
+            skeleton={<ChartsSkeleton darkMode={darkMode} />}
+          />
+        )}
 
         {error && !loading && <PanelError title={t('panel.zone.error_title')} detail={error} />}
 

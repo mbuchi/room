@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { MapPin, Building2 } from 'lucide-react';
-import { DataPillGroup, Skeleton, type DataPillItem } from '@aireon/shared';
+import { DataPillGroup, LoadingFeedback, Skeleton, type DataPillItem } from '@aireon/shared';
 import type { ParcelData } from '../services/parcelDataService';
 import { PanelError, PanelScroll, Section } from './PanelKit';
 import { useI18n } from '../contexts/I18nContext';
@@ -129,7 +129,12 @@ const ZoneInfoPanel = ({
 
   return (
     <PanelScroll actionsSlot={!isLoading && !error && parcelData ? actionsSlot : undefined}>
-      {isLoading && <ZoneInfoSkeleton darkMode={darkMode} />}
+      {isLoading && (
+        <LoadingFeedback
+          label="Loading parcel information…"
+          skeleton={<ZoneInfoSkeleton darkMode={darkMode} />}
+        />
+      )}
 
       {!isLoading && error && <PanelError title={t('panel.info.failed_to_load')} detail={error} />}
 

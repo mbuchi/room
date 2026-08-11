@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.24.1',
+    date: 'August 12, 2026',
+    codename: 'Calm loading by default',
+    summary: 'Quick loads now stay visually quiet; the Hub administrator can optionally enable an immediate spinner and delayed skeletons for longer waits.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Sparkles,
+      text: 'Loading skeletons and the shared minimal spinner are off by default across Aireon. If the Hub administrator enables them, this app follows the suite-wide spinner setting and only reveals its existing skeleton layouts after the configured threshold.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.24.0',
     date: 'August 12, 2026',
     codename: 'See the map through the data',

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { RefreshCw, Trash2, Image as ImageIcon, ExternalLink, MapPin, Compass, Hash, Map as MapIcon } from 'lucide-react';
-import { CloseButton, Skeleton, useFocusTrap, useGlass } from '@aireon/shared';
+import { CloseButton, LoadingFeedback, Skeleton, useFocusTrap, useGlass } from '@aireon/shared';
 import {
   listImages,
   deleteImage,
@@ -313,7 +313,9 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
 
           <div className="flex-1 overflow-y-auto p-4">
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <LoadingFeedback
+                label="Loading saved images…"
+                skeleton={<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
@@ -334,7 +336,8 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
                     </div>
                   </div>
                 ))}
-              </div>
+                </div>}
+              />
             ) : error ? (
               <div className="text-center py-12">
                 <p className="text-sm text-red-500 dark:text-red-400 mb-3">{error}</p>
