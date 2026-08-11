@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.10',
+    date: 'August 11, 2026',
+    codename: 'Fresh shared foundation',
+    summary: 'The shared Aireon library moved up to its latest release, keeping room current with the rest of the suite.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Package,
+      text: 'Updated the shared Aireon library to v1.152.0. This release carries groundwork for faster map tiles and in-browser analytics used across the suite, so room stays aligned with upcoming platform improvements without any change to how it works today.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.9',
     date: 'August 11, 2026',
     codename: 'Right words, right language',
