@@ -8,13 +8,19 @@ export const config = {
   runtime: "edge",
 };
 
+import { RES_API_BASE_URL } from "@aireon/shared/api";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-const DEFAULT_PARCEL_API_URL = "https://res.zeroo.ch/res_api/parcel_data";
+// POST /res_api/parcel_data IS covered by the shared OpenAPI contract, but
+// this proxy's PARCEL_API_URL env var overrides the FULL upstream URL (host
+// AND path) — a shape a path-typed client cannot express — so the fetch
+// stays raw and only the default derives from the shared base constant.
+const DEFAULT_PARCEL_API_URL = `${RES_API_BASE_URL}/res_api/parcel_data`;
 
 function readEnv(...names: string[]): string | undefined {
   const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;

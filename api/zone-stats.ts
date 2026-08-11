@@ -11,10 +11,16 @@
 // — using it under runtime: "nodejs" makes the function hang until it
 // hits maxDuration. See api/claire-pois.ts for the canonical pattern.
 
+import { RES_API_BASE_URL } from "@aireon/shared/api";
+
 export const config = { maxDuration: 60 };
 
+// SCHEMA GAP: POST /res_api/zone_stats is not in the shared OpenAPI contract
+// yet, so this proxy stays on a raw fetch (base URL from the shared
+// constant). Move it onto the typed client once the contract covers the
+// endpoint.
 const RES_ZONE_STATS_URL =
-  "https://res.zeroo.ch/res_api/zone_stats";
+  `${RES_API_BASE_URL}/res_api/zone_stats`;
 // Token hardcoded for the same reason as claire-pois.ts: a stale
 // team-level RES_API_TOKEN env var on Vercel would override and break this.
 const RES_API_TOKEN = "DNfbHaqajFigz4jPX9B8vnatUduLKZXVwA83WKZG";
