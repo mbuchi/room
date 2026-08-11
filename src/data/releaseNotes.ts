@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.11',
+    date: 'August 11, 2026',
+    codename: 'Quiet starts',
+    summary: 'Startup now stays visually calm during quick access and app initialization; the full loading skeleton appears only after 2.5 seconds.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Sparkles,
+      text: 'Startup now stays visually calm during quick access and app initialization; the full loading skeleton appears only after 2.5 seconds.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.10',
     date: 'August 11, 2026',
     codename: 'Fresh shared foundation',
