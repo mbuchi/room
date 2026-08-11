@@ -12,6 +12,32 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.24.0',
+    date: 'August 12, 2026',
+    codename: 'See the map through the data',
+    summary: 'A new overlay opacity slider fades the parcel and building layers so the map underneath stays readable, and the setting travels in shared links.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Layers,
+        text: 'The basemap panel now has an overlay opacity slider. It fades everything room draws on the map, the parcel fills and outlines and the building footprints and 3D masses, so you can read street names and landmarks underneath without switching the layers off. The basemap itself never fades.',
+        prs: [],
+      },
+      {
+        kind: 'new' as ChangeKind,
+        icon: Link2,
+        text: 'The setting is part of a shared view: opening a link with ?opacity=40 starts room with the overlay at 40 percent, and moving the slider updates the address bar so a copied link reproduces exactly what you were looking at. At 100 percent the parameter is left out of the link entirely.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: MapPin,
+        text: 'Hover feedback and the highlight around the selected parcel keep their full strength at any overlay opacity, so the parcel you opened stays visible. The slider multiplies the parcel and building transparency you already set rather than replacing them, and it survives a basemap change.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.23.12',
     date: 'August 11, 2026',
     codename: 'Shared data client',

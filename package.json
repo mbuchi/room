@@ -1,7 +1,7 @@
 {
   "name": "room",
   "private": true,
-  "version": "0.23.12",
+  "version": "0.24.0",
   "type": "module",
   "description": "room - Swiss zoning density explorer: how densely built is this zone, and where does your parcel sit on the distribution?",
   "repository": {
@@ -20,7 +20,7 @@
     "test:export-fonts": "node scripts/check-export-fonts.mjs"
   },
   "dependencies": {
-    "@aireon/shared": "github:mbuchi/aireon-shared#3083eb1c7a2fd7bfa386f4ab12bbe992906b9981",
+    "@aireon/shared": "github:mbuchi/aireon-shared#v1.154.0",
     "@openreplay/tracker": "^18.1.0",
     "html-to-image": "^1.11.13",
     "lucide-react": "^0.344.0",
