@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.9',
+    date: 'August 11, 2026',
+    codename: 'Right words, right language',
+    summary: 'The compare button speaks your language again instead of a neighboring one.',
+    items: [{
+      kind: 'fixed' as ChangeKind,
+      icon: Languages,
+      text: 'The compare-button release pasted its three labels (add, remove, tray full) into the wrong language blocks, so French users saw them in German and German users in French. Each language now carries exactly its own wording for English, German, French and Italian.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.8',
     date: 'August 9, 2026',
     codename: 'Open here forgets the old parcel',
