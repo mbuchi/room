@@ -12,6 +12,18 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.23.12',
+    date: 'August 11, 2026',
+    codename: 'Shared data client',
+    summary: 'Requests to the suite backend now go through the shared typed RES API client. Nothing changes in how the app looks or behaves.',
+    items: [{
+      kind: 'improved' as ChangeKind,
+      icon: Database,
+      text: 'Screenshot uploads and the saved-images gallery now ride the suite-wide typed RES API client from @aireon/shared, and every backend proxy derives its URL from the shared base constant - compile-time checked requests and one auth story, with identical behavior on screen.',
+      prs: [],
+    }],
+  },
+  {
     version: '0.23.11',
     date: 'August 11, 2026',
     codename: 'Quiet starts',

@@ -7,7 +7,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}', 'api/**/__tests__/**/*.test.ts'],
     // The IDB resilience test exercises the open-timeout fallback; give it room.
     testTimeout: 10000,
   },

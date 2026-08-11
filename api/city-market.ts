@@ -14,14 +14,21 @@ export const config = {
   runtime: "edge",
 };
 
+import { RES_API_BASE_URL } from "@aireon/shared/api";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+// SCHEMA GAP: GET /res_api/city-market/by-parcel is not in the shared
+// OpenAPI contract yet — and the CITY_MARKET_API_URL env var overrides the
+// FULL upstream URL (host AND path), which a path-typed client cannot
+// express anyway — so the fetch stays raw and only the default derives from
+// the shared base constant.
 const DEFAULT_CITY_MARKET_API_URL =
-  "https://res.zeroo.ch/res_api/city-market/by-parcel";
+  `${RES_API_BASE_URL}/res_api/city-market/by-parcel`;
 
 function readEnv(...names: string[]): string | undefined {
   const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;

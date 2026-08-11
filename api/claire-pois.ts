@@ -6,13 +6,19 @@
 //
 // Uses the Node (req, res) handler signature — the Web (Request)=>Response
 // signature only works on the edge runtime.
+import { RES_API_BASE_URL } from "@aireon/shared/api";
+
 export const config = { maxDuration: 15 };
 
 // RES POI endpoint and token. Hardcoded, not read from process.env: the token
 // is already a non-secret constant elsewhere in the repo (src/config/api.ts),
 // and a stale team-level RES_API_TOKEN env var on the Vercel account would
 // otherwise override it with a bad value (it currently does).
-const RES_POI_URL = "https://res.zeroo.ch/score/poi-osm";
+//
+// SCHEMA GAP: /score/poi-osm is not in the shared OpenAPI contract yet, so
+// this proxy stays on a raw fetch (base URL from the shared constant). Move
+// it onto the typed client once the contract covers the endpoint.
+const RES_POI_URL = `${RES_API_BASE_URL}/score/poi-osm`;
 const RES_API_TOKEN = "DNfbHaqajFigz4jPX9B8vnatUduLKZXVwA83WKZG";
 const UPSTREAM_TIMEOUT_MS = 12000;
 
