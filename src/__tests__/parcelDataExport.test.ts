@@ -12,10 +12,12 @@ describe('parcel data export', () => {
     expect(mapView).toContain('additionalData={{ res: parcelData, feature: selectedParcel.props }}');
     expect(mapView).toContain('geometry={selectedParcel.geometry}');
     expect(mapView).toContain('parcelData?.egrid ?? selectedParcel.egrid ?? selectedParcel.parcelId');
-    // v1.159.1 adds the first-load standard: the aireonHtmlPlugin build-time
-    // shell + theme bootstrap, self-hosted fonts, and an AppAccessGate that no
-    // longer blocks the tree on an unbounded app_settings fetch.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('f424f902110750de8a30414cba9ded4cb67dc15b');
+    // v1.159.2 keeps the first-load standard (aireonHtmlPlugin build-time shell
+    // + theme bootstrap, self-hosted fonts, an AppAccessGate that no longer
+    // blocks the tree on an unbounded app_settings fetch) and fixes the
+    // bootstrap to mirror resolveThemePreference: OS-light is no longer treated
+    // as a decision, so room's dark default survives the first frame.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('6b3788b5e4ea798c2f8daa546f9e43252255e68d');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
