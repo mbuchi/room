@@ -14,14 +14,6 @@
     <title>room - Swiss Zoning Density Explorer</title>
 
     <meta name="description" content="Check and visualize zoning categories and reverse utilizations in any municipality." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Warm the TLS connection to the Zitadel SSO host so the silent
-         sign-in check on load doesn't pay a cold DNS + handshake first. -->
-    <link rel="preconnect" href="https://swissnovo-ekqvxs.ch1.zitadel.cloud" crossorigin />
-    <!-- Typography: Inter (UI, headings — modern tech-sans) + JetBrains Mono (code/IDs); -->
-    <!-- Varela Round is kept for the Aireon wordmark only, per suite branding. -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Varela+Round&display=swap" rel="stylesheet" crossorigin="anonymous" />
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://room.aireon.ch/">
     <meta property="og:title" content="room">
@@ -81,10 +73,12 @@
     </script>
 </head>
   <body>
-    <!-- room renders dark-only: the map style and panels assume a dark surface,
-         so there is intentionally no light theme and no pre-paint theme-init
-         script. Tailwind still declares darkMode:'class' (suite standard) and
-         the `dark` class is applied at the app root. -->
+    <!-- #root is filled at build time with the static app shell, and the
+         pre-paint theme bootstrap is injected into <head>, both by
+         aireonHtmlPlugin (see vite.config.ts). room defaults to dark, so the
+         plugin is told defaultTheme:'dark'; it has to agree with main.tsx's
+         initTheme('dark') or the first frame flashes the wrong theme. React
+         replaces this subtree on mount. -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

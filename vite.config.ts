@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import babel from '@rolldown/plugin-babel';
+import { aireonHtmlPlugin } from '@aireon/shared/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,6 +12,12 @@ export default defineConfig({
     // target "18" is required because this app runs React 18 (the compiler
     // emits react-compiler-runtime calls that React 18 lacks natively).
     babel({ presets: [reactCompilerPreset({ target: '18' })] }),
+    // First-load standard (aireon-shared/docs/PERFORMANCE_STANDARD.md). Injects the
+    // pre-paint theme bootstrap, the static app shell so something paints before any
+    // JS runs, and preconnects for the origins this app's first screen actually uses.
+    // defaultTheme mirrors main.tsx's initTheme('dark'): room's signature look is dark,
+    // and a disagreement here would paint a light shell that React then repaints.
+    aireonHtmlPlugin({ archetype: 'map-first', defaultTheme: 'dark' }),
   ],
   optimizeDeps: {
     exclude: ['lucide-react'],
