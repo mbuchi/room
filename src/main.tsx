@@ -12,6 +12,7 @@ import '@aireon/shared/basemap.css';
 import '@aireon/shared/glass.css';
 import './index.css';
 import { CompareProvider } from './contexts/CompareContext';
+import '@aireon/shared/fonts.css';
 
 errorLogger.install({ captureConsoleErrors: true });
 initOpenReplay({ projectKey: import.meta.env.VITE_OPENREPLAY_PROJECT_KEY as string | undefined, trackerOptions: { canvas: { disableCanvas: true } } });

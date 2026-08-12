@@ -12,6 +12,38 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.25.0',
+    date: 'August 12, 2026',
+    codename: 'Faster first paint',
+    summary: 'room starts painting before any JavaScript runs, fonts load from our own servers instead of a third party, and repeat visits reuse cached files.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'Opening room now shows the dark theme and the page outline immediately, before any code has loaded. Previously the screen stayed blank until the whole bundle had downloaded.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Type,
+        text: 'Fonts are served from room itself rather than fetched from Google, which removes a third-party request that was delaying the first paint on every visit.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Timer,
+        text: 'Return visits are faster: versioned files are now cached permanently by the browser instead of being re-checked on every load, and the map style is reused across visits.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ShieldAlert,
+        text: 'room no longer waits on an access check before showing anything, so a slow or unreachable backend can never leave the page blank.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.24.2',
     date: 'August 12, 2026',
     codename: 'Quiet all the way down',

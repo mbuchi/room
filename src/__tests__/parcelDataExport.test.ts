@@ -12,9 +12,10 @@ describe('parcel data export', () => {
     expect(mapView).toContain('additionalData={{ res: parcelData, feature: selectedParcel.props }}');
     expect(mapView).toContain('geometry={selectedParcel.geometry}');
     expect(mapView).toContain('parcelData?.egrid ?? selectedParcel.egrid ?? selectedParcel.parcelId');
-    // v1.158.0 keeps ?opacity= and extends the global loading policy to direct
-    // shared skeleton primitives while retaining the BasemapPicker slider.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('0e1b0a3458c8ffc7c7248586df2dadc6a05b5ff7');
+    // v1.159.1 adds the first-load standard: the aireonHtmlPlugin build-time
+    // shell + theme bootstrap, self-hosted fonts, and an AppAccessGate that no
+    // longer blocks the tree on an unbounded app_settings fetch.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('f424f902110750de8a30414cba9ded4cb67dc15b');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
