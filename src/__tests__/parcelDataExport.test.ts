@@ -12,10 +12,9 @@ describe('parcel data export', () => {
     expect(mapView).toContain('additionalData={{ res: parcelData, feature: selectedParcel.props }}');
     expect(mapView).toContain('geometry={selectedParcel.geometry}');
     expect(mapView).toContain('parcelData?.egrid ?? selectedParcel.egrid ?? selectedParcel.parcelId');
-    // v1.156.0 — keeps ?opacity= and adds the global loading policy
-    // (@aireon/shared/map-overlay-opacity) plus the BasemapPicker slider, on
-    // top of v1.147.0's registerUrlSyncProviders/syncMapUrl.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('690552e024ba0ba859bc396c7e652b7e01aa2ea8');
+    // v1.158.0 keeps ?opacity= and extends the global loading policy to direct
+    // shared skeleton primitives while retaining the BasemapPicker slider.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('0e1b0a3458c8ffc7c7248586df2dadc6a05b5ff7');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
