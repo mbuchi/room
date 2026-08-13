@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.25.1',
+    date: 'August 12, 2026',
+    codename: 'No more theme flash',
+    summary: 'Fixes a brief flash of the light theme when opening room on a device set to light mode.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Palette,
+        text: 'Updated @aireon/shared to v1.159.2. If your device is set to light mode, opening room for the first time no longer paints the page light and then flips it to dark: the pre-paint check now matches how room actually picks its theme, so the dark default is correct from the very first frame.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.25.0',
     date: 'August 12, 2026',
     codename: 'Faster first paint',
