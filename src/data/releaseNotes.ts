@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.27.1',
+    date: 'August 14, 2026',
+    codename: 'The right address for the right parcel',
+    summary: 'The address shown when you right-click a parcel now belongs to that parcel, and not to a neighbor.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: MapPin,
+        text: 'Right-clicking a parcel on the map used to look up the closest address to the exact spot you clicked. In built-up areas that often picked an address from the plot next door, showed the same address on two neighboring parcels, or showed two different addresses for one parcel depending on where you clicked it. The address is now looked up from the parcel itself, so it no longer depends on where you click and cannot borrow a neighbor’s address.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated @aireon/shared to v1.165.0, which carries the corrected address lookup. room hands the map menu the parcel details it already has, so in almost every case the address now appears with no extra network request at all.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.27.0',
     date: 'August 14, 2026',
     codename: 'New map engine',
