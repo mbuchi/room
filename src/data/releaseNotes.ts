@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.27.0',
+    date: 'August 14, 2026',
+    codename: 'New map engine',
+    summary: 'room now runs on the latest version of its mapping engine. Everything on the map works exactly as before.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text: 'The engine that draws the map has been updated to its newest major version. This is a maintenance update: panning, zooming, parcel selection, the density colors, the 3D buildings, the basemap switcher and map screenshots all behave exactly as they did before. Keeping the engine current means room picks up its performance work and bug fixes as they land.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated @aireon/shared to v1.163.0, which carries the shared pieces the new map engine needs.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.26.0',
     date: 'August 14, 2026',
     codename: 'The map loads on demand',

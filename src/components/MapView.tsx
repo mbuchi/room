@@ -1026,9 +1026,33 @@ const MapView = () => {
     // height 0 and MapLibre silently draws into its 400x300 fallback. The
     // `.room-map-canvas` rule in index.css is the second belt. Do not "tidy"
     // any of the three.
-    void Promise.all([import('maplibre-gl'), resolveBasemapStyle(initialBasemap)])
-      .then(([maplibre, style]) => {
+    //
+    // ⚠⚠ `@aireon/shared/map-worker` IS IMPORTED DYNAMICALLY HERE, alongside
+    // the engine, and must stay that way. MapLibre v6 derives its tile-worker
+    // URL from its own `import.meta.url`, which is meaningless once a bundler
+    // has rewritten the library into the `maplibre` chunk: the worker never
+    // starts, no vector tile is ever parsed, and the canvas stays blank with
+    // no console error. `vite dev` resolves the URL by accident and looks
+    // perfect, so this breaks in PRODUCTION ONLY. applyMapWorkerUrl points the
+    // module at the worker asset the bundler actually emitted.
+    // The seam helper's own dependency is
+    // `maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url`, whose module id
+    // contains `node_modules/maplibre-gl/` and therefore lands in the
+    // `maplibre` manualChunks bucket below. A STATIC import of the helper at
+    // the top of this file consequently gives the eager entry chunk a static
+    // edge into that bucket: index.html modulepreloads all 976 KB of MapLibre
+    // again and the deferral above is silently undone (measured — the build
+    // stays green either way, only index.html tells you). Importing it here
+    // keeps both on the deferred side of the split.
+    void Promise.all([
+      import('maplibre-gl'),
+      import('@aireon/shared/map-worker'),
+      resolveBasemapStyle(initialBasemap),
+    ])
+      .then(([maplibre, { applyMapWorkerUrl }, style]) => {
         if (cancelled || mapRef.current) return;
+
+        applyMapWorkerUrl(maplibre);
 
         maplibreRef.current = maplibre;
         const map = new maplibre.Map({
