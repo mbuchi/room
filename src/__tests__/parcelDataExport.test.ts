@@ -17,18 +17,24 @@ describe('parcel data export', () => {
     // measuring the old code. Bump this string whenever @aireon/shared is
     // repinned, and say why.
     //
-    // v1.163.0 adds the `@aireon/shared/map-worker` subpath (applyMapWorkerUrl),
-    // which is mandatory now that room runs MapLibre GL v6: v6 derives its
-    // tile-worker URL from its own import.meta.url, and that is meaningless
-    // once the bundler has rewritten the engine into room's `maplibre` chunk.
-    // Without the seam the worker never starts and the map paints blank in
-    // production only. It carries forward v1.159.2's first-load standard
-    // (aireonHtmlPlugin build-time shell + theme bootstrap, self-hosted fonts,
-    // an AppAccessGate that does not block the tree on an unbounded
-    // app_settings fetch) and the bootstrap fix mirroring
-    // resolveThemePreference, so OS-light is still not treated as a decision
-    // and room's dark default survives the first frame.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('3bcb800e028a438153e6cd09a89a215667dec4a8');
+    // v1.165.0 brings the parcel-address standard into MapContextMenu: a
+    // parcel's address is resolved from its EGRID (tile props first, then the
+    // building register), never by reverse-geocoding the clicked coordinate.
+    // The old point lookup asked geo.admin `identify` for every entrance within
+    // 50 m and took results[0] — feature order, not distance — which named an
+    // address on a DIFFERENT parcel in 92% of 71 sampled parcels, and made the
+    // answer a function of the pixel clicked. It carries forward v1.163.0's
+    // `@aireon/shared/map-worker` subpath (applyMapWorkerUrl), which is
+    // mandatory now that room runs MapLibre GL v6: v6 derives its tile-worker
+    // URL from its own import.meta.url, and that is meaningless once the
+    // bundler has rewritten the engine into room's `maplibre` chunk. Without
+    // the seam the worker never starts and the map paints blank in production
+    // only. Also still carries v1.159.2's first-load standard (aireonHtmlPlugin
+    // build-time shell + theme bootstrap, self-hosted fonts, an AppAccessGate
+    // that does not block the tree on an unbounded app_settings fetch) and the
+    // bootstrap fix mirroring resolveThemePreference, so OS-light is still not
+    // treated as a decision and room's dark default survives the first frame.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('100629b821621b59ddee17730e5d598ec12dda7b');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

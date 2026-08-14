@@ -193,6 +193,11 @@ function toContextParcel(properties: Record<string, unknown>): MapContextParcel 
     area: Number(properties['area_m2'] ?? properties['parcel_area'] ?? properties['flaeche']) || 0,
     subtitle: municipality,
     address: formatParcelAddress(properties) || undefined,
+    // The clicked feature's raw tile props. The shared menu resolves the
+    // parcel's address by EGRID (never by reverse-geocoding the click point);
+    // handing it the properties it already has lets that resolve from the
+    // parcel itself with no network request at all.
+    properties,
   };
 }
 
