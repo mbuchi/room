@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.26.0',
+    date: 'August 14, 2026',
+    codename: 'The map loads on demand',
+    summary: 'room no longer waits for the mapping library before it shows anything. The navbar, the search box and the map controls are ready sooner.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'The mapping library made up about half of everything the browser had to download before room could put anything on screen, even though it is only needed once the map itself draws. It now loads on demand, alongside the map style, instead of blocking everything ahead of it. First-load downloads drop from 460 KB to 245 KB, so on a slow connection the navbar, the search box and the map controls appear noticeably earlier, and the map still arrives at the same moment as before.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Map,
+        text: 'Hardened the map area against a class of styling conflict that could leave it blank with no error message, by pinning its size so it can no longer collapse.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.25.1',
     date: 'August 12, 2026',
     codename: 'No more theme flash',

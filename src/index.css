@@ -54,6 +54,42 @@ body {
 }
 
 
+/* =============================================================
+   ⚠ MAP CONTAINER — order-independent geometry. DO NOT WEAKEN.
+
+   MapLibre stamps `.maplibregl-map` onto the very element MapView hands it as
+   `container`, so vendor and app CSS end up targeting the same node:
+
+     maplibre-gl.css  .maplibregl-map { position: relative }   (0,1,0)
+     tailwind         .absolute       { position: absolute }   (0,1,0)
+
+   At equal specificity the LAST stylesheet in document order wins. Today
+   main.tsx imports maplibre-gl.css above index.css so the app rule wins, but
+   that is import order, and import order is the bundler's call: MapLibre is
+   now loaded through `import('maplibre-gl')`, and one stray CSS import inside
+   a lazy chunk would flip it. When the vendor rule wins, `inset` goes inert
+   (it only sizes an absolutely positioned box), the container collapses to
+   height 0 and MapLibre draws into its 400x300 fallback — a blank map with NO
+   console error, which passes every DOM and a11y assertion.
+
+   The doubled class is (0,2,0), so it out-specifies the vendor rule whatever
+   the order. The explicit geometry is the second belt: if `position` is ever
+   lost anyway, the box degrades to a correctly-sized one instead of a blank
+   map. Restated rather than inherited so neither depends on the other.
+
+   No @media rule overrides this container (it has no responsive variants), so
+   raising specificity here cannot silently out-rank a breakpoint override.
+   ============================================================= */
+.room-map-canvas.room-map-canvas {
+  position: absolute;
+  top: 3.5rem; /* clears the 56px navbar; matches Tailwind `top-14` */
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+}
+
 .maplibregl-ctrl-bottom-left,
 .maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib {
   opacity: 0.5;

@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState, useCallback, lazy, Suspense, type CSSProperties, type TouchEvent as ReactTouchEvent } from 'react';
-import * as maplibregl from 'maplibre-gl';
+// ⚠ TYPE-ONLY, deliberately. MapLibre is ~215 KB brotli, and a static value
+// import here put it on room's eager path: MapView is reached straight from
+// App.tsx, so the library was modulepreloaded from index.html and downloaded
+// before React could render anything. It cannot be CONSTRUCTED until React has
+// rendered the container anyway, so fetching it eagerly only starved the chunks
+// React needs first. The two runtime uses (`Map`, `Marker`) now come from the
+// `await import('maplibre-gl')` in the init effect below, which is the same
+// idiom @aireon/shared's own mapBootstrap uses.
+// The STYLESHEET stays eager (main.tsx) — see the note on the init effect.
+import type * as maplibregl from 'maplibre-gl';
 import type * as GeoJSON from 'geojson';
 import {
   getInitialMapState,
@@ -276,6 +285,11 @@ const MapView = () => {
   const isMobile = useIsMobile();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  // The lazily-imported MapLibre module. Written in the init effect one line
+  // before `mapRef`, so anywhere `mapRef.current` is non-null this is too —
+  // that is the invariant `handleLocate` relies on to build a Marker without
+  // awaiting again.
+  const maplibreRef = useRef<typeof maplibregl | null>(null);
   // WebGL preflight, run once. On GPU-less / headless / driver-blocklisted
   // clients (GL_VENDOR = Disabled) the MapLibre constructor fires
   // `webglcontextcreationerror` and throws, which room only surfaced as a
@@ -837,7 +851,11 @@ const MapView = () => {
 
   const handleLocate = useCallback((coords: [number, number]) => {
     const map = mapRef.current;
-    if (!map) return;
+    const gl = maplibreRef.current;
+    // `gl` cannot be null while `map` is set (both are assigned together in the
+    // init effect), but the compiler does not know that and this callback is
+    // reachable from the navbar before the map finishes constructing.
+    if (!map || !gl) return;
 
     if (locateMarkerRef.current) {
       locateMarkerRef.current.remove();
@@ -846,7 +864,7 @@ const MapView = () => {
     const el = document.createElement('div');
     el.className = 'locate-marker';
 
-    locateMarkerRef.current = new maplibregl.Marker({ element: el })
+    locateMarkerRef.current = new gl.Marker({ element: el })
       .setLngLat(coords)
       .addTo(map);
 
@@ -993,11 +1011,27 @@ const MapView = () => {
     // restyle for the minimal/dark variants); the shared <BasemapPicker> handles
     // every later swap.
     const initialBasemap = getBasemapOption(selectedBasemap);
-    void resolveBasemapStyle(initialBasemap)
-      .then((style) => {
+    // ⚠ MapLibre is fetched HERE, not at module scope, so it stays off room's
+    // eager path (see the type-only import at the top of this file). It rides
+    // alongside the style request rather than after it, so deferring the
+    // library costs no time-to-map: the style fetch was already the gate.
+    //
+    // ⚠ The STYLESHEET is not part of this. `maplibre-gl/dist/maplibre-gl.css`
+    // is imported eagerly in main.tsx, ABOVE `./index.css`, and vite.config.ts
+    // keeps `.css` out of the `maplibre` manualChunks bucket. If the stylesheet
+    // ever rode this dynamic chunk instead, its <link> would be appended AFTER
+    // index.css at runtime, and `.maplibregl-map{position:relative}` (0,1,0)
+    // would beat Tailwind's `.absolute` (0,1,0) on source order — the container
+    // loses `position:absolute`, `inset` goes inert, the box collapses to
+    // height 0 and MapLibre silently draws into its 400x300 fallback. The
+    // `.room-map-canvas` rule in index.css is the second belt. Do not "tidy"
+    // any of the three.
+    void Promise.all([import('maplibre-gl'), resolveBasemapStyle(initialBasemap)])
+      .then(([maplibre, style]) => {
         if (cancelled || mapRef.current) return;
 
-        const map = new maplibregl.Map({
+        maplibreRef.current = maplibre;
+        const map = new maplibre.Map({
           container,
           style,
           center: initialState.center,
@@ -1289,7 +1323,16 @@ const MapView = () => {
           parcelData?.address_full ?? fullParcelAddress(selectedParcel?.props)
         }
       />
-      <div ref={mapContainerRef} className="absolute inset-0 top-14" data-tour="map-view" />
+      {/* ⚠ `room-map-canvas` is not decoration: it re-states this box's
+          position and geometry at (0,2,0) so maplibre-gl.css cannot win the
+          equal-specificity tie on `.maplibregl-map` (which MapLibre stamps onto
+          this very element) and collapse the map to height 0. See the block of
+          the same name in index.css. */}
+      <div
+        ref={mapContainerRef}
+        className="room-map-canvas absolute inset-0 top-14"
+        data-tour="map-view"
+      />
 
       <MapContextMenu
         open={mapContext !== null}
