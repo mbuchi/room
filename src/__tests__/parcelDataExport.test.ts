@@ -12,12 +12,23 @@ describe('parcel data export', () => {
     expect(mapView).toContain('additionalData={{ res: parcelData, feature: selectedParcel.props }}');
     expect(mapView).toContain('geometry={selectedParcel.geometry}');
     expect(mapView).toContain('parcelData?.egrid ?? selectedParcel.egrid ?? selectedParcel.parcelId');
-    // v1.159.2 keeps the first-load standard (aireonHtmlPlugin build-time shell
-    // + theme bootstrap, self-hosted fonts, an AppAccessGate that no longer
-    // blocks the tree on an unbounded app_settings fetch) and fixes the
-    // bootstrap to mirror resolveThemePreference: OS-light is no longer treated
-    // as a decision, so room's dark default survives the first frame.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('6b3788b5e4ea798c2f8daa546f9e43252255e68d');
+    // Pinned SHA, not just the tag: npm caches git tag resolutions, so a repin
+    // that does not move `resolved` is inert and every downstream gate is
+    // measuring the old code. Bump this string whenever @aireon/shared is
+    // repinned, and say why.
+    //
+    // v1.163.0 adds the `@aireon/shared/map-worker` subpath (applyMapWorkerUrl),
+    // which is mandatory now that room runs MapLibre GL v6: v6 derives its
+    // tile-worker URL from its own import.meta.url, and that is meaningless
+    // once the bundler has rewritten the engine into room's `maplibre` chunk.
+    // Without the seam the worker never starts and the map paints blank in
+    // production only. It carries forward v1.159.2's first-load standard
+    // (aireonHtmlPlugin build-time shell + theme bootstrap, self-hosted fonts,
+    // an AppAccessGate that does not block the tree on an unbounded
+    // app_settings fetch) and the bootstrap fix mirroring
+    // resolveThemePreference, so OS-light is still not treated as a decision
+    // and room's dark default survives the first frame.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('3bcb800e028a438153e6cd09a89a215667dec4a8');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
