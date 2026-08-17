@@ -34,7 +34,14 @@ describe('parcel data export', () => {
     // that does not block the tree on an unbounded app_settings fetch) and the
     // bootstrap fix mirroring resolveThemePreference, so OS-light is still not
     // treated as a decision and room's dark default survives the first frame.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('100629b821621b59ddee17730e5d598ec12dda7b');
+    //
+    // Re-pinned to v1.172.1, the data-vintage release: the shared AboutModal
+    // fetches the RES dataset version on open and names the parcel snapshot,
+    // when it was last computed, and (behind "Pipeline details") the date of
+    // each enrichment layer. A repin below this SHA is not a build error, the
+    // About dialog simply loses the line that says how old the building volume
+    // on screen is.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('a7ffe8b5539e67781884fa3e874323dcb87d7bb9');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

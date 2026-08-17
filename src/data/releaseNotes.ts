@@ -12,6 +12,38 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.28.0',
+    date: 'August 17, 2026',
+    codename: 'How old is this number?',
+    summary: 'The About dialog now tells you which parcel snapshot room is showing and when each layer behind it was last calculated.',
+    items: [
+      {
+        kind: 'added' as ChangeKind,
+        icon: Database,
+        text: 'About now names the parcel snapshot room is reading and the date it was last calculated, so you can see at a glance how current the figures on screen are without having to ask.',
+        prs: [],
+      },
+      {
+        kind: 'added' as ChangeKind,
+        icon: Info,
+        text: 'A "Pipeline details" disclosure in the same dialog opens a dated list of every enrichment layer behind a parcel, including each federal source’s own vintage, so you can tell which part of the data is fresh and which part is waiting on its next federal release.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Box,
+        text: 'Every building volume was recalculated on August 17, 2026. That also refreshed the utilization figures, which were still being derived from volumes computed before duplicate building reconstructions were removed.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated @aireon/shared to v1.172.1, which carries the data-vintage line in the About dialog.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.27.1',
     date: 'August 14, 2026',
     codename: 'The right address for the right parcel',
