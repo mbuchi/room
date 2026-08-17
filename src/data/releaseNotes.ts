@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.29.1',
+    date: 'August 18, 2026',
+    codename: 'Same zone, same words',
+    summary: 'Claire now names a parcel\'s zone the way the Parcel tab does.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Bot,
+        text: 'Claire now refers to a parcel\'s zone by the same harmonized label the panel shows ("Wohnzonen"), instead of quoting the municipal designation next to it. The municipal zone type is still passed along, but only as a secondary detail, so an answer never leads with a label the app itself no longer prints (@aireon/shared v1.173.3).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.29.0',
     date: 'August 18, 2026',
     codename: 'One zone',

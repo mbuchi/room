@@ -35,6 +35,17 @@ describe('parcel data export', () => {
     // bootstrap fix mirroring resolveThemePreference, so OS-light is still not
     // treated as a decision and room's dark default survives the first frame.
     //
+    // Re-pinned to v1.173.3, the Claire one-zone context + spare-space canton
+    // guard: buildParcelContextSummary (the parcel context every shared
+    // ClaireAssistant mount sends to Claire) used to emit two zone lines, the
+    // raw municipal cz_local and the harmonized cz_harmonized, so Claire could
+    // quote the municipal designation the panel no longer shows. It now emits
+    // ONE "Zone: <resolved label>" line via the same suite rule the Parcel tab
+    // uses, with the municipal designation demoted to an explicitly secondary
+    // "detail only" line. lookupSpareSpace also forwards ?canton= to RES only
+    // when it is a real 2-letter code (valoo had been passing zone text, which
+    // matched nothing). Nothing else changed between v1.173.1 and v1.173.3.
+    //
     // Re-pinned to v1.173.1 for `@aireon/shared/parcel-zone` (resolveZoneLabel):
     // the suite-wide zone rule, harmonized federal category first ("Wohnzonen"),
     // municipal designation only where none exists (all of Zürich), ordinance
@@ -54,7 +65,7 @@ describe('parcel data export', () => {
     // each enrichment layer. A repin below this SHA is not a build error, the
     // About dialog simply loses the line that says how old the building volume
     // on screen is.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('7ffa9a371097bfb7a3c0d2259a42ca0060f45449');
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('8f9b35e4e0831e3289aaeae1ca7cde4518027bcf');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
