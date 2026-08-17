@@ -35,6 +35,14 @@ describe('parcel data export', () => {
     // bootstrap fix mirroring resolveThemePreference, so OS-light is still not
     // treated as a decision and room's dark default survives the first frame.
     //
+    // Re-pinned to v1.173.1 for `@aireon/shared/parcel-zone` (resolveZoneLabel):
+    // the suite-wide zone rule, harmonized federal category first ("Wohnzonen"),
+    // municipal designation only where none exists (all of Zürich), ordinance
+    // cross-references and canton codes never. room used to print the
+    // municipal cz_local ("Wohnzone, Bauklasse 4") as the zone, so the same
+    // Grenchen parcel read differently here than in geopool. A repin below
+    // this SHA is a build error: the subpath export does not exist.
+    //
     // Re-pinned to v1.172.2 because v1.172.1 built the vintage sentence inside
     // the component in English word order, so the German line read "Juli 2025
     // Stand" instead of "Stand Juli 2025"; the whole sentence now lives in the
@@ -46,7 +54,7 @@ describe('parcel data export', () => {
     // each enrichment layer. A repin below this SHA is not a build error, the
     // About dialog simply loses the line that says how old the building volume
     // on screen is.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('f8b4bc37fb51b4733902784cbb143ca558e32f14');
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('7ffa9a371097bfb7a3c0d2259a42ca0060f45449');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

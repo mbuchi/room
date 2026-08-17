@@ -62,10 +62,15 @@ const ZoneInfoPanel = ({
   //
   // fso is the section's official identifier, so it gets `mono` + `copyable`
   // and a visible `label` (a bare digit string means nothing on its own).
-  // cz_local/cz_canton are short zone codes — `mono` for the same reason the
-  // old Row rendered them in a monospace font, `title` tooltip because the
-  // code alone doesn't say "this is the zone". municipality_name is a bare
-  // place name, so it also gets a `title` tooltip rather than a label.
+  // The zone is ONE pill: `parcelData.zone`, the harmonized federal category
+  // resolved by @aireon/shared/parcel-zone (PARCEL_ZONE_STANDARD.md). It used
+  // to be two mono pills, the municipal `cz_local` ("Wohnzone, Bauklasse 4")
+  // and the cantonal `cz_canton`, so the same parcel read differently here
+  // than in every other Aireon app; the municipal type still exists, but as
+  // the comparison-cohort key on the Zone tab, not as "the zone". A word
+  // value ("Wohnzonen") reads on its own, so a `title` tooltip is enough.
+  // municipality_name is a bare place name, so it also gets a `title`
+  // tooltip rather than a label.
   const zoningLocationPills: DataPillItem[] = parcelData
     ? [
         { key: 'municipality', value: parcelData.municipality_name, title: t('panel.info.row.municipality') },
@@ -76,8 +81,7 @@ const ZoneInfoPanel = ({
           mono: true,
           copyable: true,
         },
-        { key: 'cz-local', value: parcelData.cz_local, mono: true, title: t('panel.info.row.cz_local') },
-        { key: 'cz-canton', value: parcelData.cz_canton, mono: true, title: t('panel.info.row.cz_canton') },
+        { key: 'zone', value: parcelData.zone, title: t('panel.info.row.zone') },
         {
           key: 'allowed-util',
           value: parcelData.cz_util_now != null ? `${fmt(parcelData.cz_util_now)} m³` : null,

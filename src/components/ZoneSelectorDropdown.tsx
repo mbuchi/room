@@ -16,10 +16,19 @@ interface ZoneSelectorDropdownProps {
 }
 
 /**
- * Searchable dropdown listing the current zoning category at the top with
- * every other zone in the same FSO underneath. Used by ZonePanel to switch
- * the chart context without re-fetching parcel data — the map's
- * `feature-state` is repainted off the selected zone's parcels[].
+ * Searchable dropdown listing the current MUNICIPAL zone type (`cz_local`) at
+ * the top with every other municipal zone type in the same FSO underneath.
+ * Used by ZonePanel to switch the chart context without re-fetching parcel
+ * data — the map's `feature-state` is repainted off the selected zone's
+ * parcels[].
+ *
+ * This control is deliberately NOT labelled "zone" and never prints the
+ * harmonized federal category: it picks the comparison cohort, and RES
+ * `/zone_stats` defines that cohort by `fso + cz_local` (the municipal
+ * designation, "Wohnzone, Bauklasse 4"). The parcel's zone as the user reads
+ * it (harmonized-first, `parcelData.zone`) is printed by ZonePanel directly
+ * above this control. See aireon-shared/docs/PARCEL_ZONE_STANDARD.md rule 4:
+ * analytics keys are not display — label the cohort honestly.
  *
  * The municipality-wide list can run 20+ items so the filter input stays
  * visible whenever the menu is open.

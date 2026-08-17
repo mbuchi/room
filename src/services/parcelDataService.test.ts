@@ -79,6 +79,64 @@ describe('fetchParcelData — normalisation', () => {
     expect(d.zip).toBeNull(); // subtitle degrades to the bare municipality
   });
 
+  // The parcel's zone (@aireon/shared/parcel-zone, PARCEL_ZONE_STANDARD.md):
+  // harmonized federal category first, municipal designation only where none
+  // exists. Real production rows, so a re-ordered chain fails here instead of
+  // passing on synthetic data. The raw cz_local stays on the record because
+  // the zone-stats cohort is keyed on it — it must NOT become the label.
+  it('resolves the harmonized zone as `zone` and keeps the municipal cz_local as the cohort key (Grenchen SO)', async () => {
+    // Lingerizstrasse, Grenchen — the parcel room printed "Wohnzone,
+    // Bauklasse 4" for while geopool printed "Wohnzonen".
+    globalThis.fetch = mockJson({
+      properties: {
+        fso_num: 2546,
+        municipality_name: 'Grenchen',
+        cz_local: 'Wohnzone, Bauklasse 4',
+        cz_canton: 'Wohnzone, Bauklasse 4',
+        cz_harmonized: 'Wohnzonen',
+        cz_canton_name: 'SO',
+        EGRID: 'CH-unit-grenchen',
+      },
+    }) as unknown as typeof fetch;
+
+    const d = await fetchParcelData({ lat: 47.19, lng: 7.39, egrid: 'CH-unit-grenchen' });
+    expect(d.zone).toBe('Wohnzonen');
+    expect(d.cz_local).toBe('Wohnzone, Bauklasse 4'); // /zone_stats cohort key, unchanged
+  });
+
+  it('falls back to the municipal designation where no harmonized category exists (Zürich), never the ordinance sentence', async () => {
+    globalThis.fetch = mockJson({
+      properties: {
+        fso_num: 261,
+        cz_local: 'dreigeschossige Wohnzone',
+        cz_harmonized: null,
+        cz_canton: 'siehe gültige Bau- und Zonenordnung der Stadt Zürich',
+        cz_canton_name: 'ZH',
+        EGRID: 'CH-unit-zh',
+      },
+    }) as unknown as typeof fetch;
+
+    const d = await fetchParcelData({ lat: 47.37, lng: 8.53, egrid: 'CH-unit-zh' });
+    expect(d.zone).toBe('dreigeschossige Wohnzone');
+    expect(d.cz_local).toBe('dreigeschossige Wohnzone');
+  });
+
+  it('leaves zone null when nothing usable remains', async () => {
+    globalThis.fetch = mockJson({
+      properties: {
+        fso_num: 261,
+        cz_local: null,
+        cz_harmonized: null,
+        cz_canton: 'siehe gültige Bau- und Zonenordnung der Stadt Zürich',
+        cz_canton_name: 'ZH',
+        EGRID: 'CH-unit-nozone',
+      },
+    }) as unknown as typeof fetch;
+
+    const d = await fetchParcelData({ lat: 47.37, lng: 8.53, egrid: 'CH-unit-nozone' });
+    expect(d.zone).toBeNull();
+  });
+
   it('throws ParcelDataError on a non-2xx response', async () => {
     globalThis.fetch = mockJson({}, false, 500) as unknown as typeof fetch;
     await expect(fetchParcelData({ lat: 1, lng: 2, egrid: 'CH-unit-err' })).rejects.toBeInstanceOf(ParcelDataError);

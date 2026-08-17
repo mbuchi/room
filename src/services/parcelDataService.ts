@@ -20,6 +20,7 @@
  *     neighbouring parcels).
  *   - 50 MB LRU budget, no TTL — parcel facts change at most monthly.
  */
+import { resolveZoneLabel } from '@aireon/shared/parcel-zone';
 import { IndexedDBCache } from '../utils/cache';
 import { fullParcelAddress, parcelZip } from '../lib/parcelAddress';
 
@@ -40,12 +41,19 @@ const persistentCache = new IndexedDBCache<ParcelData>(
   { maxBytes: PERSISTENT_CACHE_MAX_BYTES, stores: ['parcel-data', 'zone-stats', 'city-market'] },
 );
 
+// Shape version of the cached ParcelData record. Bump whenever `normalize()`
+// grows a field that older cached rows cannot supply — the persistent cache
+// has no TTL, so without this a parcel seen before the deploy would come back
+// from IndexedDB missing the new field for as long as the entry lives.
+//   v2: adds the resolved `zone` label (harmonized-first, @aireon/shared).
+const PARCEL_DATA_SCHEMA = 'v2';
+
 function cacheKey(req: ParcelDataRequest): string {
   // Prefer the stable federal id; fall back to quantised coordinates so a
   // click that doesn't yet know the egrid still hits the same row on a
   // re-click. 5 dp ≈ 1 m which is well inside parcel resolution.
-  if (req.egrid) return `egrid:${req.egrid}`;
-  return `ll:${req.lat.toFixed(5)}_${req.lng.toFixed(5)}`;
+  if (req.egrid) return `${PARCEL_DATA_SCHEMA}:egrid:${req.egrid}`;
+  return `${PARCEL_DATA_SCHEMA}:ll:${req.lat.toFixed(5)}_${req.lng.toFixed(5)}`;
 }
 
 /** Wipe both cache layers — used by debug actions / explicit invalidation. */
@@ -59,9 +67,30 @@ export interface ParcelData {
   fso: number | null;
   /** Human-readable municipality name (lang-dependent on the server). */
   municipality_name: string | null;
-  /** Local zoning category (e.g. "W3", "K3-OS"). Used as the zone key. */
+  /**
+   * The parcel's zone, as the user reads it: the harmonized federal category
+   * ("Wohnzonen") when RES carries one, otherwise the municipal designation
+   * ("dreigeschossige Wohnzone" — all of Zürich has no harmonized value yet).
+   * Resolved once here via `@aireon/shared/parcel-zone` (see
+   * aireon-shared/docs/PARCEL_ZONE_STANDARD.md); every zone pill / header /
+   * summary in room shows THIS and nothing else. `null` = no usable zone.
+   */
+  zone: string | null;
+  /**
+   * Municipal zoning designation (e.g. "Wohnzone, Bauklasse 4", "W3"). NOT a
+   * display field any more — it is the ANALYTICS key: room's zone statistics
+   * (`/zone_stats`, the ZoneSelectorDropdown cohorts, the choropleth
+   * highlight) are all defined by `fso + cz_local`, so this stays on the
+   * record and stays what those cohorts are keyed on.
+   */
   cz_local: string | null;
-  /** Canton-level zoning category, the harmonised reading of cz_local. */
+  /**
+   * Cantonal zoning designation. Sometimes a real zone name ("Wohnzone 3"),
+   * in ZH and others an ordinance cross-reference ("siehe gültige Bau- und
+   * Zonenordnung der Stadt Zürich"). It is NOT the harmonized reading of
+   * cz_local — that is `cz_harmonized`, which feeds `zone` above. Kept raw
+   * for the data export / raw-JSON view only, never shown as the zone.
+   */
   cz_canton: string | null;
   /** Allowed utilisation (volume m³) for cz_local at this parcel area. */
   cz_util_now: number | null;
@@ -172,7 +201,7 @@ export async function fetchParcelData(req: ParcelDataRequest): Promise<ParcelDat
   memoryCache.set(key, data);
   void persistentCache.set(key, data);
   if (!req.egrid && data.egrid) {
-    const egridKey = `egrid:${data.egrid}`;
+    const egridKey = cacheKey({ ...req, egrid: data.egrid });
     memoryCache.set(egridKey, data);
     void persistentCache.set(egridKey, data);
   }
@@ -217,6 +246,12 @@ function normalize(props: Record<string, unknown>): ParcelData {
     fso: numberOrNull(props.fso ?? props.fso_num ?? props.fso_num_2021),
     municipality_name:
       stringOrNull(props.municipality_name) ?? stringOrNull(props.fso_name_2021),
+    // Suite-wide zone rule (@aireon/shared/parcel-zone): harmonized federal
+    // category first, municipal designation only where none exists, legal
+    // cross-references and canton codes never. Resolved on the RAW props so
+    // the rule sees cz_harmonized / cz_abbrev too, not just the two columns
+    // room keeps on the record.
+    zone: resolveZoneLabel(props),
     cz_local: stringOrNull(props.cz_local),
     cz_canton: stringOrNull(props.cz_canton),
     cz_util_now: numberOrNull(props.cz_util_now ?? props.cz_util_est),

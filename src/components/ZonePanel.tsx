@@ -174,11 +174,31 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
 
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full overflow-hidden">
-      {/* Zone picker sub-header — the dropdown alone. The municipality moved to
-          the panel header's subtitle and the parcel count is already printed
+      {/* Zone sub-header: the parcel's ZONE (one line) above the cohort picker.
+          The zone line is `parcelData.zone`, the harmonized federal category
+          resolved by @aireon/shared/parcel-zone — the same label every other
+          Aireon app prints for this parcel. The dropdown underneath is NOT the
+          zone: it selects the municipal zone type (`cz_local`) that the
+          statistics below are computed over (RES /zone_stats is keyed on
+          fso + cz_local), so it is labelled as exactly that. Printing the
+          harmonized label on the dropdown would claim the charts describe
+          "Wohnzonen" when they describe "Wohnzone, Bauklasse 4" in this one
+          municipality. The zone line follows the SELECTED PARCEL, so it stays
+          put when the user switches cohorts. The municipality moved to the
+          panel header's subtitle and the parcel count is already printed
           inside the dropdown itself, so neither is repeated here. */}
       {(stats || activeCzLocal) && (
-        <div className="flex-shrink-0 px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
+        <div className="flex-shrink-0 px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40 space-y-2">
+          {parcelData?.zone && (
+            <p className="flex items-baseline gap-2 min-w-0">
+              <span className="flex-shrink-0 text-[9px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-semibold">
+                {t('panel.info.row.zone')}
+              </span>
+              <span className="min-w-0 truncate text-sm font-semibold text-gray-900 dark:text-gray-100" title={parcelData.zone}>
+                {parcelData.zone}
+              </span>
+            </p>
+          )}
           <ZoneSelectorDropdown
             currentCzLocal={activeCzLocal ?? ''}
             otherZones={dropdownZones}
