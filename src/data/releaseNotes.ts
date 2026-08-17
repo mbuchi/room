@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.28.1',
+    date: 'August 17, 2026',
+    codename: 'Word order',
+    summary: 'The data-vintage line in the About dialog now reads correctly in German, French and Italian.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Languages,
+        text: 'The line in the About dialog that gives the date of the parcel snapshot was put together in English word order and then translated piece by piece, so the German version read "Juli 2025 Stand" instead of "Stand Juli 2025", with French and Italian wrong in the same way. Each language now writes the whole sentence itself, so it reads naturally everywhere. English was never affected.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.28.0',
     date: 'August 17, 2026',
     codename: 'How old is this number?',
