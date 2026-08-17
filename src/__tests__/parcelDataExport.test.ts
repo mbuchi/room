@@ -35,13 +35,18 @@ describe('parcel data export', () => {
     // bootstrap fix mirroring resolveThemePreference, so OS-light is still not
     // treated as a decision and room's dark default survives the first frame.
     //
-    // Re-pinned to v1.172.1, the data-vintage release: the shared AboutModal
+    // Re-pinned to v1.172.2 because v1.172.1 built the vintage sentence inside
+    // the component in English word order, so the German line read "Juli 2025
+    // Stand" instead of "Stand Juli 2025"; the whole sentence now lives in the
+    // locale table so each language orders it itself.
+    //
+    // v1.172.1 was the data-vintage release: the shared AboutModal
     // fetches the RES dataset version on open and names the parcel snapshot,
     // when it was last computed, and (behind "Pipeline details") the date of
     // each enrichment layer. A repin below this SHA is not a build error, the
     // About dialog simply loses the line that says how old the building volume
     // on screen is.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('a7ffe8b5539e67781884fa3e874323dcb87d7bb9');
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('f8b4bc37fb51b4733902784cbb143ca558e32f14');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
