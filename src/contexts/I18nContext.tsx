@@ -111,8 +111,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.row.municipality': 'Municipality',
     'panel.info.row.fso': 'FSO',
     'panel.info.row.egrid': 'EGRID',
-    'panel.info.row.cz_local': 'CZ Local',
-    'panel.info.row.cz_canton': 'CZ Canton',
+    'panel.info.row.zone': 'Zone',
     'panel.info.row.allowed_util': 'Allowed util.',
     'panel.info.row.parcel_area': 'Parcel area',
     'panel.info.row.built_volume': 'Built volume',
@@ -154,7 +153,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- ZonePanel — zone selector, tabs, errors ----------
     'panel.zone.parcels_suffix': '{count} parcels',
-    'panel.zone.zoning_category': 'Zoning category',
+    'panel.zone.zoning_category': 'Municipal zone type',
     'panel.zone.filter_zones_placeholder': 'Filter zones…',
     'panel.zone.no_matching_zones': 'No matching zones.',
     'panel.zone.error_title': 'Could not load zone statistics',
@@ -426,8 +425,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.row.municipality': 'Commune',
     'panel.info.row.fso': 'OFS',
     'panel.info.row.egrid': 'EGRID',
-    'panel.info.row.cz_local': 'Zone locale',
-    'panel.info.row.cz_canton': 'Zone cantonale',
+    'panel.info.row.zone': 'Zone',
     'panel.info.row.allowed_util': 'Util. autorisée',
     'panel.info.row.parcel_area': 'Surface de la parcelle',
     'panel.info.row.built_volume': 'Volume bâti',
@@ -469,7 +467,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- ZonePanel ----------
     'panel.zone.parcels_suffix': '{count} parcelles',
-    'panel.zone.zoning_category': 'Catégorie de zone',
+    'panel.zone.zoning_category': 'Type de zone communale',
     'panel.zone.filter_zones_placeholder': 'Filtrer les zones…',
     'panel.zone.no_matching_zones': 'Aucune zone correspondante.',
     'panel.zone.error_title': 'Impossible de charger les statistiques de zone',
@@ -740,8 +738,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.row.municipality': 'Gemeinde',
     'panel.info.row.fso': 'BFS',
     'panel.info.row.egrid': 'EGRID',
-    'panel.info.row.cz_local': 'Lokale Zone',
-    'panel.info.row.cz_canton': 'Kantonale Zone',
+    'panel.info.row.zone': 'Zone',
     'panel.info.row.allowed_util': 'Zul. Nutzung',
     'panel.info.row.parcel_area': 'Parzellenfläche',
     'panel.info.row.built_volume': 'Bauvolumen',
@@ -783,7 +780,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- ZonePanel ----------
     'panel.zone.parcels_suffix': '{count} Parzellen',
-    'panel.zone.zoning_category': 'Zonenkategorie',
+    'panel.zone.zoning_category': 'Kommunaler Zonentyp',
     'panel.zone.filter_zones_placeholder': 'Zonen filtern…',
     'panel.zone.no_matching_zones': 'Keine passenden Zonen.',
     'panel.zone.error_title': 'Zonen-Statistiken konnten nicht geladen werden',
@@ -1054,8 +1051,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.info.row.municipality': 'Comune',
     'panel.info.row.fso': 'UST',
     'panel.info.row.egrid': 'EGRID',
-    'panel.info.row.cz_local': 'Zona locale',
-    'panel.info.row.cz_canton': 'Zona cantonale',
+    'panel.info.row.zone': 'Zona',
     'panel.info.row.allowed_util': 'Util. consentita',
     'panel.info.row.parcel_area': 'Superficie particella',
     'panel.info.row.built_volume': 'Volume costruito',
@@ -1097,7 +1093,7 @@ const translations: Record<Locale, Record<string, string>> = {
 
     // ---------- ZonePanel ----------
     'panel.zone.parcels_suffix': '{count} particelle',
-    'panel.zone.zoning_category': 'Categoria di zona',
+    'panel.zone.zoning_category': 'Tipo di zona comunale',
     'panel.zone.filter_zones_placeholder': 'Filtra zone…',
     'panel.zone.no_matching_zones': 'Nessuna zona corrispondente.',
     'panel.zone.error_title': 'Impossibile caricare le statistiche di zona',
