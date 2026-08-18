@@ -46,7 +46,11 @@ const persistentCache = new IndexedDBCache<ParcelData>(
 // has no TTL, so without this a parcel seen before the deploy would come back
 // from IndexedDB missing the new field for as long as the entry lives.
 //   v2: adds the resolved `zone` label (harmonized-first, @aireon/shared).
-const PARCEL_DATA_SCHEMA = 'v2';
+//   v3: `zone` is now the municipal designation (cz_local-first, @aireon/shared
+//       v1.177.0). The value's meaning changed, not the field set — but a v2
+//       row still holds the federal category ("Wohnzonen") and would keep
+//       printing it for as long as the entry lived. New key = new rows.
+const PARCEL_DATA_SCHEMA = 'v3';
 
 function cacheKey(req: ParcelDataRequest): string {
   // Prefer the stable federal id; fall back to quantised coordinates so a
@@ -68,28 +72,30 @@ export interface ParcelData {
   /** Human-readable municipality name (lang-dependent on the server). */
   municipality_name: string | null;
   /**
-   * The parcel's zone, as the user reads it: the harmonized federal category
-   * ("Wohnzonen") when RES carries one, otherwise the municipal designation
-   * ("dreigeschossige Wohnzone" — all of Zürich has no harmonized value yet).
+   * The parcel's zone, as the user reads it: the MUNICIPAL designation
+   * ("Wohnzone, Bauklasse 4", "Dorfzone 2"), the suite default since
+   * @aireon/shared v1.177.0. Falls through to the federal category, the
+   * abbreviation and the cantonal designation only where the municipal one is
+   * blank; an ordinance cross-reference or a canton code is never returned.
    * Resolved once here via `@aireon/shared/parcel-zone` (see
    * aireon-shared/docs/PARCEL_ZONE_STANDARD.md); every zone pill / header /
    * summary in room shows THIS and nothing else. `null` = no usable zone.
    */
   zone: string | null;
   /**
-   * Municipal zoning designation (e.g. "Wohnzone, Bauklasse 4", "W3"). NOT a
-   * display field any more — it is the ANALYTICS key: room's zone statistics
-   * (`/zone_stats`, the ZoneSelectorDropdown cohorts, the choropleth
-   * highlight) are all defined by `fso + cz_local`, so this stays on the
-   * record and stays what those cohorts are keyed on.
+   * Municipal zoning designation, raw (e.g. "Wohnzone, Bauklasse 4", "W3").
+   * Never read for DISPLAY — `zone` above is what the panel prints — this is
+   * the ANALYTICS key: room's zone statistics (`/zone_stats`, the
+   * ZoneSelectorDropdown cohorts, the choropleth highlight) are all defined by
+   * `fso + cz_local`, so this stays on the record and stays what those
+   * cohorts are keyed on.
    */
   cz_local: string | null;
   /**
    * Cantonal zoning designation. Sometimes a real zone name ("Wohnzone 3"),
    * in ZH and others an ordinance cross-reference ("siehe gültige Bau- und
-   * Zonenordnung der Stadt Zürich"). It is NOT the harmonized reading of
-   * cz_local — that is `cz_harmonized`, which feeds `zone` above. Kept raw
-   * for the data export / raw-JSON view only, never shown as the zone.
+   * Zonenordnung der Stadt Zürich"). Kept raw for the data export / raw-JSON
+   * view only, never shown as the zone.
    */
   cz_canton: string | null;
   /** Allowed utilisation (volume m³) for cz_local at this parcel area. */
@@ -246,11 +252,12 @@ function normalize(props: Record<string, unknown>): ParcelData {
     fso: numberOrNull(props.fso ?? props.fso_num ?? props.fso_num_2021),
     municipality_name:
       stringOrNull(props.municipality_name) ?? stringOrNull(props.fso_name_2021),
-    // Suite-wide zone rule (@aireon/shared/parcel-zone): harmonized federal
-    // category first, municipal designation only where none exists, legal
-    // cross-references and canton codes never. Resolved on the RAW props so
-    // the rule sees cz_harmonized / cz_abbrev too, not just the two columns
-    // room keeps on the record.
+    // Suite-wide zone rule (@aireon/shared/parcel-zone, v1.177.0): the
+    // municipal designation first, the federal category / abbreviation /
+    // cantonal designation only where it is blank, legal cross-references and
+    // canton codes never. Resolved on the RAW props so the rule sees
+    // cz_harmonized / cz_abbrev too, not just the two columns room keeps on
+    // the record.
     zone: resolveZoneLabel(props),
     cz_local: stringOrNull(props.cz_local),
     cz_canton: stringOrNull(props.cz_canton),

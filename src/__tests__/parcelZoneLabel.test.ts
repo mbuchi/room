@@ -10,14 +10,18 @@ import { describe, expect, it } from 'vitest';
 // re-inlining a municipal read — while the zone-STATISTICS machinery stays
 // keyed on the municipal `cz_local`.
 //
-// Why: room printed "Wohnzone, Bauklasse 4" (municipal cz_local) as the zone
-// of a Grenchen parcel that every other Aireon app showed as "Wohnzonen". The
-// suite rule (aireon-shared/docs/PARCEL_ZONE_STANDARD.md, @aireon/shared
-// v1.173.0+) is harmonized-first, one label per parcel. But room's cohorts
+// Why: the suite rule (aireon-shared/docs/PARCEL_ZONE_STANDARD.md,
+// @aireon/shared v1.177.0) is ONE label per parcel from the shared resolver —
+// the municipal designation ("Wohnzone, Bauklasse 4", "Dorfzone 2"), with the
+// federal category ("Wohnzonen") a filter, never the label. room must not
+// re-inline its own read of any zoning column for display, so that the label
+// keeps following the shared rule (v1.173 printed the federal category first;
+// v1.177 reversed that, and room changed nothing but the pin). room's cohorts
 // (RES /zone_stats, ZoneSelectorDropdown, the choropleth highlight in
 // mapLayers.ts) are DEFINED by fso + cz_local — rule 4 of the standard says
 // those keys are not display and must not change; the control is labelled
-// as the municipal zone type instead.
+// as the municipal zone type, and now happens to show the same words as the
+// zone pill on open.
 const read = (path: string) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 /** Source minus block + line comments, so a doc comment cannot satisfy or trip a code check. */
 const code = (src: string) => src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
@@ -43,13 +47,18 @@ describe('parcel zone label — display goes through the shared rule', () => {
     expect(infoPanel).not.toMatch(/value:\s*parcelData\.cz_canton/);
   });
 
-  it('the Zone tab prints the resolved zone above the cohort picker', () => {
-    expect(zonePanel).toMatch(/\{parcelData\.zone\}/);
-    expect(zonePanel).toContain("t('panel.info.row.zone')");
+  it('the Zone tab does not print a second zone line above the cohort picker', () => {
+    // 0.29.0 printed `parcelData.zone` (then the federal category) above the
+    // picker because it differed from the cohort. With the municipal
+    // designation as the zone the picker's current value IS the zone text, so
+    // a line above it would print the same words twice. Dropdown alone.
+    expect(code(zonePanel)).not.toMatch(/\{parcelData\.zone\}/);
+    expect(code(zonePanel)).not.toContain("t('panel.info.row.zone')");
+    expect(zonePanel).toContain('<ZoneSelectorDropdown');
   });
 
-  it('the cohort dropdown never prints a harmonized label over a municipal cohort', () => {
-    // No resolver, no raw harmonized column, no parcel record and no `.zone`
+  it('the cohort dropdown never resolves or reads a zone label of its own', () => {
+    // No resolver, no raw federal column, no parcel record and no `.zone`
     // property read (the `.zone.` in the `panel.zone.*` i18n keys is not one).
     expect(code(dropdown)).not.toMatch(/resolveZone|cz_harmonized|parcelData|\.zone\b(?!\.)/);
     // Its eyebrow is the honest cohort label, translated in all four locales.
