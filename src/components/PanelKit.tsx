@@ -23,29 +23,35 @@ export const PanelScroll = ({
   /** `false` for tabs whose sections bring their own full-bleed padding. */
   padded?: boolean;
 }) => (
-  <div className={`flex-1 min-h-0 overflow-y-auto ${padded ? 'p-4 space-y-4' : ''}`}>
+  <div className={`flex-1 min-h-0 overflow-y-auto ${padded ? 'px-5 py-4 space-y-4' : ''}`}>
     {children}
     {/* The negative margins bleed the slot's border-t across the scroller's own
         padding (the slot re-applies its inner padding); the parent's space-y
         supplies the top gap. Unpadded scrollers need no bleed. */}
-    {actionsSlot && <div className={padded ? '-mx-4 -mb-4' : 'mt-2'}>{actionsSlot}</div>}
+    {actionsSlot && <div className={padded ? '-mx-5 -mb-4 mt-4' : 'mt-2'}>{actionsSlot}</div>}
   </div>
 );
 
-/** Card surface used by every grouped block in the pane. */
+/** Card surface used by grouped blocks in the pane. */
 export const Section = ({
   icon,
   title,
   children,
+  darkMode = true,
 }: {
   icon?: ReactNode;
   title: string;
   children: ReactNode;
+  darkMode?: boolean;
 }) => (
-  <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
+  <div
+    className={`rounded-lg px-4 py-3.5 ${
+      darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+    }`}
+  >
     <div className="flex items-center gap-1.5 mb-2">
       {icon}
-      <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+      <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
         {title}
       </span>
     </div>

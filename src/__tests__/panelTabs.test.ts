@@ -100,42 +100,16 @@ describe('compare tab is admin-gated', () => {
   });
 });
 
-/**
- * The raw-JSON developer view rides on the SAME admin gate as the compare tab.
- * It dumps the RES parcel record plus the raw tile feature properties verbatim,
- * which includes the very fields the compare tab is gated for, so gating one
- * surface and not the other gates nothing.
- */
-describe('raw-JSON developer view is admin-gated', () => {
-  it('hides the toggle button from everyone who is not an admin', () => {
-    expect(mapView).toContain('{isAdmin && (parcelData || selectedParcel) && (');
+describe('raw-JSON developer view is suite-standard (matching geopool)', () => {
+  it('renders the toggle button whenever a parcel is selected', () => {
+    expect(mapView).toContain('{(parcelData || selectedParcel) && (');
+    expect(mapView).toContain('<Braces size={16} />');
+    expect(mapView).toContain("label={t('panel.info.toggle_raw_json')}");
   });
 
-  it('derives the open state from the admin flag in the same render pass', () => {
-    // Not an effect: an effect-only reset leaves the dump on screen for one
-    // paint after the flag drops, and shows it during the resolving window.
-    expect(mapView).toContain('const rawJsonOpen = showRaw && isAdmin;');
-  });
-
-  it('defaults to hidden while the admin probe is still resolving', () => {
-    expect(mapView).toContain('const [isAdmin, setIsAdmin] = useState(false);');
-  });
-
-  it('renders the dump behind the derived gate, never behind the bare flag', () => {
-    // Exactly one mount, and it sits inside the `rawJsonOpen` branch.
+  it('renders the dump behind showRaw state', () => {
     expect(mapView.match(/<RawJsonView/g) ?? []).toHaveLength(1);
-    const gate = mapView.indexOf('{rawJsonOpen ? (');
-    expect(gate, 'raw-JSON branch is not gated on rawJsonOpen').toBeGreaterThan(-1);
-    expect(gate).toBeLessThan(mapView.indexOf('<RawJsonView'));
-    // The pre-gate form must not come back.
-    expect(mapView).not.toContain('{showRaw ? (');
-  });
-
-  it('closes the view when the admin flag drops while it is open', () => {
-    const effect = mapView.slice(mapView.indexOf('if (!isAdmin) {'));
-    const body = effect.slice(0, effect.indexOf('}, [isAdmin]);'));
-    expect(body).toContain("tab === 'compare' ? 'zone' : tab");
-    expect(body).toContain('setShowRaw(false)');
+    expect(mapView).toContain('{showRaw ? (');
   });
 
   it('never persists the flag, so it cannot resurrect for a later visitor', () => {

@@ -37,7 +37,7 @@ const FaqPanel = ({
 
   return (
     <PanelScroll actionsSlot={actionsSlot}>
-      <div className="rounded-lg border border-gray-200 dark:border-gray-800/50 bg-gray-100/80 dark:bg-gray-900/60 p-3">
+      <div className="rounded-lg px-4 py-3.5 bg-slate-50 ring-1 ring-slate-200/80 dark:bg-white/[0.035] dark:ring-white/[0.06]">
         <p className="text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
           {t('panel.faq.claire_hint')}
         </p>
@@ -51,20 +51,20 @@ const FaqPanel = ({
         </button>
       </div>
 
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {qas.map(({ q, a }) => (
           <details
             key={q}
-            className="group bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg overflow-hidden"
+            className="group rounded-lg overflow-hidden bg-slate-50 ring-1 ring-slate-200/80 dark:bg-white/[0.035] dark:ring-white/[0.06]"
           >
-            <summary className="flex items-center justify-between gap-2 cursor-pointer list-none px-3 py-2 text-[11px] font-medium text-gray-700 dark:text-gray-200 select-none hover:bg-gray-200/50 dark:hover:bg-gray-800/40 transition-colors">
+            <summary className="flex items-center justify-between gap-2 cursor-pointer list-none px-4 py-2.5 text-[11px] font-medium text-gray-700 dark:text-gray-200 select-none hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors">
               <span>{q}</span>
               <ChevronDown
                 size={13}
                 className="flex-shrink-0 text-gray-400 dark:text-gray-500 transition-transform group-open:rotate-180"
               />
             </summary>
-            <p className="px-3 pb-2.5 pt-0.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+            <p className="px-4 pb-3 pt-0.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
               {a}
             </p>
           </details>

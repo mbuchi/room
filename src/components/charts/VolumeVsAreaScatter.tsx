@@ -70,8 +70,12 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid, darkMode = true }: Volume
 
   if (!points.length) {
     return (
-      <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
-        <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider mb-1">
+      <div
+        className={`rounded-lg px-4 py-3.5 ${
+          darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+        }`}
+      >
+        <h4 className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
           {t('panel.zone.scatter_title')}
         </h4>
         <p className="text-xs text-gray-400 dark:text-gray-500">{t('panel.zone.scatter_no_data')}</p>
@@ -80,9 +84,13 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid, darkMode = true }: Volume
   }
 
   return (
-    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
+    <div
+      className={`rounded-lg px-4 py-3.5 ${
+        darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+      }`}
+    >
       <div className="flex items-baseline justify-between mb-2">
-        <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
+        <h4 className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
           {t('panel.zone.scatter_title')}
         </h4>
         <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">{t('panel.zone.parcels_suffix', { count: points.length })}</span>

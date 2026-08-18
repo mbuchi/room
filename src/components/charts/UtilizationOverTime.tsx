@@ -43,8 +43,12 @@ const UtilizationOverTime = ({ ageCohorts, darkMode = true }: UtilizationOverTim
   const allFinite = data.every((d) => Number.isFinite(d.ratio_v));
 
   return (
-    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/60 rounded-lg p-3">
-      <h4 className="text-[11px] font-semibold text-gray-400 dark:text-gray-400 uppercase tracking-wider mb-2">
+    <div
+      className={`rounded-lg px-4 py-3.5 ${
+        darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+      }`}
+    >
+      <h4 className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
         {t('panel.zone.over_time_title')}
       </h4>
       {!allFinite ? (

@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink, Share2, Copy, Link2,
+  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink, Share2, Copy, Link2, Braces,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -11,6 +11,26 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.29.2',
+    date: 'August 18, 2026',
+    codename: 'Raw JSON & Panel Harmony',
+    summary: 'Added the raw JSON viewer button for all users and aligned info panel section width and component styling with geopool.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Braces,
+        text: 'Added the raw JSON toggle button ("{}") to the panel header actions for all users, matching geopool. Selecting any parcel now allows toggling the full structured RES and feature JSON data.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text: 'Aligned the info panel width to the 420px suite standard (matching geopool and ParcelPanelShell) with 436px dock offset. Standardized section cards and data pill groups for consistent width and visual hierarchy.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.29.1',
     date: 'August 18, 2026',
