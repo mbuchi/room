@@ -216,11 +216,10 @@ function firstRingFromGeometry(geometry: ParcelFeatureGeometry): LngLatRing | nu
   return null;
 }
 
-// Width of the right-side parcel pane. Tuned to fit the 2-column histogram
-// grid comfortably without dominating the map. The controls offset themselves
-// by PANEL_OFFSET_PX whenever a parcel is selected so the panel never covers
-// the layer/zoom buttons on md+ screens.
-const PANEL_WIDTH_PX = 460;
+// Suite-standard width of the right-side parcel pane (420px, as in geopool / ParcelPanelShell).
+// The controls offset themselves by PANEL_OFFSET_PX (436px = 420 + 16) whenever a parcel is
+// selected so the panel never covers the layer/zoom buttons on md+ screens.
+const PANEL_WIDTH_PX = 420;
 const PANEL_OFFSET_PX = PANEL_WIDTH_PX + 16;
 
 /**
@@ -1254,15 +1253,6 @@ const MapView = () => {
     (id) => id !== 'compare' || isAdmin,
   );
 
-  /* Is the raw-JSON developer view actually on screen? DERIVED from the admin
-     flag, not merely reset by the effect above: the dump must never render for
-     a non-admin, and `showRaw && isAdmin` settles that in the SAME render pass
-     — while the admin probe is still in flight, while it is failing, and in the
-     frame after the flag drops, all of which an effect-only reset would leave
-     visible for one paint. Hiding the toggle button is not a gate either; this
-     is. Same idiom as the 'compare' tab. */
-  const rawJsonOpen = showRaw && isAdmin;
-
   /* ── WebGL-unavailable fallback ────────────────────────────────────────────
      No GPU / headless / blocklisted driver / lost context: there is no canvas
      to render into, so every map control below would be inert. Show the shared
@@ -1500,12 +1490,12 @@ const MapView = () => {
                arbitrary value it can see as a literal token in the source, so an
                interpolated `!right-[${PANEL_OFFSET_PX}px]` produced no CSS rule and
                the dock stayed at its default 1rem inset, hidden under the panel.
-               476px = PANEL_OFFSET_PX (PANEL_WIDTH_PX 460 + 16) — keep in sync; the
+               436px = PANEL_OFFSET_PX (PANEL_WIDTH_PX 420 + 16) — keep in sync; the
                ZoomControl and ClaireAssistant take the same constant as props below
-               (the shared launcher adds 20px on top: right = 496px, clear of both
+               (the shared launcher adds 20px on top: right = 456px, clear of both
                the pane and the zoom stack).
                `!` beats .aireon-map-control-right{right:var(--aireon-map-control-inset)}. */
-            desktopClassName={`transition-[right] duration-300 ${selectedParcel ? '!right-[476px]' : ''}`}
+            desktopClassName={`transition-[right] duration-300 ${selectedParcel ? '!right-[436px]' : ''}`}
           >
             {isMobile ? (
               /* Suite mobile standard: no tabs — every control card stacks
@@ -1605,19 +1595,16 @@ const MapView = () => {
                 {compareParcel && (
                   <CompareToggleButton parcel={compareParcel} darkMode={isDarkMode} />
                 )}
-                {/* Raw-JSON toggle: admins only. The dump behind it carries the
-                    parcel's valuation and market-signal fields verbatim, so it
-                    rides on the same gate as the compare tab. Non-admins (and
-                    everyone while the admin probe is still resolving) get no
-                    button — and, more to the point, no view: see rawJsonOpen. */}
-                {isAdmin && (parcelData || selectedParcel) && (
+                {/* Raw-JSON toggle: suite standard (matching geopool). Available
+                    whenever a parcel is selected. */}
+                {(parcelData || selectedParcel) && (
                   <PanelActionButton
                     icon={<Braces size={16} />}
                     label={t('panel.info.toggle_raw_json')}
                     onClick={() => setShowRaw((value) => !value)}
-                    ariaPressed={rawJsonOpen}
+                    ariaPressed={showRaw}
                     dark={isDarkMode}
-                    tone={rawJsonOpen ? 'active' : 'ghost'}
+                    tone={showRaw ? 'active' : 'ghost'}
                     className={PANEL_TOUCH_TARGET}
                   />
                 )}
@@ -1651,11 +1638,11 @@ const MapView = () => {
             // Italian rows past the container (IT 353px into 339px). Without a
             // scroller that becomes horizontal page scroll, which is a standing
             // suite defect. `min-w-full w-max` keeps the desktop look identical
-            // — the row still stretches to fill 460px and the segments still
+            // — the row still stretches to fill 420px and the segments still
             // divide it evenly — and only grows past the container when the
             // labels genuinely cannot fit. Scrollbar hidden so the pane never
             // shows two.
-            className="flex-shrink-0 border-b border-gray-200 dark:border-gray-800/60 px-3 py-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex-shrink-0 border-b border-gray-200 dark:border-gray-800/60 px-5 py-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             data-tour="zone-charts"
           >
             <SegmentedTabs<PanelTab>
@@ -1673,9 +1660,8 @@ const MapView = () => {
           {/* Scrollable tab content — flex-1 so the Save CTA footer stays pinned.
               When the raw-JSON developer view is on, it replaces the tab body
               with a dump of the clicked parcel's richest structured data (the
-              RES parcelData response) plus the raw tile feature properties.
-              `rawJsonOpen` — not `showRaw` — is the gate: admins only. */}
-          {rawJsonOpen ? (
+              RES parcelData response) plus the raw tile feature properties. */}
+          {showRaw ? (
             <RawJsonView
               value={{ res: parcelData, feature: selectedParcel.props }}
               labels={{

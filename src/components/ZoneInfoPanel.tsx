@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
-import { MapPin, Building2 } from 'lucide-react';
 import { DataPillGroup, LoadingFeedback, Skeleton, type DataPillItem } from '@aireon/shared';
 import type { ParcelData } from '../services/parcelDataService';
-import { PanelError, PanelScroll, Section } from './PanelKit';
+import { PanelError, PanelScroll } from './PanelKit';
 import { useI18n } from '../contexts/I18nContext';
 
 /**
@@ -52,25 +51,13 @@ const ZoneInfoPanel = ({
   const { t } = useI18n();
 
   // ── Data pills (DATA_PILLS_STANDARD.md) ─────────────────────────────────
-  // The four former Row sections (Location / Zoning / Built / Age) collapse
-  // into two DataPillGroup sections, each still wrapped in the card's own
-  // Section chrome (icon + eyebrow title), so `heading` is omitted on the
-  // group itself — the Section title already labels the row. EGRID and
-  // Lat/Lng stay out of both groups; they live in the panel header's
-  // copyable chips (ParcelPanelHeader), and no zone badge exists here to
-  // duplicate either.
+  // Location/Zoning and Building data pills render directly as DataPillGroup
+  // sections with standard eyebrow headings (matching geopool).
   //
   // fso is the section's official identifier, so it gets `mono` + `copyable`
   // and a visible `label` (a bare digit string means nothing on its own).
   // The zone is ONE pill: `parcelData.zone`, the harmonized federal category
-  // resolved by @aireon/shared/parcel-zone (PARCEL_ZONE_STANDARD.md). It used
-  // to be two mono pills, the municipal `cz_local` ("Wohnzone, Bauklasse 4")
-  // and the cantonal `cz_canton`, so the same parcel read differently here
-  // than in every other Aireon app; the municipal type still exists, but as
-  // the comparison-cohort key on the Zone tab, not as "the zone". A word
-  // value ("Wohnzonen") reads on its own, so a `title` tooltip is enough.
-  // municipality_name is a bare place name, so it also gets a `title`
-  // tooltip rather than a label.
+  // resolved by @aireon/shared/parcel-zone (PARCEL_ZONE_STANDARD.md).
   const zoningLocationPills: DataPillItem[] = parcelData
     ? [
         { key: 'municipality', value: parcelData.municipality_name, title: t('panel.info.row.municipality') },
@@ -94,8 +81,7 @@ const ZoneInfoPanel = ({
   // (m², m³, m), so a `title` tooltip is enough (DATA_PILLS_STANDARD R4).
   // gfz (a bare ratio), bldg_floors_n (a bare count) and bldg_constr_year (a
   // bare year) look identical to each other out of context, so those three
-  // get a visible `label` prefix instead — same treatment bloom gives its
-  // floors/GFA pills.
+  // get a visible `label` prefix instead.
   const buildingPills: DataPillItem[] = parcelData
     ? [
         {
@@ -144,19 +130,17 @@ const ZoneInfoPanel = ({
 
       {!isLoading && !error && parcelData && (
         <>
-          <Section
-            icon={<MapPin size={12} className="text-red-500/80 dark:text-red-400/80" />}
-            title={t('panel.info.section.zoning_location')}
-          >
-            <DataPillGroup items={zoningLocationPills} dark={darkMode} />
-          </Section>
+          <DataPillGroup
+            heading={t('panel.info.section.zoning_location')}
+            items={zoningLocationPills}
+            dark={darkMode}
+          />
 
-          <Section
-            icon={<Building2 size={12} className="text-teal-500/80 dark:text-teal-400/80" />}
-            title={t('panel.info.section.building')}
-          >
-            <DataPillGroup items={buildingPills} dark={darkMode} />
-          </Section>
+          <DataPillGroup
+            heading={t('panel.info.section.building')}
+            items={buildingPills}
+            dark={darkMode}
+          />
 
           {/* The two ratio fields are the headline — give them a prominent bar
               each so the user can read "this parcel is X% utilised / Y m³
@@ -165,9 +149,10 @@ const ZoneInfoPanel = ({
             label={t('panel.info.ratio_v.label')}
             ratio={parcelData.ratio_v}
             hint={parcelData.ratio_v == null ? t('panel.info.ratio_v.no_reference') : undefined}
+            darkMode={darkMode}
           />
-          <FreeVolumeCard freeV={parcelData.free_v} />
-          <RatioCard label={t('panel.info.ratio_s.label')} ratio={parcelData.ratio_s} />
+          <FreeVolumeCard freeV={parcelData.free_v} darkMode={darkMode} />
+          <RatioCard label={t('panel.info.ratio_s.label')} ratio={parcelData.ratio_s} darkMode={darkMode} />
         </>
       )}
     </PanelScroll>
@@ -175,11 +160,13 @@ const ZoneInfoPanel = ({
 };
 
 const ZoneInfoSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
-  <>
+  <div className="space-y-4">
     {[0, 1, 2, 3].map((i) => (
       <div
         key={i}
-        className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/40 rounded-lg p-3 space-y-2"
+        className={`rounded-lg px-4 py-3.5 ${
+          darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+        } space-y-2`}
       >
         <Skeleton dark={darkMode} width={80} height={10} radius={4} delay={`${i * 60}ms`} />
         {[0, 1, 2].map((j) => (
@@ -190,7 +177,7 @@ const ZoneInfoSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
         ))}
       </div>
     ))}
-  </>
+  </div>
 );
 
 /**
@@ -204,16 +191,22 @@ const RatioCard = ({
   label,
   ratio,
   hint,
+  darkMode = true,
 }: {
   label: string;
   ratio: number | null;
   hint?: string;
+  darkMode?: boolean;
 }) => {
   const { t } = useI18n();
+  const cardClass = `rounded-lg px-4 py-3.5 ${
+    darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+  }`;
+
   if (ratio == null) {
     return (
-      <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
-        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+      <div className={cardClass}>
+        <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
           {label}
         </p>
         <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
@@ -227,9 +220,9 @@ const RatioCard = ({
   const over = ratio > 100;
 
   return (
-    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
+    <div className={cardClass}>
       <div className="flex items-baseline justify-between mb-1.5">
-        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+        <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
           {label}
         </p>
         <p
@@ -240,7 +233,7 @@ const RatioCard = ({
           {Math.round(ratio)}%{over && ' ↑'}
         </p>
       </div>
-      <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
+      <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
         <div
           className={`h-full rounded-full ${over ? 'bg-red-500' : 'bg-amber-400'}`}
           style={{ width: `${pct}%` }}
@@ -250,12 +243,22 @@ const RatioCard = ({
   );
 };
 
-const FreeVolumeCard = ({ freeV }: { freeV: number | null }) => {
+const FreeVolumeCard = ({
+  freeV,
+  darkMode = true,
+}: {
+  freeV: number | null;
+  darkMode?: boolean;
+}) => {
   const { t } = useI18n();
+  const cardClass = `rounded-lg px-4 py-3.5 ${
+    darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+  }`;
+
   if (freeV == null) {
     return (
-      <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
-        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+      <div className={cardClass}>
+        <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
           {t('panel.info.free_v.label')}
         </p>
         <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
@@ -266,9 +269,9 @@ const FreeVolumeCard = ({ freeV }: { freeV: number | null }) => {
   }
   const positive = freeV >= 0;
   return (
-    <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
+    <div className={cardClass}>
       <div className="flex items-baseline justify-between">
-        <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+        <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
           {t('panel.info.free_v.label')}
         </p>
         <p

@@ -188,7 +188,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
           panel header's subtitle and the parcel count is already printed
           inside the dropdown itself, so neither is repeated here. */}
       {(stats || activeCzLocal) && (
-        <div className="flex-shrink-0 px-4 py-2.5 border-b border-gray-200 dark:border-gray-800/40 space-y-2">
+        <div className="flex-shrink-0 px-5 py-2.5 border-b border-gray-200 dark:border-gray-800/40 space-y-2">
           {parcelData?.zone && (
             <p className="flex items-baseline gap-2 min-w-0">
               <span className="flex-shrink-0 text-[9px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-semibold">
@@ -208,7 +208,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-4">
         {loading && !stats && (
           <LoadingFeedback
             label="Loading zone statistics…"
@@ -253,20 +253,22 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
 
         {/* Primary-actions row — the LAST section of the scroll flow per the
             suite data-card standard. The negative margins bleed the slot's
-            border-t across the scroller's p-3 padding (the slot re-applies its
-            own inner padding); space-y-3 supplies the top gap. */}
-        {actionsSlot && <div className="-mx-3 -mb-3">{actionsSlot}</div>}
+            border-t across the scroller's padding (the slot re-applies its
+            own inner padding); space-y-4 supplies the top gap. */}
+        {actionsSlot && <div className="-mx-5 -mb-4 mt-4">{actionsSlot}</div>}
       </div>
     </div>
   );
 };
 
 const ChartsSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
-  <div className="space-y-3">
+  <div className="space-y-4">
     {[0, 1, 2, 3].map((i) => (
       <div
         key={i}
-        className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/40 rounded-lg p-3 space-y-2"
+        className={`rounded-lg px-4 py-3.5 ${
+          darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+        } space-y-2`}
       >
         <Skeleton dark={darkMode} width={120} height={10} radius={4} delay={`${i * 70}ms`} />
         <Skeleton dark={darkMode} height={150} radius={6} delay={`${i * 70}ms`} className="w-full" />

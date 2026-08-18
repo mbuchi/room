@@ -101,6 +101,7 @@ const MarketDataSection = ({
     <Section
       title={`${t('panel.info.section.market')}${label ? ` · ${label}` : ''}`}
       subtitle={data?.scrape_date ?? null}
+      darkMode={darkMode}
     >
       {/* ── Toggles: Rent/Buy and Apartments/Houses ─────────────────────── */}
       <div className="space-y-2">
@@ -361,17 +362,23 @@ export function MarketDataLoadingFeedback({ darkMode }: { darkMode: boolean }) {
 const Section = ({
   title,
   subtitle,
+  darkMode = true,
   children,
 }: {
   title: string;
   subtitle?: string | null;
+  darkMode?: boolean;
   children: React.ReactNode;
 }) => (
-  <div className="bg-gray-100/80 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800/50 rounded-lg p-3">
+  <div
+    className={`rounded-lg px-4 py-3.5 ${
+      darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+    }`}
+  >
     <div className="flex items-center justify-between gap-2 mb-2">
       <div className="flex items-center gap-1.5 min-w-0">
         <TrendingUp size={12} className="text-indigo-500/80 dark:text-indigo-400/80 flex-shrink-0" />
-        <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider truncate">
+        <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">
           {title}
         </span>
       </div>
