@@ -22,13 +22,15 @@ interface ZoneSelectorDropdownProps {
  * data — the map's `feature-state` is repainted off the selected zone's
  * parcels[].
  *
- * This control is deliberately NOT labelled "zone" and never prints the
- * harmonized federal category: it picks the comparison cohort, and RES
- * `/zone_stats` defines that cohort by `fso + cz_local` (the municipal
- * designation, "Wohnzone, Bauklasse 4"). The parcel's zone as the user reads
- * it (harmonized-first, `parcelData.zone`) is printed by ZonePanel directly
- * above this control. See aireon-shared/docs/PARCEL_ZONE_STANDARD.md rule 4:
- * analytics keys are not display — label the cohort honestly.
+ * This control is deliberately labelled "Municipal zone type", not "zone", and
+ * never goes through the zone resolver: it picks the comparison cohort, and
+ * RES `/zone_stats` defines that cohort by `fso + cz_local` (the municipal
+ * designation, "Wohnzone, Bauklasse 4"). Since @aireon/shared v1.177.0 the
+ * parcel's zone as the user reads it (`parcelData.zone`, the Parcel tab pill)
+ * is that same municipal designation, so the two coincide on open; the
+ * cohort still switches independently of the selected parcel. See
+ * aireon-shared/docs/PARCEL_ZONE_STANDARD.md rule 4: analytics keys are not
+ * display — label the cohort honestly.
  *
  * The municipality-wide list can run 20+ items so the filter input stays
  * visible whenever the menu is open.

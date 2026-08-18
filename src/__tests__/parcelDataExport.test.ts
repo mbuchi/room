@@ -35,6 +35,16 @@ describe('parcel data export', () => {
     // bootstrap fix mirroring resolveThemePreference, so OS-light is still not
     // treated as a decision and room's dark default survives the first frame.
     //
+    // Re-pinned to v1.177.0, the municipal-zone release: default single /
+    // cz_local. The zone an Aireon app shows is the MUNICIPAL designation
+    // ("Dorfzone 2", "Wohnzone, Bauklasse 4"); the federal category
+    // ("Zentrumszonen", "Wohnzonen") is a filter, never the label. This
+    // reverses v1.173's harmonized-first default. resolveZoneLabel(),
+    // resolveZoneRows() and Claire's buildParcelContextSummary all flip with
+    // the pin; room's cohorts stay keyed on cz_local. Between v1.173.3 and
+    // v1.177.0 the only shared changes are zone-related (runtime zoneConfig +
+    // useZoneConfig, resolveZoneRows, one-line Claire zone context).
+    //
     // Re-pinned to v1.173.3, the Claire one-zone context + spare-space canton
     // guard: buildParcelContextSummary (the parcel context every shared
     // ClaireAssistant mount sends to Claire) used to emit two zone lines, the
@@ -65,7 +75,7 @@ describe('parcel data export', () => {
     // each enrichment layer. A repin below this SHA is not a build error, the
     // About dialog simply loses the line that says how old the building volume
     // on screen is.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('8f9b35e4e0831e3289aaeae1ca7cde4518027bcf');
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('f332f2d0901ace2daa9a5626f4526014e40bc278');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

@@ -56,7 +56,7 @@ const ZoneInfoPanel = ({
   //
   // fso is the section's official identifier, so it gets `mono` + `copyable`
   // and a visible `label` (a bare digit string means nothing on its own).
-  // The zone is ONE pill: `parcelData.zone`, the harmonized federal category
+  // The zone is ONE pill: `parcelData.zone`, the municipal designation
   // resolved by @aireon/shared/parcel-zone (PARCEL_ZONE_STANDARD.md).
   const zoningLocationPills: DataPillItem[] = parcelData
     ? [

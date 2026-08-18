@@ -12,6 +12,32 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.30.0',
+    date: 'August 19, 2026',
+    codename: 'The zone the municipality uses',
+    summary: 'A parcel\'s zone is now the municipal designation ("Dorfzone 2", "Wohnzone, Bauklasse 4"), not the federal main-use category. Suite-wide rule via @aireon/shared v1.177.0.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: MapPin,
+        text: 'The zone pill on the Parcel tab, and the zone Claire refers to, now read the municipal designation ("Dorfzone 2", "Wohnzone, Bauklasse 4") instead of the federal main-use category ("Zentrumszonen", "Wohnzonen"). The federal category stays available in the raw JSON view and the data export, and remains a filter, never the label. Where a municipality has no designation on file, the federal category still stands in, and an ordinance cross-reference or a canton code is never shown as the zone.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BarChart3,
+        text: 'The Zone tab no longer repeats the zone above the "Municipal zone type" picker: the picker\'s current value is that same municipal designation, so the line printed the same words twice. The statistics, the cohorts and the choropleth highlight are unchanged and still keyed on the municipal zone type.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated @aireon/shared to v1.177.0, the release that makes the municipal designation the suite default (RES /zone_config answers the same), so every Aireon app prints the same zone for the same parcel. Parcels seen before this release are re-read once so a cached federal label is not shown.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.29.2',
     date: 'August 18, 2026',
     codename: 'Raw JSON & Panel Harmony',
