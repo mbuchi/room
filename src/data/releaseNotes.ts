@@ -12,6 +12,38 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.31.0',
+    date: 'August 20, 2026',
+    codename: 'The parcel is in the link',
+    summary: 'Selecting a parcel now updates the address bar, so the link you copy, and the one "Share this view" puts on your clipboard, opens on that parcel instead of a bare map.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: Link2,
+        text: 'Clicking a parcel now writes it into the browser address bar: the coordinates, the parcel ID (EGRID) and the parcel\'s own address. Copy the URL out of the address bar and whoever opens it lands on the same parcel with the panel already open. Before this, only panning and zooming changed the URL, so a click left the address bar pointing at wherever the map happened to be.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Share2,
+        text: '"Share this view" no longer drops the selected parcel. It copies the address bar as it stands, so it used to share a bare camera position. Now the shared link carries the parcel you had open.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: MapPin,
+        text: 'A shared link that names a parcel reopens exactly that parcel, even where several parcels overlap at the same point, such as a courtyard drawn over a plot or two parcels meeting on a shared boundary. If the named parcel is no longer there, the link still opens the parcel under the coordinates.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Copy,
+        text: 'Closing the parcel panel clears the parcel out of the address bar and keeps the map position, so a link copied afterwards never claims a parcel that is not on screen, and reloading the page no longer reopens a panel you just closed. Language, theme, basemap and 3D settings in the link are left untouched throughout.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.30.0',
     date: 'August 19, 2026',
     codename: 'The zone the municipality uses',

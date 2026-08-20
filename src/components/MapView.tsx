@@ -11,7 +11,10 @@ import { useEffect, useRef, useState, useCallback, lazy, Suspense, type CSSPrope
 import type * as maplibregl from 'maplibre-gl';
 import type * as GeoJSON from 'geojson';
 import {
+  clearConfirmedParcelUrl,
+  getDeepLinkParcelId,
   getInitialMapState,
+  stampConfirmedParcelUrl,
   updateUrlParams,
 } from '../lib/mapConfig';
 import {
@@ -597,6 +600,32 @@ const MapView = () => {
     }
 
     setSelectedParcel({ parcelId, egrid, props, lng, lat, geometry });
+
+    // Put the confirmed selection in the address bar (see mapConfig.ts). Every
+    // selection path funnels through this callback — left-click hit test,
+    // address-search pick, right-click "load location", deep-link auto-select —
+    // so this one call covers them all, and the deep-link case upgrades an
+    // inbound bare ?lat/?lng link into a full ?egrid/?q link the moment the
+    // tiles resolve the parcel underneath it.
+    //
+    // The label is the parcel's OWN tile address. A coordinate reverse geocode
+    // is NOT usable here: geo.admin's identify is feature-ordered within ~20 m
+    // and would relabel this parcel with a neighbour's address
+    // (PARCEL_ADDRESS_STANDARD.md). A parcel with no address of its own writes
+    // no ?q= at all rather than an invented one — ?egrid= still identifies it.
+    //
+    // Zoom is read here, at selection time. Nothing in this callback animates
+    // the camera, and the two paths that DO fly first (address search, context
+    // menu) only reach this point from an `idle` after the flight has landed,
+    // so this is never a mid-ease sample.
+    stampConfirmedParcelUrl({
+      lat,
+      lng,
+      zoom: map.getZoom(),
+      label: fullParcelAddress(props),
+      egrid,
+    });
+
     setParcelData(null);
     setParcelDataError(null);
     setParcelDataLoading(true);
@@ -626,21 +655,35 @@ const MapView = () => {
 
   // Hit-test the parcel under `center` and select it. Returns true on a hit so
   // the retry chain below knows whether to keep waiting for tiles.
-  const trySelectParcelAt = useCallback((map: maplibregl.Map, center: [number, number]): boolean => {
+  const trySelectParcelAt = useCallback((
+    map: maplibregl.Map,
+    center: [number, number],
+    // EGRID carried by an inbound deep link. Several parcel polygons can stack
+    // under one point (shared borders, a courtyard drawn over a plot), and the
+    // id says which one the link meant, so a shared URL restores the SAME
+    // parcel the sender had open rather than whichever feature MapLibre happens
+    // to return first. Only ever a PREFERENCE: an id that is not under the
+    // point falls back to the top hit, so a stale link still selects something.
+    preferEgrid: string | null = null,
+  ): boolean => {
     // Querying a missing layer throws — a search select can race the style load.
     if (!map.getLayer('parcel-hit')) return false;
     const point = map.project(center);
     const features = map.queryRenderedFeatures(point, { layers: ['parcel-hit'] });
-    if (features.length && features[0].properties) {
-      selectParcelRef.current(
-        features[0].properties,
-        center[0],
-        center[1],
-        (features[0].geometry as GeoJSON.Geometry) ?? null,
-      );
-      return true;
-    }
-    return false;
+    if (!features.length) return false;
+    // room's tiles carry the federal EGRID in the `parcel_id` property.
+    const preferred = preferEgrid
+      ? features.find((f) => (f.properties as Record<string, unknown> | null)?.parcel_id === preferEgrid)
+      : undefined;
+    const feature = preferred ?? features[0];
+    if (!feature.properties) return false;
+    selectParcelRef.current(
+      feature.properties,
+      center[0],
+      center[1],
+      (feature.geometry as GeoJSON.Geometry) ?? null,
+    );
+    return true;
   }, []);
 
   // Runs the hit-test once the parcel tiles under the target are actually
@@ -650,11 +693,16 @@ const MapView = () => {
   // later tile batch fires another 'idle', so retry on those, capped so an
   // address with no parcel underneath (lake, foreign address) stops cleanly.
   // Matches woom's selectParcelWhenReady (ported suite-wide with valoo/groove).
-  const selectParcelWhenReady = useCallback((map: maplibregl.Map, center: [number, number], maxAttempts = 6) => {
+  const selectParcelWhenReady = useCallback((
+    map: maplibregl.Map,
+    center: [number, number],
+    opts: { preferEgrid?: string | null; maxAttempts?: number } = {},
+  ) => {
+    const { preferEgrid = null, maxAttempts = 6 } = opts;
     autoSelectCancelRef.current?.();
     let attempts = 0;
     const tryHit = () => {
-      if (trySelectParcelAt(map, center)) return;
+      if (trySelectParcelAt(map, center, preferEgrid)) return;
       attempts += 1;
       if (attempts < maxAttempts) map.once('idle', tryHit);
     };
@@ -920,6 +968,17 @@ const MapView = () => {
       mapRef.current.setFilter('parcel-selected', ['==', ['get', 'parcel_id'], '']);
     if (mapRef.current?.getLayer('parcel-selected-casing'))
       mapRef.current.setFilter('parcel-selected-casing', ['==', ['get', 'parcel_id'], '']);
+    // Retract the claim the selection made on the URL. Without this the address
+    // bar — and every "Share this view" link copied from it — keeps naming a
+    // parcel that is no longer on screen, and a reload re-opens the panel the
+    // user just dismissed. The camera stays; only the identity goes.
+    //
+    // Guarded on a live map: a not-yet-mounted instance must never clear an
+    // inbound deep link on boot, and there is no camera to fall back to anyway.
+    if (mapRef.current) {
+      const c = mapRef.current.getCenter();
+      clearConfirmedParcelUrl({ lat: c.lat, lng: c.lng, zoom: mapRef.current.getZoom() });
+    }
     handleZoneStatsCleared();
   }, [handleZoneStatsCleared]);
 
@@ -1003,6 +1062,8 @@ const MapView = () => {
     const container = mapContainerRef.current;
 
     const initialState = getInitialMapState();
+    // Read alongside the camera state, from the URL the page was opened with.
+    const deepLinkParcelId = getDeepLinkParcelId();
     let cancelled = false;
     // Throttle native mousemove → coordinate state to one update per animation
     // frame. mousemove can fire far faster than 60fps, and setLv95Coords re-renders
@@ -1116,8 +1177,13 @@ const MapView = () => {
 
           // Deep-link ?lat/?lng: retry the hit-test on each idle so parcel
           // tiles that finish after the first idle still get auto-selected.
+          // ?egrid= (or the ?parcel_id= spelling) disambiguates which polygon
+          // under the point the link meant — the same id a selection stamps, so
+          // a shared link round-trips to the exact parcel the sender had open.
           if (initialState.hasUrlCoords) {
-            selectParcelWhenReady(map, initialState.center);
+            selectParcelWhenReady(map, initialState.center, {
+              preferEgrid: deepLinkParcelId,
+            });
           }
         });
 
