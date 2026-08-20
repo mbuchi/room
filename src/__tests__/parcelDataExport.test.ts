@@ -35,6 +35,15 @@ describe('parcel data export', () => {
     // bootstrap fix mirroring resolveThemePreference, so OS-light is still not
     // treated as a decision and room's dark default survives the first frame.
     //
+    // Re-pinned to v1.178.0, the deferred session-replay boot: initOpenReplay
+    // (which room calls in main.tsx) no longer boots the OpenReplay tracker
+    // inside the startup blocking window. It now waits for the window load
+    // event + 2.5 s + an idle callback, splits import/construct/start across
+    // macrotasks, and buffers identify()/handleError() raised before the
+    // deferred start. Measured on boost production this cuts ~450 ms of total
+    // blocking time on desktop, more on slow devices. No API surface changed;
+    // bootMode: 'immediate' restores the old behavior.
+    //
     // Re-pinned to v1.177.0, the municipal-zone release: default single /
     // cz_local. The zone an Aireon app shows is the MUNICIPAL designation
     // ("Dorfzone 2", "Wohnzone, Bauklasse 4"); the federal category
@@ -75,7 +84,7 @@ describe('parcel data export', () => {
     // each enrichment layer. A repin below this SHA is not a build error, the
     // About dialog simply loses the line that says how old the building volume
     // on screen is.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('f332f2d0901ace2daa9a5626f4526014e40bc278');
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('d90c2910a71ab5098a71e43b4cba3dcc060a1c5c');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

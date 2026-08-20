@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.32.0',
+    date: 'August 21, 2026',
+    codename: 'Quiet start',
+    summary: 'The app starts smoother, especially on slower devices.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'Starting the app is smoother now. The anonymous session recording that helps us find bugs used to switch on while the app was still starting up; it now waits until the page has finished loading and the device has a quiet moment. Updated @aireon/shared to v1.178.0, which defers that tracker boot out of the startup window for every Aireon app.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.31.2',
     date: 'August 20, 2026',
     codename: 'Linkable selection',
