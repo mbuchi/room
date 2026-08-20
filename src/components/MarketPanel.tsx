@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { ParcelData } from '../services/parcelDataService';
 import MarketDataSection from './MarketDataSection';
+import { canLookupMarket } from '../services/cityMarketService';
 import { PanelEmpty, PanelScroll } from './PanelKit';
 import { useI18n } from '../contexts/I18nContext';
 
@@ -30,7 +31,9 @@ const MarketPanel = ({
   const { t } = useI18n();
   const bfs = parcelData?.fso ?? null;
   const cityName = parcelData?.municipality_name ?? null;
-  const hasTarget = (bfs != null && Number.isFinite(bfs)) || !!cityName;
+  // Same predicate the section itself gates on, so this shell can never mount a
+  // section that immediately renders nothing.
+  const hasTarget = canLookupMarket(bfs, cityName);
 
   return (
     <PanelScroll actionsSlot={actionsSlot}>

@@ -1,6 +1,7 @@
 import { DEFAULT_MAP_ZOOM } from '@aireon/shared/map-defaults';
 import {
   getInitialMapState as sharedInitialMapState,
+  updateConfirmedLocationUrl,
   updateMapUrl,
   type AireonInitialMapState,
 } from '@aireon/shared/url-params';
@@ -54,4 +55,65 @@ export function getInitialMapState(): InitialMapState {
 
 export function updateUrlParams(lat: number, lng: number, zoom: number): void {
   updateMapUrl({ lat, lng, zoom });
+}
+
+/** Federal EGRID shape: "CH" followed by digits, e.g. CH188031547755. */
+const EGRID_PATTERN = /^CH\d+$/i;
+
+/**
+ * Extract canonical egrid and parcelId from parcel tile properties and feature ID.
+ */
+export function parcelUrlIdentity(
+  properties: Record<string, unknown> | null | undefined,
+  featureId?: string | number | null,
+): { egrid: string | null; parcelId: string | null } {
+  const read = (key: string): string | null => {
+    const value = properties?.[key];
+    if (value === undefined || value === null || value === '') return null;
+    return String(value);
+  };
+  const explicitEgrid = read('egrid');
+  const rawParcelId = read('parcel_id') ?? (featureId != null ? String(featureId) : null);
+  const egrid =
+    explicitEgrid ?? (rawParcelId && EGRID_PATTERN.test(rawParcelId) ? rawParcelId : null);
+  return { egrid, parcelId: rawParcelId && rawParcelId !== egrid ? rawParcelId : null };
+}
+
+/**
+ * Stamp a confirmed parcel selection into the address bar.
+ */
+export function stampConfirmedParcelUrl(opts: {
+  lat: number;
+  lng: number;
+  zoom?: number;
+  label?: string | null;
+  egrid?: string | null;
+  parcelId?: string | null;
+}): void {
+  updateConfirmedLocationUrl({
+    lat: opts.lat,
+    lng: opts.lng,
+    zoom: opts.zoom,
+    query: opts.label ?? null,
+    egrid: opts.egrid ?? null,
+    parcelId: opts.parcelId ?? null,
+  });
+}
+
+/**
+ * Undo parcel confirmation when the panel is closed.
+ */
+export function clearConfirmedParcelUrl(opts: {
+  lat: number;
+  lng: number;
+  zoom?: number;
+}): void {
+  updateConfirmedLocationUrl({
+    lat: opts.lat,
+    lng: opts.lng,
+    zoom: opts.zoom,
+    query: null,
+    egrid: null,
+    parcelId: null,
+  });
 }

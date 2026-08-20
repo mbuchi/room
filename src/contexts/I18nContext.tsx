@@ -136,6 +136,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'market.range': '80% range',
     'market.per_m2': '/m²·yr',
     'market.no_data': 'No market data for {city}',
+    'market.error': 'Market figures could not be loaded. The service did not answer.',
+    'market.retry': 'Try again',
     'market.legend.min': 'Min',
     'market.legend.median': 'Median',
     'market.legend.max': 'Max',
@@ -450,6 +452,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'market.range': 'plage 80 %',
     'market.per_m2': '/m²·an',
     'market.no_data': 'Aucune donnée de marché pour {city}',
+    'market.error':
+      'Impossible de charger les chiffres du marché. Le service n\'a pas répondu.',
+    'market.retry': 'Réessayer',
     'market.legend.min': 'min',
     'market.legend.median': 'médiane',
     'market.legend.max': 'max',
@@ -763,6 +768,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'market.range': '80%-Bereich',
     'market.per_m2': '/m²·Jahr',
     'market.no_data': 'Keine Marktdaten für {city}',
+    'market.error':
+      'Marktzahlen konnten nicht geladen werden. Der Dienst hat nicht geantwortet.',
+    'market.retry': 'Erneut versuchen',
     'market.legend.min': 'Min.',
     'market.legend.median': 'Median',
     'market.legend.max': 'Max.',
@@ -1076,6 +1084,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'market.range': 'intervallo 80%',
     'market.per_m2': '/m²·anno',
     'market.no_data': 'Nessun dato di mercato per {city}',
+    'market.error':
+      'Impossibile caricare i dati di mercato. Il servizio non ha risposto.',
+    'market.retry': 'Riprova',
     'market.legend.min': 'min',
     'market.legend.median': 'mediana',
     'market.legend.max': 'max',

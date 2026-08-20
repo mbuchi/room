@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TrendingUp } from 'lucide-react';
 import { LoadingFeedback, Skeleton, SegmentedTabs } from '@aireon/shared';
 import {
+  canLookupMarket,
   fetchCityMarket,
   type CityMarket,
   type MarketFigures,
@@ -14,10 +15,16 @@ import { useI18n } from '../contexts/I18nContext';
  * municipality the selected parcel sits in.
  *
  * Self-contained data flow: given the parcel's BFS number + municipality name
- * it fetches `/api/city-market` (cached, degrades to null), so the parent only
- * has to mount it with those two props once `ParcelData` lands. When the fetch
- * returns null (no row / endpoint down) we show a muted "no data" line; while
- * it's in flight we show skeleton rows (suite convention — never a spinner).
+ * it fetches `/api/city-market` (cached, never throws), so the parent only has
+ * to mount it with those two props once `ParcelData` lands. While the lookup is
+ * in flight we show skeleton rows (suite convention — never a spinner).
+ *
+ * The two ways of having nothing to show are kept apart. RES answering that it
+ * holds no row for the commune is a fact about coverage, and the muted "no
+ * market data for X" line states it. A lookup that never got an answer (proxy
+ * down, stale RES token, offline) says so instead and offers a retry, because
+ * printing "no market data for Zurich" during an outage is a false claim about
+ * the data.
  *
  * Two local toggles drive which figure block is shown:
  *   - mode:         rent | buy        (default rent)
@@ -59,38 +66,48 @@ const MarketDataSection = ({
 }: MarketDataSectionProps) => {
   const { t } = useI18n();
   const [data, setData] = useState<CityMarket | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
+  // Seeded from the same predicate the effect below uses. Passive effects run
+  // after the first commit, so a `false` seed paints "No market data for X" for
+  // a frame before the request it describes has even started.
+  const [loading, setLoading] = useState(() => canLookupMarket(bfs, cityName));
   const [mode, setMode] = useState<Mode>('rent');
   const [propertyType, setPropertyType] = useState<PropertyType>('apartment');
+  const [retryToken, setRetryToken] = useState(0);
 
-  // (Re)fetch whenever the selected parcel's city changes. Resolves to null on
-  // 404 / error, which we render as the muted no-data line.
+  // (Re)fetch whenever the selected parcel's city changes. `missing` is the
+  // muted no-data line, `error` the retryable outage line.
   useEffect(() => {
-    if ((bfs == null || !Number.isFinite(bfs)) && !cityName) {
+    if (!canLookupMarket(bfs, cityName)) {
       setData(null);
+      setFailed(false);
       setLoading(false);
       return;
     }
+    const controller = new AbortController();
     let cancelled = false;
     setLoading(true);
     setData(null);
-    fetchCityMarket(bfs, cityName, canton)
+    setFailed(false);
+    fetchCityMarket(bfs, cityName, canton, controller.signal)
       .then((res) => {
-        if (!cancelled) setData(res);
-      })
-      .catch(() => {
-        if (!cancelled) setData(null);
+        if (cancelled) return;
+        setData(res.status === 'ok' ? res.data : null);
+        setFailed(res.status === 'error');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
+      controller.abort();
     };
-  }, [bfs, cityName, canton]);
+  }, [bfs, cityName, canton, retryToken]);
+
+  const retry = useCallback(() => setRetryToken((n) => n + 1), []);
 
   // Nothing selected → render nothing (the section is hidden entirely).
-  if ((bfs == null || !Number.isFinite(bfs)) && !cityName) return null;
+  if (!canLookupMarket(bfs, cityName)) return null;
 
   const label = cityName ?? '';
   const figures: MarketFigures | null = data
@@ -133,6 +150,17 @@ const MarketDataSection = ({
 
       {loading ? (
         <MarketDataLoadingFeedback darkMode={darkMode} />
+      ) : failed ? (
+        <div className="mt-3 space-y-2">
+          <p className="text-xs text-gray-400 dark:text-gray-500">{t('market.error')}</p>
+          <button
+            type="button"
+            onClick={retry}
+            className="text-[11px] font-medium text-indigo-600 underline underline-offset-2 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+          >
+            {t('market.retry')}
+          </button>
+        </div>
       ) : !data || !figures ? (
         <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
           {t('market.no_data', { city: label })}
