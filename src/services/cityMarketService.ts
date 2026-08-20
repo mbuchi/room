@@ -11,16 +11,18 @@
  * Caching mirrors parcelDataService / zoneStatsService: an in-memory `Map`
  * fronts an `IndexedDBCache` over the shared `room-cache` DB so a re-open of a
  * previously-seen city is instant.
- *   - Key: `bfs:<n>` when a BFS number is supplied (the canonical commune id),
- *     else `city:<city>:<canton>` so a name-only lookup still de-dupes.
+ *   - Key: every input that can change the answer, because RES matches on the
+ *     BFS number AND on the city/canton pair the caller sends. See `cacheKey`.
  *   - 50 MB LRU budget, no TTL — city market figures refresh daily server-side,
  *     and a stale-by-a-day client cache is acceptable for an indicative panel.
  *
- * IMPORTANT — degrade to null, never throw: the RES endpoint may 404 (no row
- * for the city) or not be deployed yet. In every non-2xx / network / parse
- * failure we resolve to `null` so the UI simply hides the section, exactly as
- * the spec requires. (This is the opposite of zoneStatsService, which surfaces
- * its errors — here the market block is supplementary, so silence is correct.)
+ * IMPORTANT — never throws, but the two bad outcomes stay apart. `missing` is
+ * RES answering that it has no row for this commune (small towns are genuinely
+ * uncovered); `error` is the question never getting an answer (proxy down, RES
+ * token stale, offline). The section says something different for each, because
+ * "no market data for Zurich" is a false statement about the data when the real
+ * problem is that the request failed. (zoneStatsService throws instead; here the
+ * market block is supplementary, so a resolved outcome is the right shape.)
  */
 import { IndexedDBCache } from '../utils/cache';
 
@@ -79,10 +81,37 @@ const persistentCache = new IndexedDBCache<CityMarket>(
   { maxBytes: PERSISTENT_CACHE_MAX_BYTES, stores: ['parcel-data', 'zone-stats', 'city-market'] },
 );
 
-function cacheKey(bfs: number | null, city: string | null, canton: string | null): string {
-  if (bfs != null && Number.isFinite(bfs)) return `bfs:${bfs}`;
-  return `city:${(city ?? '').toLowerCase()}:${(canton ?? '').toLowerCase()}`;
+/**
+ * Cache key. Every input that can change the answer rides in it.
+ *
+ * A key that collapsed to `bfs:<n>` whenever a BFS was present would serve one
+ * commune's figures under another's identity: RES resolves `bfs` through the
+ * `vacancy_lwz` registry, which is missing several communes, so a lookup that
+ * only matched because the NAME was also sent would share its entry with one
+ * that sent no name at all — and with the caller's `city` now a real fallback
+ * rung in the RES lookup, the two answers differ.
+ */
+export function cacheKey(bfs: number | null, city: string | null, canton: string | null): string {
+  const key = bfs != null && Number.isFinite(bfs) ? String(bfs) : '';
+  return `bfs:${key}|city:${(city ?? '').toLowerCase()}|canton:${(canton ?? '').toLowerCase()}`;
 }
+
+/** True when there is enough identity to attempt a lookup at all. */
+export function canLookupMarket(bfs: number | null, city: string | null): boolean {
+  return (bfs != null && Number.isFinite(bfs)) || !!city;
+}
+
+/**
+ * Outcome of a lookup.
+ *
+ * `missing` is a fact about coverage that the section is allowed to state out
+ * loud; `error` is a fact about this one request, and must never be phrased as
+ * "this municipality has no market data".
+ */
+export type CityMarketResult =
+  | { status: 'ok'; data: CityMarket }
+  | { status: 'missing' }
+  | { status: 'error' };
 
 /** Wipe both cache layers — used by debug actions / explicit invalidation. */
 export function clearCityMarketCache(): void {
@@ -93,33 +122,36 @@ export function clearCityMarketCache(): void {
 /**
  * Fetch city-level market figures for the municipality a parcel sits in.
  *
- * Resolves to `null` — never throws — on 404, any non-2xx, a network error, or
- * an unparseable body, so the caller can render the section only when real data
- * comes back. A successful response is written through both cache layers.
+ * Never throws. A 404 resolves to `missing` (RES has no row for this commune);
+ * every other failure — non-2xx, network error, aborted request, unparseable
+ * body — resolves to `error`, so the caller can tell an uncovered commune from
+ * an outage. A successful response is written through both cache layers.
  *
  * @param bfs    BFS commune number (preferred match key). Pass null if unknown.
  * @param city   Municipality name fallback when bfs is unavailable.
  * @param canton Canton abbreviation, narrowing an ambiguous city name.
+ * @param signal Aborts the request when the selection changes under it.
  */
 export async function fetchCityMarket(
   bfs: number | null,
   city: string | null,
   canton: string | null = null,
-): Promise<CityMarket | null> {
+  signal?: AbortSignal,
+): Promise<CityMarketResult> {
   // Nothing to match on — bail before touching the cache or network.
-  if ((bfs == null || !Number.isFinite(bfs)) && !city) return null;
+  if (!canLookupMarket(bfs, city)) return { status: 'missing' };
 
   const key = cacheKey(bfs, city, canton);
 
   // Layer 1 — synchronous in-memory hit.
   const memHit = memoryCache.get(key);
-  if (memHit) return memHit;
+  if (memHit) return { status: 'ok', data: memHit };
 
   // Layer 2 — persistent IndexedDB hit (sub-ms vs. a network round-trip).
   const idbHit = await persistentCache.get(key);
   if (idbHit) {
     memoryCache.set(key, idbHit);
-    return idbHit;
+    return { status: 'ok', data: idbHit };
   }
 
   const params = new URLSearchParams();
@@ -132,26 +164,28 @@ export async function fetchCityMarket(
     res = await fetch(`${CITY_MARKET_URL}?${params.toString()}`, {
       method: 'GET',
       headers: { Accept: 'application/json' },
+      signal,
     });
   } catch {
-    // Network error / endpoint not deployed — hide the section.
-    return null;
+    // Network error / endpoint not deployed / aborted — the figures were never
+    // looked up, so this is an outage, not an answer about coverage.
+    return { status: 'error' };
   }
 
-  // 404 = no market row for this city; any other non-2xx = treat as no data.
-  if (!res.ok) return null;
+  // Only 404 is a statement about coverage. 5xx, the proxy's own 400/405/502
+  // and a missing RES token all mean the question never reached the data.
+  if (res.status === 404) return { status: 'missing' };
+  if (!res.ok) return { status: 'error' };
 
   let data: CityMarket;
   try {
     data = (await res.json()) as CityMarket;
   } catch {
-    return null;
+    return { status: 'error' };
   }
+  if (!data || typeof data !== 'object') return { status: 'error' };
 
-  // Write through both layers. Also index under the bfs key when the caller
-  // matched by name but the payload carries a usable identifier, mirroring
-  // parcelDataService's egrid back-fill — keyed defensively on the response.
   memoryCache.set(key, data);
   void persistentCache.set(key, data);
-  return data;
+  return { status: 'ok', data };
 }

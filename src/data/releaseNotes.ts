@@ -12,6 +12,46 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.31.2',
+    date: 'August 20, 2026',
+    codename: 'Linkable selection',
+    summary: 'Selecting a parcel now updates the browser address bar, so the link you copy or share points straight at that parcel.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Link2,
+        text: 'Clicking a parcel on the map now stamps the confirmed parcel location and EGRID identity into the address bar synchronously. Closing the parcel panel cleanly retracts the parcel identity while preserving the camera position, so links and shared views always accurately reflect what is on screen.',
+        prs: [],
+      },
+    ],
+  },
+  {
+    version: '0.31.1',
+    date: 'August 20, 2026',
+    codename: 'A failed lookup is not an empty market',
+    summary: 'The Market tab now tells a service outage apart from a municipality that genuinely has no figures, and it stops claiming there is no market data before it has even asked.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: TrendingUp,
+        text: 'The Market tab no longer reports "No market data for Zurich" when the problem is that the market service did not answer. A lookup that fails now says so in its own words and offers "Try again", while the old sentence is kept for what it actually means: RealAdvisor has no figures for that municipality. Before this, an outage and an uncovered village were indistinguishable, and the tab stated something false about the data.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Timer,
+        text: 'Opening the Market tab no longer flashes "No market data" for an instant before the skeleton rows appear. The tab now opens straight into its loading state, because the figures had not been requested yet at the moment that sentence was being printed.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Database,
+        text: 'Market figures are now remembered per municipality name and canton, not by commune number alone. A handful of communes are matched by name rather than by number, and those could previously be shown another commune\'s rents and prices out of the local cache.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.30.0',
     date: 'August 19, 2026',
     codename: 'The zone the municipality uses',

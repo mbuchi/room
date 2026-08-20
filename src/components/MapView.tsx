@@ -11,7 +11,10 @@ import { useEffect, useRef, useState, useCallback, lazy, Suspense, type CSSPrope
 import type * as maplibregl from 'maplibre-gl';
 import type * as GeoJSON from 'geojson';
 import {
+  clearConfirmedParcelUrl,
   getInitialMapState,
+  parcelUrlIdentity,
+  stampConfirmedParcelUrl,
   updateUrlParams,
 } from '../lib/mapConfig';
 import {
@@ -605,6 +608,16 @@ const MapView = () => {
     // full height, even if the user collapsed the previous one to a peek.
     setSheetExpanded(true);
 
+    // Stamp the confirmed selection into the address bar so the link is copyable
+    // and "Share this view" carries the parcel identity (URL_PARAMS_STANDARD.md).
+    stampConfirmedParcelUrl({
+      lat,
+      lng,
+      zoom: map.getZoom(),
+      label: formatParcelAddress(props) || (props.address as string) || null,
+      ...parcelUrlIdentity(props, parcelId),
+    });
+
     fetchParcelData({ lng, lat, egrid })
       .then((data) => setParcelData(data))
       .catch((err) =>
@@ -921,6 +934,11 @@ const MapView = () => {
     if (mapRef.current?.getLayer('parcel-selected-casing'))
       mapRef.current.setFilter('parcel-selected-casing', ['==', ['get', 'parcel_id'], '']);
     handleZoneStatsCleared();
+    const map = mapRef.current;
+    if (map) {
+      const center = map.getCenter();
+      clearConfirmedParcelUrl({ lat: center.lat, lng: center.lng, zoom: map.getZoom() });
+    }
   }, [handleZoneStatsCleared]);
 
   // Touch handlers wire the mobile drag-down-to-dismiss gesture on the sheet's
