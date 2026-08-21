@@ -1,9 +1,12 @@
 import { DEFAULT_MAP_ZOOM } from '@aireon/shared/map-defaults';
 import {
   getInitialMapState as sharedInitialMapState,
+  getParcelAutoSelect,
+  getPanelTopicOverride,
   updateConfirmedLocationUrl,
   updateMapUrl,
   type AireonInitialMapState,
+  type AireonParcelAutoSelect,
 } from '@aireon/shared/url-params';
 
 export const DEFAULT_CENTER: [number, number] = [8.894175, 47.556806];
@@ -116,4 +119,55 @@ export function clearConfirmedParcelUrl(opts: {
     egrid: null,
     parcelId: null,
   });
+}
+
+export type ParcelAutoSelectTarget = AireonParcelAutoSelect;
+
+/**
+ * "Open with the parcel already selected" — the read-side twin of
+ * `stampConfirmedParcelUrl` (URL_PARAMS_STANDARD.md, "Open with the parcel
+ * selected").
+ *
+ * Thin pass-through so every URL read in room goes through this one shim, the
+ * way `getInitialMapState` already does. The gate itself is deliberately NOT
+ * re-derived here: `enabled` is true for an EXTERNAL `?lat`/`?lng`, true for a
+ * reloaded self-written URL that still carries `?egrid`/`?parcel_id` (the panel
+ * has to come back), and false under `?select=off` or for a self-written bare
+ * coordinate. That last case is why this is not simply `hasUrlCoords`:
+ * `updateUrlParams` rewrites `?lat`/`?lng` on every `moveend`, so a plain
+ * reload must not conjure a panel the visitor never opened.
+ *
+ * Read it BEFORE the first `updateUrlParams` of the page load. The shared URL
+ * state is parsed once and cached, so ordering only matters for the very first
+ * reader, but keeping this call next to `getInitialMapState()` makes that
+ * impossible to get wrong.
+ */
+export function getParcelAutoSelectTarget(): ParcelAutoSelectTarget {
+  return getParcelAutoSelect();
+}
+
+/**
+ * Resolve `?topic=` to one of the panel's own tab ids.
+ *
+ * room owns its tab set (`zone · parcel · market · massing · faq · compare`),
+ * so the URL value is validated against that list rather than against the
+ * suite-wide topic vocabulary — an unknown id falls back to the app default
+ * instead of opening a tab that does not exist (PANEL_TABS_STANDARD.md T9).
+ *
+ * `aliases` maps the canonical suite ids onto room's local spellings so an
+ * "Open with" handoff from an app that speaks `build`/`details` still lands on
+ * the right tab. A canonical id room has no equivalent for (`value`, `rent`)
+ * simply falls through to the default.
+ */
+export function resolvePanelTopic<T extends string>(
+  valid: readonly T[],
+  fallback: T,
+  aliases: Readonly<Record<string, T>> = {},
+): T {
+  const raw = getPanelTopicOverride()?.trim().toLowerCase();
+  if (!raw) return fallback;
+  const direct = valid.find((id) => id.toLowerCase() === raw);
+  if (direct) return direct;
+  const aliased = aliases[raw];
+  return aliased && valid.includes(aliased) ? aliased : fallback;
 }

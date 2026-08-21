@@ -12,6 +12,38 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.34.0',
+    date: 'August 22, 2026',
+    codename: 'Open on the parcel',
+    summary: 'A link that names a parcel now opens with that parcel already selected and its panel showing.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: MapPin,
+        text: 'Open a room link that names a parcel and the parcel is already there: highlighted on the map, with its info panel open, exactly as if you had clicked it. That covers the address you copy out of the bar, the "Share this view" link, an "Open with" hand-off from another Aireon app, and a plain page reload of a parcel you had open. When several parcels overlap at the same spot, the EGRID in the link now decides which one opens instead of whichever polygon happened to draw on top.',
+        prs: [],
+      },
+      {
+        kind: 'new' as ChangeKind,
+        icon: LayoutPanelTop,
+        text: 'A link can now say which panel tab to open on. Add topic=market, topic=massing, topic=parcel or topic=zone and the panel lands there, so you can send someone straight to the rents or the massing instead of telling them which tab to click. An unknown tab name quietly falls back to Zone.',
+        prs: [],
+      },
+      {
+        kind: 'new' as ChangeKind,
+        icon: Camera,
+        text: 'Add select=off to any link for the same view with nothing selected and no panel, which is what you want for a clean wide screenshot or an embedded map.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated @aireon/shared to v1.183.0, the suite-wide "open with the parcel selected" machinery. room now shares one hit-test with the rest of the suite: it keeps retrying while the parcel tiles are still arriving, so a link on a cold cache or a slow connection no longer lands on a map with nothing selected.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.33.0',
     date: 'August 21, 2026',
     codename: 'The whole suite, one menu',
