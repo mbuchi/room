@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.33.0',
+    date: 'August 21, 2026',
+    codename: 'The whole suite, one menu',
+    summary: 'The “Open with” menu now reaches every map app in the suite.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ExternalLink,
+        text: 'The “Open with” menu now lists every Aireon app, 30 instead of 13, and each row prints the app’s wordmark next to a short line saying what it does, in your language. Once the list gets long a search box appears, so you can type a few letters instead of scrolling.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ZoomIn,
+        text: 'Opening a spot in another Aireon app now lands close enough for that app to act on the parcel right away, instead of arriving two levels out where you had to zoom in and click again.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.32.1',
     date: 'August 21, 2026',
     codename: 'Varela wordmark',

@@ -84,7 +84,22 @@ describe('parcel data export', () => {
     // each enrichment layer. A repin below this SHA is not a build error, the
     // About dialog simply loses the line that says how old the building volume
     // on screen is.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('2619b8fda3308a4ada06aaa063d9ce6aab576bf1');
+    //
+    // Re-pinned to v1.182.2, the 26-app "Open with" registry: LAUNCH_APPS is
+    // regenerated from the hub tool registry (13 -> 30 apps), each row prints
+    // the app wordmark beside its localized descriptor, and the menu grows a
+    // filter box past 12 entries. New optional OpenWithMenu props (locale,
+    // showDescriptors) and an optional label. v1.182.1 hid the descriptor
+    // column in CSS for the mobile fold-in, covering a direct <OpenWithMenu>
+    // rendered inside actionsExtra as well as the AppNavbar openWith path.
+    // v1.182.2 then raised LAUNCH_DEFAULT_ZOOM from 15.00 to 17.00, matching
+    // DEEP_LINK_MIN_ZOOM and the hub launcher: cross-app parcel hand-offs now
+    // land above the z17 parcel hover/click gate without any per-app zoom
+    // prop. A repin below this drops every hand-off back to 15.00, two levels
+    // out, where auto-select misses on the receiving app. Everything pinned above is
+    // still in it.
+    // Resolved commit 5c6d22650ce96a49143e55d0ee91a02b0c482982.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('5c6d22650ce96a49143e55d0ee91a02b0c482982');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
