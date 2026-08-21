@@ -102,10 +102,7 @@ import {
   createOverlayOpacityController,
   OVERLAY_OPACITY_DEFAULT,
 } from '@aireon/shared/map-overlay-opacity';
-import {
-  autoSelectFeatureAtPoint,
-  type DeepLinkSelectMap,
-} from '@aireon/shared/map-interaction';
+import { autoSelectFeatureAtPoint } from '@aireon/shared/map-interaction';
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
@@ -686,8 +683,12 @@ const MapView = () => {
    *
    * `preferId` is the `?egrid`/`?parcel_id` the link carried. Several parcels
    * routinely stack under one coordinate; the id picks the one the sender
-   * actually had open, and falls back to the topmost feature (what a click
-   * would take) when it matches nothing in room's tileset.
+   * actually had open. On an EXTERNAL link an id that matches nothing falls
+   * back to the topmost feature (what a click would take) — room's tileset may
+   * simply spell it differently. `requireIdMatch` turns that fallback OFF for
+   * the one case where it lies: a reload of a self-written URL, whose
+   * coordinates track the camera and can name a completely different parcel
+   * than its `?egrid` does.
    *
    * ⚠ The whole chain is armed on the NEXT `idle`, never synchronously. The
    * helper's own first attempt runs immediately, and two of the three callers
@@ -699,25 +700,33 @@ const MapView = () => {
   const selectParcelWhenReady = useCallback((
     map: maplibregl.Map,
     center: [number, number],
-    opts: { preferId?: string | null; topic?: PanelTab | null } = {},
+    opts: { preferId?: string | null; topic?: PanelTab | null; requireIdMatch?: boolean } = {},
   ) => {
     autoSelectCancelRef.current?.();
     let cancelled = false;
     const start = () => {
       if (cancelled || mapRef.current !== map) return;
-      // `as unknown as DeepLinkSelectMap`: the helper describes the map
-      // structurally so @aireon/shared never has to import maplibre-gl, and it
-      // declares `queryRenderedFeatures(point)` over a plain `{ x, y }`.
-      // MapLibre's own overload takes a `Point` — a class with three dozen
-      // methods — which `{ x, y }` does not satisfy, so the two shapes do not
-      // line up for the compiler even though a real Map honors the contract at
-      // runtime: the only point the helper ever passes back is the one
-      // `map.project()` just returned.
-      autoSelectCancelRef.current = autoSelectFeatureAtPoint(map as unknown as DeepLinkSelectMap, {
+      // No cast: since @aireon/shared v1.184.0 the helper's projected-point
+      // type is a type PARAMETER inferred from the map it is handed, so a real
+      // maplibregl.Map satisfies it directly (`project()` returns a `Point`,
+      // and `queryRenderedFeatures` takes that same `Point` back). It used to
+      // pin the point to a structural `{ x, y }`, which MapLibre's `Point`
+      // class does not satisfy, so every call site had to cast the map through
+      // the helper's own map type to get past the compiler.
+      autoSelectCancelRef.current = autoSelectFeatureAtPoint(map, {
         lng: center[0],
         lat: center[1],
         layers: ['parcel-hit'],
         preferId: opts.preferId ?? null,
+        // On a RELOAD of a self-written URL that names a parcel, refuse the
+        // topmost-feature fallback. `updateUrlParams` rewrites `?lat`/`?lng` on
+        // every `moveend` while `?egrid` stays put, so selecting a parcel and
+        // panning away leaves a URL whose coordinates are the camera centre and
+        // whose id is the parcel: hit-testing there would open the NEIGHBOUR
+        // and present it as the parcel the link names. Selecting nothing is the
+        // honest answer. Inert for a search pick or a context-menu load, which
+        // pass no id and hit-test a point the visitor just chose.
+        requireIdMatch: opts.requireIdMatch ?? false,
         // A late retry must never query a removed map, nor yank the selection
         // out from under whatever the visitor did in the meantime.
         isCurrent: () => mapRef.current === map,
@@ -1217,6 +1226,7 @@ const MapView = () => {
             selectParcelWhenReady(map, [autoSelect.lng, autoSelect.lat], {
               preferId: autoSelect.preferId,
               topic: deepLinkTab,
+              requireIdMatch: autoSelect.requireIdMatch,
             });
           }
         });

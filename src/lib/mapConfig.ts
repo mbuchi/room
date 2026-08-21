@@ -141,6 +141,12 @@ export type ParcelAutoSelectTarget = AireonParcelAutoSelect;
  * state is parsed once and cached, so ordering only matters for the very first
  * reader, but keeping this call next to `getInitialMapState()` makes that
  * impossible to get wrong.
+ *
+ * `requireIdMatch` (shared v1.184.0+) rides along on the same result and is
+ * true exactly for the self-written-and-names-a-parcel case above. It tells the
+ * hit-test not to settle for whatever is topmost under the coordinates, because
+ * on that reload the coordinates are wherever the camera last stopped, not the
+ * parcel `?egrid` names. Thread it into `selectParcelWhenReady`.
  */
 export function getParcelAutoSelectTarget(): ParcelAutoSelectTarget {
   return getParcelAutoSelect();

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { __resetUrlStateForTests } from "@aireon/shared/url-params";
+import { pickDeepLinkFeature } from "@aireon/shared/map-interaction";
 import {
   clearConfirmedParcelUrl,
   getParcelAutoSelectTarget,
@@ -186,6 +187,83 @@ describe("getParcelAutoSelectTarget", () => {
   it("needs coordinates: an id alone has nothing to hit-test", () => {
     stubWindow({ search: "?egrid=CH499971129161" });
     expect(getParcelAutoSelectTarget().enabled).toBe(false);
+  });
+
+  it("demands a real id match on a reload that names a parcel", () => {
+    // The drifted-reload case: room rewrites ?lat/?lng on every moveend, so a
+    // self-written URL's coordinates are wherever the camera stopped, while
+    // ?egrid still names the parcel that is open. The hit-test must not settle
+    // for whatever happens to be under those coordinates.
+    stubWindow(
+      { search: "?lat=47.3601&lng=8.5449&egrid=CH499971129161" },
+      SELF_WRITTEN,
+    );
+    expect(getParcelAutoSelectTarget().requireIdMatch).toBe(true);
+  });
+
+  it("keeps the forgiving fallback for an external link", () => {
+    // Whoever minted the link meant the coordinates to name the parcel, and
+    // room's tileset may spell the id differently.
+    stubWindow({ search: "?lat=47.3601&lng=8.5449&egrid=CH499971129161" });
+    expect(getParcelAutoSelectTarget().requireIdMatch).toBe(false);
+  });
+
+  it("leaves requireIdMatch off when the URL names no parcel", () => {
+    stubWindow({ search: "?lat=47.3601&lng=8.5449&zoom=17.5" }, SELF_WRITTEN);
+    expect(getParcelAutoSelectTarget().requireIdMatch).toBe(false);
+  });
+});
+
+describe("a drifted reload does not open the neighbour's parcel", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    __resetUrlStateForTests();
+  });
+
+  /**
+   * What `parcel-hit` renders under the camera centre after the visitor
+   * selected CH499971129161 and then panned two blocks away: the named parcel
+   * is nowhere near the point any more, only the neighbour is.
+   */
+  const NEIGHBOUR_ONLY = [
+    { properties: { egrid: "CH777777777777", parcel_id: "8811" } },
+  ];
+  const NAMED_PARCEL_UNDER_POINT = [
+    { properties: { egrid: "CH499971129161", parcel_id: "4402" } },
+    { properties: { egrid: "CH777777777777", parcel_id: "8811" } },
+  ];
+
+  const pickFor = (features: { properties: Record<string, string> }[]) => {
+    const target = getParcelAutoSelectTarget();
+    return pickDeepLinkFeature(
+      features,
+      target.preferId,
+      undefined,
+      target.requireIdMatch,
+    );
+  };
+
+  it("selects nothing rather than presenting a parcel the link never named", () => {
+    stubWindow(
+      { search: "?lat=47.3800&lng=8.5300&zoom=17.5&egrid=CH499971129161" },
+      SELF_WRITTEN,
+    );
+    expect(pickFor(NEIGHBOUR_ONLY)).toBeNull();
+  });
+
+  it("still selects when the named parcel IS under the point", () => {
+    stubWindow(
+      { search: "?lat=47.3601&lng=8.5449&zoom=17.5&egrid=CH499971129161" },
+      SELF_WRITTEN,
+    );
+    expect(pickFor(NAMED_PARCEL_UNDER_POINT)?.properties.egrid).toBe(
+      "CH499971129161",
+    );
+  });
+
+  it("an external link keeps opening the topmost feature on an unknown id", () => {
+    stubWindow({ search: "?lat=47.3601&lng=8.5449&egrid=CH499971129161" });
+    expect(pickFor(NEIGHBOUR_ONLY)?.properties.egrid).toBe("CH777777777777");
   });
 });
 
