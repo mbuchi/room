@@ -84,7 +84,7 @@ describe('parcel data export', () => {
     // each enrichment layer. A repin below this SHA is not a build error, the
     // About dialog simply loses the line that says how old the building volume
     // on screen is.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('d90c2910a71ab5098a71e43b4cba3dcc060a1c5c');
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('2619b8fda3308a4ada06aaa063d9ce6aab576bf1');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
