@@ -340,6 +340,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
               <OpenWithMenu
                 location={openWithLocation}
                 currentAppId="room"
+                locale={locale}
                 dark={darkMode}
                 label={t('nav.open_with')}
                 onOpen={(appId) =>
