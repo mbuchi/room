@@ -85,6 +85,21 @@ describe('parcel data export', () => {
     // About dialog simply loses the line that says how old the building volume
     // on screen is.
     //
+    // Re-pinned to v1.184.0, "don't open the neighbour's parcel on a drifted
+    // reload": `getParcelAutoSelect()` now also returns `requireIdMatch`, true
+    // exactly when the URL is self-written AND names a parcel. room rewrites
+    // ?lat/?lng on every moveend while ?egrid stays put, so selecting a parcel
+    // and panning away leaves a URL whose coordinates are the camera centre;
+    // v1.183.0 re-selected on that reload but hit-tested those coordinates and
+    // `pickDeepLinkFeature` fell back to whatever was topmost there, opening
+    // the NEIGHBOUR and presenting it as the parcel the link names. The flag
+    // refuses that fallback. The same release also made `DeepLinkSelectMap`'s
+    // projected-point type a type parameter inferred from the map, so
+    // `autoSelectFeatureAtPoint(map, ...)` compiles against a real
+    // maplibregl.Map and MapView's `as unknown as DeepLinkSelectMap` is gone.
+    // A repin below this SHA is a build error: `requireIdMatch` is not on the
+    // v1.183.0 option type.
+    //
     // Re-pinned to v1.183.0, "open with the parcel already selected":
     // `getParcelAutoSelect()` in @aireon/shared/url-params answers whether a
     // page load owes the visitor a selection (external ?lat/?lng, or a
@@ -108,8 +123,8 @@ describe('parcel data export', () => {
     // prop. A repin below this drops every hand-off back to 15.00, two levels
     // out, where auto-select misses on the receiving app. Everything pinned above is
     // still in it.
-    // Resolved commit 7be1b279a057ee5972111a91f5bb305492fe6205.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('7be1b279a057ee5972111a91f5bb305492fe6205');
+    // Resolved commit 44d8810a08745f75731f1fba070e301656349421.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('44d8810a08745f75731f1fba070e301656349421');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

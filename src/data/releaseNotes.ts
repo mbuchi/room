@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.34.1',
+    date: 'August 22, 2026',
+    codename: 'The link keeps its parcel',
+    summary: 'A shared link can no longer come back on the wrong parcel after a reload.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: MapPin,
+        text: 'A link that names a parcel now always comes back on that parcel, or on nothing at all. Because room keeps the map position in the address bar, panning away with a parcel panel open left a link whose coordinates pointed at the new view while the parcel id still pointed at your parcel. Reloading that link opened whatever parcel sat under the middle of the screen and labeled it as the one the link named, address and all. room now insists on the parcel the link actually names, and leaves the map with nothing selected when it is out of view. Links you paste in from elsewhere are unchanged: they still open what is under the coordinates.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated @aireon/shared to v1.184.0, which carries the suite-wide fix above.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.34.0',
     date: 'August 22, 2026',
     codename: 'Open on the parcel',
