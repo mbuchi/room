@@ -12,6 +12,13 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.32.1',
+    date: 'August 21, 2026',
+    codename: 'Varela wordmark',
+    summary: 'Shared Aireon UI components now use the canonical wordmark styling.',
+    items: [{ kind: 'improved' as ChangeKind, icon: Package, text: 'Updated @aireon/shared to v1.178.1, including the canonical Aireon app wordmark treatment.', prs: [] }],
+  },
+  {
     version: '0.32.0',
     date: 'August 21, 2026',
     codename: 'Quiet start',
