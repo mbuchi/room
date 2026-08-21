@@ -85,6 +85,16 @@ describe('parcel data export', () => {
     // About dialog simply loses the line that says how old the building volume
     // on screen is.
     //
+    // Re-pinned to v1.183.0, "open with the parcel already selected":
+    // `getParcelAutoSelect()` in @aireon/shared/url-params answers whether a
+    // page load owes the visitor a selection (external ?lat/?lng, or a
+    // self-written URL that still carries ?egrid/?parcel_id, never under
+    // ?select=off), and `autoSelectFeatureAtPoint` in
+    // @aireon/shared/map-interaction is the shared idle-retrying hit-test that
+    // resolves the polygon under the point, preferring the one carrying the
+    // URL's id. room's deep-link boot path is built on both, so a repin below
+    // this SHA is a build error: neither export exists.
+    //
     // Re-pinned to v1.182.2, the 26-app "Open with" registry: LAUNCH_APPS is
     // regenerated from the hub tool registry (13 -> 30 apps), each row prints
     // the app wordmark beside its localized descriptor, and the menu grows a
@@ -98,8 +108,8 @@ describe('parcel data export', () => {
     // prop. A repin below this drops every hand-off back to 15.00, two levels
     // out, where auto-select misses on the receiving app. Everything pinned above is
     // still in it.
-    // Resolved commit 5c6d22650ce96a49143e55d0ee91a02b0c482982.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('5c6d22650ce96a49143e55d0ee91a02b0c482982');
+    // Resolved commit 7be1b279a057ee5972111a91f5bb305492fe6205.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('7be1b279a057ee5972111a91f5bb305492fe6205');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

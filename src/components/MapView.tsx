@@ -13,7 +13,9 @@ import type * as GeoJSON from 'geojson';
 import {
   clearConfirmedParcelUrl,
   getInitialMapState,
+  getParcelAutoSelectTarget,
   parcelUrlIdentity,
+  resolvePanelTopic,
   stampConfirmedParcelUrl,
   updateUrlParams,
 } from '../lib/mapConfig';
@@ -100,6 +102,10 @@ import {
   createOverlayOpacityController,
   OVERLAY_OPACITY_DEFAULT,
 } from '@aireon/shared/map-overlay-opacity';
+import {
+  autoSelectFeatureAtPoint,
+  type DeepLinkSelectMap,
+} from '@aireon/shared/map-interaction';
 import { type LocateErrorCode } from './LocateButton';
 import Toast from './Toast';
 import { useI18n } from '../contexts/I18nContext';
@@ -244,6 +250,23 @@ const PANEL_OFFSET_PX = PANEL_WIDTH_PX + 16;
  */
 const PANEL_TAB_IDS = ['zone', 'parcel', 'market', 'massing', 'faq', 'compare'] as const;
 type PanelTab = (typeof PANEL_TAB_IDS)[number];
+
+/**
+ * The tab every new selection opens on: room exists to answer "what does this
+ * zone allow", so the distribution charts lead.
+ */
+const DEFAULT_PANEL_TAB: PanelTab = 'zone';
+
+/**
+ * Canonical suite topic ids (PANEL_TABS_STANDARD.md T6) mapped onto room's own
+ * spellings, so a `?topic=` handoff from an app that speaks the shared
+ * vocabulary lands on the right tab. `value` and `rent` have no room
+ * equivalent and fall through to {@link DEFAULT_PANEL_TAB}.
+ */
+const PANEL_TOPIC_ALIASES: Readonly<Record<string, PanelTab>> = {
+  build: 'massing',
+  details: 'parcel',
+};
 
 /** i18n key per tab — kept beside the ids so a new tab can't ship unlabelled. */
 const PANEL_TAB_LABEL_KEYS: Record<PanelTab, string> = {
@@ -564,6 +587,11 @@ const MapView = () => {
     lng: number,
     lat: number,
     geometry: GeoJSON.Geometry | null = null,
+    /**
+     * Which tab the freshly opened panel shows. Only the deep-link boot path
+     * passes one (from `?topic=`); every other selection uses room's default.
+     */
+    opts: { topic?: PanelTab | null } = {},
   ) => {
     const map = mapRef.current;
     if (!map) return;
@@ -603,7 +631,10 @@ const MapView = () => {
     setParcelData(null);
     setParcelDataError(null);
     setParcelDataLoading(true);
-    setPanelTab('zone');
+    // `?topic=` only steers the panel the DEEP LINK opens (PANEL_TABS_STANDARD.md
+    // T9: a shared link is an explicit instruction). Every later selection in
+    // the same session lands back on room's headline tab.
+    setPanelTab(opts.topic ?? DEFAULT_PANEL_TAB);
     // Suite mobile standard: every new selection presents the bottom sheet at
     // full height, even if the user collapsed the previous one to a peek.
     setSheetExpanded(true);
@@ -637,43 +668,76 @@ const MapView = () => {
   // stale selections.
   const autoSelectCancelRef = useRef<(() => void) | null>(null);
 
-  // Hit-test the parcel under `center` and select it. Returns true on a hit so
-  // the retry chain below knows whether to keep waiting for tiles.
-  const trySelectParcelAt = useCallback((map: maplibregl.Map, center: [number, number]): boolean => {
-    // Querying a missing layer throws — a search select can race the style load.
-    if (!map.getLayer('parcel-hit')) return false;
-    const point = map.project(center);
-    const features = map.queryRenderedFeatures(point, { layers: ['parcel-hit'] });
-    if (features.length && features[0].properties) {
-      selectParcelRef.current(
-        features[0].properties,
-        center[0],
-        center[1],
-        (features[0].geometry as GeoJSON.Geometry) ?? null,
-      );
-      return true;
-    }
-    return false;
-  }, []);
-
-  // Runs the hit-test once the parcel tiles under the target are actually
-  // rendered. The vector tiles regularly finish AFTER the first 'idle' that
-  // follows a fly-to (slow network), and a single-shot hit-test silently
-  // missed in that window — the search then appeared to do nothing. Every
-  // later tile batch fires another 'idle', so retry on those, capped so an
-  // address with no parcel underneath (lake, foreign address) stops cleanly.
-  // Matches woom's selectParcelWhenReady (ported suite-wide with valoo/groove).
-  const selectParcelWhenReady = useCallback((map: maplibregl.Map, center: [number, number], maxAttempts = 6) => {
+  /**
+   * Hit-test `center` once the parcel tiles under it are actually rendered,
+   * then route the hit through the app's own selection choke point. Every
+   * non-click selection (deep link, address search, right-click "load
+   * location") comes through here, so highlight, panel, mobile sheet, URL
+   * stamp and telemetry all behave exactly as they do for a real click.
+   *
+   * The retry loop is the shared `autoSelectFeatureAtPoint`
+   * (`@aireon/shared/map-interaction`), not a local copy: the parcel vector
+   * tiles regularly finish loading AFTER the first `idle` that follows a
+   * fly-to, and a single-shot `queryRenderedFeatures` in that window silently
+   * returns nothing, so the deep link or the search looks inert. The helper
+   * retries on each later `idle`, skips `parcel-hit` while it is not yet in
+   * the style instead of throwing on it, and hands back the cancel we stash so
+   * a newer navigation (or unmount) can stop a stale chain.
+   *
+   * `preferId` is the `?egrid`/`?parcel_id` the link carried. Several parcels
+   * routinely stack under one coordinate; the id picks the one the sender
+   * actually had open, and falls back to the topmost feature (what a click
+   * would take) when it matches nothing in room's tileset.
+   *
+   * ⚠ The whole chain is armed on the NEXT `idle`, never synchronously. The
+   * helper's own first attempt runs immediately, and two of the three callers
+   * here start a `flyTo` on the line above: projecting the destination in the
+   * camera the map has not left yet would hit-test a pre-flight pixel, and
+   * from an overview zoom that resolves to a neighboring parcel. Waiting for
+   * the flight to land is the behavior this path always had.
+   */
+  const selectParcelWhenReady = useCallback((
+    map: maplibregl.Map,
+    center: [number, number],
+    opts: { preferId?: string | null; topic?: PanelTab | null } = {},
+  ) => {
     autoSelectCancelRef.current?.();
-    let attempts = 0;
-    const tryHit = () => {
-      if (trySelectParcelAt(map, center)) return;
-      attempts += 1;
-      if (attempts < maxAttempts) map.once('idle', tryHit);
+    let cancelled = false;
+    const start = () => {
+      if (cancelled || mapRef.current !== map) return;
+      // `as unknown as DeepLinkSelectMap`: the helper describes the map
+      // structurally so @aireon/shared never has to import maplibre-gl, and it
+      // declares `queryRenderedFeatures(point)` over a plain `{ x, y }`.
+      // MapLibre's own overload takes a `Point` — a class with three dozen
+      // methods — which `{ x, y }` does not satisfy, so the two shapes do not
+      // line up for the compiler even though a real Map honors the contract at
+      // runtime: the only point the helper ever passes back is the one
+      // `map.project()` just returned.
+      autoSelectCancelRef.current = autoSelectFeatureAtPoint(map as unknown as DeepLinkSelectMap, {
+        lng: center[0],
+        lat: center[1],
+        layers: ['parcel-hit'],
+        preferId: opts.preferId ?? null,
+        // A late retry must never query a removed map, nor yank the selection
+        // out from under whatever the visitor did in the meantime.
+        isCurrent: () => mapRef.current === map,
+        onSelect: (feature) => {
+          selectParcelRef.current(
+            (feature.properties ?? {}) as Record<string, unknown>,
+            center[0],
+            center[1],
+            (feature.geometry as GeoJSON.Geometry | undefined) ?? null,
+            { topic: opts.topic ?? null },
+          );
+        },
+      });
     };
-    autoSelectCancelRef.current = () => map.off('idle', tryHit);
-    map.once('idle', tryHit);
-  }, [trySelectParcelAt]);
+    autoSelectCancelRef.current = () => {
+      cancelled = true;
+      map.off('idle', start);
+    };
+    map.once('idle', start);
+  }, []);
 
   const handleLocationSelect = useCallback((center: [number, number], _placeName: string) => {
     const map = mapRef.current;
@@ -1021,6 +1085,13 @@ const MapView = () => {
     const container = mapContainerRef.current;
 
     const initialState = getInitialMapState();
+    // Read BEFORE the first updateUrlParams() below, which marks the URL
+    // self-written. `enabled` answers "does this page load owe the visitor a
+    // selection?" — see getParcelAutoSelectTarget in lib/mapConfig.
+    const autoSelect = getParcelAutoSelectTarget();
+    // `?topic=` is honored on the deep-linked panel only, and only when there
+    // IS one to open (PANEL_TABS_STANDARD.md T9).
+    const deepLinkTab = resolvePanelTopic(PANEL_TAB_IDS, DEFAULT_PANEL_TAB, PANEL_TOPIC_ALIASES);
     let cancelled = false;
     // Throttle native mousemove → coordinate state to one update per animation
     // frame. mousemove can fire far faster than 60fps, and setLv95Coords re-renders
@@ -1132,10 +1203,21 @@ const MapView = () => {
           const c = map.getCenter();
           updateUrlParams(c.lat, c.lng, map.getZoom());
 
-          // Deep-link ?lat/?lng: retry the hit-test on each idle so parcel
-          // tiles that finish after the first idle still get auto-selected.
-          if (initialState.hasUrlCoords) {
-            selectParcelWhenReady(map, initialState.center);
+          // "Open with the parcel already selected" (URL_PARAMS_STANDARD.md).
+          // A link that names a place must open ON it: camera there, polygon
+          // highlighted, info panel showing — exactly what a click produces,
+          // because it goes through the same choke point. The retry chain
+          // covers parcel tiles that land after the first idle.
+          //
+          // NOT gated on PARCEL_INTERACTION_MIN_ZOOM: that floor is for the
+          // live map click. The camera above already flew to deepLinkZoom
+          // (>= 17) for an external link, and adding the guard here would make
+          // a self-written `?zoom=15&egrid=` reload select nothing.
+          if (autoSelect.enabled && autoSelect.lat !== null && autoSelect.lng !== null) {
+            selectParcelWhenReady(map, [autoSelect.lng, autoSelect.lat], {
+              preferId: autoSelect.preferId,
+              topic: deepLinkTab,
+            });
           }
         });
 

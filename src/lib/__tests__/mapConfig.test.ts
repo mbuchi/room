@@ -2,7 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { __resetUrlStateForTests } from "@aireon/shared/url-params";
 import {
   clearConfirmedParcelUrl,
+  getParcelAutoSelectTarget,
   parcelUrlIdentity,
+  resolvePanelTopic,
   stampConfirmedParcelUrl,
 } from "../mapConfig";
 
@@ -11,19 +13,31 @@ interface FakeWindow {
   history: { replaceState: (...args: unknown[]) => void; state: unknown };
 }
 
-function stubWindow(overrides: Partial<Omit<FakeWindow["location"], "href">> = {}): FakeWindow {
+function stubWindow(
+  overrides: Partial<Omit<FakeWindow["location"], "href">> = {},
+  historyState: unknown = null,
+): FakeWindow {
   const search = overrides.search ?? "";
   const pathname = overrides.pathname ?? "/";
   const hash = overrides.hash ?? "";
   const href = `https://room.aireon.ch${pathname}${search}${hash}`;
   const fake: FakeWindow = {
     location: { search, pathname, hash, href },
-    history: { replaceState: vi.fn(), state: null },
+    history: { replaceState: vi.fn(), state: historyState },
   };
   vi.stubGlobal("window", fake as unknown as Window & typeof globalThis);
   __resetUrlStateForTests();
   return fake;
 }
+
+/** The marker `updateMapUrl` leaves behind, i.e. a URL room wrote itself. */
+const SELF_WRITTEN = { aireonSelfWritten: true };
+
+/** room's real tab set, in its real order (MapView PANEL_TAB_IDS). */
+const ROOM_TABS = ["zone", "parcel", "market", "massing", "faq", "compare"] as const;
+const ROOM_TOPIC_ALIASES = { build: "massing", details: "parcel" } as const;
+const resolveRoomTopic = () =>
+  resolvePanelTopic(ROOM_TABS, "zone", ROOM_TOPIC_ALIASES);
 
 describe("stampConfirmedParcelUrl", () => {
   afterEach(() => {
@@ -114,5 +128,103 @@ describe("parcelUrlIdentity", () => {
       egrid: null,
       parcelId: "9999",
     });
+  });
+});
+
+describe("getParcelAutoSelectTarget", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    __resetUrlStateForTests();
+  });
+
+  it("selects for an external ?lat/?lng deep link", () => {
+    stubWindow({ search: "?lat=47.3601&lng=8.5449&zoom=17.5" });
+    const target = getParcelAutoSelectTarget();
+    expect(target.enabled).toBe(true);
+    expect(target.lat).toBeCloseTo(47.3601, 6);
+    expect(target.lng).toBeCloseTo(8.5449, 6);
+    expect(target.preferId).toBeNull();
+  });
+
+  it("prefers the URL's egrid when several parcels stack under the point", () => {
+    stubWindow({ search: "?lat=47.3601&lng=8.5449&egrid=CH499971129161" });
+    expect(getParcelAutoSelectTarget().preferId).toBe("CH499971129161");
+  });
+
+  it("falls back to ?parcel_id when there is no egrid", () => {
+    stubWindow({ search: "?lat=47.3601&lng=8.5449&parcel_id=1234" });
+    expect(getParcelAutoSelectTarget().preferId).toBe("1234");
+  });
+
+  it("re-opens the panel on a reload that still names a parcel", () => {
+    // Self-written URL, but the identity in it asserts a parcel IS open, so a
+    // restored tab has to bring the panel back.
+    stubWindow(
+      { search: "?lat=47.3601&lng=8.5449&egrid=CH499971129161" },
+      SELF_WRITTEN,
+    );
+    expect(getParcelAutoSelectTarget().enabled).toBe(true);
+  });
+
+  it("does not conjure a panel on a reload of a bare self-written camera", () => {
+    // room rewrites ?lat/?lng on every moveend, so this is the ordinary
+    // reload. Nothing was selected; nothing may open.
+    stubWindow({ search: "?lat=47.3601&lng=8.5449&zoom=16" }, SELF_WRITTEN);
+    expect(getParcelAutoSelectTarget().enabled).toBe(false);
+  });
+
+  it("honors ?select=off for clean captures and embeds", () => {
+    stubWindow({ search: "?lat=47.3601&lng=8.5449&egrid=CH499971129161&select=off" });
+    expect(getParcelAutoSelectTarget().enabled).toBe(false);
+  });
+
+  it("selects nothing when the URL names no place at all", () => {
+    stubWindow({ search: "?theme=dark" });
+    expect(getParcelAutoSelectTarget().enabled).toBe(false);
+  });
+
+  it("needs coordinates: an id alone has nothing to hit-test", () => {
+    stubWindow({ search: "?egrid=CH499971129161" });
+    expect(getParcelAutoSelectTarget().enabled).toBe(false);
+  });
+});
+
+describe("resolvePanelTopic", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    __resetUrlStateForTests();
+  });
+
+  it("defaults to the app's headline tab with no ?topic=", () => {
+    stubWindow({ search: "?lat=47.3601&lng=8.5449" });
+    expect(resolveRoomTopic()).toBe("zone");
+  });
+
+  it("opens a room tab named directly", () => {
+    stubWindow({ search: "?lat=47.3601&lng=8.5449&topic=market" });
+    expect(resolveRoomTopic()).toBe("market");
+  });
+
+  it("maps the canonical suite ids onto room's own spellings", () => {
+    stubWindow({ search: "?topic=build" });
+    expect(resolveRoomTopic()).toBe("massing");
+    __resetUrlStateForTests();
+    stubWindow({ search: "?topic=details" });
+    expect(resolveRoomTopic()).toBe("parcel");
+  });
+
+  it("is case- and whitespace-tolerant, the way hand-edited URLs arrive", () => {
+    stubWindow({ search: "?topic=%20Massing%20" });
+    expect(resolveRoomTopic()).toBe("massing");
+  });
+
+  it("falls back for a canonical topic room does not have", () => {
+    stubWindow({ search: "?topic=rent" });
+    expect(resolveRoomTopic()).toBe("zone");
+  });
+
+  it("falls back for an unknown id rather than opening a tab that isn't there", () => {
+    stubWindow({ search: "?topic=nonsense" });
+    expect(resolveRoomTopic()).toBe("zone");
   });
 });

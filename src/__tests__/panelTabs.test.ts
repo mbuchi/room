@@ -51,7 +51,30 @@ describe('panel tab set', () => {
   });
 
   it('opens on the zone tab for every new parcel selection', () => {
-    expect(mapView).toContain("setPanelTab('zone')");
+    expect(mapView).toContain("const DEFAULT_PANEL_TAB: PanelTab = 'zone';");
+    // The choke point takes the default unless the DEEP LINK named a topic.
+    expect(mapView).toContain('setPanelTab(opts.topic ?? DEFAULT_PANEL_TAB);');
+  });
+});
+
+describe('?topic= opens the deep-linked panel on the requested tab', () => {
+  it('resolves the URL topic against room own tab set, not a hand-rolled parse', () => {
+    expect(mapView).toContain(
+      'resolvePanelTopic(PANEL_TAB_IDS, DEFAULT_PANEL_TAB, PANEL_TOPIC_ALIASES)',
+    );
+    expect(mapView).not.toContain('URLSearchParams');
+  });
+
+  it('maps the canonical suite topic ids onto room own spellings', () => {
+    expect(mapView).toContain("build: 'massing',");
+    expect(mapView).toContain("details: 'parcel',");
+  });
+
+  it('passes the topic only on the deep-link path', () => {
+    // Every other call site into the choke point must leave the tab alone, so
+    // a mid-session click never re-opens the inbound link's tab.
+    expect(mapView).toContain('topic: deepLinkTab,');
+    expect(mapView.match(/topic: deepLinkTab/g) ?? []).toHaveLength(1);
   });
 });
 
