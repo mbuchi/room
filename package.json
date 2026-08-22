@@ -23,7 +23,7 @@
     "@aireon/shared": "github:mbuchi/aireon-shared#a1297529f70f4901ba1e1ee1ec8776f11bb9d60c",
     "@openreplay/tracker": "^18.1.0",
     "html-to-image": "^1.11.13",
-    "lucide-react": "^0.344.0",
+    "lucide-react": "^1.31.0",
     "maplibre-gl": "^6.3.0",
     "oidc-client-ts": "^3.5.0",
     "react": "^18.3.1",
