@@ -66,6 +66,10 @@ describe("stampConfirmedParcelUrl", () => {
     expect(params.get("zoom")).toBe("18.00");
     expect(params.get("egrid")).toBe("CH123456789012");
     expect(params.get("q")).toBe("Bahnhofstrasse 12 8000 Zürich");
+    // shared v1.185.0: ?select= is written, not just read. A confirmed
+    // selection names an identity, so the writer infers 'parcel' and the
+    // copied link reproduces an OPEN panel.
+    expect(params.get("select")).toBe("parcel");
   });
 
   it("preserves unrelated query parameters", () => {
@@ -106,6 +110,27 @@ describe("clearConfirmedParcelUrl", () => {
     expect(params.get("lat")).toBe("47.300000");
     expect(params.get("lng")).toBe("8.300000");
     expect(params.get("zoom")).toBe("16.00");
+    // shared v1.185.0: clearing every identity is what stamps select=off, so
+    // the address bar says the panel is closed instead of staying silent.
+    expect(params.get("select")).toBe("off");
+  });
+
+  it("flips select back to parcel when the visitor selects again", () => {
+    const fake = stubWindow({
+      search: "?lat=47.1&lng=8.1&zoom=18&egrid=CH123&q=Some+Street+1",
+    });
+    clearConfirmedParcelUrl({ lat: 47.3, lng: 8.3, zoom: 16 });
+    expect(new URLSearchParams(lastUrl(fake).split("?")[1]).get("select")).toBe("off");
+    stampConfirmedParcelUrl({
+      lat: 47.31,
+      lng: 8.31,
+      zoom: 17,
+      label: "Some Street 2",
+      egrid: "CH999",
+    });
+    const params = new URLSearchParams(lastUrl(fake).split("?")[1]);
+    expect(params.get("select")).toBe("parcel");
+    expect(params.get("egrid")).toBe("CH999");
   });
 });
 

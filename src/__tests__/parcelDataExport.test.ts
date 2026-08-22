@@ -85,6 +85,19 @@ describe('parcel data export', () => {
     // About dialog simply loses the line that says how old the building volume
     // on screen is.
     //
+    // Re-pinned to v1.185.0, "keep ?select= in step with the screen":
+    // `updateConfirmedLocationUrl` now WRITES `?select=` as well as reading it,
+    // inferring the value from the call — 'parcel' when it names a label or an
+    // identity, 'off' when it clears all of them. That is exactly the shape
+    // room's `stampConfirmedParcelUrl` / `clearConfirmedParcelUrl` pair already
+    // has, so both sides came for free with the version bump: selecting stamps
+    // select=parcel, closing the panel stamps select=off. Before this, closing
+    // the panel dropped ?q/?egrid but left the URL silent about the closure, so
+    // a link copied from a closed panel was indistinguishable from one copied
+    // before anything was ever selected. A repin below this SHA is not a build
+    // error — `select` is an optional option — the address bar just stops
+    // stating whether the panel is open.
+    //
     // Re-pinned to v1.184.0, "don't open the neighbour's parcel on a drifted
     // reload": `getParcelAutoSelect()` now also returns `requireIdMatch`, true
     // exactly when the URL is self-written AND names a parcel. room rewrites
@@ -123,8 +136,8 @@ describe('parcel data export', () => {
     // prop. A repin below this drops every hand-off back to 15.00, two levels
     // out, where auto-select misses on the receiving app. Everything pinned above is
     // still in it.
-    // Resolved commit 44d8810a08745f75731f1fba070e301656349421.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('44d8810a08745f75731f1fba070e301656349421');
+    // Resolved commit 6fe3b55b06c812c85f8056d1220e9914b02bd1ae.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('6fe3b55b06c812c85f8056d1220e9914b02bd1ae');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

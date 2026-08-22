@@ -84,6 +84,11 @@ export function parcelUrlIdentity(
 
 /**
  * Stamp a confirmed parcel selection into the address bar.
+ *
+ * Since shared v1.185.0 this also writes `?select=parcel`: the writer infers
+ * the value from the call, and this one always names an identity (and usually
+ * a label), so the copied link states that a parcel is open. Its twin below is
+ * the `off` half of the same rule.
  */
 export function stampConfirmedParcelUrl(opts: {
   lat: number;
@@ -105,6 +110,12 @@ export function stampConfirmedParcelUrl(opts: {
 
 /**
  * Undo parcel confirmation when the panel is closed.
+ *
+ * Nulling every identity is what makes shared v1.185.0 stamp `?select=off`,
+ * which is the point: dropping `?q`/`?egrid` alone left the URL ambiguous
+ * between "the visitor closed the panel" and "this link never named a parcel",
+ * and `getParcelAutoSelect()` reads `select=off` as "owe the visitor nothing",
+ * so reloading a dismissed panel keeps it dismissed. The camera stays.
  */
 export function clearConfirmedParcelUrl(opts: {
   lat: number;
