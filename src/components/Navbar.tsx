@@ -21,7 +21,6 @@ import UserMenu from './UserMenu';
 import {
   AppNavbar,
   NavIconButton,
-  OpenWithMenu,
   ShareCopiedToast,
   SearchHistoryModal,
   LAUNCH_APPS,
@@ -242,7 +241,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
               key: `open-with-${app.id}`,
               label: app.name,
               onClick: () => {
-                openInApp(app.id, openWithLocation.lat, openWithLocation.lng);
+                openInApp(app.id, openWithLocation.lat, openWithLocation.lng, 17);
                 void signal.send('Open address in app', {
                   lat: openWithLocation.lat,
                   lng: openWithLocation.lng,
@@ -326,32 +325,31 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
             });
           },
         }}
+        openWith={isCompact ? undefined : {
+          currentAppId: 'room',
+          location: openWithLocation,
+          locale,
+          label: t('nav.open_with'),
+          zoom: 17,
+          placement: 'search',
+          defaultTargetAppId: 'room',
+          onOpen: (appId) => {
+            if (!openWithLocation) return;
+            void signal.send('Open address in app', {
+              lat: openWithLocation.lat,
+              lng: openWithLocation.lng,
+              metaData: { app: appId },
+            });
+          },
+        }}
         actionsExtra={isCompact ? undefined : (
-          /* "Open with" is first — opens the current parcel/location in another
-             suite app. It uses the selected parcel's lngLat when available
-             (map-click), falling back to the last address search result. Two
-             navbar icon buttons follow: Search history (opens the shared
+          /* Open with now shares the search field above. Two navbar icon
+             buttons remain here: Search history (opens the shared
              SearchHistoryModal directly; its account-menu row is suppressed in
              UserMenu) and About (info icon, opens the shared AboutModal —
              the suite-standard placement). At compact widths the whole cluster
              folds into the account menu. */
           <>
-            {openWithLocation && (
-              <OpenWithMenu
-                location={openWithLocation}
-                currentAppId="room"
-                locale={locale}
-                dark={darkMode}
-                label={t('nav.open_with')}
-                onOpen={(appId) =>
-                  void signal.send('Open address in app', {
-                    lat: openWithLocation.lat,
-                    lng: openWithLocation.lng,
-                    metaData: { app: appId },
-                  })
-                }
-              />
-            )}
             <NavIconButton
               icon={<History size={18} aria-hidden="true" />}
               label={getSearchHistoryStrings(locale).menuRow}
