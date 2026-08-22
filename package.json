@@ -30,7 +30,7 @@
     "react-compiler-runtime": "^1.0.0",
     "react-dom": "^18.3.1",
     "react-joyride": "^2.9.3",
-    "recharts": "^2.13.0"
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
