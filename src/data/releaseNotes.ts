@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.35.0',
+    date: 'August 22, 2026',
+    codename: 'The link matches your screen',
+    summary: 'The link you copy now matches what is on your screen, including when you have closed the panel.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Link2,
+        text: 'The address bar now states what is actually on screen rather than what the page opened with. Pick a parcel, by clicking the map or choosing an address from the search box, and the link says a parcel is open. Close the info panel and the link says that too: the parcel is dropped, your map position stays exactly where it is, and anyone you send that link to lands on the same view with nothing selected. Reloading a link you copied after closing the panel no longer springs the panel back open. Panning and zooming are still just map moves, so they never change what the link says is selected.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated @aireon/shared to v1.185.0, which carries the suite-wide change above.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.34.1',
     date: 'August 22, 2026',
     codename: 'The link keeps its parcel',
