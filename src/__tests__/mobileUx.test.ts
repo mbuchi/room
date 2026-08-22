@@ -162,7 +162,16 @@ describe('no in-panel Open-in launcher', () => {
     }
   });
 
-  it('keeps the navbar Open-with menu, which is the only launcher', () => {
-    expect(read('components/Navbar.tsx')).toContain('OpenWithMenu');
+  it('keeps the compact route and mounts the desktop selector in search', () => {
+    const navbar = read('components/Navbar.tsx');
+    expect(navbar).toContain("key: 'open-with'");
+    expect(navbar).toMatch(
+      /openInApp\(app\.id, openWithLocation\.lat, openWithLocation\.lng, 17\)/,
+    );
+    expect(navbar).toContain('openWith={isCompact ? undefined : {');
+    expect(navbar).toMatch(
+      /currentAppId: 'room',[\s\S]*?location: openWithLocation,[\s\S]*?locale,[\s\S]*?label: t\('nav\.open_with'\),[\s\S]*?zoom: 17,[\s\S]*?placement: 'search',[\s\S]*?defaultTargetAppId: 'room',[\s\S]*?onOpen:/,
+    );
+    expect(navbar).not.toContain('<OpenWithMenu');
   });
 });

@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.35.1',
+    date: 'August 22, 2026',
+    codename: 'Open with starts here',
+    summary: 'The address search and Open with launcher now share one Hub-style desktop field.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Search,
+        text: 'The address search and Open with launcher now share one Hub-style field on desktop. The selector starts with room, keeps room out of its own menu, and updates to the chosen destination after launch (@aireon/shared v1.186.1).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.35.0',
     date: 'August 22, 2026',
     codename: 'The link matches your screen',

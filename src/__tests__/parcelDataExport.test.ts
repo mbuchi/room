@@ -136,8 +136,10 @@ describe('parcel data export', () => {
     // prop. A repin below this drops every hand-off back to 15.00, two levels
     // out, where auto-select misses on the receiving app. Everything pinned above is
     // still in it.
-    // Resolved commit 6fe3b55b06c812c85f8056d1220e9914b02bd1ae.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('6fe3b55b06c812c85f8056d1220e9914b02bd1ae');
+    // Re-pinned to v1.186.1 for AppNavbar's combined search/Open-with field,
+    // including the current-app default and remembered destination target.
+    // Resolved commit a1297529f70f4901ba1e1ee1ec8776f11bb9d60c.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('a1297529f70f4901ba1e1ee1ec8776f11bb9d60c');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
