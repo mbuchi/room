@@ -106,6 +106,15 @@ const UtilizationOverTime = ({ ageCohorts, darkMode = true }: UtilizationOverTim
                 width={48}
               />
               <Tooltip
+                // recharts defaults filterNull to TRUE, which strips every
+                // payload entry whose value is null BEFORE the formatter runs
+                // and then hides the tooltip entirely. With seven cohorts the
+                // narrow steps are null for most zones, so the default would
+                // make hovering a gap silently do nothing AND make the
+                // no-data branch below unreachable. Keeping the null entry is
+                // the point: a gap should say "this window is empty", which is
+                // the sparsity story, not an absence of response.
+                filterNull={false}
                 contentStyle={{
                   ...tooltipStyle,
                   borderRadius: 6,

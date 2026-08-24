@@ -39,8 +39,10 @@ the selected zone, `room` shows:
   number of floors — each with the same "you are here" reference line
 - A 0–100 percentile gauge with a human reading
   ("82% of comparable parcels are utilised more intensively")
-- A utilisation-over-time line chart across age cohorts (now /
-  last 20 / 40 / 60 years)
+- A utilisation-over-time line chart across seven age cohorts, widest window
+  first (all years / last 60 / 40 / 20 / 15 / 10 / 5 years), so moving right
+  means more recent construction. Steps with no buildings in the window are
+  gaps in the line, and the dot size follows the sample size behind each point
 - A scatter tab plotting parcel area vs. building volume across all
   comparable parcels in the zone, with a regression line and the selected
   parcel highlighted
