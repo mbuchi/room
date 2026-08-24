@@ -33,8 +33,9 @@ question planners, valuers, and developers actually ask.
     boxplot + density curve, six histograms (`ratioV`, `freeV`, `ratioS`,
     `GFZ`, building height, number of floors) with a "you are here"
     reference line, a 0–100 percentile gauge, utilisation-over-time line
-    chart across age cohorts (now / last 20 / 40 / 60 years), and a scatter
-    tab (parcel area vs. building volume with regression line).
+    chart across seven age cohorts (all years, then the last 60 / 40 / 20 /
+    15 / 10 / 5 years — widest window first), and a scatter tab (parcel area
+    vs. building volume with regression line).
 - Standard SwissNovo chrome: shared auth (`@aireon/shared` AuthProvider),
   release notes panel, login modal, user menu, locale selector, app tour
   (react-joyride), screenshot capture, Claire AI assistant on selected
@@ -79,7 +80,8 @@ src/
 │   └── charts/
 │       ├── BoxplotDensity.tsx         boxplot + density curve overlay
 │       ├── DistributionHistogram.tsx  reused 6× with "you are here" reference line
-│       ├── UtilizationOverTime.tsx    Recharts LineChart, 4 cohorts
+│       ├── UtilizationOverTime.tsx    Recharts LineChart, up to 7 cohorts
+│       ├── orderAgeCohorts.ts         cohort plot order + tick/dot-size helpers
 │       ├── VolumeVsAreaScatter.tsx    ScatterChart + regression line + selected highlight
 │       └── PercentileGauge.tsx        SVG arc 0–100
 ├── services/
@@ -99,8 +101,14 @@ project_RES/
 └── api_docs/openapi.json      (v1.3.0 — document the six new parcel-data fields + /zone_stats)
 ```
 
-In-memory LRU cache for `zone_stats` keyed on `${fso}:${cz_local}`,
-TTL 1h, capacity 500 — same shape as the existing `/parcel_data` cache.
+Cache for `zone_stats`: designed as an in-process LRU (capacity 500, TTL 1h),
+same shape as the existing `/parcel_data` cache. The shipped backend replaced
+it with the Redis-backed shared cache in `routes/_shared/cache.js`, keyed
+`zone_stats:v2:${fso}:${cz_local}` with a **30-day** TTL and a cross-worker
+single-flight lock — a cold zone costs ~45 s, so an in-process LRU meant
+divergent per-worker caches, a cold first request after every restart, and no
+way to invalidate from outside the process. The `v2:` segment is the
+payload-SHAPE version; see §4.2.
 
 ### 3.3 Registration `toolbox`
 
@@ -167,11 +175,17 @@ SQL pass that already populates the existing `cz_*` and building fields.
     bldg_height_m: Summary,
     bldg_floors_n: Summary,
   },
+  // Seven cohorts, WIDEST WINDOW FIRST. RES always ships all seven keys —
+  // an empty window arrives as `{ cohort_label, mean_ratio_v: null, n: 0 }`,
+  // so the cohort is always PRESENT and the VALUE is what goes null.
   age_cohorts: {
-    now:    { cohort_label: string, mean_ratio_v: number, n: number },
-    last20: { cohort_label: string, mean_ratio_v: number, n: number },
-    last40: { cohort_label: string, mean_ratio_v: number, n: number },
-    last60: { cohort_label: string, mean_ratio_v: number, n: number },
+    now:    { cohort_label: string, mean_ratio_v: number | null, n: number },
+    last60: { cohort_label: string, mean_ratio_v: number | null, n: number },
+    last40: { cohort_label: string, mean_ratio_v: number | null, n: number },
+    last20: { cohort_label: string, mean_ratio_v: number | null, n: number },
+    last15: { cohort_label: string, mean_ratio_v: number | null, n: number },
+    last10: { cohort_label: string, mean_ratio_v: number | null, n: number },
+    last5:  { cohort_label: string, mean_ratio_v: number | null, n: number },
   },
   parcels: Array<{
     egrid:  string,
@@ -187,6 +201,78 @@ type Summary = {
   mean: number, n: number,
 }
 ```
+
+#### 4.2.1 Amended 2026-08-25 — the seven-cohort ladder
+
+The original contract pinned **four** age cohorts (`now / last20 / last40 /
+last60`) with a non-nullable `mean_ratio_v`. Both were wrong. The shipped
+endpoint (project_RES #326, #327) returns **seven** cohorts, and the mean is
+nullable. This section is the corrected contract; `project_RES` owns the
+endpoint and is the authority whenever the two disagree.
+
+**Canonical order — widest window first.** This is the order RES ships, the
+order `orderAgeCohorts.ts` plots, and the order `roofs` and `proom` label
+their parcel panels:
+
+| cohort key | window | RES `cohort_label` | parcel column | frozen cutoff |
+|---|---|---|---|---|
+| `now`    | all years | `All years`     | `cz_util_rev_allyrs` | (none) |
+| `last60` | 60 years  | `Last 60 years` | `cz_util_rev_60yrs`  | `cy_max >= 1963` |
+| `last40` | 40 years  | `Last 40 years` | `cz_util_rev_40yrs`  | `cy_max >= 1983` |
+| `last20` | 20 years  | `Last 20 years` | `cz_util_rev_20yrs`  | `cy_max >= 2004` |
+| `last15` | 15 years  | `Last 15 years` | `cz_util_rev_15yrs`  | `cy_max >= 2009` |
+| `last10` | 10 years  | `Last 10 years` | `cz_util_rev_10yrs`  | `cy_max >= 2014` |
+| `last5`  | 5 years   | `Last 5 years`  | `cz_util_rev_5yrs`   | `cy_max >= 2019` |
+
+Reading left to right, the window NARROWS toward more recent construction.
+
+**The two ladders are related but not the same number — do not conflate them.**
+
+- The **parcel columns** `cz_util_rev_*` are a stored monthly artefact
+  (`SQL/enrich_derived.sql`): per `(fso_num_2021, cz_local)` group, the
+  `percentile_cont(0.5)` **median** utilization of comparable parcels whose
+  z-score lies strictly inside (−3, 3), against the **frozen literal** cutoffs
+  in the table above.
+- `/res_api/zone_stats` `age_cohorts` is computed **on demand** and is an
+  `AVG(ratio_v)` — an arithmetic **mean**, no z-score filter — over the same
+  zone, filtered `cy_max >= <reference year> − W`. The window is therefore
+  **current-year-relative**, not frozen. The reference year is passed in from
+  JS so the five concurrent statements of one payload cannot straddle a
+  New Year's Eve boundary and cache two different ladders as one object.
+
+That divergence is deliberate and is not to be unified: the endpoint can
+honestly mean "the last five calendar years"; the stored columns must not
+silently repaint 3.4M rows on 1 January.
+
+**`mean_ratio_v` is `number | null`, and `n` is what tells you whether to
+trust it.** `n` is per cohort. The narrower the band the thinner the sample:
+the 5-year band exists for only about a third of (municipality, zone) groups,
+and about a third of THOSE hold a single parcel. Measured across 200 zones the
+mean cohort falls from ~1,600 parcels (all years) to ~59 at 20 years to ~9 at
+5 years. Read `n` before trusting a mean. An absent value means **"no data"**
+and must never render as zero.
+
+**Values are ratios, not percentages.** Multiply by 100 to display.
+
+**`cz_util_rev_20yrs` did not move.** It is still the buildability-envelope
+input behind `gfa_max` / `vol_max`, verified byte-identical across all
+3,515,270 unique-EGRID rows. Do not repoint anything at a finer band.
+
+**Transport.** RES answers on `GET` as well as `POST`. room reaches the
+endpoint only through its own Vercel Node proxy `api/zone-stats.ts`, which is
+`POST`-only (`maxDuration: 60`, 55 s upstream timeout) because a cold zone
+exceeds the Edge runtime's wall-time.
+
+**room's client type is deliberately WIDER than the wire shape.**
+`ZoneStatsResponse['age_cohorts']` in `src/services/zoneStatsService.ts` marks
+`last15` / `last10` / `last5` **optional**. RES always sends them, but a
+payload restored from a client cache written before the ladder landed carries
+only the four legacy keys, and a required key would be a lie the compiler
+cannot catch at runtime. `orderAgeCohorts()` skips whichever keys a payload
+does not carry, so a four-cohort payload yields four real points rather than
+seven with three phantom entries. A compile-time guard in `orderAgeCohorts.ts`
+asserts every key of `age_cohorts` appears in the plot order, so an eighth
+cohort cannot be added to the type and then silently never render.
 
 Server-side rules:
 
@@ -219,9 +305,31 @@ Server-side rules:
 
 ### 5.2 Caching
 
-- Session-scoped `Map<string, ZoneStatsResponse>` in `zoneStatsService.ts`
-  keyed `${fso}:${cz_local}`.
-- Server-side LRU in RES (same key, 1h TTL).
+Three layers, all keyed on the same **payload-shape-versioned** identity:
+
+- **Memory** — session-scoped `Map<string, ZoneStatsResponse>` in
+  `zoneStatsService.ts`, keyed `v2:${fso}:${cz_local}`. `getCachedZoneStats()`
+  reads only this layer, synchronously, so a same-session re-click skips the
+  skeleton without awaiting anything.
+- **IndexedDB** — `IndexedDBCache` on the shared `room-cache` DB
+  (`zone-stats` store), same key, no TTL, 50 MB budget with LRU eviction.
+  This is what makes the first load after a page reload feel instant.
+- **Redis in RES** — `zone_stats:v2:${fso}:${cz_local}`, 30-day TTL (§3.2).
+
+Concurrent requests for one zone are coalesced through an `inFlight` map, so
+`prefetchZoneStats()` (fired on map click) and `ZonePanel`'s own
+`fetchZoneStats()` share a single round trip instead of paying the cold ~45 s
+cost twice.
+
+The `v2:` segment is what retires four-cohort payloads. Bumping the IndexedDB
+`DB_VERSION` would NOT: the store carries no TTL and its `onupgradeneeded`
+pass only creates missing stores without wiping data, so a pre-ladder entry
+would survive every version bump forever. Changing the KEY instead makes the
+old entries simply unreachable — they age out through the existing LRU — and
+guarantees every `v2:` hit is a payload fetched after the ladder rollout. RES
+versions its Redis key the same way and for the same reason, with the segment
+placed AFTER the namespace so every existing `zone_stats:*` purge path keeps
+matching.
 
 ### 5.3 Choropleth fill (Mapbox)
 
@@ -235,6 +343,35 @@ selected parcel keeps its existing outline highlight.
 `statsMath.percentileOfValue(distribution, value)` returns where the
 selected parcel's metric falls in the zone distribution (0–100). Drives
 both the gauge and the histogram reference lines.
+
+### 5.5 Utilization-over-time ladder
+
+`orderAgeCohorts.ts` owns the plot order and `UtilizationOverTime.tsx` renders
+it. Four rules follow from the sparsity documented in §4.2.1:
+
+- **Widest window first.** `now, last60, last40, last20, last15, last10,
+  last5`. The original ALL / 20 / 40 / 60 ran the x-axis backwards in time, so
+  a densifying zone drew as a FALLING line. Widest-first means moving right
+  narrows the window to more recent construction and the reader's
+  left-to-right instinct is correct.
+- **Degradation is PER POINT, not all-or-nothing.** A cohort with no parcels
+  becomes a `null` the line bridges (`connectNulls`); the empty state
+  (`panel.zone.over_time_no_data`) appears only when NO cohort has a finite
+  mean. Blanking the whole chart on one missing step would blank it for most
+  zones. Non-finite means are normalised to `null` first — recharts gaps
+  `null` but draws `undefined`/`NaN` as a broken segment. `Tooltip` sets
+  `filterNull={false}` so hovering a gap says "no data in this window"
+  instead of silently doing nothing.
+- **Sample size is drawn, not just told.** `sampleSizeDotRadius(n)` steps the
+  dot radius across four bands (≥200, ≥50, ≥10, else), so a 5-year mean over
+  two parcels does not carry the visual authority of one over eight hundred.
+  Bands, not a continuous ramp — a smooth scale just reads as noise. `n` is
+  also spelled out in the tooltip.
+- **Tick labels come from the cohort KEY, not `cohort_label`.** RES ships
+  English strings whatever `lang` was requested, and seven of them do not fit
+  across a 400 px panel. `cohortTickYears()` reduces each key to its bare,
+  locale-neutral year count (`null` for `now`, which takes the translated
+  `panel.zone.cohort_all`); the unit lives once in the section subtitle.
 
 ## 6. Toolbox registration
 
@@ -306,7 +443,10 @@ Per-repo feature branch → commit → push → PR → squash-merge:
 
 `room` and `toolbox` both have `npm run build` (Vite + tsc) — the
 verification step in this workstream is the production build succeeding
-on each.
+on each. `room` has since grown `npm run verify`
+(`typecheck && lint && test && build && test:bundle-syntax`); the cohort
+ladder's order, its per-point gapping and its legacy-payload tolerance are
+covered by `src/components/charts/UtilizationOverTime.test.ts`.
 
 `project_RES` does not have a typecheck script; verification is a hand-test
 of the new endpoint against a known parcel + zone after deploy.
