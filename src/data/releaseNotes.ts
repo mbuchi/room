@@ -12,6 +12,38 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.36.0',
+    date: 'August 24, 2026',
+    codename: 'Density in seven steps',
+    summary: 'The utilization over time chart now reads in seven steps, from every year on record down to the last five.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: TrendingUp,
+        text: 'The "Utilization over time" chart now has seven steps instead of four. Next to the all years figure and the last 60, 40 and 20 years it adds the last 15, 10 and 5, so a zone that changed recently shows that change instead of burying it inside a twenty year average. The steps also run the other way round now: the widest window sits on the left and the narrowest on the right, so moving right means more recent construction and a zone that is filling up draws as a rising line. The labels are shorter, just ALL, 60, 40, 20, 15, 10 and 5 with the unit written once under the title, and they now follow your language instead of staying in English.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Activity,
+        text: 'Thin steps now look thin. The narrower the window the fewer buildings stand behind it: a five year window often rests on a handful of parcels while the all years figure rests on hundreds. Each point is now drawn at a size that follows the number of parcels behind it, and the exact count stays in the tooltip, so an average built from two buildings no longer carries the same weight on the page as one built from eight hundred.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: BarChart3,
+        text: 'A zone with nothing built in one of the newer windows no longer blanks the whole chart. Every step that has data is drawn and the line bridges the empty ones, instead of the chart replacing itself with a not enough data message because a single step came back empty. That case is common: only about half of all zones have anything built in the last five years.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Database,
+        text: 'Zone statistics stored on your device from before this change are no longer handed back. Those stored copies never expire, so without this the three new steps would have stayed missing on every zone you had already opened until you cleared your browser storage. room now files zone statistics under a new name, and the older copies fall out of use on their own.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.35.2',
     date: 'August 24, 2026',
     codename: 'The map opens on older browsers',

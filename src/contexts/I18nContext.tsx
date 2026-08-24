@@ -185,6 +185,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.tooltip_count_label': 'Count',
     'panel.zone.cohort_tooltip': 'mean ratioV {value} (n={n})',
     'panel.zone.cohort_label': 'Cohort',
+    'panel.zone.cohort_all': 'ALL',
+    'panel.zone.cohort_tooltip_no_data': 'no data in this window',
+    'panel.zone.over_time_subtitle': 'Mean ratioV by construction window (years)',
     'panel.zone.summary_line': 'n={n} · p50 {p50} · mean {mean}',
 
     // ---------- "My Exports" modal (SavedImagesPanel) ----------
@@ -502,6 +505,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.tooltip_count_label': 'Nombre',
     'panel.zone.cohort_tooltip': 'ratioV moyen {value} (n={n})',
     'panel.zone.cohort_label': 'Cohorte',
+    'panel.zone.cohort_all': 'TOUT',
+    'panel.zone.cohort_tooltip_no_data': 'aucune donnée dans cette fenêtre',
+    'panel.zone.over_time_subtitle': 'ratioV moyen par fenêtre de construction (années)',
     'panel.zone.summary_line': 'n={n} · p50 {p50} · moyenne {mean}',
 
     // ---------- exports modal ----------
@@ -818,6 +824,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.tooltip_count_label': 'Anzahl',
     'panel.zone.cohort_tooltip': 'mittleres ratioV {value} (n={n})',
     'panel.zone.cohort_label': 'Kohorte',
+    'panel.zone.cohort_all': 'ALLE',
+    'panel.zone.cohort_tooltip_no_data': 'keine Daten in diesem Fenster',
+    'panel.zone.over_time_subtitle': 'Mittleres ratioV nach Bauzeitfenster (Jahre)',
     'panel.zone.summary_line': 'n={n} · p50 {p50} · Mittel {mean}',
 
     // ---------- exports modal ----------
@@ -1134,6 +1143,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.tooltip_count_label': 'Conteggio',
     'panel.zone.cohort_tooltip': 'ratioV medio {value} (n={n})',
     'panel.zone.cohort_label': 'Coorte',
+    'panel.zone.cohort_all': 'TUTTI',
+    'panel.zone.cohort_tooltip_no_data': 'nessun dato in questa finestra',
+    'panel.zone.over_time_subtitle': 'ratioV medio per finestra di costruzione (anni)',
     'panel.zone.summary_line': 'n={n} · p50 {p50} · media {mean}',
 
     // ---------- exports modal ----------

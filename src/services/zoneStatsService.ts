@@ -4,13 +4,15 @@
  *   - the distribution + summary stats of every utilisation metric room
  *     plots (`ratio_v`, `free_v`, `ratio_s`, `gfz`, `bldg_height_m`,
  *     `bldg_floors_n`),
- *   - the four age-cohort utilisation means (now / last 20 / 40 / 60),
+ *   - the seven age-cohort utilisation means (all years, then the last
+ *     60 / 40 / 20 / 15 / 10 / 5 years),
  *   - an unfiltered `parcels[]` list (egrid + area + volume + year) which
  *     drives both the scatter plot AND the choropleth via setFeatureState,
  *   - the list of other zones available within the same municipality so the
  *     ZoneSelectorDropdown can switch context without re-fetching parcel data.
  *
- * Responses are cached in two layers, keyed by `${fso}:${cz_local}`:
+ * Responses are cached in two layers, keyed by `v2:${fso}:${cz_local}` (see
+ * `cacheKey` for why the key carries a payload-shape version):
  *
  *   1. An in-memory `Map` — sync, instant, populated for the lifetime of the
  *      tab. `getCachedZoneStats` reads only this layer so the panel can skip
@@ -60,8 +62,13 @@ export type ZoneMetric =
   | 'bldg_floors_n';
 
 export interface ZoneAgeCohort {
+  /** English window label straight from RES ('All years', 'Last 20 years', …).
+   *  Never rendered as an axis tick — the chart derives a compact, localized
+   *  label from the cohort KEY instead. */
   cohort_label: string;
-  mean_ratio_v: number;
+  /** `null` when the window holds no parcels. RES still ships the cohort
+   *  (with `n: 0`), so a thin window is a gap in the line, not a missing key. */
+  mean_ratio_v: number | null;
   n: number;
 }
 
@@ -88,6 +95,15 @@ export interface ZoneStatsResponse {
     last20: ZoneAgeCohort;
     last40: ZoneAgeCohort;
     last60: ZoneAgeCohort;
+    // The three narrow windows arrived with the seven-step ladder (RES
+    // /zone_stats, project_RES #326). They are OPTIONAL on purpose: a payload
+    // restored from the browser HTTP cache or from a persistent client cache
+    // written before that change carries only the four legacy cohorts, so a
+    // required key would be a lie the compiler cannot catch at runtime.
+    // Consumers must skip whichever keys the payload does not carry.
+    last15?: ZoneAgeCohort;
+    last10?: ZoneAgeCohort;
+    last5?: ZoneAgeCohort;
   };
   parcels: ZoneParcel[];
 }
@@ -114,8 +130,24 @@ const persistentCache = new IndexedDBCache<ZoneStatsResponse>(
   { maxBytes: PERSISTENT_CACHE_MAX_BYTES, stores: ['parcel-data', 'zone-stats', 'city-market'] },
 );
 
+/**
+ * Cache key = payload-SHAPE version + zone identity.
+ *
+ * The `v2:` segment is what retires four-cohort payloads. Bumping DB_VERSION
+ * would NOT: the IndexedDB store carries no TTL (`ttlMinutes` is omitted, so
+ * entries never expire) and its `onupgradeneeded` pass only creates missing
+ * stores without wiping data (see the comments in `src/utils/cache.ts`), so a
+ * pre-ladder entry survives every version bump forever. Changing the key
+ * instead makes the old entries simply unreachable — they age out through the
+ * existing LRU eviction — while every `v2:` hit is guaranteed to be a payload
+ * fetched after the seven-cohort rollout.
+ *
+ * Renaming the object store would work too, but the store name is listed in
+ * the `stores: [...]` array of three services and getting one of them wrong
+ * silently kills that cache; the key is the smaller, safer lever.
+ */
 function cacheKey(req: ZoneStatsRequest): string {
-  return `${req.fso}:${req.cz_local}`;
+  return `v2:${req.fso}:${req.cz_local}`;
 }
 
 /**
@@ -178,7 +210,7 @@ export async function fetchZoneStats(
   return promise;
 }
 
-/** Map of in-flight zone-stats requests, keyed by `${fso}:${cz_local}`. */
+/** Map of in-flight zone-stats requests, keyed by `cacheKey()`. */
 const inFlight = new Map<string, Promise<ZoneStatsResponse>>();
 
 async function networkFetch(req: ZoneStatsRequest, key: string): Promise<ZoneStatsResponse> {
