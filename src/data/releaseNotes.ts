@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.35.2',
+    date: 'August 24, 2026',
+    codename: 'The map opens on older browsers',
+    summary: 'The map no longer fails to start on Safari 16.0 to 16.3 and other browsers of that vintage.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Map,
+        text: 'The map now starts on older browsers. room loads its map engine as a separate file, on demand, so the rest of the page can paint first. That file was being published using a piece of newer JavaScript that Safari 16.0 to 16.3, and browsers of a similar age, cannot read, so on those devices the page loaded normally and then the map alone refused to start, leaving the map fallback in its place. room now publishes the map engine in the same language level as everything else it ships, and a new build check keeps it that way.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.35.1',
     date: 'August 22, 2026',
     codename: 'Open with starts here',

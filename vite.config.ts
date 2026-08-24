@@ -23,6 +23,23 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   build: {
+    // ⚠ EXPLICIT, and it must stay explicit. Vite's own default here is the
+    // alias `'baseline-widely-available'`, which resolves to this exact browser
+    // list — but under Vite 8 / Rolldown the ALIAS is not applied to the output
+    // transform, while a literal browser list is. Measured on this repo: with
+    // the default, `dist/assets/maplibre-*.js` ships 13 ES2022 class static
+    // blocks (`static{...}`) and the MapLibre worker another 6; with the list
+    // below, both are 0 and the bundle grows by 25 bytes.
+    //
+    // That difference was a real, user-visible outage, Bug Tracker #1158:
+    // MapLibre is the ONLY chunk in room carrying ES2022-only syntax, and it is
+    // reached through `import('maplibre-gl')`, so a browser that predates class
+    // static blocks (Safari < 16.4, Chrome < 94, Firefox < 93) booted the whole
+    // app happily and then failed to PARSE that one chunk. The dynamic import
+    // rejected with `SyntaxError: Unexpected token '{'`, MapView logged
+    // "Unable to initialise the MapLibre map" and the visitor got the map
+    // fallback on an otherwise working page.
+    target: ['chrome107', 'edge107', 'firefox104', 'safari16'],
     rollupOptions: {
       output: {
         // Split the big vendors out of the entry chunk so the app shell parses
