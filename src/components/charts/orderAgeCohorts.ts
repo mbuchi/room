@@ -19,7 +19,7 @@ type CohortKey = keyof AgeCohorts;
  * The three narrow steps (15 / 10 / 5) are optional in the payload, so this
  * list is a superset of what any single response may carry.
  */
-const COHORT_ORDER: CohortKey[] = [
+const COHORT_ORDER = [
   'now',
   'last60',
   'last40',
@@ -27,7 +27,16 @@ const COHORT_ORDER: CohortKey[] = [
   'last15',
   'last10',
   'last5',
-];
+] as const satisfies readonly CohortKey[];
+
+// Compile-time guard: every key of `age_cohorts` MUST appear in COHORT_ORDER.
+// Without this the ladder lives in two places -- the payload type and the plot
+// order -- with nothing tying them together, so adding an eighth cohort to
+// ZoneStatsResponse would typecheck cleanly and then silently never render.
+// If this line errors, add the missing cohort to COHORT_ORDER above.
+type MissingFromOrder = Exclude<CohortKey, (typeof COHORT_ORDER)[number]>;
+const _everyCohortIsPlotted: MissingFromOrder extends never ? true : never = true;
+void _everyCohortIsPlotted;
 
 /**
  * Order the cohorts widest-window-first, skipping every key the payload does

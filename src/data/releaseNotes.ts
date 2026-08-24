@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.36.1',
+    date: 'August 24, 2026',
+    codename: 'Hover the gap',
+    summary: 'Hovering a construction window with nothing built in it now says so, instead of doing nothing.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: BarChart3,
+        text: 'Hovering an empty step on the "Utilization over time" chart now tells you the window is empty. It previously did nothing at all: the chart library drops empty points out of the tooltip before it is built, so the message written for exactly this case could never appear. That matters most on the newest steps, which are the ones most often empty.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Database,
+        text: 'Adding a new step to the chart in future can no longer be half finished. The list of steps to plot and the list of steps the server sends are now checked against each other when room is built, so a step that exists in the data but was left out of the chart stops the build instead of quietly never showing up.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.36.0',
     date: 'August 24, 2026',
     codename: 'Density in seven steps',

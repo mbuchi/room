@@ -231,6 +231,27 @@ describe('new copy is translated everywhere', () => {
   });
 });
 
+describe('a gapped cohort is hoverable, not silent', () => {
+  const chart = readFileSync(
+    new URL('./UtilizationOverTime.tsx', import.meta.url),
+    'utf8',
+  );
+
+  it('turns off recharts filterNull, or the no-data branch is dead code', () => {
+    // recharts defaults filterNull to TRUE and drops every payload entry whose
+    // value is null BEFORE the formatter runs, then hides the tooltip. With
+    // seven cohorts the narrow steps are null for most zones, so the default
+    // makes hovering a gap do nothing at all AND makes the no-data branch
+    // below it unreachable. This assertion is what stops that regressing back
+    // into dead code the next time the Tooltip props are touched.
+    expect(chart).toContain('filterNull={false}');
+  });
+
+  it('still has a no-data branch for the formatter to reach', () => {
+    expect(chart).toContain('panel.zone.cohort_tooltip_no_data');
+  });
+});
+
 describe('the persistent cache cannot serve a pre-ladder payload', () => {
   it('carries a payload-shape version in the zone-stats cache key', () => {
     const service = readFileSync(
