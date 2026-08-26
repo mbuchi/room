@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { GlassProvider, initTheme, applyTheme, initOpenReplay } from '@aireon/shared';
+import { GlassProvider, initTheme, applyTheme, initOpenReplay, installSignalCarrier } from '@aireon/shared';
 import { getThemeOverride } from '@aireon/shared/url-params';
 import { I18nProvider } from './contexts/I18nContext';
 import App from './App.tsx';
@@ -15,6 +15,20 @@ import { CompareProvider } from './contexts/CompareContext';
 import '@aireon/shared/fonts.css';
 
 errorLogger.install({ captureConsoleErrors: true });
+
+// Carrier transport for usage signals. Signals are queued in memory instead of
+// firing one POST per user action, and whatever is still queued is flushed once
+// on pagehide to the neutral /api/ctx collector. Installed AFTER
+// errorLogger.install so this wraps the outermost fetch rather than being
+// wrapped by the error capture.
+//
+// No `paths` allowlist yet, so room gets batching only, not ride-along on an
+// existing /api request. This is a transport change: the same data is collected
+// and stored as before. It reduces how visible first-party analytics are in the
+// Network tab; it is not a privacy or security measure. See
+// aireon-shared/docs/SIGNAL_STANDARD.md.
+installSignalCarrier({ endpoint: '/api/ctx' });
+
 initOpenReplay({ projectKey: import.meta.env.VITE_OPENREPLAY_PROJECT_KEY as string | undefined, trackerOptions: { canvas: { disableCanvas: true } } });
 
 // room keeps its signature dark look by default, but now ships a light/dark

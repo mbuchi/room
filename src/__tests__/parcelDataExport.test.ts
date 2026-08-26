@@ -138,8 +138,16 @@ describe('parcel data export', () => {
     // still in it.
     // Re-pinned to v1.186.1 for AppNavbar's combined search/Open-with field,
     // including the current-app default and remembered destination target.
-    // Resolved commit a1297529f70f4901ba1e1ee1ec8776f11bb9d60c.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('a1297529f70f4901ba1e1ee1ec8776f11bb9d60c');
+    //
+    // Re-pinned to v1.191.0 for signal carrier transport: `installSignalCarrier`
+    // on the root barrel queues usage signals in memory and flushes what is left
+    // once on pagehide, instead of one POST per action. src/main.tsx calls it, so
+    // a repin below this SHA is a build error: the export does not exist. The
+    // flush target is api/ctx.ts, a second one-line re-export of
+    // @aireon/shared/signal-collect. Transport only; the same data is collected
+    // and stored as before. See aireon-shared/docs/SIGNAL_STANDARD.md.
+    // Resolved commit 378a7677fa0a9df738cca5b1e3271d30c291abcf.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('378a7677fa0a9df738cca5b1e3271d30c291abcf');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

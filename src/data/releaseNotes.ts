@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.36.2',
+    date: 'August 26, 2026',
+    codename: 'One trip, not many',
+    summary: 'Usage reporting now sends a single request when you close the page, instead of one for every action.',
+    items: [
+      {
+        kind: 'changed' as ChangeKind,
+        icon: Activity,
+        text: 'Usage reporting now sends one request when you leave the page, instead of a separate small request every time you search, open a parcel or switch a view. Those reports are gathered as you work and sent together at the end of your visit. The information collected is the same as before and it is kept the same way: only the way it travels has changed. In practice room now makes fewer network requests while you use it, which keeps the connection free for the map and the charts.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.36.1',
     date: 'August 24, 2026',
     codename: 'Hover the gap',
