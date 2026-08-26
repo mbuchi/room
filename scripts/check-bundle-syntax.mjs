@@ -11,11 +11,19 @@
  * transform, so the default silently emitted the syntax anyway and only a
  * literal browser list in vite.config.ts lowers it.
  *
- * The failure mode is invisible in the build log: MapLibre is the only chunk in
+ * The failure mode is invisible in the build log: MapLibre was the only chunk in
  * room with ES2022-only syntax and it is reached through `import('maplibre-gl')`,
  * so an affected browser boots the entire app, then fails to PARSE that one
  * chunk. The dynamic import rejects with `SyntaxError: Unexpected token '{'`
  * and the visitor gets the map fallback on a page that otherwise works.
+ *
+ * ⚠ SCOPE NARROWED in v0.37.0, do not read a green run as more than it is. The
+ * ENGINE is now external — an import map resolves `maplibre-gl` to
+ * static.aireon.ch and Vite never sees those bytes, so this guard cannot speak
+ * for them (the browser gets MapLibre's own published ESM either way, and the
+ * import map already requires Safari 16.4+, above the static-block floor). What
+ * this still guards is everything Vite DOES emit, which includes the
+ * `?worker&url` worker asset — 6 of the original static blocks lived there.
  *
  * Fails (exit 1) if a static block survives into any emitted chunk. Requires a
  * build first. Run: `npm run build && npm run test:bundle-syntax`.
