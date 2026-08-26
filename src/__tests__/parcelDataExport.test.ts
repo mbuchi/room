@@ -146,8 +146,16 @@ describe('parcel data export', () => {
     // flush target is api/ctx.ts, a second one-line re-export of
     // @aireon/shared/signal-collect. Transport only; the same data is collected
     // and stored as before. See aireon-shared/docs/SIGNAL_STANDARD.md.
-    // Resolved commit 378a7677fa0a9df738cca5b1e3271d30c291abcf.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('378a7677fa0a9df738cca5b1e3271d30c291abcf');
+    //
+    // Re-pinned to v1.192.0, "one engine for the suite", retaining all of the
+    // above. aireonHtmlPlugin now marks `maplibre-gl` external and injects an
+    // import map resolving it to
+    // https://static.aireon.ch/maplibre-gl@<version>/maplibre-gl.mjs, so the
+    // ~1 MB engine leaves room's bundle and is fetched once for the whole
+    // suite. The export payload is untouched. A repin below this puts the
+    // engine chunk back: not a build error, just a megabyte per app per release.
+    // Resolved commit 4a27f465f75864e708e837f56995c619bc7c4851.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('4a27f465f75864e708e837f56995c619bc7c4851');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

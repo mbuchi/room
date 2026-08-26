@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.37.0',
+    date: 'August 26, 2026',
+    codename: 'One engine for the suite',
+    summary: 'The map engine now loads from the shared Aireon asset host, cached once across every Aireon app.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'The MapLibre map engine (about 1 MB) is no longer bundled into room. It loads from the shared Aireon asset host and stays cached in your browser across every Aireon app and every room release, so repeat visits and switches between apps start faster.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated @aireon/shared to v1.192.0, which is where the shared asset host and the import map that points at it live, so every Aireon app can move to one engine in the same way.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.36.2',
     date: 'August 26, 2026',
     codename: 'One trip, not many',

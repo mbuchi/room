@@ -27,18 +27,27 @@ export default defineConfig({
     // alias `'baseline-widely-available'`, which resolves to this exact browser
     // list — but under Vite 8 / Rolldown the ALIAS is not applied to the output
     // transform, while a literal browser list is. Measured on this repo: with
-    // the default, `dist/assets/maplibre-*.js` ships 13 ES2022 class static
+    // the default, `dist/assets/maplibre-*.js` shipped 13 ES2022 class static
     // blocks (`static{...}`) and the MapLibre worker another 6; with the list
     // below, both are 0 and the bundle grows by 25 bytes.
     //
     // That difference was a real, user-visible outage, Bug Tracker #1158:
-    // MapLibre is the ONLY chunk in room carrying ES2022-only syntax, and it is
-    // reached through `import('maplibre-gl')`, so a browser that predates class
-    // static blocks (Safari < 16.4, Chrome < 94, Firefox < 93) booted the whole
-    // app happily and then failed to PARSE that one chunk. The dynamic import
-    // rejected with `SyntaxError: Unexpected token '{'`, MapView logged
-    // "Unable to initialise the MapLibre map" and the visitor got the map
-    // fallback on an otherwise working page.
+    // MapLibre carried ES2022-only syntax and was reached through
+    // `import('maplibre-gl')`, so a browser that predates class static blocks
+    // (Safari < 16.4, Chrome < 94, Firefox < 93) booted the whole app happily
+    // and then failed to PARSE that one chunk. The dynamic import rejected with
+    // `SyntaxError: Unexpected token '{'`, MapView logged "Unable to initialise
+    // the MapLibre map" and the visitor got the map fallback on an otherwise
+    // working page.
+    //
+    // ⚠ SCOPE CHANGED in v0.37.0 and the list still matters. The ENGINE is now
+    // external (import map -> static.aireon.ch), so Vite no longer transforms
+    // it and this target cannot lower it — but the emitted worker asset
+    // (`?worker&url`, dist/assets/maplibre-gl-worker-*.js) still goes through
+    // the output transform, and that is where 6 of those static blocks lived.
+    // Dropping the literal list would put them straight back. Note that the
+    // import map itself needs Safari 16.4+ / Firefox 108+ / Chrome 89+, so the
+    // map's real floor now sits ABOVE this list; the app shell still honours it.
     target: ['chrome107', 'edge107', 'firefox104', 'safari16'],
     rollupOptions: {
       output: {
@@ -52,14 +61,19 @@ export default defineConfig({
         // to vendor so no shared-helper edge pulls maplibre back into the entry
         // (the commonjsHelpers TRAP).
         //
-        // ⚠ The `maplibre` bucket is a DEFERRED chunk now, not just a separate
-        // one: MapView reaches MapLibre only through `import('maplibre-gl')`,
-        // so nothing modulepreloads it from index.html any more. A separate
-        // chunk was never the same thing as a deferred chunk — it was still
-        // 215 KB brotli on the critical path.
+        // ⚠ THERE IS DELIBERATELY NO `maplibre` BUCKET (removed v0.37.0).
+        // aireonHtmlPlugin marks `maplibre-gl` external and injects an import
+        // map pointing at https://static.aireon.ch/maplibre-gl@<version>/, so
+        // the engine never enters the bundle graph and there is nothing left to
+        // bucket. The only id still matching `node_modules/maplibre-gl/` is the
+        // `?worker&url` proxy inside `@aireon/shared/map-worker`, which
+        // compiles to a bare URL STRING and must stay one — re-adding the
+        // bucket could now ONLY catch that proxy and turn a free string into a
+        // chunk edge. It can do harm and no good.
         //
-        // ⚠⚠ STYLESHEETS ARE DELIBERATELY EXCLUDED, and this matters far more
-        // now that the bucket is dynamic. A dependency's CSS follows whichever
+        // ⚠⚠ STYLESHEETS ARE DELIBERATELY EXCLUDED. maplibre-gl.css is still
+        // bundled (only the JS engine is external), and a dependency's CSS
+        // follows whichever
         // chunk claims it, so bucketing `maplibre-gl.css` here would pull its
         // <link> out of index.html and append it AFTER index.css at runtime.
         // `maplibre-gl.css .maplibregl-map{position:relative}` and Tailwind's
@@ -72,7 +86,6 @@ export default defineConfig({
         // longer depends on order at all.
         manualChunks(id: string) {
           if (id.endsWith('.css')) return undefined
-          if (id.includes('node_modules/maplibre-gl/')) return 'maplibre'
           if (/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'react-vendor'
           if (id.includes('node_modules/oidc-client-ts/') || id.includes('commonjsHelpers')) {
             return 'vendor'

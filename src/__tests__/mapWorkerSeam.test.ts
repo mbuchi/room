@@ -31,14 +31,15 @@ describe('maplibre v6 worker seam', () => {
   });
 
   it('keeps the seam import dynamic so the engine stays off the eager path', () => {
-    // The helper's own dependency is
-    // `maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url`, whose module id
-    // contains `node_modules/maplibre-gl/` and so lands in the `maplibre`
-    // manualChunks bucket (vite.config.ts). A STATIC import of the helper here
-    // therefore hands the eager entry chunk a static edge into that bucket:
-    // index.html modulepreloads all ~976 KB of MapLibre again and the
-    // deliberate deferral of the engine is silently undone. Measured, not
-    // theorized - and invisible to typecheck, lint and the build alike.
+    // Since v0.37.0 the engine is EXTERNAL: an import map resolves
+    // `maplibre-gl` to static.aireon.ch, so no ~976 KB chunk exists to be
+    // dragged anywhere. Both halves below are still load-bearing, for the
+    // reason underneath that one: a static import of either the seam or the
+    // engine puts a bare `maplibre-gl` specifier on the EAGER path, so the
+    // browser resolves the import map and fetches the engine off the network
+    // during first paint rather than when a map is actually wanted. The
+    // deferral is the point, and it is invisible to typecheck, lint and the
+    // build alike.
     expect(mapView).not.toMatch(/^import\s[^\n]*['"]@aireon\/shared\/map-worker['"]/m);
     // MapLibre itself must stay type-only at module scope for the same reason.
     expect(mapView).toContain("import type * as maplibregl from 'maplibre-gl'");
