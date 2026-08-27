@@ -3,11 +3,29 @@
 // Proxies parcel lookups to the RES API's `parcel_data` endpoint, injecting
 // the RES token server-side so it never reaches the browser. Mirrors the
 // signal-collect proxy. room's ZoneInfoPanel + MapView call this.
+//
+// Also the carrier for room's queued usage signals: this is the request the app
+// already makes when a parcel is selected, which is the same interaction that
+// emits a signal, so the batch rides along and adds no request of its own.
+// `withSignalCarrierWeb` drains the `X-Aireon-Ctx` request header, forwards each
+// signal to RES and acknowledges the count on the response. This proxy's own
+// request and response are untouched apart from that one added header.
+//
+// It is the Web/Edge variant because this is a `(Request) => Response` handler.
+// That path acknowledges ONLY when it resolves a `waitUntil` from the runtime
+// (@aireon/shared v1.193.0+), so a runtime that cannot keep the invocation alive
+// past the response degrades to "unwrapped" instead of acking a batch it would
+// then drop. See aireon-shared/docs/SIGNAL_STANDARD.md.
+//
+// ⚠ This response deliberately sets NO cacheable Cache-Control. A cached
+// response would replay a stale ack header and destroy a batch that was never
+// forwarded, so a carrier endpoint must never be edge-cached.
 
 export const config = {
   runtime: "edge",
 };
 
+import { withSignalCarrierWeb } from "@aireon/shared/signal-carrier";
 import { RES_API_BASE_URL } from "@aireon/shared/api";
 
 const corsHeaders = {
@@ -49,7 +67,7 @@ function json(body: unknown, status: number): Response {
   });
 }
 
-export default async function handler(req: Request): Promise<Response> {
+async function parcelData(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
@@ -100,3 +118,5 @@ export default async function handler(req: Request): Promise<Response> {
     return json({ error: (error as Error).message }, 502);
   }
 }
+
+export default withSignalCarrierWeb(parcelData);

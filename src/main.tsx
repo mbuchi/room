@@ -22,12 +22,22 @@ errorLogger.install({ captureConsoleErrors: true });
 // errorLogger.install so this wraps the outermost fetch rather than being
 // wrapped by the error capture.
 //
-// No `paths` allowlist yet, so room gets batching only, not ride-along on an
-// existing /api request. This is a transport change: the same data is collected
-// and stored as before. It reduces how visible first-party analytics are in the
-// Network tab; it is not a privacy or security measure. See
+// Queued signals ride along on the POST /api/parcel-data request the app
+// already makes when a parcel is selected - the same interaction that emits the
+// signal - so the common flow adds no request of its own. That handler is
+// wrapped with `withSignalCarrierWeb` (api/parcel-data.ts) and acknowledges how
+// many signals it took; anything unacknowledged goes back on the queue and
+// leaves on the page-hide flush to /api/ctx.
+//
+// Only /api/parcel-data is declared. A path listed here that is NOT wrapped on
+// the server would take a batch nothing acknowledges, so the list is explicit
+// and never guessed.
+//
+// This is a transport change: the same data is collected and stored as before.
+// It reduces how visible first-party analytics are in the Network tab; it is
+// not a privacy or security measure. See
 // aireon-shared/docs/SIGNAL_STANDARD.md.
-installSignalCarrier({ endpoint: '/api/ctx' });
+installSignalCarrier({ paths: ['/api/parcel-data'], endpoint: '/api/ctx' });
 
 initOpenReplay({ projectKey: import.meta.env.VITE_OPENREPLAY_PROJECT_KEY as string | undefined, trackerOptions: { canvas: { disableCanvas: true } } });
 

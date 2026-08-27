@@ -154,8 +154,18 @@ describe('parcel data export', () => {
     // ~1 MB engine leaves room's bundle and is fetched once for the whole
     // suite. The export payload is untouched. A repin below this puts the
     // engine chunk back: not a build error, just a megabyte per app per release.
-    // Resolved commit 4a27f465f75864e708e837f56995c619bc7c4851.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('4a27f465f75864e708e837f56995c619bc7c4851');
+    //
+    // Re-pinned to v1.193.0, which lets the carrier ride an EDGE handler.
+    // Before it, `withSignalCarrierWeb` looked only for `globalThis.waitUntil`,
+    // which Vercel does not expose, so on the edge runtime the RES fan-out was a
+    // floating promise in an isolate about to be torn down - and it acked anyway,
+    // which is what tells the browser queue to destroy its copy. v1.193.0 reads
+    // Vercel's per-request context instead and, decisively, acknowledges ONLY
+    // when it resolved a waitUntil. api/parcel-data.ts is wrapped with it and
+    // src/main.tsx declares `paths: ['/api/parcel-data']`, so a repin below this
+    // SHA silently reintroduces "acked, never written" on room's primary action.
+    // Resolved commit 17a2fe79a62f0973f7c2078d20319a66528b36a5.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('17a2fe79a62f0973f7c2078d20319a66528b36a5');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

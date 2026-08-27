@@ -1,7 +1,7 @@
 import {
   ShieldAlert, Palette, Info, Box,
   Sparkles, BarChart3, Activity, Layers, Map, BookOpen, ScatterChart, Image, LayoutPanelTop, Timer, Phone, Bot, PanelsTopLeft, Zap, Database, Languages, Bookmark, Type, BadgeCheck, Code2, MessageSquare, Package, Bug, Camera, LocateFixed,
-  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink, Share2, Copy, Link2, Braces,
+  ZoomIn, TrendingUp, Filter, Search, MapPin, Maximize2, Smartphone, ExternalLink, Share2, Copy, Link2, Braces, Route,
 } from 'lucide-react';
 import type { ChangeKind, ChangeItem, Release } from '@aireon/shared';
 
@@ -11,6 +11,26 @@ export { KIND_META } from '@aireon/shared';
 // Newest first. Versioning follows SemVer. room is pre-1.0 while the data
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
+  {
+    version: '0.38.0',
+    date: 'August 27, 2026',
+    codename: 'Along for the ride',
+    summary: 'Usage reporting now travels on a request room was already making, so a normal session adds no background requests of its own.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Route,
+        text: 'Usage reporting no longer needs a request of its own. room already asks the server for parcel details the moment you select a parcel, and the usage record for that same action now travels along with it. In an ordinary session that means no extra background requests at all, where before there was one small request per action and, since the last release, one when you left the page. What gets collected is exactly the same as before, and so is how long it is kept. Only the way it travels has changed.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated @aireon/shared to v1.193.0. Room\'s parcel lookup runs on the edge, and until this version the shared code could not reliably finish handing a record on from there, so it only ever did so from the slower kind of endpoint. It now uses the request context the platform provides, and it will not confirm a record as sent unless it can guarantee it. If that guarantee is unavailable the record is simply kept and sent later, which means the change can never lose one.',
+        prs: [],
+      },
+    ],
+  },
   {
     version: '0.37.0',
     date: 'August 26, 2026',
