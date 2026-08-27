@@ -19,6 +19,12 @@ export const RELEASES: Release[] = [
     items: [
       {
         kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text: 'The central user-menu runtime now gives room the same centrally maintained account-menu shell as the other Aireon apps. Compatible menu updates arrive when room reloads, while sign-in, account data, theme, saved parcels, and every action stay local to room.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
         icon: Route,
         text: 'Usage reporting no longer needs a request of its own. room already asks the server for parcel details the moment you select a parcel, and the usage record for that same action now travels along with it. In an ordinary session that means no extra background requests at all, where before there was one small request per action and, since the last release, one when you left the page. What gets collected is exactly the same as before, and so is how long it is kept. Only the way it travels has changed.',
         prs: [],

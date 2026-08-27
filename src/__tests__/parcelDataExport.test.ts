@@ -165,7 +165,9 @@ describe('parcel data export', () => {
     // src/main.tsx declares `paths: ['/api/parcel-data']`, so a repin below this
     // SHA silently reintroduces "acked, never written" on room's primary action.
     // Resolved commit 17a2fe79a62f0973f7c2078d20319a66528b36a5.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('17a2fe79a62f0973f7c2078d20319a66528b36a5');
+    // v1.195.0 retains the carrier and export contracts while adding the
+    // verified central user-menu runtime adapter source.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('1a179c921b1447fd4e5f4803968cc193c9a77bc1');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

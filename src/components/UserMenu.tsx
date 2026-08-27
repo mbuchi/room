@@ -41,6 +41,7 @@ export default function UserMenu({ darkMode = true, toolbarItems, toolbarLabel, 
 
   return (
     <MapUserMenu
+      appId="room"
       dark={darkMode}
       locale={locale as PrmLocale}
       savedParcelsOpenHereLabel={t('modal.parcels.open_here')}
