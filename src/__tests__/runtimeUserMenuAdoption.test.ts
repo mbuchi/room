@@ -40,15 +40,22 @@ describe('room central user-menu runtime adoption', () => {
     expect(menuInvocation).toMatch(/\bdark(?:\s|=)/);
   });
 
-  it('records the rollout in the current release entry', () => {
+  it('records the rollout in the release entry that shipped it', () => {
+    // The runtime shipped in 0.38.0 (#278), and that is a fixed historical
+    // fact. This used to assert the mention sat in whatever entry happened to
+    // be NEWEST, which made the guard go red on the very next release for a
+    // reason having nothing to do with the user menu. Pin the entry that
+    // actually carries it instead, and bound it by the next entry down.
+    const RUNTIME_RELEASE = "version: '0.38.0'";
     const releasesStart = releaseNotes.indexOf('export const RELEASES');
-    const firstRelease = releaseNotes.indexOf('\n  {\n    version:', releasesStart);
-    const secondRelease = releaseNotes.indexOf('\n  {\n    version:', firstRelease + 1);
-    const marker = releaseNotes.indexOf('central user-menu runtime', firstRelease);
+    const entryStart = releaseNotes.indexOf(RUNTIME_RELEASE, releasesStart);
+    const nextEntry = releaseNotes.indexOf('\n  {\n    version:', entryStart);
+    const marker = releaseNotes.indexOf('central user-menu runtime', entryStart);
 
-    expect(firstRelease).toBeGreaterThan(releasesStart);
-    expect(secondRelease).toBeGreaterThan(firstRelease);
-    expect(marker).toBeGreaterThan(firstRelease);
-    expect(marker).toBeLessThan(secondRelease);
+    expect(releasesStart).toBeGreaterThan(-1);
+    expect(entryStart, `no ${RUNTIME_RELEASE} entry in releaseNotes.ts`).toBeGreaterThan(releasesStart);
+    expect(nextEntry, 'the 0.38.0 entry must be followed by an older one').toBeGreaterThan(entryStart);
+    expect(marker, 'the runtime rollout is no longer described in 0.38.0').toBeGreaterThan(entryStart);
+    expect(marker).toBeLessThan(nextEntry);
   });
 });

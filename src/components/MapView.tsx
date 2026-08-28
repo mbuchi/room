@@ -31,6 +31,7 @@ import {
   type ActiveZone,
 } from '../lib/mapLayers';
 import { wgs84ToLv95 } from '../lib/coordTransform';
+import { mapStillLive, removeMapSafely, startMapGuarded } from '../lib/mapStartup';
 import { fullParcelAddress } from '../lib/parcelAddress';
 import { fetchParcelData, ParcelDataError, type ParcelData } from '../services/parcelDataService';
 import { prefetchZoneStats, type ZoneStatsResponse } from '../services/zoneStatsService';
@@ -135,6 +136,10 @@ function isWebGLContextError(error: unknown): boolean {
   if (typeof bag.type === 'string') parts.push(bag.type);
   return /webgl|webglcontextcreationerror/i.test(parts.join(' '));
 }
+
+// Log label carried by every map startup/teardown warning room raises, so a
+// GPU-less visit is identifiable in the console without reading a stack.
+const MAP_LABEL = 'room map';
 
 // i18n keys for the Residential type segmented control labels, keyed by mode.
 const RESIDENTIAL_TYPE_LABEL_KEYS: Record<ResidentialTypeFilter, string> = {
@@ -945,7 +950,15 @@ const MapView = () => {
     // `gl` cannot be null while `map` is set (both are assigned together in the
     // init effect), but the compiler does not know that and this callback is
     // reachable from the navbar before the map finishes constructing.
-    if (!map || !gl) return;
+    //
+    // ⚠ This is room's late-callback surface for the GPU-init bug class: it runs
+    // from navigator.geolocation.getCurrentPosition's SUCCESS callback, which
+    // can land many seconds after the click (the permission prompt sits open),
+    // by which time the view may have unmounted or the GL context gone away
+    // underneath a still-mounted map. `Marker.addTo` on a painter-less map is
+    // the documented "Cannot read properties of undefined (reading '0')", so
+    // re-read the live ref and confirm the painter before building anything.
+    if (!map || !gl || !mapStillLive(map, mapRef.current)) return;
 
     if (locateMarkerRef.current) {
       locateMarkerRef.current.remove();
@@ -1157,7 +1170,15 @@ const MapView = () => {
         applyMapWorkerUrl(maplibre);
 
         maplibreRef.current = maplibre;
-        const map = new maplibre.Map({
+        // ⚠ MapLibre v6 DOES NOT THROW when the WebGL2 context cannot be
+        // created — it hands back a painter-less Map (see ../lib/mapStartup).
+        // The isWebGLAvailable() preflight above ran at MOUNT; the style fetch
+        // this `.then()` is waiting on is a network round trip, and the map's
+        // own depth+stencil context request happens only now, on the far side
+        // of it. startMapGuarded re-asserts the preflight and then gates on the
+        // painter BEFORE the instance reaches mapRef, so no half-built map ever
+        // becomes the one every callback, control and teardown below reads.
+        const map = startMapGuarded(() => new maplibre.Map({
           container,
           style,
           center: initialState.center,
@@ -1179,11 +1200,24 @@ const MapView = () => {
           // Disable the built-in attribution control — AboutModal carries the
           // swisstopo + MapLibre credits in the suite-standard pattern.
           attributionControl: false,
-        });
+        }), MAP_LABEL, () => webglOk);
+        if (!map) {
+          // No painter: room has no canvas to draw into. startMapGuarded already
+          // warned (never console.error — a GPU-less device is an environment
+          // condition, not a room defect) and disposed anything it built. Fall
+          // through to the same <MapUnavailable/> the preflight renders.
+          if (!cancelled) setMapInitFailed(true);
+          return;
+        }
 
         mapRef.current = map;
 
         map.on('load', () => {
+          // Late callback: the style can land after an unmount, or after a
+          // StrictMode remount moved mapRef on to a newer instance. Decorating
+          // a map that is no longer the live one is how a removed map gets
+          // touched. Re-read the LIVE ref, never the captured instance.
+          if (cancelled || !mapStillLive(map, mapRef.current)) return;
           addParcelLayers(map, 0.6);
           addBuildingLayers(map, 0.85);
           // `?view=3d` (URL_PARAMS_STANDARD.md) opened is3DMode true — swap
@@ -1316,10 +1350,12 @@ const MapView = () => {
         cancelAnimationFrame(coordRafId);
         coordRafId = null;
       }
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
+      // A throw out of a React cleanup takes the whole unmount with it, and
+      // MapLibre's own remove() runs `this.painter.destroy()` unconditionally —
+      // the "Cannot read properties of undefined (reading 'destroy')" half of
+      // this bug class. Nothing here may raise.
+      removeMapSafely(mapRef.current, MAP_LABEL);
+      mapRef.current = null;
     };
     // webglOk is set once from a `useState` initializer and never changes, so
     // this stays a mount-once effect in practice; it is listed so the guard
