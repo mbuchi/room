@@ -165,9 +165,15 @@ describe('parcel data export', () => {
     // src/main.tsx declares `paths: ['/api/parcel-data']`, so a repin below this
     // SHA silently reintroduces "acked, never written" on room's primary action.
     // Resolved commit 17a2fe79a62f0973f7c2078d20319a66528b36a5.
-    // v1.195.0 retains the carrier and export contracts while adding the
-    // verified central user-menu runtime adapter source.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('1a179c921b1447fd4e5f4803968cc193c9a77bc1');
+    // Re-pinned to v1.196.0. The previous pin (#439, 1a179c92) sat inside the
+    // window between the central user-menu runtime landing (#437) and its
+    // rollback (#441): MapUserMenu routed through the <aireon-user-menu>
+    // Shadow-DOM element, which cannot inherit the map-shell-user-* author CSS
+    // that IS the account-menu design, so room shipped a broken-looking
+    // approximation of the menu. v1.196.0 renders the bundled local shell
+    // again and retains the carrier and export contracts above.
+    // Resolved commit ceee4438f2f754c49138ac26cb57cef8db6956a3.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('ceee4438f2f754c49138ac26cb57cef8db6956a3');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

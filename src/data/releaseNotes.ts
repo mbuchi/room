@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.38.2',
+    date: 'August 29, 2026',
+    codename: 'Back on the shared shelf',
+    summary: 'The account menu is back to the standard Aireon design.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bookmark,
+        text: 'The account menu is back to the standard Aireon design. room had been left on a short-lived experiment that drew the menu inside an isolated shell, which could not pick up the suite styling and so rendered a near-miss of the real thing. It now renders the same saved-parcels block as roots, roofs and geopool: your total, the four pipeline stages as tiles, a refresh control, CSV export and a shortcut into proom.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.38.1',
     date: 'August 28, 2026',
     codename: 'No map, no crash',
