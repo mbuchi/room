@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.38.1',
+    date: 'August 28, 2026',
+    codename: 'No map, no crash',
+    summary: 'A device that cannot start the map now says so, instead of failing later somewhere unrelated.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Map,
+        text: 'room already checks whether your device can draw a map before it opens one, but that check happens as the page loads, while the map itself is only built a moment later, once the background imagery has arrived. On a device that runs out of graphics capacity in that gap, the map engine hands back a map that looks fine but was never really built, and room used to keep it. The map area then stayed empty and something unrelated failed afterwards, typically when using Locate or when leaving the page. room now confirms the map really started before it uses it, and shows the "Map unavailable on this device" notice instead. Leaving the page is safe either way.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Bug,
+        text: 'A device that cannot run the map is a limit of that device rather than a room defect, so it is now recorded as a warning instead of filing itself as a bug report. Real map failures stand out again.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.38.0',
     date: 'August 27, 2026',
     codename: 'Along for the ride',
