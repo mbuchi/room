@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.40.0',
+    date: 'August 29, 2026',
+    codename: 'Bigger targets, quieter reports',
+    summary: 'room moves to the current shared Aireon library: easier tapping in the account menu on small screens, and fewer false bug reports.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'room now runs on the current version of the shared Aireon library, and three things improve. On phones and other small screens, the compact controls in the account menu are now guaranteed a full 44-pixel touch target, so the saved-parcels tiles, the refresh control and the CSV export are comfortable to hit instead of fiddly. Separately, the check room runs to find out whether your device can draw a map used to hold on to the graphics context it opened just for that test, which was wasteful on a page like room that can already be running a second live map for the Massing view; it now hands that context straight back. And error reporting no longer files a bug when the fault came from one of your own browser extensions rather than from room, so real problems are not buried under noise. Nothing you use day to day moves or changes shape.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.39.0',
     date: 'August 29, 2026',
     codename: 'One runtime fewer',
