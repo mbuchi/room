@@ -115,7 +115,7 @@ const Navbar = ({ onLocationSelect, onLocate, onLocateError, getCaptureMetadata,
   // "Share this view" moved out of the navbar into the account menu; it copies
   // the current link and flashes the suite-standard "Link copied" pill.
   const [shareCopied, setShareCopied] = useState(false);
-  const shareTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const shareTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   // Remembered for the "Open with" cross-app menu when no parcel is selected
   // (e.g. after an address search with no map click). The selected parcel's
   // lngLat takes priority when available — it's always the freshest state.

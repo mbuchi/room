@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.39.0',
+    date: 'August 29, 2026',
+    codename: 'One runtime fewer',
+    summary: 'room now runs on the current version of the framework it is built on. Nothing on screen changes.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'room has moved to React 19, the current version of the framework it is built on. Nothing on screen changes and every feature behaves exactly as before: the same map and zone distribution charts, the same parcel panel, the same saved images, exports and guided tour. The difference is internal. The speed optimizer that room compiles into its code used to need a separate compatibility package in order to run on the older framework version, and that runtime is now built into the framework itself, so the extra package has been removed from the app. The icon set moved forward at the same time, with every icon room draws unchanged.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.38.2',
     date: 'August 29, 2026',
     codename: 'Back on the shared shelf',
