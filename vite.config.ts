@@ -9,9 +9,11 @@ export default defineConfig({
     // plugin-react 6 compiles JSX with Oxc and has dropped its `babel` option
     // entirely, so React Compiler now runs as its own Babel pass below.
     react(),
-    // target "18" is required because this app runs React 18 (the compiler
-    // emits react-compiler-runtime calls that React 18 lacks natively).
-    babel({ presets: [reactCompilerPreset({ target: '18' })] }),
+    // target "19" matches the React this app runs. React 19 ships the compiler
+    // runtime natively as react/compiler-runtime, so no separate compatibility
+    // package is needed. target is not cosmetic: a wrong value builds clean and
+    // breaks at runtime.
+    babel({ presets: [reactCompilerPreset({ target: '19' })] }),
     // First-load standard (aireon-shared/docs/PERFORMANCE_STANDARD.md). Injects the
     // pre-paint theme bootstrap, the static app shell so something paints before any
     // JS runs, and preconnects for the origins this app's first screen actually uses.

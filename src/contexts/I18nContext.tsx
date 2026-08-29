@@ -1334,7 +1334,12 @@ const { I18nProvider: SharedI18nProvider, useI18n } = createI18n<Locale>({
 // exactly as before.
 export function I18nProvider({ children }: { children: ReactNode }) {
   const override = getLocaleOverride();
-  const preOverrideStoredRef = useRef<string | null>();
+  // Three states, and the seed matters: `undefined` means "not snapshotted yet"
+  // (the guard on the next line reads `=== undefined`), `null` means "nothing was
+  // stored", and a string is the stored locale. Seeding with `null` would skip the
+  // snapshot and make the restore effect below call `localStorage.removeItem`,
+  // deleting the visitor's stored language preference.
+  const preOverrideStoredRef = useRef<string | null | undefined>(undefined);
   if (override && preOverrideStoredRef.current === undefined) {
     try {
       preOverrideStoredRef.current = localStorage.getItem(I18N_STORAGE_KEY);

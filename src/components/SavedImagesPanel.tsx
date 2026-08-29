@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, type ReactElement } from 'react';
 import { createPortal } from 'react-dom';
 import { RefreshCw, Trash2, Image as ImageIcon, ExternalLink, MapPin, Compass, Hash, Map as MapIcon } from 'lucide-react';
 import { CloseButton, LoadingFeedback, Skeleton, useFocusTrap, useGlass } from '@aireon/shared';
@@ -151,7 +151,7 @@ export default function SavedImagesPanel({ isOpen, onClose }: SavedImagesPanelPr
     const lat = formatCoord(meta.central_lat);
     const lng = formatCoord(meta.central_lng);
     const tilt = formatDeg(meta.tilt_degree);
-    const lines: { icon: JSX.Element; text: string; key: string }[] = [];
+    const lines: { icon: ReactElement; text: string; key: string }[] = [];
     if (meta.address) {
       lines.push({ key: 'addr', icon: <MapPin size={11} />, text: meta.address });
     }

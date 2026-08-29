@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 let LoadingFeedback: unknown;
 let MarketSkeleton: unknown;
-type BoundaryElement = ReactElement<{ skeleton: ReactElement }>;
+type BoundaryElement = ReactElement<{ skeleton: ReactElement<{ className: string }> }>;
 type OverlayHostElement = ReactElement<{ className: string; children: BoundaryElement; 'data-screenshot-ignore': string }>;
 let MarketDataLoadingFeedback: (props: { darkMode: boolean }) => BoundaryElement;
 let createScreenshotLoadingFeedback: (label: string) => OverlayHostElement;
