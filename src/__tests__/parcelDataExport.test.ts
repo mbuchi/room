@@ -173,7 +173,29 @@ describe('parcel data export', () => {
     // approximation of the menu. v1.196.0 renders the bundled local shell
     // again and retains the carrier and export contracts above.
     // Resolved commit ceee4438f2f754c49138ac26cb57cef8db6956a3.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('ceee4438f2f754c49138ac26cb57cef8db6956a3');
+    //
+    // Re-pinned to v1.201.0, which stays ABOVE the #441 rollback: the shipped
+    // MapUserMenu in dist/index.js still carries the map-shell-user-* author CSS
+    // and never references the <aireon-user-menu> element, so the local shell
+    // above is retained. The runtime contract files still ship in the package;
+    // they remain unadopted. What this pin adds for room: (1) v1.199.0 moved the
+    // 44px touch floor for the compact account-menu controls into mapUi.css at
+    // max-width:1023px via --aireon-touch-min, and room carries no local
+    // min-h-11 override, so this is the first build where those controls meet
+    // the touch floor; (2) the shared isWebGLAvailable() probe now calls
+    // WEBGL_lose_context.loseContext() instead of retaining the context it
+    // opened - see the note in src/lib/mapStartup.ts, which is written against
+    // the OLD leaking behaviour and matters because the Massing tab can hold a
+    // second live MapLibre instance; (3) isNoise() in the error reporter now
+    // drops reports whose source or originating stack frame is a
+    // chrome/moz/safari-extension:// URL.
+    //
+    // NOTE: v1.201.0 also centralises the GPU-init painter gate. room does NOT
+    // route through it - src/lib/mapStartup.ts is room's own local guard, shipped
+    // in 0.38.1 and still the code MapView uses - so that part is a no-op here
+    // and is deliberately absent from the 0.40.0 release note.
+    // Resolved commit d7eb0e3804f3eda69716c8eb97ee09f95fcefd84.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('d7eb0e3804f3eda69716c8eb97ee09f95fcefd84');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
