@@ -31,11 +31,11 @@ const MapControls = ({
   // Translucent `.glass-control` at glass level >0; original solid card at Off.
   const cardClass = glassOn
     ? 'glass-control border'
-    : 'shadow-lg bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700/50';
+    : 'shadow-lg bg-white/90 dark:bg-gray-900/90 backdrop-blur-xs border border-gray-200 dark:border-gray-700/50';
   return (
     <>
       <div
-        className="absolute aireon-map-control-top aireon-z-map-control transition-[right] duration-300 aireon-map-control-right md:[right:var(--md-right,1rem)]"
+        className="absolute aireon-map-control-top aireon-z-map-control transition-[right] duration-300 aireon-map-control-right md:right-(--md-right,1rem)"
         style={
           (panelOpen && rightOffsetPx != null
             ? ({ '--md-right': `${rightOffsetPx}px` } as CSSProperties & Record<string, string>)

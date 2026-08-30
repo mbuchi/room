@@ -46,7 +46,7 @@ export const Section = ({
 }) => (
   <div
     className={`rounded-lg px-4 py-3.5 ${
-      darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+      darkMode ? 'bg-white/[0.035] ring-1 ring-white/6' : 'bg-slate-50 ring-1 ring-slate-200/80'
     }`}
   >
     <div className="flex items-center gap-1.5 mb-2">
@@ -68,7 +68,7 @@ export const PanelEmpty = ({ children }: { children: ReactNode }) => (
 export const PanelError = ({ title, detail }: { title: string; detail?: string | null }) => (
   <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
     <div className="flex items-start gap-2.5">
-      <AlertCircle size={14} className="text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
+      <AlertCircle size={14} className="text-red-500 dark:text-red-400 mt-0.5 shrink-0" />
       <div>
         <p className="text-xs font-medium text-red-500 dark:text-red-400">{title}</p>
         {detail && (

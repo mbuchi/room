@@ -186,7 +186,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
           in the panel header's subtitle and the parcel count is printed inside
           the dropdown itself, so neither is repeated here. */}
       {(stats || activeCzLocal) && (
-        <div className="flex-shrink-0 px-5 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
+        <div className="shrink-0 px-5 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
           <ZoneSelectorDropdown
             currentCzLocal={activeCzLocal ?? ''}
             otherZones={dropdownZones}
@@ -255,7 +255,7 @@ const ChartsSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
       <div
         key={i}
         className={`rounded-lg px-4 py-3.5 ${
-          darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+          darkMode ? 'bg-white/[0.035] ring-1 ring-white/6' : 'bg-slate-50 ring-1 ring-slate-200/80'
         } space-y-2`}
       >
         <Skeleton dark={darkMode} width={120} height={10} radius={4} delay={`${i * 70}ms`} />

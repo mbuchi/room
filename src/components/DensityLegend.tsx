@@ -80,10 +80,10 @@ const DensityLegend = ({ zone, selectedRatioV, rightOffsetPx = null, inline = fa
         {/* You-are-here marker */}
         {youPos != null && (
           <div
-            className="absolute -bottom-[3px] -translate-x-1/2"
+            className="absolute bottom-[-3px] -translate-x-1/2"
             style={{ left: `${youPos}%` }}
           >
-            <div className="h-0 w-0 border-l-[4px] border-r-[4px] border-b-[6px] border-l-transparent border-r-transparent border-b-sky-400" />
+            <div className="h-0 w-0 border-l-4 border-r-4 border-b-[6px] border-l-transparent border-r-transparent border-b-sky-400" />
           </div>
         )}
       </div>

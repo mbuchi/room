@@ -82,7 +82,7 @@ const ZoneSelectorDropdown = ({
             {currentCzLocal || '-'}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {selectedCount != null && (
             <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">{t('panel.zone.parcels_suffix', { count: selectedCount })}</span>
           )}
@@ -103,7 +103,7 @@ const ZoneSelectorDropdown = ({
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('panel.zone.filter_zones_placeholder')}
               aria-label={t('panel.zone.filter_zones_placeholder')}
-              className="flex-1 bg-transparent text-base lg:text-xs text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
+              className="flex-1 bg-transparent text-base lg:text-xs text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 rounded-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
             />
           </div>
           <div className="max-h-64 overflow-y-auto py-1">
@@ -128,7 +128,7 @@ const ZoneSelectorDropdown = ({
                   }`}
                 >
                   <span className="font-mono truncate">{z.cz_local}</span>
-                  <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono flex-shrink-0">
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono shrink-0">
                     {z.parcel_count}
                   </span>
                 </button>
