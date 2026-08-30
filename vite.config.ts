@@ -43,13 +43,20 @@ export default defineConfig({
     // working page.
     //
     // ⚠ SCOPE CHANGED in v0.37.0 and the list still matters. The ENGINE is now
-    // external (import map -> static.aireon.ch), so Vite no longer transforms
+    // external (fetched from static.aireon.ch), so Vite no longer transforms
     // it and this target cannot lower it — but the emitted worker asset
     // (`?worker&url`, dist/assets/maplibre-gl-worker-*.js) still goes through
     // the output transform, and that is where 6 of those static blocks lived.
-    // Dropping the literal list would put them straight back. Note that the
-    // import map itself needs Safari 16.4+ / Firefox 108+ / Chrome 89+, so the
-    // map's real floor now sits ABOVE this list; the app shell still honours it.
+    // Dropping the literal list would put them straight back.
+    //
+    // ⚠ AND THE LIST IS AUTHORITATIVE AGAIN as of v0.41.0. The engine was
+    // briefly reached through an injected `<script type="importmap">`, which
+    // needs Safari 16.4+ / Firefox 108+ and therefore put the map's real floor
+    // ABOVE this list — the #1158 outage all over again, for the same browsers.
+    // aireonHtmlPlugin now bakes the absolute engine URL into the chunk at
+    // build time and injects no import map, so loading it needs only
+    // cross-origin dynamic import (Safari 11+) and the map is back to honouring
+    // exactly the list below, same as the app shell.
     target: ['chrome107', 'edge107', 'firefox104', 'safari16'],
     rollupOptions: {
       output: {
@@ -64,10 +71,12 @@ export default defineConfig({
         // (the commonjsHelpers TRAP).
         //
         // ⚠ THERE IS DELIBERATELY NO `maplibre` BUCKET (removed v0.37.0).
-        // aireonHtmlPlugin marks `maplibre-gl` external and injects an import
-        // map pointing at https://static.aireon.ch/maplibre-gl@<version>/, so
-        // the engine never enters the bundle graph and there is nothing left to
-        // bucket. The only id still matching `node_modules/maplibre-gl/` is the
+        // aireonHtmlPlugin resolves the exact bare id `maplibre-gl` to
+        // https://static.aireon.ch/maplibre-gl@<version>/maplibre-gl.mjs at
+        // build time and marks it external, so the engine never enters the
+        // bundle graph and there is nothing left to bucket. (No import map is
+        // involved; see the build.target note above for why that shape went.)
+        // The only id still matching `node_modules/maplibre-gl/` is the
         // `?worker&url` proxy inside `@aireon/shared/map-worker`, which
         // compiles to a bare URL STRING and must stay one — re-adding the
         // bucket could now ONLY catch that proxy and turn a free string into a
