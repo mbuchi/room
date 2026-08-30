@@ -68,7 +68,7 @@ const UtilizationOverTime = ({ ageCohorts, darkMode = true }: UtilizationOverTim
   return (
     <div
       className={`rounded-lg px-4 py-3.5 ${
-        darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+        darkMode ? 'bg-white/[0.035] ring-1 ring-white/6' : 'bg-slate-50 ring-1 ring-slate-200/80'
       }`}
     >
       <div className="mb-2">

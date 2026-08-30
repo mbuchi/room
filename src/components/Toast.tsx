@@ -81,7 +81,7 @@ const Toast = ({ message, type = 'info', duration = 4000, onClose }: ToastProps)
         className={`${colors.bg} ${colors.border} border backdrop-blur-xl rounded-xl shadow-2xl shadow-black/40 overflow-hidden min-w-[320px] max-w-[420px]`}
       >
         <div className="flex items-start gap-3 px-4 py-3.5">
-          <div className={`${colors.icon} mt-0.5 flex-shrink-0`}>
+          <div className={`${colors.icon} mt-0.5 shrink-0`}>
             <Icon size={18} strokeWidth={2.5} />
           </div>
           <p className={`${colors.text} text-sm font-medium leading-snug flex-1`}>
@@ -92,7 +92,7 @@ const Toast = ({ message, type = 'info', duration = 4000, onClose }: ToastProps)
             size="sm"
             onClick={handleClose}
             label={t('toast.dismiss')}
-            className="flex-shrink-0 mt-0.5"
+            className="shrink-0 mt-0.5"
           />
         </div>
         <div className="h-[2px] w-full bg-gray-800/50">

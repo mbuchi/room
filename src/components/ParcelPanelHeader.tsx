@@ -79,7 +79,7 @@ const ParcelPanelHeader = ({
     Number.isFinite(focusedParcel.lat);
 
   return (
-    <div className="flex-shrink-0 border-b border-gray-200 px-5 pb-4 pt-3.5 dark:border-gray-800/40">
+    <div className="shrink-0 border-b border-gray-200 px-5 pb-4 pt-3.5 dark:border-gray-800/40">
       {isLoading && !parcelData?.address ? (
         <LoadingFeedback
           label="Loading parcel details…"
@@ -212,10 +212,10 @@ export const IdentifierChip = ({
         onClick={handleCopy}
         title={copied ? copiedLabel : copyLabel}
         aria-label={copied ? copiedLabel : copyLabel}
-        className={`relative inline-flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md transition-colors before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] ${
+        className={`relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-colors before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] ${
           copied
             ? 'text-emerald-600 dark:text-emerald-300'
-            : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-slate-200'
+            : 'text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-white/6 dark:hover:text-slate-200'
         }`}
       >
         {copied ? <Check size={13} /> : <Copy size={13} />}

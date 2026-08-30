@@ -82,7 +82,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.tabs.compare': 'Compare',
     'panel.tabs.aria': 'Parcel panel sections',
     'panel.market.empty': 'No municipality for this parcel, so there are no market figures to show.',
-    'panel.massing.empty': 'No parcel outline for this selection, so the massing model cannot be built.',
+    'panel.massing.empty': 'No parcel outline-solid for this selection, so the massing model cannot be built.',
     'panel.compare.heading': 'Nearby comparables (for sale)',
     'panel.compare.basis_note':
       'Prices are per m² of living space, not of land. Use them to rank neighbours, not to value this parcel.',

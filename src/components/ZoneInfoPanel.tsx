@@ -165,7 +165,7 @@ const ZoneInfoSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
       <div
         key={i}
         className={`rounded-lg px-4 py-3.5 ${
-          darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+          darkMode ? 'bg-white/[0.035] ring-1 ring-white/6' : 'bg-slate-50 ring-1 ring-slate-200/80'
         } space-y-2`}
       >
         <Skeleton dark={darkMode} width={80} height={10} radius={4} delay={`${i * 60}ms`} />
@@ -200,7 +200,7 @@ const RatioCard = ({
 }) => {
   const { t } = useI18n();
   const cardClass = `rounded-lg px-4 py-3.5 ${
-    darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+    darkMode ? 'bg-white/[0.035] ring-1 ring-white/6' : 'bg-slate-50 ring-1 ring-slate-200/80'
   }`;
 
   if (ratio == null) {
@@ -252,7 +252,7 @@ const FreeVolumeCard = ({
 }) => {
   const { t } = useI18n();
   const cardClass = `rounded-lg px-4 py-3.5 ${
-    darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+    darkMode ? 'bg-white/[0.035] ring-1 ring-white/6' : 'bg-slate-50 ring-1 ring-slate-200/80'
   }`;
 
   if (freeV == null) {

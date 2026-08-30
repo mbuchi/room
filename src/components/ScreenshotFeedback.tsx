@@ -11,16 +11,16 @@ interface ScreenshotFeedbackProps {
 // eslint-disable-next-line react-refresh/only-export-components
 export function createScreenshotLoadingFeedback(label: string) {
   return (
-    <div data-screenshot-ignore="true" className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center">
+    <div data-screenshot-ignore="true" className="fixed inset-0 z-200 pointer-events-none flex items-center justify-center">
       <LoadingFeedback
         label={label}
         skeleton={
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto flex items-center justify-center" role="status" aria-live="polite">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs pointer-events-auto flex items-center justify-center" role="status" aria-live="polite">
             <div className="flex flex-col items-center gap-3 px-6 py-5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700/60 shadow-2xl">
               <div className="w-28 space-y-2" aria-hidden="true">
                 <div className="h-16 w-full rounded-lg bg-slate-200/80 dark:bg-[#161922] animate-pulse" />
-                <div className="h-2.5 w-3/4 rounded bg-slate-200/80 dark:bg-[#161922] animate-pulse [animation-delay:150ms]" />
-                <div className="h-2.5 w-1/2 rounded bg-slate-200/80 dark:bg-[#161922] animate-pulse [animation-delay:300ms]" />
+                <div className="h-2.5 w-3/4 rounded-sm bg-slate-200/80 dark:bg-[#161922] animate-pulse [animation-delay:150ms]" />
+                <div className="h-2.5 w-1/2 rounded-sm bg-slate-200/80 dark:bg-[#161922] animate-pulse [animation-delay:300ms]" />
               </div>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</span>
             </div>
@@ -46,7 +46,7 @@ export default function ScreenshotFeedback({ isCapturing, toast, onDismiss }: Sc
 
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-[120] max-w-sm rounded-lg shadow-2xl px-4 py-3 text-sm flex items-start gap-3 ${
+          className={`fixed bottom-6 right-6 z-120 max-w-sm rounded-lg shadow-2xl px-4 py-3 text-sm flex items-start gap-3 ${
             toast.kind === 'success'
               ? 'bg-emerald-950/95 border border-emerald-700/70 text-emerald-100'
               : 'bg-red-950/95 border border-red-700/70 text-red-100'

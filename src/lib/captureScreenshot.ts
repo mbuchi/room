@@ -29,12 +29,12 @@ export async function captureBrowserScreenshot(
   const { type = 'image/webp', quality = 0.85 } = options;
   // Lazy: html-to-image is only needed the moment the user hits the capture
   // button — a dynamic import keeps it out of the initial bundle. Loaded
-  // BEFORE the shadow/motion freeze below so a slow fetch never leaves the
+  // BEFORE the shadow freeze below so a slow fetch never leaves the
   // live UI in its frozen capture state.
   const { toCanvas } = await import('html-to-image');
   const target = document.documentElement;
   // Blank the box-shadow of every [data-screenshot-deshadow] element for the
-  // duration of the capture so the parcel panel's drop-shadow doesn't bleed a
+  // duration of the capture so the parcel panel's drop-shadow-sm doesn't bleed a
   // faint strip onto the map in the saved image. restoreShadows() reinstates
   // the live UI once the canvas is rasterised — wrapped in try/finally so the
   // restore runs even if encoding throws.

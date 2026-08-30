@@ -302,10 +302,10 @@ const RoomRangeBars = ({
     <div>
       {/* Column legend (once) — labels the three figures spelled out below. */}
       <div className="flex items-center gap-2 text-[9px] uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">
-        <span className="w-12 flex-shrink-0" aria-hidden="true" />
-        <span className="w-14 flex-shrink-0 text-right">{t('market.legend.min')}</span>
+        <span className="w-12 shrink-0" aria-hidden="true" />
+        <span className="w-14 shrink-0 text-right">{t('market.legend.min')}</span>
         <span className="flex-1 text-center">{t('market.legend.median')}</span>
-        <span className="w-14 flex-shrink-0">{t('market.legend.max')}</span>
+        <span className="w-14 shrink-0">{t('market.legend.max')}</span>
       </div>
 
       <div className="space-y-1">
@@ -318,10 +318,10 @@ const RoomRangeBars = ({
           return (
             <div key={key} className="pt-4">{/* reserve space above the bar for the floating median label */}
               <div className="flex items-center gap-2">
-                <span className="w-12 flex-shrink-0 text-[11px] font-medium text-gray-600 dark:text-gray-300">
+                <span className="w-12 shrink-0 text-[11px] font-medium text-gray-600 dark:text-gray-300">
                   {t(`market.room.${key}`)}
                 </span>
-                <span className="w-14 flex-shrink-0 text-right text-[10px] tabular-nums text-gray-400 dark:text-gray-500">
+                <span className="w-14 shrink-0 text-right text-[10px] tabular-nums text-gray-400 dark:text-gray-500">
                   {fmt(low)}
                 </span>
                 <div className="relative h-3 flex-1 rounded-full bg-gray-200/70 dark:bg-gray-800/70">
@@ -342,7 +342,7 @@ const RoomRangeBars = ({
                     style={{ left: `calc(${tickPct}% - 1px)` }}
                   />
                 </div>
-                <span className="w-14 flex-shrink-0 text-[10px] tabular-nums text-gray-400 dark:text-gray-500">
+                <span className="w-14 shrink-0 text-[10px] tabular-nums text-gray-400 dark:text-gray-500">
                   {fmt(high)}
                 </span>
               </div>
@@ -400,18 +400,18 @@ const Section = ({
 }) => (
   <div
     className={`rounded-lg px-4 py-3.5 ${
-      darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+      darkMode ? 'bg-white/[0.035] ring-1 ring-white/6' : 'bg-slate-50 ring-1 ring-slate-200/80'
     }`}
   >
     <div className="flex items-center justify-between gap-2 mb-2">
       <div className="flex items-center gap-1.5 min-w-0">
-        <TrendingUp size={12} className="text-indigo-500/80 dark:text-indigo-400/80 flex-shrink-0" />
+        <TrendingUp size={12} className="text-indigo-500/80 dark:text-indigo-400/80 shrink-0" />
         <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">
           {title}
         </span>
       </div>
       {subtitle && (
-        <span className="text-[10px] text-gray-400 dark:text-gray-400 tabular-nums flex-shrink-0">
+        <span className="text-[10px] text-gray-400 dark:text-gray-400 tabular-nums shrink-0">
           {subtitle}
         </span>
       )}

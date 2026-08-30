@@ -94,7 +94,7 @@ const BoxplotDensity = ({
     return (
       <div
         className={`rounded-lg px-4 py-3.5 ${
-          darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+          darkMode ? 'bg-white/[0.035] ring-1 ring-white/6' : 'bg-slate-50 ring-1 ring-slate-200/80'
         }`}
       >
         <h4 className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
@@ -110,7 +110,7 @@ const BoxplotDensity = ({
   return (
     <div
       className={`rounded-lg px-4 py-3.5 ${
-        darkMode ? 'bg-white/[0.035] ring-1 ring-white/[0.06]' : 'bg-slate-50 ring-1 ring-slate-200/80'
+        darkMode ? 'bg-white/[0.035] ring-1 ring-white/6' : 'bg-slate-50 ring-1 ring-slate-200/80'
       }`}
     >
       <div className="flex items-baseline justify-between mb-2">

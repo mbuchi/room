@@ -1558,7 +1558,7 @@ const MapView = () => {
         const { level: _gl } = { level: glassLevel };
         const cardSurface = glassOn
           ? 'glass-control border'
-          : 'shadow-lg bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200 dark:border-gray-700/50';
+          : 'shadow-lg bg-white/90 dark:bg-gray-900/90 backdrop-blur-xs border border-gray-200 dark:border-gray-700/50';
 
         // fullWidth = embedded in the mobile Map-tools sheet, where every card
         // stacks always-visible and full-width (suite mobile standard); false =
@@ -1615,7 +1615,7 @@ const MapView = () => {
                     aria-pressed={active}
                     className={`w-full whitespace-nowrap px-1.5 py-1.5 rounded-md text-[11px] font-semibold transition-all ${
                       active
-                        ? 'bg-white dark:bg-gray-900 text-red-600 dark:text-red-400 shadow-sm'
+                        ? 'bg-white dark:bg-gray-900 text-red-600 dark:text-red-400 shadow-xs'
                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                     }`}
                   >
@@ -1641,7 +1641,7 @@ const MapView = () => {
                (the shared launcher adds 20px on top: right = 456px, clear of both
                the pane and the zoom stack).
                `!` beats .aireon-map-control-right{right:var(--aireon-map-control-inset)}. */
-            desktopClassName={`transition-[right] duration-300 ${selectedParcel ? '!right-[436px]' : ''}`}
+            desktopClassName={`transition-[right] duration-300 ${selectedParcel ? 'right-[436px]!' : ''}`}
           >
             {isMobile ? (
               /* Suite mobile standard: no tabs — every control card stacks
@@ -1676,7 +1676,7 @@ const MapView = () => {
       {selectedParcel && (
         <div
           // The non-glass panel surface carries a large `shadow-2xl`; on desktop
-          // it's a right rail whose drop-shadow bleeds a faint vertical strip onto
+          // it's a right rail whose drop-shadow-sm bleeds a faint vertical strip onto
           // the map in saved images. data-screenshot-deshadow blanks that shadow
           // only during capture (live UI unchanged) via suppressCaptureShadows().
           data-screenshot-deshadow=""
@@ -1685,8 +1685,8 @@ const MapView = () => {
           // querySelector, so space-separated multi-values never match.
           data-tour="zone-info-panel"
           className={`z-30 flex flex-col ${glassOn ? 'glass-surface' : 'bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl shadow-2xl'}
-            fixed inset-x-0 bottom-0 h-[var(--sheet-h)] rounded-t-2xl border-t border-gray-200 dark:border-gray-800/60 animate-slide-up pb-[env(safe-area-inset-bottom)]
-            md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-[var(--panel-w)] md:animate-slide-in-right md:pb-0`}
+            fixed inset-x-0 bottom-0 h-(--sheet-h) rounded-t-2xl border-t border-gray-200 dark:border-gray-800/60 animate-slide-up pb-[env(safe-area-inset-bottom)]
+            md:absolute md:top-14 md:right-0 md:bottom-0 md:inset-x-auto md:h-auto md:max-h-none md:rounded-none md:border-t-0 md:border-l md:w-(--panel-w) md:animate-slide-in-right md:pb-0`}
           style={
             {
               // Expanded = FULL HEIGHT (suite mobile standard): from just under
@@ -1717,7 +1717,7 @@ const MapView = () => {
             onTouchEnd={onSheetTouchEnd}
             onTouchCancel={onSheetTouchEnd}
             aria-label={sheetExpanded ? t('panel.sheet.collapse') : t('panel.sheet.expand')}
-            className="md:hidden relative flex-shrink-0 w-full flex items-center justify-center pt-2.5 pb-1.5 touch-none group"
+            className="md:hidden relative shrink-0 w-full flex items-center justify-center pt-2.5 pb-1.5 touch-none group"
           >
             <span aria-hidden="true" className="absolute inset-x-0 -top-3.5 bottom-0" />
             <span className="h-1.5 w-10 rounded-full bg-gray-300 dark:bg-gray-700 group-hover:bg-gray-400 dark:group-hover:bg-gray-600 group-active:bg-gray-500 transition-colors" />
@@ -1788,7 +1788,7 @@ const MapView = () => {
             // divide it evenly — and only grows past the container when the
             // labels genuinely cannot fit. Scrollbar hidden so the pane never
             // shows two.
-            className="flex-shrink-0 border-b border-gray-200 dark:border-gray-800/60 px-5 py-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="shrink-0 border-b border-gray-200 dark:border-gray-800/60 px-5 py-2 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden"
             data-tour="zone-charts"
           >
             <SegmentedTabs<PanelTab>

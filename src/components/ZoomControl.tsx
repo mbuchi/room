@@ -54,7 +54,7 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null,
   // Left-pinned controls sit on the opposite edge from the right-side info
   // panel, so they need no panel-clearing offset. Right-pinned controls keep
   // the `--md-right` shift behaviour described above.
-  const edgeClass = isLeft ? 'left-4' : 'right-4 md:[right:var(--md-right,1rem)]';
+  const edgeClass = isLeft ? 'left-4' : 'right-4 md:right-(--md-right,1rem)';
 
   return (
     <div
@@ -62,7 +62,7 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null,
       className={`absolute z-10 ${edgeClass} ${className}`}
       style={offsetStyle}
     >
-      <div className={`flex flex-col rounded-xl ${glassOn ? '' : 'shadow-xl backdrop-blur-sm'} border overflow-hidden ${panel}`}>
+      <div className={`flex flex-col rounded-xl ${glassOn ? '' : 'shadow-xl backdrop-blur-xs'} border overflow-hidden ${panel}`}>
         {onToggle3D && (
           <>
             <button
@@ -71,7 +71,7 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null,
               aria-label={t('panel.zoom.toggle_3d')}
               aria-pressed={is3D}
               title={t('panel.zoom.toggle_3d')}
-              className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${
+              className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${
                 is3D
                   ? isDarkMode
                     ? 'bg-red-500/20 text-red-400'
@@ -84,15 +84,15 @@ const ZoomControl = ({ getMap, isDarkMode, className = '', rightOffsetPx = null,
             <div className={`border-t ${divider}`} />
           </>
         )}
-        <button type="button" onClick={handleZoomIn} aria-label={t('panel.zoom.in')} title={t('panel.zoom.in')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${hover}`}>
+        <button type="button" onClick={handleZoomIn} aria-label={t('panel.zoom.in')} title={t('panel.zoom.in')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${hover}`}>
           <Plus size={16} strokeWidth={2.25} />
         </button>
         <div className={`border-t ${divider}`} />
-        <button type="button" onClick={handleZoomOut} aria-label={t('panel.zoom.out')} title={t('panel.zoom.out')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${hover}`}>
+        <button type="button" onClick={handleZoomOut} aria-label={t('panel.zoom.out')} title={t('panel.zoom.out')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${hover}`}>
           <Minus size={16} strokeWidth={2.25} />
         </button>
         <div className={`border-t ${divider}`} />
-        <button type="button" onClick={handleResetNorth} aria-label={t('panel.zoom.reset_north')} title={t('panel.zoom.reset_north')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${hover}`}>
+        <button type="button" onClick={handleResetNorth} aria-label={t('panel.zoom.reset_north')} title={t('panel.zoom.reset_north')} className={`w-9 h-9 flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 ${hover}`}>
           <Compass size={16} strokeWidth={2} />
         </button>
       </div>

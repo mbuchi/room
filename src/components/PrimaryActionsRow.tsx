@@ -33,7 +33,7 @@ const PrimaryActionsRow = ({
       <button
         type="button"
         onClick={onAskClaire}
-        className="w-full flex items-center justify-center gap-2 min-h-11 rounded-xl px-4 py-2.5 text-sm font-semibold bg-slate-100 text-slate-800 ring-1 ring-slate-200 hover:bg-slate-200/70 dark:bg-white/[0.05] dark:text-slate-200 dark:ring-white/[0.07] dark:hover:bg-white/[0.08] transition active:scale-[0.99]"
+        className="w-full flex items-center justify-center gap-2 min-h-11 rounded-xl px-4 py-2.5 text-sm font-semibold bg-slate-100 text-slate-800 ring-1 ring-slate-200 hover:bg-slate-200/70 dark:bg-white/5 dark:text-slate-200 dark:ring-white/[0.07] dark:hover:bg-white/8 transition active:scale-[0.99]"
       >
         <Sparkles size={16} aria-hidden="true" className="shrink-0 text-amber-500" />
         <span className="truncate">{t('panel.info.ask_claire')}</span>
