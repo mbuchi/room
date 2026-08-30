@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.41.0',
+    date: 'August 30, 2026',
+    codename: 'The map on older browsers',
+    summary: 'The map engine now loads by direct URL from the shared Aireon asset host, so the map works on older Safari and Firefox versions that previously showed nothing at all.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Package,
+        text: 'room loads its map engine from the shared Aireon asset host, which keeps it out of the app download and lets your browser reuse one copy across every Aireon app. Until now that reference relied on a browser feature called an import map, which Safari supports only from version 16.4 and Firefox from version 108. On slightly older versions the reference could not be resolved, so the map area stayed empty while the rest of room carried on working normally. The address of the engine is now written directly into the app when it is built, so no import map is involved and the map loads on every browser room itself supports.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.40.0',
     date: 'August 29, 2026',
     codename: 'Bigger targets, quieter reports',

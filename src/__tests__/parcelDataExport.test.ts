@@ -194,8 +194,23 @@ describe('parcel data export', () => {
     // route through it - src/lib/mapStartup.ts is room's own local guard, shipped
     // in 0.38.1 and still the code MapView uses - so that part is a no-op here
     // and is deliberately absent from the 0.40.0 release note.
-    // Resolved commit d7eb0e3804f3eda69716c8eb97ee09f95fcefd84.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('d7eb0e3804f3eda69716c8eb97ee09f95fcefd84');
+    //
+    // v1.203.2 takes the MapLibre engine off the import map. v1.192.0 shipped
+    // it as `rollupOptions.external` plus an injected
+    // `<script type="importmap">`, but import maps need Safari 16.4+ /
+    // Firefox 108+, ABOVE room's own build.target floor (safari16 /
+    // firefox104), so on Safari 16.0-16.3 the bare `maplibre-gl` specifier did
+    // not resolve and the map died while the rest of the app kept working -
+    // the same user-visible outage as Bug Tracker #1158, which that target list
+    // exists to prevent. aireonHtmlPlugin now resolves the exact bare id to the
+    // absolute static.aireon.ch URL at build time and injects no import map, so
+    // the engine needs only cross-origin dynamic import (Safari 11+) and the
+    // map honours build.target again. v1.203.2 also stops the build preflight
+    // reading a 403 as a missing asset: static.aireon.ch sits behind Vercel's
+    // platform challenge, which 403s Node's undici fetch while serving curl and
+    // node:https normally, so only a 404 is fatal now.
+    // Resolved commit a873402a51c86ef39bb72c390a2c2d3eb01f6680.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('a873402a51c86ef39bb72c390a2c2d3eb01f6680');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
