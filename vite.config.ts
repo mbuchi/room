@@ -49,14 +49,21 @@ export default defineConfig({
     // the output transform, and that is where 6 of those static blocks lived.
     // Dropping the literal list would put them straight back.
     //
-    // ⚠ AND THE LIST IS AUTHORITATIVE AGAIN as of v0.41.0. The engine was
-    // briefly reached through an injected `<script type="importmap">`, which
-    // needs Safari 16.4+ / Firefox 108+ and therefore put the map's real floor
-    // ABOVE this list — the #1158 outage all over again, for the same browsers.
-    // aireonHtmlPlugin now bakes the absolute engine URL into the chunk at
-    // build time and injects no import map, so loading it needs only
-    // cross-origin dynamic import (Safari 11+) and the map is back to honouring
-    // exactly the list below, same as the app shell.
+    // ⚠ THE LIST DOES NOT COVER THE ENGINE, AND MUST NOT BE READ AS IF IT DID.
+    // Two separate things had to be fixed for the map to reach this list's
+    // floor, and neither of them is this target. First, HOW the engine is
+    // reached: v0.37.0 loaded it through an injected `<script type="importmap">`,
+    // which needs Safari 16.4+ / Firefox 108+ and therefore put the map's real
+    // floor ABOVE this list. v0.41.0 replaced that with an absolute engine URL
+    // baked into the chunk at build time, so loading needs only cross-origin
+    // dynamic import (Safari 11+). Second, WHAT the host serves: the stock
+    // upstream file is ES2022 and carries the very class static blocks this
+    // list exists to lower, and being external it never passes through Vite's
+    // output transform, so the map still died on Safari 16.0-16.3 with the
+    // #1158 SyntaxError. @aireon/shared v1.205.0 (v0.41.1) points at
+    // static.aireon.ch's `baseline/` copy, the same upstream version lowered BY
+    // THE HOST to exactly this browser list. The engine now matches the list
+    // because the host lowers it, never because this target does.
     target: ['chrome107', 'edge107', 'firefox104', 'safari16'],
     rollupOptions: {
       output: {
@@ -72,8 +79,8 @@ export default defineConfig({
         //
         // ⚠ THERE IS DELIBERATELY NO `maplibre` BUCKET (removed v0.37.0).
         // aireonHtmlPlugin resolves the exact bare id `maplibre-gl` to
-        // https://static.aireon.ch/maplibre-gl@<version>/maplibre-gl.mjs at
-        // build time and marks it external, so the engine never enters the
+        // https://static.aireon.ch/maplibre-gl@<version>/baseline/maplibre-gl.mjs
+        // at build time and marks it external, so the engine never enters the
         // bundle graph and there is nothing left to bucket. (No import map is
         // involved; see the build.target note above for why that shape went.)
         // The only id still matching `node_modules/maplibre-gl/` is the

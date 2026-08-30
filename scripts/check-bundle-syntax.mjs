@@ -18,12 +18,15 @@
  * and the visitor gets the map fallback on a page that otherwise works.
  *
  * ⚠ SCOPE NARROWED in v0.37.0, do not read a green run as more than it is. The
- * ENGINE is now external — an import map resolves `maplibre-gl` to
- * static.aireon.ch and Vite never sees those bytes, so this guard cannot speak
- * for them (the browser gets MapLibre's own published ESM either way, and the
- * import map already requires Safari 16.4+, above the static-block floor). What
- * this still guards is everything Vite DOES emit, which includes the
- * `?worker&url` worker asset — 6 of the original static blocks lived there.
+ * ENGINE is now external: aireonHtmlPlugin bakes an absolute static.aireon.ch
+ * URL into the chunk at build time (no import map since v0.41.0), so Vite never
+ * sees those bytes and this guard cannot speak for them. That gap was real and
+ * had to be closed at the host instead: as of @aireon/shared v1.205.0 the URL
+ * points at the `baseline/` copy, the same upstream version lowered BY THE HOST
+ * to this same browser list, because the stock published ESM does carry static
+ * blocks. What this script still guards is everything Vite DOES emit, which
+ * includes the `?worker&url` worker asset: 6 of the original static blocks
+ * lived there.
  *
  * Fails (exit 1) if a static block survives into any emitted chunk. Requires a
  * build first. Run: `npm run build && npm run test:bundle-syntax`.

@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.41.1',
+    date: 'August 30, 2026',
+    codename: 'The map on Safari 16.0 to 16.3',
+    summary: 'The shared map engine is now served in a form older Safari and Firefox versions can read, so the map appears on browsers that previously showed an empty space where it should be.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Package,
+        text: 'Version 0.41.0 stopped the map engine from depending on a browser feature called an import map, which brought the map back on Firefox 104 to 107. Safari 16.0 to 16.3 still showed nothing, for a different reason: the engine file published on the shared Aireon asset host is written in a newer form of JavaScript that those Safari versions cannot read at all, so the browser stopped before the map could start. While the engine was still packaged into the app, the build step quietly translated it; once it moved to the asset host, nothing did. The host now also publishes a translated copy of the same engine, and room points at that copy, so the map appears on every browser room itself supports. The translated file is about 1.6% larger, which is not noticeable in practice.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.41.0',
     date: 'August 30, 2026',
     codename: 'The map on older browsers',

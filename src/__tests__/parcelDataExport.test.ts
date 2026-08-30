@@ -204,13 +204,26 @@ describe('parcel data export', () => {
     // the same user-visible outage as Bug Tracker #1158, which that target list
     // exists to prevent. aireonHtmlPlugin now resolves the exact bare id to the
     // absolute static.aireon.ch URL at build time and injects no import map, so
-    // the engine needs only cross-origin dynamic import (Safari 11+) and the
-    // map honours build.target again. v1.203.2 also stops the build preflight
-    // reading a 403 as a missing asset: static.aireon.ch sits behind Vercel's
-    // platform challenge, which 403s Node's undici fetch while serving curl and
-    // node:https normally, so only a 404 is fatal now.
-    // Resolved commit a873402a51c86ef39bb72c390a2c2d3eb01f6680.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('a873402a51c86ef39bb72c390a2c2d3eb01f6680');
+    // the engine needs only cross-origin dynamic import (Safari 11+). v1.203.2
+    // also stops the build preflight reading a 403 as a missing asset:
+    // static.aireon.ch sits behind Vercel's platform challenge, which 403s
+    // Node's undici fetch while serving curl and node:https normally, so only a
+    // 404 is fatal now.
+    //
+    // v1.205.0 serves the BASELINE engine. Removing the import map fixed
+    // Firefox 104-107 but not Safari 16.0-16.3: the file itself is ES2022 and
+    // carries class static blocks, which Safari < 16.4, Chrome < 94 and
+    // Firefox < 93 cannot PARSE, so the failure only changed shape from
+    // "cannot resolve" to SyntaxError - Bug Tracker #1158 a third time. room's
+    // own build.target CANNOT fix that: the engine is external, so vite never
+    // transforms those bytes (the target still lowers the locally emitted
+    // worker asset). v1.205.0 points the resolver at the host's `baseline/`
+    // copy, the same upstream version lowered BY THE HOST to
+    // safari16,firefox104,chrome107,edge107 - the same list, applied at the
+    // only place that can apply it - at +1.6% gzip. A repin below v1.205.0
+    // serves the un-lowered engine again.
+    // Resolved commit 16e60171d4515ca594153c212adccc506895aa8c.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('16e60171d4515ca594153c212adccc506895aa8c');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
