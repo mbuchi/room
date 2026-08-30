@@ -1676,7 +1676,7 @@ const MapView = () => {
       {selectedParcel && (
         <div
           // The non-glass panel surface carries a large `shadow-2xl`; on desktop
-          // it's a right rail whose drop-shadow-sm bleeds a faint vertical strip onto
+          // it's a right rail whose drop-shadow bleeds a faint vertical strip onto
           // the map in saved images. data-screenshot-deshadow blanks that shadow
           // only during capture (live UI unchanged) via suppressCaptureShadows().
           data-screenshot-deshadow=""
