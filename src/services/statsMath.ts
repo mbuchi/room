@@ -42,6 +42,25 @@ export function percentileOfValue(
   return Math.round((lo / sorted.length) * 100);
 }
 
+/**
+ * Linear-interpolation quantile (the "R type 7" / `numpy.percentile` default),
+ * with `p` in 0..1. Returns `null` for an empty or all-non-finite input.
+ *
+ * This is the convention RES itself uses: computed over the per-parcel ratioV
+ * that `cohortStats.parcelRatioV` reconstructs, it reproduces the p25 / p50 /
+ * p75 / p95 in the payload's own `summary` block to within the float32
+ * rounding of the wire format. Anything nearest-rank drifts off it.
+ */
+export function quantile(values: number[], p: number): number | null {
+  const sorted = values.filter((n) => Number.isFinite(n)).sort((a, b) => a - b);
+  if (!sorted.length) return null;
+  const clamped = Math.min(1, Math.max(0, p));
+  const idx = (sorted.length - 1) * clamped;
+  const lo = Math.floor(idx);
+  const hi = Math.min(lo + 1, sorted.length - 1);
+  return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+}
+
 export interface LinearRegressionResult {
   slope: number;
   intercept: number;

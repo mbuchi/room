@@ -22,6 +22,8 @@ interface VolumeVsAreaScatterProps {
 }
 
 const CHART_HEIGHT = 240;
+/** Slack inside the SVG so an edge tick label is never clipped. */
+const EDGE_MARGIN = 10;
 
 /**
  * Scatter of parcel area (x) vs. built volume (y) across the whole zone,
@@ -95,9 +97,11 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid, darkMode = true }: Volume
         </h4>
         <span className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">{t('panel.zone.parcels_suffix', { count: points.length })}</span>
       </div>
-      <div style={{ width: '100%', height: CHART_HEIGHT }}>
+      {/* `-mx-2` bleeds the plot 8px into the card's own padding on each
+          side, so the edge margins below cost nothing in plot width. */}
+      <div className="-mx-2" style={{ height: CHART_HEIGHT }}>
         <ResponsiveContainer>
-          <ComposedChart margin={{ top: 8, right: 14, bottom: 22, left: 8 }}>
+          <ComposedChart margin={{ top: 8, right: EDGE_MARGIN, bottom: 22, left: 0 }}>
             <CartesianGrid stroke={gridStroke} strokeDasharray="2 4" />
             <XAxis
               dataKey="x"
@@ -125,7 +129,9 @@ const VolumeVsAreaScatter = ({ parcels, selectedEgrid, darkMode = true }: Volume
               tick={{ fontSize: 10, fill: tickFill }}
               axisLine={{ stroke: gridStroke }}
               tickLine={{ stroke: gridStroke }}
-              width={72}
+              // 72 wrapped the widest tick ("10000 m³") onto a second line —
+              // recharts word-wraps a tick that does not fit its axis band.
+              width={80}
             />
             <ZAxis range={[18, 18]} />
             <Tooltip

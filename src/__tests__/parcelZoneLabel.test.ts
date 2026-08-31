@@ -61,7 +61,9 @@ describe('parcel zone label — display goes through the shared rule', () => {
     // No resolver, no raw federal column, no parcel record and no `.zone`
     // property read (the `.zone.` in the `panel.zone.*` i18n keys is not one).
     expect(code(dropdown)).not.toMatch(/resolveZone|cz_harmonized|parcelData|\.zone\b(?!\.)/);
-    // Its eyebrow is the honest cohort label, translated in all four locales.
+    // The honest cohort label is still on the control — as its accessible
+    // name/tooltip since the visible eyebrow went (it cost a row for words
+    // the reader only needs once), translated in all four locales.
     expect(dropdown).toContain("t('panel.zone.zoning_category')");
     expect(i18n).toContain("'panel.zone.zoning_category': 'Municipal zone type'");
     expect(i18n).toContain("'panel.zone.zoning_category': 'Kommunaler Zonentyp'");

@@ -67,6 +67,8 @@ const BOX_TOP = 12;
 const BOX_HEIGHT = 18;
 /** Tick line + 10px label, with nothing to spare (recharts defaults to 30). */
 const AXIS_HEIGHT = 20;
+/** Slack inside the SVG so an edge tick label / marker is never clipped. */
+const EDGE_MARGIN = 10;
 
 /**
  * Boxplot + density curve in one panel. Density area sits underneath, with
@@ -109,7 +111,20 @@ const BoxplotDensity = ({
     );
   }
 
-  const xDomain: [number, number] = [kde[0].x, kde[kde.length - 1].x];
+  // The KDE grid alone would put the curve's own ends on the plot edges and
+  // leave a "You" marker outside the sampled range outside the SVG entirely
+  // (`ifOverflow="extendDomain"` does not extend an explicit domain). Widen
+  // to cover the marker, then pad 2% so nothing sits on the boundary.
+  const xDomain: [number, number] = (() => {
+    let lo = kde[0].x;
+    let hi = kde[kde.length - 1].x;
+    if (selectedValue != null && Number.isFinite(selectedValue)) {
+      lo = Math.min(lo, selectedValue);
+      hi = Math.max(hi, selectedValue);
+    }
+    const pad = (hi - lo || 1) * 0.02;
+    return [lo - pad, hi + pad];
+  })();
 
   return (
     <div
@@ -127,11 +142,13 @@ const BoxplotDensity = ({
           </span>
         )}
       </div>
-      <div style={{ width: '100%', height: CHART_HEIGHT }}>
+      {/* `-mx-2` bleeds the plot 8px into the card's own padding on each
+          side, so the edge margins below cost nothing in plot width. */}
+      <div className="-mx-2" style={{ height: CHART_HEIGHT }}>
         <ResponsiveContainer>
           <ComposedChart
             data={kde}
-            margin={{ top: BOX_TOP + BOX_HEIGHT + 6, right: 10, bottom: 0, left: 0 }}
+            margin={{ top: BOX_TOP + BOX_HEIGHT + 6, right: EDGE_MARGIN, bottom: 0, left: EDGE_MARGIN }}
           >
             <defs>
               <linearGradient id={`kde-${title}`} x1="0" y1="0" x2="0" y2="1">

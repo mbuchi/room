@@ -11,6 +11,7 @@ import {
 } from '../services/zoneStatsService';
 import type { ParcelData } from '../services/parcelDataService';
 import { percentileOfValue } from '../services/statsMath';
+import { ratioVHeadline } from '../services/cohortStats';
 import ZoneSelectorDropdown from './ZoneSelectorDropdown';
 import PercentileGauge from './charts/PercentileGauge';
 import BoxplotDensity from './charts/BoxplotDensity';
@@ -46,13 +47,20 @@ interface MetricSpec {
   unit?: string;
 }
 
+/**
+ * The metric histograms, in the order they appear — owner-specified, and
+ * shorter than the metric list RES ships.
+ *
+ * ratioV is NOT here: BoxplotDensity plots the same distribution one card up,
+ * with a boxplot and a median on top of it, so a bar version of it directly
+ * below was the same data twice. `gfz` and `free_v` are hidden for now (owner
+ * call, 0.44.0) — RES still returns both and `stats.distributions` still
+ * carries them, so restoring either is one line here.
+ */
 const METRICS: MetricSpec[] = [
-  { key: 'ratio_v', titleKey: 'panel.zone.metric.ratio_v.title' },
-  { key: 'free_v', titleKey: 'panel.zone.metric.free_v.title', unit: 'm³' },
-  { key: 'ratio_s', titleKey: 'panel.zone.metric.ratio_s.title' },
-  { key: 'gfz', titleKey: 'panel.zone.metric.gfz.title' },
   { key: 'bldg_height_m', titleKey: 'panel.zone.metric.bldg_height.title', unit: 'm' },
   { key: 'bldg_floors_n', titleKey: 'panel.zone.metric.bldg_floors.title' },
+  { key: 'ratio_s', titleKey: 'panel.zone.metric.ratio_s.title' },
 ];
 
 /**
@@ -172,32 +180,57 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
     return list;
   }, [stats, otherZones]);
 
-  // Headline cohort figures for the ratioV distribution — the median and the
-  // mean of the zone the charts below are computed over. They used to exist
-  // only as the 10px footnote under the boxplot ("n=125 · p50 94.70 · mean
-  // 85.29"), which is the last place a reader looks and the first thing they
-  // ask for: "what is normal HERE?". They are now data pills at the top of the
-  // tab (DATA_PILLS_STANDARD.md) — bare numbers, so each carries a visible
-  // `label` prefix (R4) and a `title` spelling out what it measures. Built
-  // inline, like ZoneInfoPanel's pill rows: two `toFixed` calls per render.
-  const ratioVSummary = stats?.summary.ratio_v;
-  const summaryPills: DataPillItem[] =
-    ratioVSummary && ratioVSummary.n
-      ? [
-          {
-            key: 'p50',
-            label: t('panel.zone.summary.p50_label'),
-            value: formatSummaryValue(ratioVSummary.p50),
-            title: t('panel.zone.summary.p50_title'),
-          },
-          {
-            key: 'mean',
-            label: t('panel.zone.summary.mean_label'),
-            value: formatSummaryValue(ratioVSummary.mean),
-            title: t('panel.zone.summary.mean_title'),
-          },
-        ]
-      : [];
+  // Headline ratioV figures for the cohort the tab leads with — the parcels
+  // built in the LAST FIVE YEARS, the same window the utilisation-over-time
+  // chart ends on. Reading them off `summary.ratio_v` (as the pills did until
+  // 0.45.0) described the whole building stock instead, decades of it: the
+  // pills said 79.50 / 83.48 while the chart's last point sat at 121 for the
+  // same zone. `ratioVHeadline` recovers the cohort's percentiles from
+  // `parcels[]` and falls back to the whole zone, labelled as such, when the
+  // payload cannot support the window — see services/cohortStats.ts.
+  //
+  // Pills per DATA_PILLS_STANDARD.md: bare numbers, so each carries a visible
+  // `label` prefix (R4) and a `title`. The scope pill spells the window out,
+  // because the whole point of this change is that a reader can tell WHICH
+  // parcels a number is about.
+  const headline = useMemo(() => (stats ? ratioVHeadline(stats) : null), [stats]);
+  const summaryPills: DataPillItem[] = useMemo(() => {
+    if (!headline) return [];
+    // Window only — no "· n=57". The count is what pushed this pill onto a
+    // second row, and it is context for the context: it rides the tooltip.
+    const scopeText = t(
+      headline.scope === 'last5' ? 'panel.zone.summary.scope_last5' : 'panel.zone.summary.scope_all',
+    );
+    const withScope = (base: string) => `${t(base)} — ${scopeText}`;
+    const pills: DataPillItem[] = [
+      {
+        key: 'mean',
+        label: t('panel.zone.summary.mean_label'),
+        value: formatSummaryValue(headline.mean),
+        title: withScope('panel.zone.summary.mean_title'),
+      },
+      {
+        key: 'p50',
+        label: t('panel.zone.summary.p50_label'),
+        value: formatSummaryValue(headline.p50),
+        title: withScope('panel.zone.summary.p50_title'),
+      },
+    ];
+    if (headline.p80 != null) {
+      pills.push({
+        key: 'p80',
+        label: t('panel.zone.summary.p80_label'),
+        value: formatSummaryValue(headline.p80),
+        title: withScope('panel.zone.summary.p80_title'),
+      });
+    }
+    pills.push({
+      key: 'scope',
+      value: scopeText,
+      title: t('panel.zone.summary.scope_title', { n: headline.n }),
+    });
+    return pills;
+  }, [headline, t]);
 
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full overflow-hidden">
@@ -247,7 +280,14 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
 
         {stats && (
           <>
-            <PercentileGauge percentile={percentile} darkMode={darkMode} />
+            {/* Owner-specified order (0.44.0): the zone's trend line first,
+                then the ratioV distribution the whole tab is about, then this
+                parcel's place in it, then the building-shape histograms, and
+                the scatter last. Everything is ONE column at full panel
+                width — the histograms used to pair up two-per-row from `md`
+                on, which in a 460px rail gave each ~210px, too narrow to read
+                a shape off. */}
+            <UtilizationOverTime ageCohorts={stats.age_cohorts} darkMode={darkMode} />
             <BoxplotDensity
               title={t('panel.zone.boxplot_title')}
               distribution={stats.distributions.ratio_v ?? []}
@@ -255,12 +295,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
               selectedValue={selectedValues.ratio_v ?? null}
               darkMode={darkMode}
             />
-            {/* ONE column, always. The histograms used to pair up two-per-row
-                from the `md` breakpoint on, which in a 460px rail meant each
-                chart got ~210px of width: twenty bins and an axis squeezed
-                into a strip too narrow to read a shape off. Every
-                distribution now spans the full panel width, like the boxplot
-                above it. */}
+            <PercentileGauge percentile={percentile} darkMode={darkMode} />
             <div className="grid grid-cols-1 gap-3">
               {METRICS.map((m) => (
                 <DistributionHistogram
@@ -273,7 +308,6 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
                 />
               ))}
             </div>
-            <UtilizationOverTime ageCohorts={stats.age_cohorts} darkMode={darkMode} />
             {/* Formerly the "Area vs. volume" inner tab — now just the last
                 chart in the same scroll. */}
             <VolumeVsAreaScatter
