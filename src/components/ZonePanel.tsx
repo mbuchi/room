@@ -196,9 +196,10 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
   const headline = useMemo(() => (stats ? ratioVHeadline(stats) : null), [stats]);
   const summaryPills: DataPillItem[] = useMemo(() => {
     if (!headline) return [];
+    // Window only — no "· n=57". The count is what pushed this pill onto a
+    // second row, and it is context for the context: it rides the tooltip.
     const scopeText = t(
       headline.scope === 'last5' ? 'panel.zone.summary.scope_last5' : 'panel.zone.summary.scope_all',
-      { n: headline.n },
     );
     const withScope = (base: string) => `${t(base)} — ${scopeText}`;
     const pills: DataPillItem[] = [
@@ -223,7 +224,11 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
         title: withScope('panel.zone.summary.p80_title'),
       });
     }
-    pills.push({ key: 'scope', value: scopeText, title: t('panel.zone.summary.scope_title') });
+    pills.push({
+      key: 'scope',
+      value: scopeText,
+      title: t('panel.zone.summary.scope_title', { n: headline.n }),
+    });
     return pills;
   }, [headline, t]);
 

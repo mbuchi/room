@@ -194,9 +194,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.summary.mean_title': 'Mean ratioV of the parcels built in this window',
     'panel.zone.summary.p80_label': 'p80',
     'panel.zone.summary.p80_title': '80th-percentile ratioV of the parcels built in this window',
-    'panel.zone.summary.scope_last5': 'Last 5 years · n={n}',
-    'panel.zone.summary.scope_all': 'All years · n={n}',
-    'panel.zone.summary.scope_title': 'Which parcels these figures describe',
+    'panel.zone.summary.scope_last5': 'Last 5 years',
+    'panel.zone.summary.scope_all': 'All years',
+    'panel.zone.summary.scope_title': 'Which parcels these figures describe (n={n})',
 
     // ---------- "My Exports" modal (SavedImagesPanel) ----------
     'panel.images.title': 'My exports',
@@ -522,9 +522,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.summary.mean_title': 'ratioV moyen des parcelles construites dans cette période',
     'panel.zone.summary.p80_label': 'p80',
     'panel.zone.summary.p80_title': 'ratioV au 80e centile des parcelles construites dans cette période',
-    'panel.zone.summary.scope_last5': '5 dernières années · n={n}',
-    'panel.zone.summary.scope_all': 'Toutes les années · n={n}',
-    'panel.zone.summary.scope_title': 'Les parcelles décrites par ces valeurs',
+    'panel.zone.summary.scope_last5': '5 dernières années',
+    'panel.zone.summary.scope_all': 'Toutes les années',
+    'panel.zone.summary.scope_title': 'Les parcelles décrites par ces valeurs (n={n})',
 
     // ---------- exports modal ----------
     'panel.images.title': 'Mes exports',
@@ -849,9 +849,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.summary.mean_title': 'Mittelwert des ratioV der in diesem Zeitraum gebauten Parzellen',
     'panel.zone.summary.p80_label': 'p80',
     'panel.zone.summary.p80_title': '80. Perzentil des ratioV der in diesem Zeitraum gebauten Parzellen',
-    'panel.zone.summary.scope_last5': 'Letzte 5 Jahre · n={n}',
-    'panel.zone.summary.scope_all': 'Alle Jahre · n={n}',
-    'panel.zone.summary.scope_title': 'Welche Parzellen diese Werte beschreiben',
+    'panel.zone.summary.scope_last5': 'Letzte 5 Jahre',
+    'panel.zone.summary.scope_all': 'Alle Jahre',
+    'panel.zone.summary.scope_title': 'Welche Parzellen diese Werte beschreiben (n={n})',
 
     // ---------- exports modal ----------
     'panel.images.title': 'Meine Exporte',
@@ -1176,9 +1176,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.summary.mean_title': 'ratioV medio delle particelle costruite in questo periodo',
     'panel.zone.summary.p80_label': 'p80',
     'panel.zone.summary.p80_title': 'ratioV all\'80° percentile delle particelle costruite in questo periodo',
-    'panel.zone.summary.scope_last5': 'Ultimi 5 anni · n={n}',
-    'panel.zone.summary.scope_all': 'Tutti gli anni · n={n}',
-    'panel.zone.summary.scope_title': 'Quali particelle descrivono questi valori',
+    'panel.zone.summary.scope_last5': 'Ultimi 5 anni',
+    'panel.zone.summary.scope_all': 'Tutti gli anni',
+    'panel.zone.summary.scope_title': 'Quali particelle descrivono questi valori (n={n})',
 
     // ---------- exports modal ----------
     'panel.images.title': 'I miei export',

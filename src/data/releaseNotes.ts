@@ -21,7 +21,7 @@ export const RELEASES: Release[] = [
       {
         kind: 'fixed' as ChangeKind,
         icon: Activity,
-        text: 'The pills under the zone picker described the zone’s entire building stock, decades of it, while the utilisation chart right below them ended on the last five years. In one Frauenfeld zone that read as 79.50 and 83.48 in the pills against 121 on the chart — the same zone, two different answers to “what is normal here?”. The pills now describe the last five years too, and say so: a small label beside them names the window and how many parcels it holds. Where a zone has had nothing built in five years there is nothing to average, so the pills fall back to all years and the label says that instead.',
+        text: 'The pills under the zone picker described the zone’s entire building stock, decades of it, while the utilisation chart right below them ended on the last five years. In one Frauenfeld zone that read as 79.50 and 83.48 in the pills against 121 on the chart — the same zone, two different answers to “what is normal here?”. The pills now describe the last five years too, and say so: a small label beside them names the window (the parcel count is on its tooltip). Where a zone has had nothing built in five years there is nothing to average, so the pills fall back to all years and the label says that instead.',
         prs: [],
       },
       {
