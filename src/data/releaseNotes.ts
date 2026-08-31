@@ -12,6 +12,33 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.45.0',
+    date: 'August 31, 2026',
+    codename: 'The last five years',
+    summary:
+      'The figures under the zone picker now describe the parcels built in the last five years — the same window the chart below them ends on — and there is a p80 beside the mean and the median.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Activity,
+        text: 'The pills under the zone picker described the zone’s entire building stock, decades of it, while the utilisation chart right below them ended on the last five years. In one Frauenfeld zone that read as 79.50 and 83.48 in the pills against 121 on the chart — the same zone, two different answers to “what is normal here?”. The pills now describe the last five years too, and say so: a small label beside them names the window and how many parcels it holds. Where a zone has had nothing built in five years there is nothing to average, so the pills fall back to all years and the label says that instead.',
+        prs: [],
+      },
+      {
+        kind: 'new' as ChangeKind,
+        icon: Activity,
+        text: 'A third figure joins them: p80, the level four out of five recent parcels in the zone stay below. Together with the mean and the median (p50) it gives the top of the range as well as its middle. The order is mean, then p50, then p80.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Database,
+        text: 'Getting there needed a small piece of arithmetic. The data source reports the zone as a whole with full statistics, but each five-year window only as an average — no median, no percentiles. It does send every parcel’s area, volume and year of construction, and a parcel’s ratioV is its built volume against the volume its zoning allows, which is a fixed rate per square metre inside one zone. That is enough to reconstruct each parcel’s ratioV and compute any figure for any window. room checks its own arithmetic against the numbers the source does publish, on every zone it loads, and quietly falls back to the whole-zone figures if the two ever disagree.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.44.0',
     date: 'August 31, 2026',
     codename: 'Charts in reading order',

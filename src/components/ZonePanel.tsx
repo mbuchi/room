@@ -11,6 +11,7 @@ import {
 } from '../services/zoneStatsService';
 import type { ParcelData } from '../services/parcelDataService';
 import { percentileOfValue } from '../services/statsMath';
+import { ratioVHeadline } from '../services/cohortStats';
 import ZoneSelectorDropdown from './ZoneSelectorDropdown';
 import PercentileGauge from './charts/PercentileGauge';
 import BoxplotDensity from './charts/BoxplotDensity';
@@ -179,32 +180,52 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
     return list;
   }, [stats, otherZones]);
 
-  // Headline cohort figures for the ratioV distribution — the median and the
-  // mean of the zone the charts below are computed over. They used to exist
-  // only as the 10px footnote under the boxplot ("n=125 · p50 94.70 · mean
-  // 85.29"), which is the last place a reader looks and the first thing they
-  // ask for: "what is normal HERE?". They are now data pills at the top of the
-  // tab (DATA_PILLS_STANDARD.md) — bare numbers, so each carries a visible
-  // `label` prefix (R4) and a `title` spelling out what it measures. Built
-  // inline, like ZoneInfoPanel's pill rows: two `toFixed` calls per render.
-  const ratioVSummary = stats?.summary.ratio_v;
-  const summaryPills: DataPillItem[] =
-    ratioVSummary && ratioVSummary.n
-      ? [
-          {
-            key: 'p50',
-            label: t('panel.zone.summary.p50_label'),
-            value: formatSummaryValue(ratioVSummary.p50),
-            title: t('panel.zone.summary.p50_title'),
-          },
-          {
-            key: 'mean',
-            label: t('panel.zone.summary.mean_label'),
-            value: formatSummaryValue(ratioVSummary.mean),
-            title: t('panel.zone.summary.mean_title'),
-          },
-        ]
-      : [];
+  // Headline ratioV figures for the cohort the tab leads with — the parcels
+  // built in the LAST FIVE YEARS, the same window the utilisation-over-time
+  // chart ends on. Reading them off `summary.ratio_v` (as the pills did until
+  // 0.45.0) described the whole building stock instead, decades of it: the
+  // pills said 79.50 / 83.48 while the chart's last point sat at 121 for the
+  // same zone. `ratioVHeadline` recovers the cohort's percentiles from
+  // `parcels[]` and falls back to the whole zone, labelled as such, when the
+  // payload cannot support the window — see services/cohortStats.ts.
+  //
+  // Pills per DATA_PILLS_STANDARD.md: bare numbers, so each carries a visible
+  // `label` prefix (R4) and a `title`. The scope pill spells the window out,
+  // because the whole point of this change is that a reader can tell WHICH
+  // parcels a number is about.
+  const headline = useMemo(() => (stats ? ratioVHeadline(stats) : null), [stats]);
+  const summaryPills: DataPillItem[] = useMemo(() => {
+    if (!headline) return [];
+    const scopeText = t(
+      headline.scope === 'last5' ? 'panel.zone.summary.scope_last5' : 'panel.zone.summary.scope_all',
+      { n: headline.n },
+    );
+    const withScope = (base: string) => `${t(base)} — ${scopeText}`;
+    const pills: DataPillItem[] = [
+      {
+        key: 'mean',
+        label: t('panel.zone.summary.mean_label'),
+        value: formatSummaryValue(headline.mean),
+        title: withScope('panel.zone.summary.mean_title'),
+      },
+      {
+        key: 'p50',
+        label: t('panel.zone.summary.p50_label'),
+        value: formatSummaryValue(headline.p50),
+        title: withScope('panel.zone.summary.p50_title'),
+      },
+    ];
+    if (headline.p80 != null) {
+      pills.push({
+        key: 'p80',
+        label: t('panel.zone.summary.p80_label'),
+        value: formatSummaryValue(headline.p80),
+        title: withScope('panel.zone.summary.p80_title'),
+      });
+    }
+    pills.push({ key: 'scope', value: scopeText, title: t('panel.zone.summary.scope_title') });
+    return pills;
+  }, [headline, t]);
 
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full overflow-hidden">

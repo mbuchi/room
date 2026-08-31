@@ -207,6 +207,17 @@ body {
 .room-zone-pills .aireon-datapill--mono .aireon-datapill-value {
   font-size: 13.5px;
 }
+/* The scope pill ("Last 5 years · n=57") is always the last one in the row.
+   It qualifies the three figures rather than being one of them, so it stays
+   at the suite's standard pill scale while they run large. */
+.room-zone-pills .aireon-datapill:last-child {
+  padding: 0.1875rem 0.625rem;
+  font-size: 11.5px;
+  opacity: 0.85;
+}
+.room-zone-pills .aireon-datapill:last-child .aireon-datapill-value {
+  font-weight: 500;
+}
 
 
 /* =============================================================
