@@ -12,6 +12,39 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.43.0',
+    date: 'August 31, 2026',
+    codename: 'Room to read',
+    summary:
+      'The Parcel panel gets its spacing back, the Zone tab loses its rulers and its empty margins to fit more charts on screen, every distribution spans the full panel width, and the zone’s typical ratioV values sit as pills right under the zone picker.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: LayoutPanelTop,
+        text: 'The blocks in the Parcel panel — the zoning pills, the building pills and the three utilisation cards — had lost the gaps between them and ran together as one solid stack, close enough to read as overlapping. The gaps are back. This was a side effect of the styling-engine upgrade in 0.42.0: the app’s own reset, which strips the browser’s default spacing from every element, started outranking the rule that puts space between stacked blocks. It now sits in the layer where a reset belongs, so it clears the browser defaults without touching the app’s own spacing — everywhere in room, not only in this one panel.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BarChart3,
+        text: 'The six distribution charts in the Zone tab (ratioV, freeV, ratioS, GFZ, height, floors) used to sit two per row, which left each one about 210 pixels wide — twenty bars and an axis packed into a strip too narrow to read a shape off. Each chart now takes the full width of the panel, one per row, like the zone distribution above them.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text: 'The zone’s median and mean ratioV — the answer to “what is normal here?” — were printed as a small grey footnote under the zone distribution chart, the last place anyone looks. They are now two large pills sitting directly under the municipal zone type picker, so it is clear at a glance that they describe the zone you just chose and change when you choose another one. The parcel count that shared that footnote is already printed in the picker itself, so it is not repeated under the chart.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text: 'The Zone tab shows more of its charts before you scroll. The horizontal rules under the address block, under the tab row and under the zone picker are gone — the spacing already separates those blocks — and every chart has given back the empty band the charting library reserved under its horizontal axis. The charts themselves are exactly as large as before; only the padding around them shrank.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.42.0',
     date: 'August 30, 2026',
     codename: 'Same look, newer engine',

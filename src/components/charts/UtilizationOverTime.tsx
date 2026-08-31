@@ -20,7 +20,11 @@ interface UtilizationOverTimeProps {
   darkMode?: boolean;
 }
 
-const CHART_HEIGHT = 200;
+// 200 before the axis band was trimmed to AXIS_HEIGHT: the plot area is
+// unchanged, the 16px that recharts spent on empty axis padding is not.
+const CHART_HEIGHT = 184;
+/** Tick line + 10px label, with nothing to spare (recharts defaults to 30). */
+const AXIS_HEIGHT = 20;
 
 /**
  * Up to seven points: how mean `ratio_v` evolves as the age window narrows.
@@ -85,10 +89,13 @@ const UtilizationOverTime = ({ ageCohorts, darkMode = true }: UtilizationOverTim
       ) : (
         <div style={{ width: '100%', height: CHART_HEIGHT }}>
           <ResponsiveContainer>
-            <LineChart data={data} margin={{ top: 10, right: 12, bottom: 6, left: 6 }}>
+            <LineChart data={data} margin={{ top: 10, right: 12, bottom: 0, left: 6 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="2 4" vertical={false} />
               <XAxis
                 dataKey="label"
+                // See DistributionHistogram: recharts' 30px default axis band
+                // leaves a dead strip under the labels.
+                height={AXIS_HEIGHT}
                 stroke={axisStroke}
                 tick={{ fontSize: 10, fill: tickFill }}
                 axisLine={{ stroke: gridStroke }}

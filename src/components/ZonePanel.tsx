@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { LoadingFeedback, Skeleton } from '@aireon/shared';
+import { DataPillGroup, LoadingFeedback, Skeleton, type DataPillItem } from '@aireon/shared';
 import { PanelError } from './PanelKit';
 import { useI18n } from '../contexts/I18nContext';
 import {
@@ -172,6 +172,33 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
     return list;
   }, [stats, otherZones]);
 
+  // Headline cohort figures for the ratioV distribution — the median and the
+  // mean of the zone the charts below are computed over. They used to exist
+  // only as the 10px footnote under the boxplot ("n=125 · p50 94.70 · mean
+  // 85.29"), which is the last place a reader looks and the first thing they
+  // ask for: "what is normal HERE?". They are now data pills at the top of the
+  // tab (DATA_PILLS_STANDARD.md) — bare numbers, so each carries a visible
+  // `label` prefix (R4) and a `title` spelling out what it measures. Built
+  // inline, like ZoneInfoPanel's pill rows: two `toFixed` calls per render.
+  const ratioVSummary = stats?.summary.ratio_v;
+  const summaryPills: DataPillItem[] =
+    ratioVSummary && ratioVSummary.n
+      ? [
+          {
+            key: 'p50',
+            label: t('panel.zone.summary.p50_label'),
+            value: formatSummaryValue(ratioVSummary.p50),
+            title: t('panel.zone.summary.p50_title'),
+          },
+          {
+            key: 'mean',
+            label: t('panel.zone.summary.mean_label'),
+            value: formatSummaryValue(ratioVSummary.mean),
+            title: t('panel.zone.summary.mean_title'),
+          },
+        ]
+      : [];
+
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full overflow-hidden">
       {/* Zone sub-header: the cohort picker alone. The dropdown selects the
@@ -186,17 +213,29 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
           in the panel header's subtitle and the parcel count is printed inside
           the dropdown itself, so neither is repeated here. */}
       {(stats || activeCzLocal) && (
-        <div className="shrink-0 px-5 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
+        <div className="shrink-0 px-5 pt-2.5 pb-2.5">
           <ZoneSelectorDropdown
             currentCzLocal={activeCzLocal ?? ''}
             otherZones={dropdownZones}
             onChange={handleZoneChange}
             isLoading={loading}
           />
+          {/* The cohort's centre of gravity, in the picker's own block and
+              directly beneath it — the two belong together: change the zone
+              above and these two numbers change with it. Heading-less on
+              purpose (an eyebrow would only repeat what the pills already
+              say) and rendered one size up from the standard pill through
+              `.room-zone-pills` in index.css, because they are the headline
+              figures of the whole tab, not an attribute list. */}
+          <DataPillGroup
+            className="room-zone-pills mt-2"
+            items={summaryPills}
+            dark={darkMode}
+          />
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-3 pb-4 space-y-4">
         {loading && !stats && (
           <LoadingFeedback
             label="Loading zone statistics…"
@@ -216,7 +255,13 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
               selectedValue={selectedValues.ratio_v ?? null}
               darkMode={darkMode}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* ONE column, always. The histograms used to pair up two-per-row
+                from the `md` breakpoint on, which in a 460px rail meant each
+                chart got ~210px of width: twenty bins and an axis squeezed
+                into a strip too narrow to read a shape off. Every
+                distribution now spans the full panel width, like the boxplot
+                above it. */}
+            <div className="grid grid-cols-1 gap-3">
               {METRICS.map((m) => (
                 <DistributionHistogram
                   key={m.key}
@@ -264,6 +309,11 @@ const ChartsSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
     ))}
   </div>
 );
+
+/** Same scale rule the charts use: 2 decimals under 100, none above. */
+function formatSummaryValue(v: number): string {
+  return Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(2);
+}
 
 function emptySummary(): ZoneSummary {
   return {

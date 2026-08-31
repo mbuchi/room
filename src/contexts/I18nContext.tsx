@@ -188,7 +188,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.cohort_all': 'ALL',
     'panel.zone.cohort_tooltip_no_data': 'no data in this window',
     'panel.zone.over_time_subtitle': 'Mean ratioV by construction window (years)',
-    'panel.zone.summary_line': 'n={n} · p50 {p50} · mean {mean}',
+    'panel.zone.summary.p50_label': 'p50',
+    'panel.zone.summary.p50_title': 'Median ratioV across the parcels in this zone',
+    'panel.zone.summary.mean_label': 'mean',
+    'panel.zone.summary.mean_title': 'Mean ratioV across the parcels in this zone',
 
     // ---------- "My Exports" modal (SavedImagesPanel) ----------
     'panel.images.title': 'My exports',
@@ -508,7 +511,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.cohort_all': 'TOUT',
     'panel.zone.cohort_tooltip_no_data': 'aucune donnée dans cette fenêtre',
     'panel.zone.over_time_subtitle': 'ratioV moyen par fenêtre de construction (années)',
-    'panel.zone.summary_line': 'n={n} · p50 {p50} · moyenne {mean}',
+    'panel.zone.summary.p50_label': 'p50',
+    'panel.zone.summary.p50_title': 'ratioV médian des parcelles de cette zone',
+    'panel.zone.summary.mean_label': 'moyenne',
+    'panel.zone.summary.mean_title': 'ratioV moyen des parcelles de cette zone',
 
     // ---------- exports modal ----------
     'panel.images.title': 'Mes exports',
@@ -827,7 +833,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.cohort_all': 'ALLE',
     'panel.zone.cohort_tooltip_no_data': 'keine Daten in diesem Fenster',
     'panel.zone.over_time_subtitle': 'Mittleres ratioV nach Bauzeitfenster (Jahre)',
-    'panel.zone.summary_line': 'n={n} · p50 {p50} · Mittel {mean}',
+    'panel.zone.summary.p50_label': 'p50',
+    'panel.zone.summary.p50_title': 'Median des ratioV über die Parzellen dieser Zone',
+    'panel.zone.summary.mean_label': 'Mittel',
+    'panel.zone.summary.mean_title': 'Mittelwert des ratioV über die Parzellen dieser Zone',
 
     // ---------- exports modal ----------
     'panel.images.title': 'Meine Exporte',
@@ -1146,7 +1155,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.zone.cohort_all': 'TUTTI',
     'panel.zone.cohort_tooltip_no_data': 'nessun dato in questa finestra',
     'panel.zone.over_time_subtitle': 'ratioV medio per finestra di costruzione (anni)',
-    'panel.zone.summary_line': 'n={n} · p50 {p50} · media {mean}',
+    'panel.zone.summary.p50_label': 'p50',
+    'panel.zone.summary.p50_title': 'ratioV mediano tra le particelle di questa zona',
+    'panel.zone.summary.mean_label': 'media',
+    'panel.zone.summary.mean_title': 'ratioV medio tra le particelle di questa zona',
 
     // ---------- exports modal ----------
     'panel.images.title': 'I miei export',

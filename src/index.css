@@ -127,10 +127,30 @@
   --hood-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Cascadia Code', Consolas, monospace;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* App-level reset.
+
+   ⚠ IT MUST STAY IN `layer(base)`. Tailwind 4 emits the `space-*` (and
+   `divide-*`) utilities as `:where(.space-y-4 > :not(:last-child))` — the
+   `:where()` wrapper makes them specificity (0,0,0). This file leaves the
+   UTILITIES layer unlayered (see the header note), so an unlayered `*` reset
+   here is a (0,0,0) rule declared LATER in the same origin: it wins every tie
+   and `margin-block-end` from every `space-y-*` in the app collapses to 0.
+
+   That is not theoretical — it shipped. Under Tailwind 3 the same utility was
+   `.space-y-4 > :not([hidden]) ~ :not([hidden])` at (0,2,0) and beat `*`
+   comfortably; the v4 upgrade silently zeroed the gaps in every panel that
+   stacks its sections with `space-y-*` (the parcel panel's pill groups and
+   ratio cards ran together with no gap at all, reading as overlapping cards).
+
+   In `layer(base)` the reset lands beside Tailwind's own preflight — which
+   already zeroes margin/padding for the same selector list — so it keeps
+   doing its job while any unlayered utility outranks it. */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 }
 
 /* Base UI typography — Inter with kerning/ligatures, single-storey 'g' (cv11),
@@ -159,6 +179,33 @@ body {
    body type around it is the modern Inter UI face. */
 .font-varela {
   font-family: var(--hood-display);
+}
+
+
+/* =============================================================
+   Zone tab — the p50 / mean headline pills.
+
+   These are the two figures the Zone tab exists to answer ("what is normal
+   in this zone?"), sitting directly under the municipal-zone-type picker, so
+   they are deliberately one size up from the suite's attribute pill. Only the
+   type scale and the padding change: the skin, the radius, the dark-mode
+   treatment and the label/value colour split all stay with
+   `.aireon-datapill` in @aireon/shared's map-ui.css, so a change there still
+   reaches these.
+
+   Specificity (0,2,0) beats the shared (0,1,0) rules whatever the import
+   order, which matters because map-ui.css is unlayered and loads AFTER this
+   file in main.tsx.
+   ============================================================= */
+.room-zone-pills .aireon-datapill {
+  padding: 0.3125rem 0.75rem; /* 5px 12px */
+  font-size: 14px;
+}
+.room-zone-pills .aireon-datapill-label {
+  font-size: 11px;
+}
+.room-zone-pills .aireon-datapill--mono .aireon-datapill-value {
+  font-size: 13.5px;
 }
 
 

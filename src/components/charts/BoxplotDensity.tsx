@@ -60,9 +60,13 @@ function gaussianKDE(values: number[], gridSize = 80): { x: number; y: number }[
   return out;
 }
 
-const CHART_HEIGHT = 220;
+// 220 before the axis band was trimmed to AXIS_HEIGHT: the plot area is
+// unchanged, the 16px that recharts spent on empty axis padding is not.
+const CHART_HEIGHT = 204;
 const BOX_TOP = 12;
 const BOX_HEIGHT = 18;
+/** Tick line + 10px label, with nothing to spare (recharts defaults to 30). */
+const AXIS_HEIGHT = 20;
 
 /**
  * Boxplot + density curve in one panel. Density area sits underneath, with
@@ -127,7 +131,7 @@ const BoxplotDensity = ({
         <ResponsiveContainer>
           <ComposedChart
             data={kde}
-            margin={{ top: BOX_TOP + BOX_HEIGHT + 6, right: 10, bottom: 6, left: 0 }}
+            margin={{ top: BOX_TOP + BOX_HEIGHT + 6, right: 10, bottom: 0, left: 0 }}
           >
             <defs>
               <linearGradient id={`kde-${title}`} x1="0" y1="0" x2="0" y2="1">
@@ -140,6 +144,9 @@ const BoxplotDensity = ({
               type="number"
               domain={xDomain}
               tickFormatter={(v: number) => formatTick(v, unit)}
+              // See DistributionHistogram: recharts' 30px default axis band
+              // leaves a dead strip under the labels.
+              height={AXIS_HEIGHT}
               stroke={axisStroke}
               tick={{ fontSize: 10, fill: tickFill }}
               axisLine={{ stroke: gridStroke }}
@@ -192,13 +199,6 @@ const BoxplotDensity = ({
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <p className="mt-1 text-[10px] text-gray-400 dark:text-gray-500 font-mono">
-        {t('panel.zone.summary_line', {
-          n: summary.n,
-          p50: formatValue(summary.p50, unit),
-          mean: formatValue(summary.mean, unit),
-        })}
-      </p>
     </div>
   );
 };
