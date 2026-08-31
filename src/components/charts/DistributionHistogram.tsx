@@ -62,6 +62,8 @@ function buildHistogram(values: number[], binCount: number): HistogramBin[] {
 const CHART_HEIGHT = 164;
 /** Tick line + 10px label, with nothing to spare (recharts defaults to 30). */
 const AXIS_HEIGHT = 20;
+/** Slack inside the SVG so an edge tick label / marker is never clipped. */
+const EDGE_MARGIN = 10;
 
 /**
  * Compact histogram (~20 bins) with the selected parcel's value drawn as a
@@ -101,6 +103,8 @@ const DistributionHistogram = ({
     );
   }
 
+  const xDomain = domainFor(data, selectedValue);
+
   return (
     <div
       className={`rounded-lg px-4 py-3.5 ${
@@ -117,13 +121,25 @@ const DistributionHistogram = ({
           </span>
         )}
       </div>
-      <div style={{ width: '100%', height: CHART_HEIGHT }}>
+      {/* `-mx-2` bleeds the plot 8px into the card's own padding on each
+          side: the chart gets the width back that the margins below spend on
+          keeping the edge tick labels and the "You" marker inside the SVG,
+          instead of paying for both. */}
+      <div className="-mx-2" style={{ height: CHART_HEIGHT }}>
         <ResponsiveContainer>
-          <BarChart data={data} margin={{ top: 14, right: 8, bottom: 0, left: 0 }}>
+          <BarChart data={data} margin={{ top: 14, right: EDGE_MARGIN, bottom: 0, left: EDGE_MARGIN }}>
             <XAxis
               dataKey="x"
               type="number"
-              domain={['dataMin', 'dataMax']}
+              // NOT ['dataMin', 'dataMax']: `dataKey` is the bin MIDPOINT, so
+              // that domain puts the first and last bar centres on the plot
+              // edges and clips half of each one away — and a "You" marker
+              // outside the sampled range lands outside the SVG entirely
+              // (`ifOverflow="extendDomain"` does not extend an explicit
+              // domain). Running from the outer bin EDGES, widened to cover
+              // the marker and padded by 2%, every bar and every marker is
+              // drawn in full.
+              domain={xDomain}
               tickFormatter={(v: number) => formatTick(v)}
               // Recharts' default axis height is 30px for a 10px tick font,
               // which leaves ~10px of dead band under the labels — six charts
@@ -171,6 +187,23 @@ const DistributionHistogram = ({
     </div>
   );
 };
+
+/**
+ * Bin EDGE to bin EDGE (not midpoint to midpoint), widened to include the
+ * selected parcel's value and padded 2% each side so nothing sits on the
+ * plot boundary.
+ */
+function domainFor(bins: HistogramBin[], selectedValue: number | null): [number, number] {
+  if (!bins.length) return [0, 1];
+  let lo = bins[0].x0;
+  let hi = bins[bins.length - 1].x1;
+  if (selectedValue != null && Number.isFinite(selectedValue)) {
+    lo = Math.min(lo, selectedValue);
+    hi = Math.max(hi, selectedValue);
+  }
+  const pad = (hi - lo || 1) * 0.02;
+  return [lo - pad, hi + pad];
+}
 
 function formatTick(v: number): string {
   return Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(2);

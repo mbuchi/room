@@ -12,6 +12,33 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.44.0',
+    date: 'August 31, 2026',
+    codename: 'Charts in reading order',
+    summary:
+      'The Zone tab’s charts are in a new order, two of them are hidden for now, and no chart clips its own axis or its “You” marker at the edges any more.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BarChart3,
+        text: 'The Zone tab now reads in the order the questions are usually asked: how the zone has been built over time, the ratioV distribution of the zone, where this parcel sits in it, then building height, number of floors and site coverage, and the parcel-area-against-built-volume scatter last. Two charts are hidden for the moment — GFZ (floor area) and freeV (headroom) — and the ratioV bar chart is gone because the zone distribution directly above it plots the same numbers with a median and a box on top.',
+        prs: [],
+      },
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: BarChart3,
+        text: 'Charts no longer cut themselves off at the left and right edges. The outermost bars were drawn half outside the chart, and a “You” marker for a parcel at either extreme of a zone — or outside the plotted range entirely — was clipped to a sliver or lost. Each chart now runs from the outer edge of its first bar to the outer edge of its last, always includes your parcel’s value, and keeps a small margin for the end labels. The charts also reach further into the panel on both sides, so the extra margin costs no plotting width.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text: 'The zone picker is one line shorter: the “Municipal zone type” caption above the zone name is gone. The words are still on the control as its tooltip and for screen readers, so nothing is lost for anyone who needs them.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.43.0',
     date: 'August 31, 2026',
     codename: 'Room to read',

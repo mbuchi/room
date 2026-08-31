@@ -46,13 +46,20 @@ interface MetricSpec {
   unit?: string;
 }
 
+/**
+ * The metric histograms, in the order they appear — owner-specified, and
+ * shorter than the metric list RES ships.
+ *
+ * ratioV is NOT here: BoxplotDensity plots the same distribution one card up,
+ * with a boxplot and a median on top of it, so a bar version of it directly
+ * below was the same data twice. `gfz` and `free_v` are hidden for now (owner
+ * call, 0.44.0) — RES still returns both and `stats.distributions` still
+ * carries them, so restoring either is one line here.
+ */
 const METRICS: MetricSpec[] = [
-  { key: 'ratio_v', titleKey: 'panel.zone.metric.ratio_v.title' },
-  { key: 'free_v', titleKey: 'panel.zone.metric.free_v.title', unit: 'm³' },
-  { key: 'ratio_s', titleKey: 'panel.zone.metric.ratio_s.title' },
-  { key: 'gfz', titleKey: 'panel.zone.metric.gfz.title' },
   { key: 'bldg_height_m', titleKey: 'panel.zone.metric.bldg_height.title', unit: 'm' },
   { key: 'bldg_floors_n', titleKey: 'panel.zone.metric.bldg_floors.title' },
+  { key: 'ratio_s', titleKey: 'panel.zone.metric.ratio_s.title' },
 ];
 
 /**
@@ -247,7 +254,14 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
 
         {stats && (
           <>
-            <PercentileGauge percentile={percentile} darkMode={darkMode} />
+            {/* Owner-specified order (0.44.0): the zone's trend line first,
+                then the ratioV distribution the whole tab is about, then this
+                parcel's place in it, then the building-shape histograms, and
+                the scatter last. Everything is ONE column at full panel
+                width — the histograms used to pair up two-per-row from `md`
+                on, which in a 460px rail gave each ~210px, too narrow to read
+                a shape off. */}
+            <UtilizationOverTime ageCohorts={stats.age_cohorts} darkMode={darkMode} />
             <BoxplotDensity
               title={t('panel.zone.boxplot_title')}
               distribution={stats.distributions.ratio_v ?? []}
@@ -255,12 +269,7 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
               selectedValue={selectedValues.ratio_v ?? null}
               darkMode={darkMode}
             />
-            {/* ONE column, always. The histograms used to pair up two-per-row
-                from the `md` breakpoint on, which in a 460px rail meant each
-                chart got ~210px of width: twenty bins and an axis squeezed
-                into a strip too narrow to read a shape off. Every
-                distribution now spans the full panel width, like the boxplot
-                above it. */}
+            <PercentileGauge percentile={percentile} darkMode={darkMode} />
             <div className="grid grid-cols-1 gap-3">
               {METRICS.map((m) => (
                 <DistributionHistogram
@@ -273,7 +282,6 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
                 />
               ))}
             </div>
-            <UtilizationOverTime ageCohorts={stats.age_cohorts} darkMode={darkMode} />
             {/* Formerly the "Area vs. volume" inner tab — now just the last
                 chart in the same scroll. */}
             <VolumeVsAreaScatter

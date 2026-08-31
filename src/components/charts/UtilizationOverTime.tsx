@@ -25,6 +25,8 @@ interface UtilizationOverTimeProps {
 const CHART_HEIGHT = 184;
 /** Tick line + 10px label, with nothing to spare (recharts defaults to 30). */
 const AXIS_HEIGHT = 20;
+/** Slack inside the SVG so an edge tick label is never clipped. */
+const EDGE_MARGIN = 10;
 
 /**
  * Up to seven points: how mean `ratio_v` evolves as the age window narrows.
@@ -87,9 +89,11 @@ const UtilizationOverTime = ({ ageCohorts, darkMode = true }: UtilizationOverTim
       {!hasAnyData ? (
         <p className="text-xs text-gray-400 dark:text-gray-500">{t('panel.zone.over_time_no_data')}</p>
       ) : (
-        <div style={{ width: '100%', height: CHART_HEIGHT }}>
+        // `-mx-2` bleeds the plot 8px into the card's own padding on each
+        // side, so the edge margins below cost nothing in plot width.
+        <div className="-mx-2" style={{ height: CHART_HEIGHT }}>
           <ResponsiveContainer>
-            <LineChart data={data} margin={{ top: 10, right: 12, bottom: 0, left: 6 }}>
+            <LineChart data={data} margin={{ top: 10, right: EDGE_MARGIN, bottom: 0, left: 0 }}>
               <CartesianGrid stroke={gridStroke} strokeDasharray="2 4" vertical={false} />
               <XAxis
                 dataKey="label"

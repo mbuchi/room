@@ -72,13 +72,17 @@ const ZoneSelectorDropdown = ({
         type="button"
         onClick={() => setOpen((v) => !v)}
         disabled={isLoading}
+        // The cohort label ("Municipal zone type") used to ride above the
+        // value as an eyebrow, which made the control two lines tall for one
+        // line of information. It is the control's ACCESSIBLE NAME now — the
+        // screen reader and the tooltip still say exactly what this picks,
+        // the panel gets the row back.
+        aria-label={t('panel.zone.zoning_category')}
+        title={t('panel.zone.zoning_category')}
         className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-gray-100/80 dark:bg-gray-900/80 border border-gray-300 dark:border-gray-700/60 hover:border-red-500/40 transition-colors text-left disabled:opacity-60"
       >
         <div className="min-w-0">
-          <p className="text-[9px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-semibold">
-            {t('panel.zone.zoning_category')}
-          </p>
-          <p className="mt-0.5 text-sm font-mono text-gray-900 dark:text-gray-100 truncate">
+          <p className="text-sm font-mono text-gray-900 dark:text-gray-100 truncate">
             {currentCzLocal || '-'}
           </p>
         </div>
