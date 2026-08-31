@@ -213,17 +213,29 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
           in the panel header's subtitle and the parcel count is printed inside
           the dropdown itself, so neither is repeated here. */}
       {(stats || activeCzLocal) && (
-        <div className="shrink-0 px-5 py-2.5 border-b border-gray-200 dark:border-gray-800/40">
+        <div className="shrink-0 px-5 pt-2.5 pb-2.5">
           <ZoneSelectorDropdown
             currentCzLocal={activeCzLocal ?? ''}
             otherZones={dropdownZones}
             onChange={handleZoneChange}
             isLoading={loading}
           />
+          {/* The cohort's centre of gravity, in the picker's own block and
+              directly beneath it — the two belong together: change the zone
+              above and these two numbers change with it. Heading-less on
+              purpose (an eyebrow would only repeat what the pills already
+              say) and rendered one size up from the standard pill through
+              `.room-zone-pills` in index.css, because they are the headline
+              figures of the whole tab, not an attribute list. */}
+          <DataPillGroup
+            className="room-zone-pills mt-2"
+            items={summaryPills}
+            dark={darkMode}
+          />
         </div>
       )}
 
-      <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto px-5 pt-3 pb-4 space-y-4">
         {loading && !stats && (
           <LoadingFeedback
             label="Loading zone statistics…"
@@ -235,15 +247,6 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
 
         {stats && (
           <>
-            {/* The cohort's own centre of gravity, directly under the
-                municipal-zone-type picker and above every chart: the pills
-                answer "what does a typical parcel in THIS zone look like?"
-                before the reader has to interpret a single curve. */}
-            <DataPillGroup
-              heading={t('panel.zone.summary.heading')}
-              items={summaryPills}
-              dark={darkMode}
-            />
             <PercentileGauge percentile={percentile} darkMode={darkMode} />
             <BoxplotDensity
               title={t('panel.zone.boxplot_title')}

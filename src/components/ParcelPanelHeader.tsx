@@ -79,7 +79,7 @@ const ParcelPanelHeader = ({
     Number.isFinite(focusedParcel.lat);
 
   return (
-    <div className="shrink-0 border-b border-gray-200 px-5 pb-4 pt-3.5 dark:border-gray-800/40">
+    <div className="shrink-0 px-5 pb-2.5 pt-3.5">
       {isLoading && !parcelData?.address ? (
         <LoadingFeedback
           label="Loading parcel details…"

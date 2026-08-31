@@ -16,7 +16,7 @@ export const RELEASES: Release[] = [
     date: 'August 31, 2026',
     codename: 'Room to read',
     summary:
-      'The Parcel panel gets its spacing back, every zone distribution now spans the full panel width, and the zone’s typical ratioV values sit right at the top of the Zone tab.',
+      'The Parcel panel gets its spacing back, the Zone tab loses its rulers and its empty margins to fit more charts on screen, every distribution spans the full panel width, and the zone’s typical ratioV values sit as pills right under the zone picker.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
@@ -33,7 +33,13 @@ export const RELEASES: Release[] = [
       {
         kind: 'improved' as ChangeKind,
         icon: Sparkles,
-        text: 'The zone’s median and mean ratioV — the answer to “what is normal here?” — were printed as a small grey footnote under the zone distribution chart, the last place anyone looks. They are now pills at the top of the Zone tab, directly under the municipal zone type picker and above the first chart. The chart’s footnote keeps the number of parcels the statistics are computed over.',
+        text: 'The zone’s median and mean ratioV — the answer to “what is normal here?” — were printed as a small grey footnote under the zone distribution chart, the last place anyone looks. They are now two large pills sitting directly under the municipal zone type picker, so it is clear at a glance that they describe the zone you just chose and change when you choose another one. The parcel count that shared that footnote is already printed in the picker itself, so it is not repeated under the chart.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: LayoutPanelTop,
+        text: 'The Zone tab shows more of its charts before you scroll. The horizontal rules under the address block, under the tab row and under the zone picker are gone — the spacing already separates those blocks — and every chart has given back the empty band the charting library reserved under its horizontal axis. The charts themselves are exactly as large as before; only the padding around them shrank.',
         prs: [],
       },
     ],

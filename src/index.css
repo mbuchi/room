@@ -183,6 +183,33 @@ body {
 
 
 /* =============================================================
+   Zone tab — the p50 / mean headline pills.
+
+   These are the two figures the Zone tab exists to answer ("what is normal
+   in this zone?"), sitting directly under the municipal-zone-type picker, so
+   they are deliberately one size up from the suite's attribute pill. Only the
+   type scale and the padding change: the skin, the radius, the dark-mode
+   treatment and the label/value colour split all stay with
+   `.aireon-datapill` in @aireon/shared's map-ui.css, so a change there still
+   reaches these.
+
+   Specificity (0,2,0) beats the shared (0,1,0) rules whatever the import
+   order, which matters because map-ui.css is unlayered and loads AFTER this
+   file in main.tsx.
+   ============================================================= */
+.room-zone-pills .aireon-datapill {
+  padding: 0.3125rem 0.75rem; /* 5px 12px */
+  font-size: 14px;
+}
+.room-zone-pills .aireon-datapill-label {
+  font-size: 11px;
+}
+.room-zone-pills .aireon-datapill--mono .aireon-datapill-value {
+  font-size: 13.5px;
+}
+
+
+/* =============================================================
    ⚠ MAP CONTAINER — order-independent geometry. DO NOT WEAKEN.
 
    MapLibre stamps `.maplibregl-map` onto the very element MapView hands it as

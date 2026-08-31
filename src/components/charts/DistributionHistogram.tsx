@@ -57,7 +57,11 @@ function buildHistogram(values: number[], binCount: number): HistogramBin[] {
   return bins;
 }
 
-const CHART_HEIGHT = 180;
+// 180 before the axis band was trimmed to AXIS_HEIGHT: the plot area is
+// unchanged, the 16px that recharts spent on empty axis padding is not.
+const CHART_HEIGHT = 164;
+/** Tick line + 10px label, with nothing to spare (recharts defaults to 30). */
+const AXIS_HEIGHT = 20;
 
 /**
  * Compact histogram (~20 bins) with the selected parcel's value drawn as a
@@ -115,12 +119,18 @@ const DistributionHistogram = ({
       </div>
       <div style={{ width: '100%', height: CHART_HEIGHT }}>
         <ResponsiveContainer>
-          <BarChart data={data} margin={{ top: 14, right: 8, bottom: 6, left: 0 }}>
+          <BarChart data={data} margin={{ top: 14, right: 8, bottom: 0, left: 0 }}>
             <XAxis
               dataKey="x"
               type="number"
               domain={['dataMin', 'dataMax']}
               tickFormatter={(v: number) => formatTick(v)}
+              // Recharts' default axis height is 30px for a 10px tick font,
+              // which leaves ~10px of dead band under the labels — six charts
+              // deep in one scroll, that is a chart's worth of empty pixels.
+              // AXIS_HEIGHT is the measured minimum that still clears the
+              // tick line and the descenders.
+              height={AXIS_HEIGHT}
               stroke={axisStroke}
               tick={{ fontSize: 10, fill: tickFill }}
               axisLine={{ stroke: gridStroke }}

@@ -1788,7 +1788,7 @@ const MapView = () => {
             // divide it evenly — and only grows past the container when the
             // labels genuinely cannot fit. Scrollbar hidden so the pane never
             // shows two.
-            className="shrink-0 border-b border-gray-200 dark:border-gray-800/60 px-5 py-2 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden"
+            className="shrink-0 px-5 pb-1.5 pt-0.5 overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden"
             data-tour="zone-charts"
           >
             <SegmentedTabs<PanelTab>
