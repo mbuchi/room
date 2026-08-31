@@ -127,10 +127,30 @@
   --hood-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Cascadia Code', Consolas, monospace;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* App-level reset.
+
+   ⚠ IT MUST STAY IN `layer(base)`. Tailwind 4 emits the `space-*` (and
+   `divide-*`) utilities as `:where(.space-y-4 > :not(:last-child))` — the
+   `:where()` wrapper makes them specificity (0,0,0). This file leaves the
+   UTILITIES layer unlayered (see the header note), so an unlayered `*` reset
+   here is a (0,0,0) rule declared LATER in the same origin: it wins every tie
+   and `margin-block-end` from every `space-y-*` in the app collapses to 0.
+
+   That is not theoretical — it shipped. Under Tailwind 3 the same utility was
+   `.space-y-4 > :not([hidden]) ~ :not([hidden])` at (0,2,0) and beat `*`
+   comfortably; the v4 upgrade silently zeroed the gaps in every panel that
+   stacks its sections with `space-y-*` (the parcel panel's pill groups and
+   ratio cards ran together with no gap at all, reading as overlapping cards).
+
+   In `layer(base)` the reset lands beside Tailwind's own preflight — which
+   already zeroes margin/padding for the same selector list — so it keeps
+   doing its job while any unlayered utility outranks it. */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 }
 
 /* Base UI typography — Inter with kerning/ligatures, single-storey 'g' (cv11),

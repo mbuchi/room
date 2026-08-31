@@ -12,6 +12,33 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.43.0',
+    date: 'August 31, 2026',
+    codename: 'Room to read',
+    summary:
+      'The Parcel panel gets its spacing back, every zone distribution now spans the full panel width, and the zone’s typical ratioV values sit right at the top of the Zone tab.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: LayoutPanelTop,
+        text: 'The blocks in the Parcel panel — the zoning pills, the building pills and the three utilisation cards — had lost the gaps between them and ran together as one solid stack, close enough to read as overlapping. The gaps are back. This was a side effect of the styling-engine upgrade in 0.42.0: the app’s own reset, which strips the browser’s default spacing from every element, started outranking the rule that puts space between stacked blocks. It now sits in the layer where a reset belongs, so it clears the browser defaults without touching the app’s own spacing — everywhere in room, not only in this one panel.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: BarChart3,
+        text: 'The six distribution charts in the Zone tab (ratioV, freeV, ratioS, GFZ, height, floors) used to sit two per row, which left each one about 210 pixels wide — twenty bars and an axis packed into a strip too narrow to read a shape off. Each chart now takes the full width of the panel, one per row, like the zone distribution above them.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Sparkles,
+        text: 'The zone’s median and mean ratioV — the answer to “what is normal here?” — were printed as a small grey footnote under the zone distribution chart, the last place anyone looks. They are now pills at the top of the Zone tab, directly under the municipal zone type picker and above the first chart. The chart’s footnote keeps the number of parcels the statistics are computed over.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.42.0',
     date: 'August 30, 2026',
     codename: 'Same look, newer engine',

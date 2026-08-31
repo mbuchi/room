@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { LoadingFeedback, Skeleton } from '@aireon/shared';
+import { DataPillGroup, LoadingFeedback, Skeleton, type DataPillItem } from '@aireon/shared';
 import { PanelError } from './PanelKit';
 import { useI18n } from '../contexts/I18nContext';
 import {
@@ -172,6 +172,33 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
     return list;
   }, [stats, otherZones]);
 
+  // Headline cohort figures for the ratioV distribution — the median and the
+  // mean of the zone the charts below are computed over. They used to exist
+  // only as the 10px footnote under the boxplot ("n=125 · p50 94.70 · mean
+  // 85.29"), which is the last place a reader looks and the first thing they
+  // ask for: "what is normal HERE?". They are now data pills at the top of the
+  // tab (DATA_PILLS_STANDARD.md) — bare numbers, so each carries a visible
+  // `label` prefix (R4) and a `title` spelling out what it measures. Built
+  // inline, like ZoneInfoPanel's pill rows: two `toFixed` calls per render.
+  const ratioVSummary = stats?.summary.ratio_v;
+  const summaryPills: DataPillItem[] =
+    ratioVSummary && ratioVSummary.n
+      ? [
+          {
+            key: 'p50',
+            label: t('panel.zone.summary.p50_label'),
+            value: formatSummaryValue(ratioVSummary.p50),
+            title: t('panel.zone.summary.p50_title'),
+          },
+          {
+            key: 'mean',
+            label: t('panel.zone.summary.mean_label'),
+            value: formatSummaryValue(ratioVSummary.mean),
+            title: t('panel.zone.summary.mean_title'),
+          },
+        ]
+      : [];
+
   return (
     <div className="flex-1 min-h-0 flex flex-col w-full overflow-hidden">
       {/* Zone sub-header: the cohort picker alone. The dropdown selects the
@@ -208,6 +235,15 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
 
         {stats && (
           <>
+            {/* The cohort's own centre of gravity, directly under the
+                municipal-zone-type picker and above every chart: the pills
+                answer "what does a typical parcel in THIS zone look like?"
+                before the reader has to interpret a single curve. */}
+            <DataPillGroup
+              heading={t('panel.zone.summary.heading')}
+              items={summaryPills}
+              dark={darkMode}
+            />
             <PercentileGauge percentile={percentile} darkMode={darkMode} />
             <BoxplotDensity
               title={t('panel.zone.boxplot_title')}
@@ -216,7 +252,13 @@ const ZonePanel = ({ parcelData, onZoneStatsLoaded, onZoneStatsCleared, darkMode
               selectedValue={selectedValues.ratio_v ?? null}
               darkMode={darkMode}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* ONE column, always. The histograms used to pair up two-per-row
+                from the `md` breakpoint on, which in a 460px rail meant each
+                chart got ~210px of width: twenty bins and an axis squeezed
+                into a strip too narrow to read a shape off. Every
+                distribution now spans the full panel width, like the boxplot
+                above it. */}
+            <div className="grid grid-cols-1 gap-3">
               {METRICS.map((m) => (
                 <DistributionHistogram
                   key={m.key}
@@ -264,6 +306,11 @@ const ChartsSkeleton = ({ darkMode = true }: { darkMode?: boolean }) => (
     ))}
   </div>
 );
+
+/** Same scale rule the charts use: 2 decimals under 100, none above. */
+function formatSummaryValue(v: number): string {
+  return Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(2);
+}
 
 function emptySummary(): ZoneSummary {
   return {

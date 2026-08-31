@@ -192,12 +192,11 @@ const BoxplotDensity = ({
           </ComposedChart>
         </ResponsiveContainer>
       </div>
+      {/* Cohort size only. p50 and mean moved up to the ZonePanel pill row —
+          they are the two figures readers look for first, and a 10px footnote
+          under the chart was the wrong place to keep them. */}
       <p className="mt-1 text-[10px] text-gray-400 dark:text-gray-500 font-mono">
-        {t('panel.zone.summary_line', {
-          n: summary.n,
-          p50: formatValue(summary.p50, unit),
-          mean: formatValue(summary.mean, unit),
-        })}
+        {t('panel.zone.summary_n', { n: summary.n })}
       </p>
     </div>
   );
