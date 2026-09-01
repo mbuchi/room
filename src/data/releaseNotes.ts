@@ -12,6 +12,21 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.45.1',
+    date: 'September 1, 2026',
+    codename: 'Light mode, all the way',
+    summary:
+      'Switching to light mode now changes the whole app at once, with no dark panels left behind.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Palette,
+        text: 'Switching the app to light mode used to leave part of it dark: the floating dialogs, the legend and the side panel kept their dark fill while the top bar and the page around them turned light, which made some of that text very hard to read. Reloading the page was the only way to clear it. The theme switch now moves the whole app together, in both directions, with no reload needed.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.45.0',
     date: 'August 31, 2026',
     codename: 'The last five years',

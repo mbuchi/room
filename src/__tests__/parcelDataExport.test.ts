@@ -222,8 +222,19 @@ describe('parcel data export', () => {
     // safari16,firefox104,chrome107,edge107 - the same list, applied at the
     // only place that can apply it - at +1.6% gzip. A repin below v1.205.0
     // serves the un-lowered engine again.
-    // Resolved commit 16e60171d4515ca594153c212adccc506895aa8c.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('16e60171d4515ca594153c212adccc506895aa8c');
+    //
+    // v1.205.1 fixes LIGHT MODE. The pre-paint theme bootstrap stamps four
+    // signals on <html> - the `dark` class, `data-theme`, `style.colorScheme`
+    // and `style.backgroundColor` - but applyTheme() moved only the class, so
+    // the first in-app theme change left the other three describing the OLD
+    // theme. glass.css keys its dark tokens on `[data-theme='dark']
+    // .glass-surface` / `.glass-control` as well as on `.dark`, so the stale
+    // attribute pinned every glass panel to the dark fill while the rest of
+    // the app went light: black floating dialogs, an unreadable legend and a
+    // dark side panel under a white navbar, plus a dark page canvas. Only a
+    // reload cleared it. All four signals now move together, both directions.
+    // Resolved commit 6ed0e99d7fedcd4a33168166fa7b47b43ab73ffa.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('6ed0e99d7fedcd4a33168166fa7b47b43ab73ffa');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
