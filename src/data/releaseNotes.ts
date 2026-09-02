@@ -12,6 +12,33 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.45.2',
+    date: 'September 2, 2026',
+    codename: 'Second chances for the basemap',
+    summary:
+      'A slow moment on the swisstopo map server no longer leaves room without a map: the basemap is asked for again before giving up, and if it really cannot be reached the message now says so.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Map,
+        text: 'room fetches the swisstopo basemap style before it can draw anything, and that one request used to get a single chance. When the map server was slow to answer or the connection hiccuped for a moment, the page fell straight to a "Map unavailable on this device" notice, blaming WebGL and suggesting a different browser, although the very next request would have worked. The style is now requested up to three times, with a short pause between attempts, before room gives up.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Info,
+        text: 'When the basemap really cannot be reached, the notice now says that the swisstopo map did not answer and asks you to check the connection and reload, instead of the WebGL advice, which only applies when the device itself cannot draw the map.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Shared suite library updated to v1.207.4 (theme bootstrap fix, report engine client, signal endpoint fix).',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.45.1',
     date: 'September 1, 2026',
     codename: 'Light mode, all the way',

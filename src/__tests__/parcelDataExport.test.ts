@@ -234,7 +234,14 @@ describe('parcel data export', () => {
     // dark side panel under a white navbar, plus a dark page canvas. Only a
     // reload cleared it. All four signals now move together, both directions.
     // Resolved commit 6ed0e99d7fedcd4a33168166fa7b47b43ab73ffa.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('6ed0e99d7fedcd4a33168166fa7b47b43ab73ffa');
+    //
+    // v1.207.4 (standing "newest tag" rule, taken with the bug #1364 basemap
+    // retry fix): the pre-paint bootstrap now OWNS the dark class rather than
+    // only adding it, the suite client for the central Report Engine ships,
+    // the Cloudflare Turnstile bot gate lands INERT by default (no site key,
+    // no gate), and naming the default signal endpoint no longer disables the
+    // carrier. Resolved commit 37c0089ce4ffd8fb322b6cf53e9e220695df6e4e.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('37c0089ce4ffd8fb322b6cf53e9e220695df6e4e');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

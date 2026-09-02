@@ -275,6 +275,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.map.unavailable_title': 'Map unavailable on this device',
     'panel.map.unavailable_body':
       'Your browser or device does not support WebGL, so the interactive map cannot start. Try a different browser or enable hardware acceleration, then reload.',
+    'panel.map.basemap_unreachable_title': 'Map could not be loaded',
+    'panel.map.basemap_unreachable_body':
+      'The swisstopo basemap did not answer in time, so the map could not start. room tried three times. Check your connection and reload the page to try again.',
 
     // ---------- LocateButton + geolocation errors / toasts ----------
     'map.locate.button': 'Locate',
@@ -602,6 +605,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.map.unavailable_title': 'Carte indisponible sur cet appareil',
     'panel.map.unavailable_body':
       "Votre navigateur ou appareil ne prend pas en charge WebGL, la carte interactive ne peut donc pas démarrer. Essayez un autre navigateur ou activez l'accélération matérielle, puis rechargez la page.",
+    'panel.map.basemap_unreachable_title': "La carte n'a pas pu être chargée",
+    'panel.map.basemap_unreachable_body':
+      "Le fond de carte de swisstopo n'a pas répondu à temps, la carte n'a donc pas pu démarrer. room a essayé trois fois. Vérifiez votre connexion, puis rechargez la page pour réessayer.",
 
     // ---------- geolocation ----------
     'map.locate.button': 'Localiser',
@@ -929,6 +935,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.map.unavailable_title': 'Karte auf diesem Gerät nicht verfügbar',
     'panel.map.unavailable_body':
       'Ihr Browser oder Gerät unterstützt WebGL nicht, daher kann die interaktive Karte nicht gestartet werden. Verwenden Sie einen anderen Browser oder aktivieren Sie die Hardwarebeschleunigung und laden Sie die Seite neu.',
+    'panel.map.basemap_unreachable_title': 'Karte konnte nicht geladen werden',
+    'panel.map.basemap_unreachable_body':
+      'Die Grundkarte von swisstopo hat nicht rechtzeitig geantwortet, deshalb konnte die Karte nicht starten. room hat es dreimal versucht. Prüfen Sie Ihre Verbindung und laden Sie die Seite neu.',
 
     // ---------- geolocation ----------
     'map.locate.button': 'Orten',
@@ -1256,6 +1265,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'panel.map.unavailable_title': 'Mappa non disponibile su questo dispositivo',
     'panel.map.unavailable_body':
       "Il tuo browser o dispositivo non supporta WebGL, quindi la mappa interattiva non puo avviarsi. Prova un browser diverso o attiva l'accelerazione hardware, poi ricarica la pagina.",
+    'panel.map.basemap_unreachable_title': 'Impossibile caricare la mappa',
+    'panel.map.basemap_unreachable_body':
+      'La mappa di base di swisstopo non ha risposto in tempo, quindi la mappa non è potuta partire. room ha provato tre volte. Controlla la connessione e ricarica la pagina per riprovare.',
 
     // ---------- geolocation ----------
     'map.locate.button': 'Localizza',

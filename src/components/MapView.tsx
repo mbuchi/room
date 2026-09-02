@@ -31,7 +31,15 @@ import {
   type ActiveZone,
 } from '../lib/mapLayers';
 import { wgs84ToLv95 } from '../lib/coordTransform';
-import { mapStillLive, removeMapSafely, startMapGuarded } from '../lib/mapStartup';
+import {
+  BasemapStyleUnreachableError,
+  STYLE_FETCH_BACKOFF_MS,
+  STYLE_FETCH_MAX_RETRIES,
+  mapStillLive,
+  removeMapSafely,
+  retryBounded,
+  startMapGuarded,
+} from '../lib/mapStartup';
 import { fullParcelAddress } from '../lib/parcelAddress';
 import { fetchParcelData, ParcelDataError, type ParcelData } from '../services/parcelDataService';
 import { prefetchZoneStats, type ZoneStatsResponse } from '../services/zoneStatsService';
@@ -332,7 +340,11 @@ const MapView = () => {
   const [webglOk] = useState(isWebGLAvailable);
   // Set when the map still fails to construct after a passing preflight (e.g.
   // the GL context is lost between detection and construction). Same fallback.
-  const [mapInitFailed, setMapInitFailed] = useState(false);
+  // Why the map could not start, so the fallback panel gives the right advice:
+  // 'device' = no usable WebGL2 (browser / GPU condition, WebGL copy);
+  // 'basemap' = the swisstopo style never arrived even after the bounded
+  // retries (upstream / network condition, "reload to try again" copy).
+  const [mapInitFailed, setMapInitFailed] = useState<null | 'device' | 'basemap'>(null);
   // Light/dark theme. Drives the `dark` class on <html>, the BasemapPicker's
   // theme-paired basemap and every `dark:` chrome variant.
   const [isDarkMode, setIsDarkMode] = useState<boolean>(prefersDarkMode);
@@ -1159,10 +1171,40 @@ const MapView = () => {
     // again and the deferral above is silently undone (measured — the build
     // stays green either way, only index.html tells you). Importing it here
     // keeps both on the deferred side of the split.
+    //
+    // The style read is the one network dependency here, and it is retried
+    // (bug #1364): a slow or briefly unreachable vectortiles.geo.admin.ch used
+    // to end in <MapUnavailable/> on the FIRST miss, with the WebGL advice on
+    // it, although the next request would have painted the map. Two extra
+    // attempts with linear backoff, the same budget the shared map-bootstrap
+    // factory (`createAireonMap`) gives every other app; a failure that
+    // survives all three is re-thrown as BasemapStyleUnreachableError so the
+    // catch below can tell it apart from a device that cannot do WebGL.
+    const resolveStyleWithRetry = () => retryBounded(
+      () => resolveBasemapStyle(initialBasemap),
+      {
+        retries: STYLE_FETCH_MAX_RETRIES,
+        backoffMs: STYLE_FETCH_BACKOFF_MS,
+        isCancelled: () => cancelled,
+        onRetry: (error, attempt) => {
+          console.warn(
+            `${MAP_LABEL}: basemap style fetch failed, retry ${attempt}/${STYLE_FETCH_MAX_RETRIES}`,
+            error,
+          );
+        },
+      },
+    ).catch((error: unknown) => {
+      throw new BasemapStyleUnreachableError(
+        initialBasemap.styleUrl,
+        error,
+        STYLE_FETCH_MAX_RETRIES + 1,
+      );
+    });
+
     void Promise.all([
       import('maplibre-gl'),
       import('@aireon/shared/map-worker'),
-      resolveBasemapStyle(initialBasemap),
+      resolveStyleWithRetry(),
     ])
       .then(([maplibre, { applyMapWorkerUrl }, style]) => {
         if (cancelled || mapRef.current) return;
@@ -1206,7 +1248,7 @@ const MapView = () => {
           // warned (never console.error — a GPU-less device is an environment
           // condition, not a room defect) and disposed anything it built. Fall
           // through to the same <MapUnavailable/> the preflight renders.
-          if (!cancelled) setMapInitFailed(true);
+          if (!cancelled) setMapInitFailed('device');
           return;
         }
 
@@ -1334,7 +1376,22 @@ const MapView = () => {
         // Case (a) is a client-environment condition, not a code defect — log it
         // as a warning so the shared console.error mirror does NOT file it in
         // the Bug Tracker as an `error` (bug #900); real failures still do.
-        if (!cancelled) setMapInitFailed(true);
+        //
+        // A cancelled effect (unmount, StrictMode remount) has nobody to tell:
+        // its successor owns the map now, so neither state nor console gets a
+        // word from this one.
+        if (cancelled) return;
+        if (error instanceof BasemapStyleUnreachableError) {
+          // Three attempts, no style: the swisstopo host or the network, not the
+          // device. Show the "reload to try again" copy, and keep the ONE
+          // structured console.error the shared factory also emits after its
+          // retries are spent (bug #1364) -- an outage that blanks the map is
+          // worth knowing about, a blip no longer reaches this line.
+          setMapInitFailed('basemap');
+          console.error('Unable to initialise the MapLibre map', error);
+          return;
+        }
+        setMapInitFailed('device');
         if (isWebGLContextError(error)) {
           console.warn('room: WebGL context unavailable, showing map fallback', error);
           return;
@@ -1405,6 +1462,9 @@ const MapView = () => {
      notice (with the navbar kept for branding, theme and About) instead of the
      silent blank area room used to leave behind (bug #900). */
   if (!webglOk || mapInitFailed) {
+    // The WebGL advice is only true for a device failure. A basemap that never
+    // arrived (bug #1364) gets its own copy: reload, do not switch browsers.
+    const unavailableKey = mapInitFailed === 'basemap' ? 'basemap_unreachable' : 'unavailable';
     return (
       <div className="relative w-full h-dvh">
         <Navbar
@@ -1420,8 +1480,8 @@ const MapView = () => {
         />
         <div className="absolute inset-0 top-14">
           <MapUnavailable
-            message={t('panel.map.unavailable_title')}
-            description={t('panel.map.unavailable_body')}
+            message={t(`panel.map.${unavailableKey}_title`)}
+            description={t(`panel.map.${unavailableKey}_body`)}
             dark={isDarkMode}
           />
         </div>
