@@ -122,3 +122,73 @@ export function mapStillLive<T extends StartedMapLike>(
 ): boolean {
   return !!map && map === live && !!map.painter;
 }
+
+/**
+ * Bounded retry for the basemap style fetch, mirroring the shared map-bootstrap
+ * factory (`createAireonMap`: two extra attempts, linear 1 s / 2 s backoff).
+ *
+ * room resolves the swisstopo style.json over the network BEFORE it constructs
+ * the map, and that one read used to be a single shot: a slow style host, a
+ * cold cache on a first visit, or a blip on the way to vectortiles.geo.admin.ch
+ * ended in `<MapUnavailable/>` and a Bug Tracker entry (bug #1364), although
+ * the very next request would have succeeded. The shared basemap cache evicts a
+ * rejected read and keeps no negative marker for styles, so every attempt here
+ * genuinely refetches.
+ */
+export const STYLE_FETCH_MAX_RETRIES = 2;
+export const STYLE_FETCH_BACKOFF_MS = 1000;
+
+export interface RetryBoundedOptions {
+  /** Extra attempts after the first one. */
+  retries: number;
+  /** Attempt `n` waits `backoffMs * n` before running. */
+  backoffMs: number;
+  /** Checked before every wait and every re-run; a cancelled caller (unmount,
+   *  StrictMode remount) gets the last error back immediately instead of a
+   *  retry nobody is listening to. */
+  isCancelled?: () => boolean;
+  /** Observability hook, fired once per retry with the error that caused it. */
+  onRetry?: (error: unknown, attempt: number) => void;
+}
+
+export async function retryBounded<T>(
+  run: () => Promise<T>,
+  options: RetryBoundedOptions,
+): Promise<T> {
+  const { retries, backoffMs, isCancelled = () => false, onRetry } = options;
+  let attempt = 0;
+  for (;;) {
+    try {
+      return await run();
+    } catch (error) {
+      if (attempt >= retries || isCancelled()) throw error;
+      attempt += 1;
+      onRetry?.(error, attempt);
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, backoffMs * attempt);
+      });
+      if (isCancelled()) throw error;
+    }
+  }
+}
+
+/**
+ * The basemap style could not be fetched even after the bounded retries. It is
+ * an upstream / network condition, not a device one, so the caller shows the
+ * "map could not be loaded, reload to try again" copy rather than the WebGL
+ * advice, and keeps the real cause attached for the console.
+ */
+export class BasemapStyleUnreachableError extends Error {
+  readonly styleUrl: string;
+  readonly reason: unknown;
+  readonly attempts: number;
+
+  constructor(styleUrl: string, reason: unknown, attempts: number) {
+    const detail = reason instanceof Error ? reason.message : String(reason);
+    super(`Basemap style ${styleUrl} unreachable after ${attempts} attempts: ${detail}`);
+    this.name = 'BasemapStyleUnreachableError';
+    this.styleUrl = styleUrl;
+    this.reason = reason;
+    this.attempts = attempts;
+  }
+}

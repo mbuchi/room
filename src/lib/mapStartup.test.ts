@@ -2,9 +2,13 @@ import { readFileSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  BasemapStyleUnreachableError,
   MapStartupUnsupportedError,
+  STYLE_FETCH_BACKOFF_MS,
+  STYLE_FETCH_MAX_RETRIES,
   mapStillLive,
   removeMapSafely,
+  retryBounded,
   startMapGuarded,
 } from './mapStartup';
 
@@ -259,5 +263,96 @@ describe('MapView routes its map through the startup guards', () => {
     // The style 'load' handler and the geolocation-driven Marker.addTo are the
     // two callbacks that run on their own clock after construction.
     expect(mapView.match(/mapStillLive\(map, mapRef\.current\)/g) ?? []).toHaveLength(2);
+  });
+});
+
+describe('retryBounded (basemap style fetch, bug #1364)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('mirrors the shared map-bootstrap budget: two retries, 1 s linear backoff', () => {
+    expect(STYLE_FETCH_MAX_RETRIES).toBe(2);
+    expect(STYLE_FETCH_BACKOFF_MS).toBe(1000);
+  });
+
+  it('returns the first successful attempt and never waits when nothing fails', async () => {
+    const run = vi.fn().mockResolvedValue('style');
+    await expect(retryBounded(run, { retries: 2, backoffMs: 1000 })).resolves.toBe('style');
+    expect(run).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries a failed read with linear backoff and resolves once it succeeds', async () => {
+    const run = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('Style x could not be loaded'))
+      .mockRejectedValueOnce(new Error('Style x failed with 503'))
+      .mockResolvedValueOnce('style');
+    const onRetry = vi.fn();
+    const pending = retryBounded(run, { retries: 2, backoffMs: 1000, onRetry });
+
+    // First failure -> waits 1 s.
+    await vi.advanceTimersByTimeAsync(999);
+    expect(run).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(run).toHaveBeenCalledTimes(2);
+    // Second failure -> waits 2 s.
+    await vi.advanceTimersByTimeAsync(1999);
+    expect(run).toHaveBeenCalledTimes(2);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(run).toHaveBeenCalledTimes(3);
+
+    await expect(pending).resolves.toBe('style');
+    expect(onRetry).toHaveBeenCalledTimes(2);
+    expect(onRetry.mock.calls[0][1]).toBe(1);
+    expect(onRetry.mock.calls[1][1]).toBe(2);
+  });
+
+  it('gives up with the LAST error once the retries are spent', async () => {
+    const last = new Error('Style x failed with 503');
+    const run = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('first'))
+      .mockRejectedValueOnce(new Error('second'))
+      .mockRejectedValueOnce(last);
+    const pending = retryBounded(run, { retries: 2, backoffMs: 1000 });
+    const settled = pending.catch((e: unknown) => e);
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(run).toHaveBeenCalledTimes(3);
+    await expect(settled).resolves.toBe(last);
+  });
+
+  it('stops retrying once the caller is cancelled (unmount / StrictMode remount)', async () => {
+    let cancelled = false;
+    const run = vi.fn().mockRejectedValue(new Error('boom'));
+    const pending = retryBounded(run, {
+      retries: 2,
+      backoffMs: 1000,
+      isCancelled: () => cancelled,
+    });
+    const settled = pending.catch((e: unknown) => e);
+    // Fails once, schedules the 1 s wait; the effect is torn down meanwhile.
+    await vi.advanceTimersByTimeAsync(500);
+    cancelled = true;
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(run).toHaveBeenCalledTimes(1);
+    await expect(settled).resolves.toBeInstanceOf(Error);
+  });
+});
+
+describe('BasemapStyleUnreachableError', () => {
+  it('names the style, the attempt count and the underlying cause', () => {
+    const cause = new Error('Style https://x/style.json could not be loaded');
+    const err = new BasemapStyleUnreachableError('https://x/style.json', cause, 3);
+    expect(err).toBeInstanceOf(Error);
+    expect(err.name).toBe('BasemapStyleUnreachableError');
+    expect(err.styleUrl).toBe('https://x/style.json');
+    expect(err.attempts).toBe(3);
+    expect(err.reason).toBe(cause);
+    expect(err.message).toContain('after 3 attempts');
+    expect(err.message).toContain('could not be loaded');
   });
 });
