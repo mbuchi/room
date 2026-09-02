@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.45.3',
+    date: 'September 2, 2026',
+    codename: 'One set of buildings',
+    summary: 'The swisstopo basemap no longer draws its own building polygons underneath ours, so every footprint on the map is the one we host.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Layers,
+        text: 'The swisstopo basemaps ship their own building polygons, and they kept painting under our building layer: an offset grey silhouette beside every footprint, most visible where the two datasets disagree on a building\'s outline. Those basemap polygons are now hidden on every style load, including after a basemap swap, so the only buildings on the map are the ones we host. Nothing else about the basemap changes.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.45.2',
     date: 'September 2, 2026',
     codename: 'Second chances for the basemap',

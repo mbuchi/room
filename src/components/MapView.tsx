@@ -126,6 +126,23 @@ import {
   type ResidentialTypeFilter,
 } from '../lib/residentialTypeFilter';
 
+// The swisstopo basemaps ship their OWN building polygons (source-layer
+// `building`). With the app's building layer on top they painted twice: an
+// offset grey silhouette under every footprint. Hide them on every style load
+// (a basemap swap re-creates them). Matched by source-layer, never by layer
+// id — ids drift between swisstopo style releases and the light/dark
+// transforms. The shared 3D-mode hide skips layers that are already hidden
+// and restores only what it hid itself, so this stays in force across 3D
+// toggles.
+const hideBasemapBuildingLayers = (map: maplibregl.Map) => {
+  for (const layer of map.getStyle()?.layers ?? []) {
+    if ((layer as { 'source-layer'?: string })['source-layer'] === 'building') {
+      map.setLayoutProperty(layer.id, 'visibility', 'none');
+    }
+  }
+};
+
+
 /**
  * Whether a map-init failure is "this client cannot do WebGL" rather than a
  * code defect. MapLibre reports these either as an Error whose message mentions
@@ -871,6 +888,7 @@ const MapView = () => {
   const handleBasemapApplied = useCallback((map: maplibregl.Map) => {
     addParcelLayers(map, parcelOpacityRef.current, activeZoneRef.current);
     addBuildingLayers(map, buildingOpacityRef.current);
+    hideBasemapBuildingLayers(map);
     // Capture each residential-filtered layer's ORIGINAL base filter once (the
     // has()-guard makes it idempotent across basemap swaps), then honour any
     // persisted residential choice so the freshly re-added parcel
@@ -1262,6 +1280,7 @@ const MapView = () => {
           if (cancelled || !mapStillLive(map, mapRef.current)) return;
           addParcelLayers(map, 0.6);
           addBuildingLayers(map, 0.85);
+          hideBasemapBuildingLayers(map);
           // `?view=3d` (URL_PARAMS_STANDARD.md) opened is3DMode true — swap
           // straight to the extrusion instead of waiting for a manual 3D
           // toggle click. Mirrors handleBasemapApplied's own 3D branch below.
