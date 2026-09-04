@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.45.4',
+    date: 'September 4, 2026',
+    codename: 'Newer shared foundation',
+    summary: 'room now uses @aireon/shared v1.208.1: the typed connection to the Aireon data service follows contract 1.19.0, and Claire can no longer fall back to a model that does not exist.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated the shared Aireon foundation from v1.207.4 to v1.208.1. The typed connection to the Aireon data service now follows contract 1.19.0, and the assistant\'s fallback chain no longer ends in a model that does not exist. The map, the parcel panel, the exports and your saved work are unchanged.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.45.3',
     date: 'September 2, 2026',
     codename: 'One set of buildings',

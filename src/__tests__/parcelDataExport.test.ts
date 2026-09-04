@@ -241,7 +241,15 @@ describe('parcel data export', () => {
     // the Cloudflare Turnstile bot gate lands INERT by default (no site key,
     // no gate), and naming the default signal endpoint no longer disables the
     // carrier. Resolved commit 37c0089ce4ffd8fb322b6cf53e9e220695df6e4e.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('37c0089ce4ffd8fb322b6cf53e9e220695df6e4e');
+    //
+    // v1.208.1 (standing "newest tag" rule): v1.208.0 regenerates the typed
+    // RES API client from contract 1.19.0 (room's `@aireon/shared/api`
+    // imports go through it) and v1.208.1 fixes the Claire/Gemini fallback
+    // chain, which ended in a model id that does not exist, so the assistant
+    // reached from the FAQ panel could fail over into a dead model. Neither
+    // touches the map, the export or the parcel panel.
+    // Resolved commit c47c0c3f9e97920bc56156c34cfa6189761c440c.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('c47c0c3f9e97920bc56156c34cfa6189761c440c');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
