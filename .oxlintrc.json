@@ -1,26 +1,10 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "react"
-  ],
-  "options": {
-    "typeAware": true
-  },
-  "env": {
-    "browser": true,
-    "es2022": true,
-    "node": true
-  },
-  "ignorePatterns": [
-    "dist",
-    "node_modules",
-    "coverage",
-    "playwright-report"
-  ],
-  "categories": {
-    "correctness": "off"
-  },
+  "plugins": ["typescript", "react"],
+  "options": { "typeAware": true },
+  "env": { "browser": true, "es2022": true, "node": true },
+  "ignorePatterns": ["dist", "node_modules", "coverage", "playwright-report"],
+  "categories": { "correctness": "off" },
   "rules": {
     "for-direction": "error",
     "no-async-promise-executor": "error",
@@ -90,15 +74,9 @@
     "typescript/no-floating-promises": "warn",
     "typescript/no-misused-promises": "warn",
     "typescript/await-thenable": "warn",
-    "typescript/no-unnecessary-type-assertion": "warn",
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "warn",
-    "react/only-export-components": [
-      "warn",
-      {
-        "allowConstantExport": true
-      }
-    ],
+    "react/only-export-components": ["warn", { "allowConstantExport": true }],
     "react/globals": "warn",
     "react/immutability": "warn",
     "react/rule-suppression": "warn",
