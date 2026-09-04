@@ -249,7 +249,13 @@ describe('parcel data export', () => {
     // reached from the FAQ panel could fail over into a dead model. Neither
     // touches the map, the export or the parcel panel.
     // Resolved commit c47c0c3f9e97920bc56156c34cfa6189761c440c.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('c47c0c3f9e97920bc56156c34cfa6189761c440c');
+    //
+    // v1.209.0 (standing "newest tag" rule, taken alongside the native
+    // TypeScript 7 + Oxlint migration): drops hashed-chunk, unload and
+    // offline noise from error reporting and self-tags automated traffic as
+    // synthetic. Does not touch the map, the export or the parcel panel.
+    // Resolved commit 2b280d7f57d9b4fffcf31227c01201a6c7d8e1f4.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('2b280d7f57d9b4fffcf31227c01201a6c7d8e1f4');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
