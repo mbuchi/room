@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.45.5',
+    date: 'September 4, 2026',
+    codename: 'Native TypeScript 7 and Oxlint',
+    summary: 'room now type-checks on TypeScript 7 as its only compiler and lints with Oxlint instead of ESLint, and picks up the newest shared Aireon foundation (v1.209.0).',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Code2,
+        text: 'room now type-checks on TypeScript 7 as its only compiler and lints with Oxlint instead of ESLint; production builds refuse to ship with type errors. No change to what you see.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated the shared Aireon foundation from v1.208.1 to v1.209.0, which trims hashed-chunk, unload and offline noise from error reporting and self-tags automated traffic as synthetic. Nothing in the map, the parcel panel or your saved work changes.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.45.4',
     date: 'September 4, 2026',
     codename: 'Newer shared foundation',
