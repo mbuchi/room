@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.45.6',
+    date: 'September 6, 2026',
+    codename: 'Fewer false faults',
+    summary: 'room moves to @aireon/shared v1.210.0, whose error reporting is more accurate: page reloads, offline moments and deliberately aborted requests no longer file themselves as faults.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: ShieldAlert,
+        text: 'Updated the shared Aireon foundation from v1.209.0 to v1.210.0. Error reporting got more accurate: a best-effort marker on a fetch and a beforeCapture veto let a request declare up front that a failure is expected, so leaving or reloading a page, a brief offline moment, or a request the app itself cancels no longer arrives in the bug tracker as an application fault. Real failures are still reported exactly as before. Nothing in the map, the parcel panel or your saved work changes.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.45.5',
     date: 'September 4, 2026',
     codename: 'Native TypeScript 7 and Oxlint',
