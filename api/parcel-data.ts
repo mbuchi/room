@@ -26,6 +26,7 @@ export const config = {
 };
 
 import { withSignalCarrierWeb } from "@aireon/shared/signal-carrier";
+import { withTurnstileWeb } from "@aireon/shared/turnstile-guard";
 import { RES_API_BASE_URL } from "@aireon/shared/api";
 
 const corsHeaders = {
@@ -119,4 +120,7 @@ async function parcelData(req: Request): Promise<Response> {
   }
 }
 
-export default withSignalCarrierWeb(parcelData);
+// The Turnstile bot gate goes OUTERMOST, so an uncleared caller never reaches
+// the signal carrier or RES. Inert until TURNSTILE_SECRET_KEY is set.
+// See aireon-shared/docs/TURNSTILE_STANDARD.md.
+export default withTurnstileWeb(withSignalCarrierWeb(parcelData));
