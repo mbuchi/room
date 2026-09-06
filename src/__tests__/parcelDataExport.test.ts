@@ -255,7 +255,13 @@ describe('parcel data export', () => {
     // offline noise from error reporting and self-tags automated traffic as
     // synthetic. Does not touch the map, the export or the parcel panel.
     // Resolved commit 2b280d7f57d9b4fffcf31227c01201a6c7d8e1f4.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('2b280d7f57d9b4fffcf31227c01201a6c7d8e1f4');
+    //
+    // v1.210.0 (standing "newest tag" rule): the errorlog client gains a
+    // best-effort fetch marker and a beforeCapture veto, so a reload, an
+    // offline moment or a deliberately aborted request stops filing itself as
+    // a fault. Does not touch the map, the export or the parcel panel.
+    // Resolved commit 0d7d7166ea8c7d0454cbc718eca544a96fe0f8ae.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('0d7d7166ea8c7d0454cbc718eca544a96fe0f8ae');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
