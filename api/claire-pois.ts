@@ -7,6 +7,7 @@
 // Uses the Node (req, res) handler signature — the Web (Request)=>Response
 // signature only works on the edge runtime.
 import { RES_API_BASE_URL } from "@aireon/shared/api";
+import { withTurnstile } from "@aireon/shared/turnstile-guard";
 
 export const config = { maxDuration: 15 };
 
@@ -33,6 +34,7 @@ const CORS_HEADERS: Record<string, string> = {
 interface NodeReq {
   method?: string;
   body?: unknown;
+  headers?: Record<string, string | string[] | undefined>;
 }
 interface NodeRes {
   setHeader(name: string, value: string): void;
@@ -46,7 +48,7 @@ function send(res: NodeRes, status: number, body: unknown): void {
   res.status(status).json(body);
 }
 
-export default async function handler(
+async function handler(
   req: NodeReq,
   res: NodeRes
 ): Promise<void> {
@@ -112,3 +114,8 @@ export default async function handler(
     clearTimeout(timer);
   }
 }
+
+// The Turnstile bot gate goes OUTERMOST, so an uncleared caller never reaches
+// RES. Inert until TURNSTILE_SECRET_KEY is set.
+// See aireon-shared/docs/TURNSTILE_STANDARD.md.
+export default withTurnstile(handler);

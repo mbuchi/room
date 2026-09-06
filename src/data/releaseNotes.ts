@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.46.0',
+    date: 'September 6, 2026',
+    codename: 'A bot gate that stays invisible until it is needed',
+    summary: 'The anonymous data endpoints now sit behind the shared Cloudflare Turnstile bot gate, wired but inert until the keys are provisioned.',
+    items: [
+      {
+        kind: 'new' as ChangeKind,
+        icon: ShieldAlert,
+        text: 'Every anonymous data endpoint room exposes, the parcel data, zone statistics, city market and Claire POI proxies, now checks for a Turnstile clearance cookie before answering, using the shared bot gate guard. A hidden interstitial in front of the access gate mints that cookie for real visitors. The gate does nothing at all until room is given a site key and a secret, so this release changes no behavior on its own.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.45.6',
     date: 'September 6, 2026',
     codename: 'Fewer false faults',

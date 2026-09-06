@@ -15,6 +15,7 @@ export const config = {
 };
 
 import { RES_API_BASE_URL } from "@aireon/shared/api";
+import { withTurnstileWeb } from "@aireon/shared/turnstile-guard";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -58,7 +59,7 @@ function json(body: unknown, status: number): Response {
   });
 }
 
-export default async function handler(req: Request): Promise<Response> {
+async function handler(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
@@ -104,3 +105,8 @@ export default async function handler(req: Request): Promise<Response> {
     return json({ error: (error as Error).message }, 502);
   }
 }
+
+// The Turnstile bot gate goes OUTERMOST, so an uncleared caller never reaches
+// RES. Inert until TURNSTILE_SECRET_KEY is set.
+// See aireon-shared/docs/TURNSTILE_STANDARD.md.
+export default withTurnstileWeb(handler);
