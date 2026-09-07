@@ -33,9 +33,18 @@ function mockFetch(response: Response): () => Request {
   };
 }
 
+// The proxies are wrapped in withTurnstile(). Vercel runs this suite with the
+// production env, where TURNSTILE_SECRET_KEY is set, so the guard would answer
+// 403 before any handler runs and every assertion below would fail. These
+// tests exercise the proxies, not the gate (the gate has its own suite in
+// @aireon/shared), so the gate is switched off for every test here, after
+// the unstub above resets whatever the previous test stubbed.
 beforeEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllEnvs();
+  vi.stubEnv('TURNSTILE_SECRET_KEY', '');
+  vi.stubEnv('TURNSTILE_CLEARANCE_KEY', '');
+  vi.stubEnv('TURNSTILE_AUTOMATION_SECRET', '');
 });
 
 describe('shared base constant', () => {

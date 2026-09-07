@@ -12,6 +12,20 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.46.1',
+    date: 'September 7, 2026',
+    codename: 'Gate-proof tests',
+    summary: 'The RES proxy test suite no longer fails a production build once the Turnstile bot gate is configured with a live secret key.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bug,
+        text: 'The RES proxy handler tests now switch the Turnstile bot gate off for themselves, the same fix already shipped in groove after a live secret key made those tests fail a production build. The gate keeps its own separate test coverage; nothing changes in how room looks or behaves.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.46.0',
     date: 'September 6, 2026',
     codename: 'A bot gate that stays invisible until it is needed',
