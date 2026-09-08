@@ -279,7 +279,31 @@ describe('parcel data export', () => {
     // it inside `lib/mapStartup.ts#startMapGuarded`, so both engine limbs end in
     // the same null and the same <MapUnavailable/>.
     // Resolved commit c657a2df0158f63b6553ed06a69062c95302aed2.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('c657a2df0158f63b6553ed06a69062c95302aed2');
+    //
+    // v1.213.0 (standing "newest tag" rule): Claire stops showing three static
+    // dots while she thinks. v1.212.0 put `ClaireThinking` in that slot, the
+    // row the shared ClaireAssistant renders between the send and the first
+    // streamed token: a breathing mark plus a status line that holds back
+    // 500 ms (so a fast answer never flashes it), rotates through copy picked
+    // from the question's intent, and at 24 s settles into a plain line with an
+    // elapsed timer. The copy is deliberately vague about WHAT is happening,
+    // and that is the honest reading: Claire calls no tools and the relay sends
+    // no phase signal, so nothing is being fetched while the line shows, and
+    // there is no "Searching..." frame to imply otherwise. Labels ship in
+    // DE / EN / FR / IT and every animation drops under prefers-reduced-motion.
+    // v1.213.0 itself only reserves one line of height in that row, so the
+    // bubble no longer grows when the first line lands. The one API change is
+    // an OPTIONAL `locale` prop on ClaireAssistantProps; no export moved and
+    // nothing was removed, which is why typecheck stayed green through both
+    // tags and why this guard is the only thing that fires. room does NOT pass
+    // that prop and does not need to: getClaireThinkingLabels falls back to
+    // `<html lang>`, room's I18nProvider is shared's own createI18n (see
+    // contexts/I18nContext.tsx), and createI18n's provider writes
+    // document.documentElement.lang on every locale change, so the navbar
+    // LocaleSelector already carries the indicator along with the rest of the
+    // UI. Nothing here touches the map, the export or the parcel panel.
+    // Resolved commit 54fee1b4e4f7ef220a233bd2e5d54bd7ee32ef7b.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('54fee1b4e4f7ef220a233bd2e5d54bd7ee32ef7b');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
