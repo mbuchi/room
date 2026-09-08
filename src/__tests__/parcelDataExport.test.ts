@@ -190,10 +190,12 @@ describe('parcel data export', () => {
     // drops reports whose source or originating stack frame is a
     // chrome/moz/safari-extension:// URL.
     //
-    // NOTE: v1.201.0 also centralises the GPU-init painter gate. room does NOT
-    // route through it - src/lib/mapStartup.ts is room's own local guard, shipped
-    // in 0.38.1 and still the code MapView uses - so that part is a no-op here
-    // and is deliberately absent from the 0.40.0 release note.
+    // NOTE: v1.201.0 also centralises the GPU-init painter gate. room did NOT
+    // route through it at this pin - src/lib/mapStartup.ts is room's own local
+    // guard, shipped in 0.38.1 - so that part was a no-op here and is
+    // deliberately absent from the 0.40.0 release note. (Superseded at v1.211.0
+    // below: startMapGuarded now builds through the shared constructMapSafely,
+    // because the painter gate alone is dead code on maplibre-gl 6.7.0.)
     //
     // v1.203.2 takes the MapLibre engine off the import map. v1.192.0 shipped
     // it as `rollupOptions.external` plus an injected
@@ -261,7 +263,23 @@ describe('parcel data export', () => {
     // offline moment or a deliberately aborted request stops filing itself as
     // a fault. Does not touch the map, the export or the parcel panel.
     // Resolved commit 0d7d7166ea8c7d0454cbc718eca544a96fe0f8ae.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('0d7d7166ea8c7d0454cbc718eca544a96fe0f8ae');
+    //
+    // v1.211.0, taken WITH the maplibre-gl 6.6.0 -> 6.7.0 bump because that bump
+    // needs it. 6.7.0 changed how the engine reports a refused WebGL2 context:
+    // `_setupPainter()` now THROWS a GPUInitializationError and the Map
+    // constructor `_cleanupContainer()`s and rethrows, where <= 6.6.0 fired an
+    // event and handed back a painter-less Map. The post-construction painter
+    // gate the suite rolled out in Aug 2026 is therefore dead code on 6.7.0 —
+    // the throw sails past it. v1.211.0's ONLY change is the additive
+    // `constructMapSafely` / `isGpuInitializationError` pair in `src/map/webgl`,
+    // routed through shared's own six construction sites in `src/map`,
+    // `src/basemap`, `src/claire` and `src/massing`, plus shared's maplibre-gl
+    // devDependency and the MAP_BOOTSTRAP_STANDARD doc. Nothing else is touched
+    // — not the map layers, not the export, not the parcel panel. room adopts
+    // it inside `lib/mapStartup.ts#startMapGuarded`, so both engine limbs end in
+    // the same null and the same <MapUnavailable/>.
+    // Resolved commit c657a2df0158f63b6553ed06a69062c95302aed2.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('c657a2df0158f63b6553ed06a69062c95302aed2');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {

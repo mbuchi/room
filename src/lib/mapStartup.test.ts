@@ -13,10 +13,10 @@ import {
 } from './mapStartup';
 
 /**
- * Faithful model of what maplibre-gl 6.3.0 — the engine room pins — hands back
- * when the WebGL2 context cannot be created. Transcribed from the engine's own
- * source (`node_modules/maplibre-gl/dist/maplibre-gl-dev.mjs`) so these tests
- * reproduce the real crash rather than a guess at it:
+ * Faithful model of what maplibre-gl <= 6.6.0 hands back when the WebGL2
+ * context cannot be created. Transcribed from maplibre-gl 6.3.0's own source
+ * (`dist/maplibre-gl-dev.mjs`) so these tests reproduce the real crash rather
+ * than a guess at it:
  *
  *   _setupPainter():
  *       const gl = this._canvas.getContext('webgl2', attributes);
@@ -30,6 +30,13 @@ import {
  *   remove():
  *       ... this.painter.destroy(); this._handlers.destroy(); ...
  *       -> "Cannot read properties of undefined (reading 'destroy')"
+ *
+ * ⚠ This is NO LONGER the engine room ships. Since v0.47.0 room is on
+ * maplibre-gl 6.7.0, which THROWS instead (see `GpuInitializationError` /
+ * `refuseWebGL2` below). The shape still models two live situations, which is
+ * why it stays: a GL context that dies MID-SESSION leaves exactly this
+ * painter-less object behind, and it is what `mapStillLive` and
+ * `removeMapSafely` are written against.
  */
 class HalfBuiltMap {
   painter: { destroy(): void } | undefined = undefined;
@@ -57,6 +64,43 @@ class WorkingMap {
   use(): void {}
 }
 
+/**
+ * Faithful model of what maplibre-gl >= 6.7.0 does instead. Transcribed from
+ * the installed 6.7.0 (`dist/maplibre-gl-dev.mjs`), both halves:
+ *
+ *   _setupPainter():
+ *       const gl = this._canvas.getContext('webgl2', attributes);
+ *       if (!gl) throw new GPUInitializationError(attributes, creationEvent);
+ *
+ *   constructor:
+ *       try { this._setupPainter(); }
+ *       catch (error) { this._cleanupContainer(); throw error; }
+ *
+ * The class is matched by NAME, never `instanceof`: room loads the engine from
+ * static.aireon.ch through an import map, so the class an app would catch is
+ * not the one any bundled copy exposes.
+ */
+class GpuInitializationError extends Error {
+  readonly requestedAttributes: Record<string, boolean>;
+  readonly statusMessage: string | null;
+
+  constructor(statusMessage: string | null = null) {
+    super(
+      'WebGL2 is required to display this map. We are sorry, but it seems that your browser ' +
+        'does not support WebGL2, a technology for rendering 3D graphics on the web. Read more ' +
+        'on https://wiki.openstreetmap.org/wiki/This_map_requires_WebGL',
+    );
+    this.name = 'GPUInitializationError';
+    this.requestedAttributes = { alpha: true, depth: true, stencil: true, premultipliedAlpha: true };
+    this.statusMessage = statusMessage;
+  }
+}
+
+/** A `create` thunk that behaves like the 6.7.0 constructor on a refused context. */
+const refuseWebGL2 = (): never => {
+  throw new GpuInitializationError('Could not create a WebGL2 context, GL_VENDOR = Disabled');
+};
+
 const webgl2Present = () => true;
 const webgl2Absent = () => false;
 
@@ -64,10 +108,31 @@ const webgl2Absent = () => false;
    Non-vacuity: if the stub itself stops behaving like the engine, every guard
    test below is asserting against something that cannot fail.
    ────────────────────────────────────────────────────────────────────────── */
-describe('the half-built-map model itself (non-vacuity)', () => {
-  it('does not throw at construction — so try/catch around `new Map()` is NOT protection', () => {
+describe('the engine models themselves (non-vacuity)', () => {
+  it('models BOTH engine behaviours, which are mutually exclusive', () => {
+    // <= 6.6.0: construction RESOLVES with a painter-less map, so a
+    // `try { new Map() } catch {}` never fires and is NOT protection there.
     expect(() => new HalfBuiltMap()).not.toThrow();
     expect(new HalfBuiltMap().painter).toBeUndefined();
+
+    // >= 6.7.0 (what room ships): construction THROWS, so the painter gate that
+    // runs after it is never reached and is NOT protection here. A guard
+    // written for either half alone is dead code under the other.
+    expect(refuseWebGL2).toThrow(GpuInitializationError);
+  });
+
+  it('gives the throw the name and wording the real engine uses', () => {
+    // Recognition is by NAME (the class does not survive the static-engine
+    // import-map seam) with the message as the fallback for older engines.
+    let caught: unknown;
+    try {
+      refuseWebGL2();
+    } catch (e) {
+      caught = e;
+    }
+    expect((caught as Error).name).toBe('GPUInitializationError');
+    expect((caught as Error).message).toMatch(/^WebGL2 is required to display this map/);
+    expect((caught as GpuInitializationError).statusMessage).toContain('GL_VENDOR = Disabled');
   });
 
   it('really crashes the documented way once anything touches it', () => {
@@ -125,7 +190,7 @@ describe('startMapGuarded', () => {
     expect(error).not.toHaveBeenCalled();
   });
 
-  it('refuses the painter-less map MapLibre returns instead of throwing', () => {
+  it('refuses the painter-less map maplibre-gl <= 6.6.0 returns instead of throwing', () => {
     // Unguarded — what room's init effect used to do: construction "succeeds",
     // the instance is stored in mapRef, and the next call detonates.
     const unguarded = new HalfBuiltMap();
@@ -146,22 +211,80 @@ describe('startMapGuarded', () => {
     expect(adopted).toBeNull();
     expect(live).toBeNull();
 
-    // ...and it disposed the reject, swallowing remove()'s own painter crash.
+    // ...and it released the reject, swallowing remove()'s own painter crash.
     expect(half.removeCalls).toBe(1);
-    expect(warn).toHaveBeenCalledWith('room map:', 'map started without a WebGL2 painter');
+    expect(warn).toHaveBeenCalledWith('room map:', 'MapLibre could not create a WebGL2 painter');
     expect(error).not.toHaveBeenCalled();
+  });
+
+  it('refuses the GPUInitializationError maplibre-gl >= 6.7.0 THROWS', () => {
+    // The live limb on the engine room ships. Unguarded, this throw escapes the
+    // whole `.then()` callback and lands in whatever catch is downstream — a
+    // retry loop or a console.error in most apps, which files one hub bug row
+    // per WebGL2-less visitor (#900).
+    expect(refuseWebGL2).toThrow(/^WebGL2 is required to display this map/);
+
+    // Guarded: same null the painter-less limb produces, same one warning, and
+    // nothing to release because the engine already _cleanupContainer()d.
+    let live: unknown = null;
+    const adopted = startMapGuarded(refuseWebGL2, 'room map', webgl2Present);
+    if (adopted) live = adopted;
+    expect(adopted).toBeNull();
+    expect(live).toBeNull();
+    expect(warn).toHaveBeenCalledWith('room map:', 'MapLibre could not create a WebGL2 painter');
+    expect(warn).toHaveBeenCalledOnce();
+    // An environment condition, not a room defect (#900).
+    expect(error).not.toHaveBeenCalled();
+  });
+
+  it('does NOT launder an unrelated construction failure into "no WebGL here"', () => {
+    // A bad style, a container that is not in the document, a genuine bug: all
+    // must stay loud and reach MapView's terminal .catch, which shows the
+    // basemap copy or files the real console.error. Swallowing these as a
+    // device problem is how a room defect becomes invisible.
+    const boom = new TypeError("Cannot read properties of undefined (reading 'version')");
+    expect(() =>
+      startMapGuarded(
+        () => {
+          throw boom;
+        },
+        'room map',
+        webgl2Present,
+      ),
+    ).toThrow(boom);
+    expect(warn).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
+
+    // Not even one whose message merely mentions a style URL that has "webgl"
+    // in it — recognition is the shared name/message test, not a substring hunt.
+    const styleFail = new Error('Style https://x/style.json could not be loaded');
+    expect(() =>
+      startMapGuarded(
+        () => {
+          throw styleFail;
+        },
+        'room map',
+        webgl2Present,
+      ),
+    ).toThrow(styleFail);
   });
 
   it('catches a context that dies AFTER the preflight passed', () => {
     // room preflights at mount, then awaits the basemap style over the network
     // before constructing. This models the window that opens in between: the
-    // probe says yes, the map still comes back painter-less.
+    // probe says yes, the context is gone by the time the map asks for one.
+    // Both engine limbs are exercised, because either can be the answer.
     const half = new HalfBuiltMap();
     expect(startMapGuarded(() => half, 'room map', webgl2Present)).toBeNull();
-    // Two warnings, both benign: the painter gate, then the disposal swallowing
-    // the reject's own painter.destroy() crash. Never a console.error.
-    expect(warn).toHaveBeenCalledWith('room map:', 'map started without a WebGL2 painter');
-    expect(warn).toHaveBeenCalledWith('room map: teardown of a half-built map failed', expect.any(TypeError));
+    // The reject is released rather than left to leak, and its own
+    // painter.destroy() crash is swallowed rather than rethrown at the caller.
+    expect(half.removeCalls).toBe(1);
+    expect(warn).toHaveBeenCalledWith('room map:', 'MapLibre could not create a WebGL2 painter');
+    expect(error).not.toHaveBeenCalled();
+
+    warn.mockClear();
+    expect(startMapGuarded(refuseWebGL2, 'room map', webgl2Present)).toBeNull();
+    expect(warn).toHaveBeenCalledWith('room map:', 'MapLibre could not create a WebGL2 painter');
     expect(error).not.toHaveBeenCalled();
   });
 });
@@ -234,6 +357,29 @@ describe('mapStillLive', () => {
    mapWorkerSeam suite uses for the other invisible MapLibre seam.
    ────────────────────────────────────────────────────────────────────────── */
 const mapView = readFileSync(new URL('../components/MapView.tsx', import.meta.url), 'utf8');
+const mapStartupSrc = readFileSync(new URL('./mapStartup.ts', import.meta.url), 'utf8');
+
+describe('startMapGuarded routes construction through the shared two-limb guard', () => {
+  it('builds via constructMapSafely, never a bare create()', () => {
+    // The behavioural pin the unit tests above cannot make: it is legal
+    // TypeScript, and a green build, to go back to `const map = create();`.
+    // That reinstates the 6.7.0 regression — the throw escapes startMapGuarded
+    // entirely and the painter gate below it is never reached.
+    expect(mapStartupSrc).toContain("from '@aireon/shared/webgl'");
+    expect(mapStartupSrc).toContain('constructMapSafely(create)');
+    expect(mapStartupSrc).not.toMatch(/=\s*create\(\)\s*;/);
+  });
+
+  it('keeps the preflight OUTSIDE the shared helper', () => {
+    // constructMapSafely knows nothing about room's injected probe; dropping
+    // the supported() gate would construct a map on a device already known to
+    // have no WebGL2, burning a context to learn what the mount already knew.
+    const preflight = mapStartupSrc.indexOf('if (!supported())');
+    const built = mapStartupSrc.indexOf('constructMapSafely(create)');
+    expect(preflight).toBeGreaterThan(-1);
+    expect(built).toBeGreaterThan(preflight);
+  });
+});
 
 describe('MapView routes its map through the startup guards', () => {
   it('gates construction on the painter BEFORE the instance reaches mapRef', () => {
@@ -250,6 +396,13 @@ describe('MapView routes its map through the startup guards', () => {
     // A bare `new maplibre.Map(` that is not the one inside startMapGuarded
     // would be a second, unguarded construction site.
     expect(mapView.split('new maplibre.Map(')).toHaveLength(2);
+    // ...and the null it can now return for EITHER engine limb has to be acted
+    // on before the ref write, or the guard is decorative: room's graceful path
+    // is the 'device' init failure, which renders the shared <MapUnavailable/>.
+    const handled = mapView.indexOf("if (!cancelled) setMapInitFailed('device');");
+    expect(handled, 'MapView must take its unavailable path when the guard returns null')
+      .toBeGreaterThan(constructed);
+    expect(handled).toBeLessThan(stored);
   });
 
   it('tears the map down through removeMapSafely, never a bare remove()', () => {

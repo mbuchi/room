@@ -1230,14 +1230,21 @@ const MapView = () => {
         applyMapWorkerUrl(maplibre);
 
         maplibreRef.current = maplibre;
-        // ⚠ MapLibre v6 DOES NOT THROW when the WebGL2 context cannot be
-        // created — it hands back a painter-less Map (see ../lib/mapStartup).
-        // The isWebGLAvailable() preflight above ran at MOUNT; the style fetch
-        // this `.then()` is waiting on is a network round trip, and the map's
-        // own depth+stencil context request happens only now, on the far side
-        // of it. startMapGuarded re-asserts the preflight and then gates on the
-        // painter BEFORE the instance reaches mapRef, so no half-built map ever
-        // becomes the one every callback, control and teardown below reads.
+        // ⚠ MapLibre reports a refused WebGL2 context TWO ways, and which one
+        // depends on the engine version (see ../lib/mapStartup for the table):
+        // 6.7.0 and later THROW a GPUInitializationError out of the
+        // constructor; 6.6.0 and earlier RESOLVE and hand back a painter-less
+        // Map. room is on 6.7.0, so the throw is the live limb — but the
+        // painter-less shape is still what a mid-session context loss leaves
+        // behind. The isWebGLAvailable() preflight above ran at MOUNT; the
+        // style fetch this `.then()` is waiting on is a network round trip, and
+        // the map's own depth+stencil context request happens only now, on the
+        // far side of it. startMapGuarded re-asserts the preflight and then
+        // routes construction through the shared constructMapSafely, which
+        // covers BOTH limbs BEFORE the instance reaches mapRef — so neither a
+        // throw nor a half-built map ever becomes the one every callback,
+        // control and teardown below reads. Anything that is NOT a GPU-init
+        // failure is rethrown and lands in the terminal .catch far below.
         const map = startMapGuarded(() => new maplibre.Map({
           container,
           style,
@@ -1262,10 +1269,11 @@ const MapView = () => {
           attributionControl: false,
         }), MAP_LABEL, () => webglOk);
         if (!map) {
-          // No painter: room has no canvas to draw into. startMapGuarded already
-          // warned (never console.error — a GPU-less device is an environment
-          // condition, not a room defect) and disposed anything it built. Fall
-          // through to the same <MapUnavailable/> the preflight renders.
+          // No WebGL2 painter, whichever way the engine said so: room has no
+          // canvas to draw into. startMapGuarded already warned (never
+          // console.error — a GPU-less device is an environment condition, not
+          // a room defect) and released anything that got built. Fall through
+          // to the same <MapUnavailable/> the preflight renders.
           if (!cancelled) setMapInitFailed('device');
           return;
         }
@@ -1389,9 +1397,14 @@ const MapView = () => {
         });
       })
       .catch((error) => {
-        // The isWebGLAvailable() preflight above already skips the common case.
-        // Reaching here means either (a) the GL context died between detection
-        // and construction, or (b) something else in the init chain broke.
+        // The isWebGLAvailable() preflight above already skips the common case,
+        // and since @aireon/shared v1.211.0 the GPUInitializationError that
+        // maplibre-gl >= 6.7.0 THROWS out of the constructor is consumed
+        // upstream by constructMapSafely, inside startMapGuarded — it returns
+        // null and never reaches this catch. Reaching here means either (a) a
+        // WebGL failure raised somewhere else in the init chain (the style
+        // fetch, applyMapWorkerUrl, a webglcontextcreationerror surfaced as a
+        // rejection), or (b) something else in that chain broke.
         // Case (a) is a client-environment condition, not a code defect — log it
         // as a warning so the shared console.error mirror does NOT file it in
         // the Bug Tracker as an `error` (bug #900); real failures still do.

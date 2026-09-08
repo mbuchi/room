@@ -1,37 +1,56 @@
 /**
- * Guards for MapLibre's silent GPU-initialisation failure.
+ * Guards for MapLibre's GPU-initialisation failure — which the engine reports
+ * TWO different ways depending on the version installed.
  *
- * ⚠ `new maplibregl.Map()` DOES NOT THROW when the WebGL2 context cannot be
- * created. Verified against the engine room pins (maplibre-gl 6.3.0,
- * `dist/maplibre-gl-dev.mjs`): `_setupPainter()` fires a `GPUInitializationError`
- * at the map and RETURNS, and the constructor then does
+ * ⚠ The engine changed its mind in 6.7.0, and a guard written for one half is
+ * DEAD CODE under the other:
  *
- *     this._setupPainter();
- *     if (!this.painter) return;
+ *   | engine   | `_setupPainter()` on a refused WebGL2 context | `new Map()`      |
+ *   |----------|----------------------------------------------|------------------|
+ *   | <= 6.6.0 | FIRES a `GPUInitializationError` event and    | RESOLVES, hands  |
+ *   |          | returns; ctor: `if (!this.painter) return;`   | back a painter-  |
+ *   |          |                                              | less Map         |
+ *   | >= 6.7.0 | `throw new GPUInitializationError(...)`; ctor | THROWS           |
+ *   |          | `_cleanupContainer()`s and rethrows           |                  |
  *
- * so it hands back a `Map` with no painter, no style, no handlers and no resize
- * observer. `try { new Map(...) } catch {}` is NOT protection here — that catch
- * never runs. Construction looks successful, the half-built object gets stored,
- * and it only detonates later, somewhere unrelated:
+ * room ships the 6.7.0 engine, so the post-construction painter gate this
+ * module rolled out in Aug 2026 is no longer the limb that fires — the throw
+ * sails straight past it. Conversely a plain `try { new Map(...) } catch {}`
+ * never runs on 6.6.0 and earlier. BOTH halves are needed, and both now live in
+ * one place: `constructMapSafely` from `@aireon/shared/webgl` (v1.211.0+), which
+ * folds them into a `null` return and RETHROWS anything that is not a GPU-init
+ * failure, so a bad style, a missing container or a real bug stays loud and
+ * still reaches MapView's terminal `.catch`.
+ *
+ * The 6.6.0 limb has not stopped mattering: it is also the shape a map takes
+ * when its GL context dies MID-SESSION (MapLibre clears the painter), which is
+ * what `mapStillLive` below reads on every late callback. On that limb
+ * construction *looks* successful, the half-built object gets stored, and it
+ * only detonates later, somewhere unrelated:
  *
  *   - `Marker.addTo` / `easeTo` / `project`
  *       -> "Cannot read properties of undefined (reading '0')"
- *   - `remove()`, which in 6.3.0 runs `this.painter.destroy()` unconditionally
+ *   - `remove()`, which runs `this.painter.destroy()` unconditionally
  *       -> "Cannot read properties of undefined (reading 'destroy')"
  *
  * One environment condition, three unrelated-looking crash signatures. So:
- * preflight WebGL2, then gate on the painter BEFORE the instance is stored
- * anywhere, then re-check on every callback that runs on its own clock.
+ * preflight WebGL2, then construct through the shared helper BEFORE the
+ * instance is stored anywhere, then re-check on every callback that runs on its
+ * own clock.
  *
- * These helpers deliberately import nothing. room's unit suite runs in vitest's
- * `node` environment, and the `@aireon/shared` barrel touches `window` at module
- * scope (see the note in `__tests__/versionLockstep.test.ts`), so the WebGL2
- * preflight is INJECTED by the caller rather than imported here. MapView passes
- * the shared `isWebGLAvailable()` answer it already computed at mount — reusing
- * that one probe rather than running a second one matters, because the shared
- * probe holds on to the context it creates and room can already be carrying a
- * second live MapLibre instance (the Massing tab's buildable-massing scene).
+ * Apart from that one helper these guards deliberately import nothing. room's
+ * unit suite runs in vitest's `node` environment, and the `@aireon/shared`
+ * BARREL touches `window` at module scope (see the note in
+ * `__tests__/versionLockstep.test.ts`) — the `@aireon/shared/webgl` SUBPATH does
+ * not, so it is safe to pull in here, but the barrel still is not. The WebGL2
+ * preflight therefore stays INJECTED by the caller rather than imported: MapView
+ * passes the shared `isWebGLAvailable()` answer it already computed at mount.
+ * Reusing that one probe rather than running a second one matters, because the
+ * shared probe holds on to the context it creates and room can already be
+ * carrying a second live MapLibre instance (the Massing tab's buildable-massing
+ * scene).
  */
+import { constructMapSafely } from '@aireon/shared/webgl';
 
 /**
  * The shape the guards below need from a MapLibre map: the painter MapLibre only
@@ -60,8 +79,16 @@ export class MapStartupUnsupportedError extends Error {
 /**
  * Construct a map only when WebGL2 is there, and adopt it only when MapLibre
  * really built a painter. Returns `null` when the map is unusable, having
- * already disposed whatever was built and logged exactly one warning; the
+ * already released whatever was built and logged exactly one warning; the
  * caller renders its map-unavailable state instead.
+ *
+ * The construction goes through the shared `constructMapSafely`, the only
+ * version-agnostic half of this (see the module note): it turns BOTH the
+ * >= 6.7.0 throw and the <= 6.6.0 painter-less instance into `null`, releasing
+ * the latter, and rethrows everything else unchanged. That rethrow is the point
+ * — a bad style, a missing container or a genuine bug must not be laundered
+ * into "no WebGL here"; it travels on to MapView's terminal `.catch` and still
+ * gets its console.error.
  *
  * `supported` is the preflight answer, injected (see the module note). It is
  * checked again here rather than only at effect entry because construction
@@ -77,18 +104,17 @@ export function startMapGuarded<T extends StartedMapLike>(
     console.warn(`${label}:`, new MapStartupUnsupportedError().message);
     return null;
   }
-  const map = create();
   // The preflight asks a throwaway canvas for a bare webgl2 context; the map
   // asks for one with depth + stencil on its own canvas, later, and only that
   // request can fail the way this guard catches. A device already at its
   // context limit — or one whose GPU process died during the style fetch —
   // passes the probe and still lands here.
-  if (!map.painter) {
+  const map = constructMapSafely(create);
+  if (!map) {
     console.warn(
       `${label}:`,
-      new MapStartupUnsupportedError('map started without a WebGL2 painter').message,
+      new MapStartupUnsupportedError('MapLibre could not create a WebGL2 painter').message,
     );
-    removeMapSafely(map, label);
     return null;
   }
   return map;

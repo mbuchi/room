@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.47.0',
+    date: 'September 8, 2026',
+    codename: 'A map that fails politely',
+    summary: 'room moves to the newest map engine, and a device that cannot draw a map now gets the clear notice instead of a map that quietly never appears.',
+    items: [
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Map,
+        text: 'Updated the map engine to MapLibre GL 6.7.0. The new version signals a device that cannot draw maps differently from the old one, so room now recognizes both signals. On a computer with hardware acceleration switched off, or in a browser without WebGL, room shows the same plain "Map unavailable on this device" notice as before, with the header, theme and About still working. Everything a working device sees is unchanged.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated the shared Aireon foundation from v1.210.0 to v1.211.0, which carries the matching map-startup change for the new engine. Nothing in the map, the parcel panel or your saved work changes.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.46.1',
     date: 'September 7, 2026',
     codename: 'Gate-proof tests',
