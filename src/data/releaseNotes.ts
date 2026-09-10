@@ -12,6 +12,26 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.47.1',
+    date: 'September 11, 2026',
+    codename: 'Quieter bug tracker',
+    summary: 'A browser extension that blocks the Cloudflare bot check no longer shows up as a warning in the hub bug tracker; the shared Aireon foundation moves to v1.216.0.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: Bug,
+        text: 'Bug tracker no longer files the ad-blocked Cloudflare Turnstile script as a warning. When an ad blocker refuses the bot-check script, room used to report "Resource failed to load" to the hub on every visit, which was noise rather than a defect. The check itself behaves as before: a blocked script still falls back the way it always did, and nothing in the map, the parcel panel or your saved work changes.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated the shared Aireon foundation from v1.213.0 to v1.216.0. Besides the bug-tracker fix above, the update lets the app launcher carry an app-specific origin and lists Realioo, and scopes the signed-out search-history cookie to the Brokereum domain as well. None of these change anything you see in room.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.47.0',
     date: 'September 8, 2026',
     codename: 'A map that fails politely',

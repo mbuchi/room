@@ -303,7 +303,20 @@ describe('parcel data export', () => {
     // LocaleSelector already carries the indicator along with the rest of the
     // UI. Nothing here touches the map, the export or the parcel panel.
     // Resolved commit 54fee1b4e4f7ef220a233bd2e5d54bd7ee32ef7b.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('54fee1b4e4f7ef220a233bd2e5d54bd7ee32ef7b');
+    //
+    // v1.216.0 (standing "newest tag" rule, aireon-shared#491): the shared
+    // error logger stops filing Turnstile's ordinary failure modes as bugs.
+    // An ad blocker that refuses challenges.cloudflare.com/turnstile/v0/api.js
+    // used to land in the hub bug tracker as "Resource failed to load" from
+    // every app (room filed hub row 1401 on 2026-09-10); the resource-error
+    // capture now drops that host, and the /api/turnstile-verify probe and
+    // mint fetches inside TurnstileGate are best-effort. v1.214.0 (signed-out
+    // search-history cookie also scoped to brokereum.xyz) and v1.215.0
+    // (launcher entries can carry their own origin; realioo listed) ride
+    // along and touch nothing room renders. Purely additive: no export moved,
+    // no peerDependency changed, and typecheck stayed green.
+    // Resolved commit 7a9103ddf036c69993bdb178487014496da50a62.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('7a9103ddf036c69993bdb178487014496da50a62');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
