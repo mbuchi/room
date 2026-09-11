@@ -12,6 +12,32 @@ export { KIND_META } from '@aireon/shared';
 // model and visualisations stabilise.
 export const RELEASES: Release[] = [
   {
+    version: '0.47.2',
+    date: 'September 11, 2026',
+    codename: 'Only links that land',
+    summary: 'realioo leaves the Open with menu until its live site can open a shared parcel on the right property, and the first page load is lighter; the shared Aireon foundation moves to v1.219.0.',
+    items: [
+      {
+        kind: 'fixed' as ChangeKind,
+        icon: ExternalLink,
+        text: 'realioo is no longer offered under Open with, neither in the search bar nor in the account menu on smaller screens. It joined the menu with the previous update, but the realioo site that is live today opens on its marketplace home page and drops the parcel you handed it, so the link could not do what the menu promised. It comes back once realioo\'s live site opens a shared parcel on the right property. zeroo stays in the menu.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'The first page load is lighter. Claire\'s code used to arrive with the first load; it is now fetched on its own once the page is up, so there is about a fifth less script to download before room starts. Claire works exactly as before.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
+        icon: Package,
+        text: 'Updated the shared Aireon foundation from v1.216.0 to v1.219.0. Besides the changes above, errors raised on a local development copy of room are now parked as test traffic instead of reaching the hub bug tracker. Nothing in the map, the parcel panel, the export or your saved work changes.',
+        prs: [],
+      },
+    ],
+  },
+  {
     version: '0.47.1',
     date: 'September 11, 2026',
     codename: 'Quieter bug tracker',
