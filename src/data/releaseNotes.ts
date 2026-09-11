@@ -15,7 +15,7 @@ export const RELEASES: Release[] = [
     version: '0.47.2',
     date: 'September 11, 2026',
     codename: 'Only links that land',
-    summary: 'realioo leaves the Open with menu until its live site can open a shared parcel on the right property; the shared Aireon foundation moves to v1.218.0.',
+    summary: 'realioo leaves the Open with menu until its live site can open a shared parcel on the right property, and the first page load is lighter; the shared Aireon foundation moves to v1.219.0.',
     items: [
       {
         kind: 'fixed' as ChangeKind,
@@ -25,8 +25,14 @@ export const RELEASES: Release[] = [
       },
       {
         kind: 'improved' as ChangeKind,
+        icon: Zap,
+        text: 'The first page load is lighter. Claire\'s code used to arrive with the first load; it is now fetched on its own once the page is up, so there is about a fifth less script to download before room starts. Claire works exactly as before.',
+        prs: [],
+      },
+      {
+        kind: 'improved' as ChangeKind,
         icon: Package,
-        text: 'Updated the shared Aireon foundation from v1.216.0 to v1.218.0. Besides the menu change above, errors raised on a local development copy of room are now parked as test traffic instead of reaching the hub bug tracker. Nothing in the map, the parcel panel, the export or your saved work changes.',
+        text: 'Updated the shared Aireon foundation from v1.216.0 to v1.219.0. Besides the changes above, errors raised on a local development copy of room are now parked as test traffic instead of reaching the hub bug tracker. Nothing in the map, the parcel panel, the export or your saved work changes.',
         prs: [],
       },
     ],

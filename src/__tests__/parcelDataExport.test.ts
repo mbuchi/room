@@ -317,22 +317,31 @@ describe('parcel data export', () => {
     // no peerDependency changed, and typecheck stayed green.
     // Resolved commit 7a9103ddf036c69993bdb178487014496da50a62.
     //
-    // v1.218.0 (standing "newest tag" rule, aireon-shared#494): realioo is
-    // held out of LAUNCH_APPS again until its deployed build can land a
-    // ?lat/?lng handoff (the live site served its marketplace home page and
-    // dropped the coordinate). Correction to the v1.216.0 note above: the
-    // v1.215.0 launcher change DID reach room. Navbar.tsx builds the compact
+    // v1.219.0 (standing "newest tag" rule, aireon-shared#495; the wave first
+    // targeted v1.218.0 and moved here when v1.219.0 was published). Three
+    // things reach room. v1.218.0 (aireon-shared#494) holds realioo out of
+    // LAUNCH_APPS again until its deployed build can land a ?lat/?lng handoff
+    // (the live site served its marketplace home page and dropped the
+    // coordinate). Correction to the v1.216.0 note above: the v1.215.0
+    // launcher change DID reach room. Navbar.tsx builds the compact
     // account-menu "Open with" rows from LAUNCH_APPS and passes `openWith` to
     // AppNavbar, whose launcher reads the same list, so room offered realioo
     // (and zeroo) from 1.216.0 on. This repin drops realioo and keeps zeroo
-    // (32 -> 31 entries). v1.217.0 rides along: the errorlog client parks
-    // reports from a local dev origin as synthetic, via a new additive
-    // `isLocalDevOrigin` export. Per `git diff --stat v1.216.0 v1.218.0 --
-    // src`, only src/errorlog, src/nav/launchApps and the barrel changed;
-    // nothing touches the map, the export or the parcel panel, and no
+    // (32 -> 31 entries). v1.219.0 makes the root barrel's ClaireAssistant a
+    // lazy import() wrapper (src/claire/ClaireAssistantLazy.tsx) and gives the
+    // signal client its own chunk (new src/signal/index.ts). MapView.tsx
+    // imports ClaireAssistant from the barrel, so the assistant leaves room's
+    // entry chunk: first-load JS (entry plus modulepreloads, vite build) went
+    // from 1,024,300 to 831,020 bytes against v1.218.0. Same props, and the
+    // chunk is requested when the wrapper mounts. v1.217.0 rides along: the
+    // errorlog client parks reports from a local dev origin as synthetic, via
+    // a new additive `isLocalDevOrigin` export. Per `git diff --stat v1.216.0
+    // v1.219.0 -- src`, only src/errorlog, src/nav/launchApps, src/claire (the
+    // lazy wrapper and its chunk-boundary test), src/signal and the barrel
+    // changed; nothing touches the map, the export or the parcel panel, and no
     // peerDependency moved.
-    // Resolved commit 2259077376402cfeccba5bc1b59e9f8f11098646.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('2259077376402cfeccba5bc1b59e9f8f11098646');
+    // Resolved commit f201ad6012b3122d906e860663d6e024f79baf06.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('f201ad6012b3122d906e860663d6e024f79baf06');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
