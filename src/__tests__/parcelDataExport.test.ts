@@ -340,8 +340,24 @@ describe('parcel data export', () => {
     // lazy wrapper and its chunk-boundary test), src/signal and the barrel
     // changed; nothing touches the map, the export or the parcel panel, and no
     // peerDependency moved.
-    // Resolved commit f201ad6012b3122d906e860663d6e024f79baf06.
-    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('f201ad6012b3122d906e860663d6e024f79baf06');
+    // (v1.219.0 resolved commit f201ad6012b3122d906e860663d6e024f79baf06.)
+    //
+    // v1.220.0 (standing "newest tag" rule). Claire only. ClaireAssistant, which
+    // MapView.tsx mounts for the selected parcel, now talks to the RES relay
+    // over its streaming route (the bubble still renders once the reply is
+    // complete), retries at most once and only on network/502/503/504, rejects
+    // a cut-off answer instead of saving it as complete, drops a reply that
+    // lands after the user switched parcel, makes the composer keyboard hint
+    // desktop-only and GETs `<relay>/health` once on mount to learn which
+    // providers are live. A Gemini | OpenAI picker appears in the composer hint
+    // row only when that health probe reports both; OpenAI is not enabled yet,
+    // so nothing changes on screen until it is. Voice calls stay on Gemini
+    // Live. Per `git diff --stat v1.219.0 v1.220.0 -- src`, only src/claire and
+    // the root barrel (new additive provider exports) changed; nothing touches
+    // the map, the export or the parcel panel, and no dependency or
+    // peerDependency moved.
+    // Resolved commit 9865f5d64f68caab57d3c653966ae88fdc351a5b.
+    expect(lock.packages['node_modules/@aireon/shared'].resolved).toContain('9865f5d64f68caab57d3c653966ae88fdc351a5b');
   });
 
   it('lets the custom header action row wrap on narrow panels', () => {
